@@ -12,12 +12,14 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/web/Dashboard";
-import MyBookings from "./pages/web/MyBookings";
 import Vouchers from "./pages/web/Vouchers";
 import Reports from "./pages/web/Reports";
 import KYCWizard from "./pages/web/KYCWizard";
-import Tickets from "./pages/web/Tickets";
+import Tickets from "./pages/web/ticket/Tickets";
 import Settings from "./pages/web/Settings";
+import TicketDetailPage from "./pages/web/ticket/detail/TicketDetail";
+import Bookings from "./pages/web/booking/Bookings";
+import BookingDetail from "./pages/web/booking/detail/BookingDetail";
 
 const App = () => {
   return (
@@ -33,7 +35,9 @@ const App = () => {
         <Route element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="tickets" element={<Tickets />} />
-          <Route path="bookings" element={<MyBookings />} />
+          <Route path="tickets/:id" element={<TicketDetailPage />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="vouchers" element={<Vouchers />} />
           <Route path="reports" element={<Reports />} />
 

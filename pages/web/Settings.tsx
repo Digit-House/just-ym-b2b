@@ -1,14 +1,8 @@
 import React from 'react';
-import Header from '../../components/Header';
 
 const Settings = () => {
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
-      <Header 
-        title="Settings" 
-        subtitle="Measure your advertising ROI and report website traffic."
-      />
-
+    <div className="w-full  mx-auto">
       <div className="space-y-8">
         {/* Security Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

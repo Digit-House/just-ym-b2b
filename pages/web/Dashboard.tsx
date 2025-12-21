@@ -1,10 +1,27 @@
-import React from 'react';
-import Header from '../../components/Header';
-import { Ticket, Package, TrendingUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { REVENUE_DATA } from '../../constants';
+import React from "react";
+import Header from "../../components/Header";
+import { Ticket, Package, TrendingUp } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { REVENUE_DATA } from "../../constants";
+import PageHeader from "@/components/PageHeader";
 
-const StatCard = ({ title, value, subtext, icon: Icon, colorClass, iconBgClass }: any) => (
+const StatCard = ({
+  title,
+  value,
+  subtext,
+  icon: Icon,
+  colorClass,
+  iconBgClass,
+}: any) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start justify-between">
     <div>
       <p className="text-sm text-gray-500 font-medium mb-1">{title}</p>
@@ -25,32 +42,31 @@ const StatCard = ({ title, value, subtext, icon: Icon, colorClass, iconBgClass }
 
 const Dashboard = () => {
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
-      <Header 
-        title="Welcome Back, John" 
-        subtitle="Measure your advertising ROI and report website traffic."
+    <div className="w-full mx-auto">
+      <PageHeader
+        title="Welcome Back,John"
+        des="Measure your advertising ROI and report website traffic."
       />
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard 
-          title="Total Tickets Sold" 
-          value="1,245" 
+        <StatCard
+          title="Total Tickets Sold"
+          value="1,245"
           subtext="Up from last month"
           icon={Ticket}
           iconBgClass="bg-indigo-50"
           colorClass="text-indigo-600"
         />
-        <StatCard 
-          title="Available Tickets" 
-          value="80" 
+        <StatCard
+          title="Available Tickets"
+          value="80"
           subtext="Up from yesterday"
           icon={Package}
           iconBgClass="bg-green-50"
           colorClass="text-green-600"
         />
-        <StatCard 
-          title="Total Earnings" 
-          value="$12,450" 
+        <StatCard
+          title="Total Earnings"
+          value="$12,450"
           subtext="Up from last month"
           icon={TrendingUp}
           iconBgClass="bg-yellow-50"
@@ -61,7 +77,9 @@ const Dashboard = () => {
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
           <div>
-            <p className="text-sm text-gray-500 mb-1">Revenue by customer type</p>
+            <p className="text-sm text-gray-500 mb-1">
+              Revenue by customer type
+            </p>
             <div className="flex items-center gap-3">
               <h3 className="text-2xl font-bold text-gray-900">$240.8K</h3>
               <span className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md flex items-center">
@@ -70,31 +88,71 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-4 mt-4 sm:mt-0">
-             {/* Legend Customization simulation */}
-             <div className="flex items-center gap-2 text-xs text-gray-500">
-               <span className="w-2 h-2 rounded-full bg-purple-400"></span> Bangkok
-               <span className="w-2 h-2 rounded-full bg-teal-500"></span> Singapore
-               <span className="w-2 h-2 rounded-full bg-orange-400"></span> Vietnam
-             </div>
-             <button className="px-3 py-1.5 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50">
-               Jan 2024 - Dec 2024
-             </button>
+            {/* Legend Customization simulation */}
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="w-2 h-2 rounded-full bg-purple-400"></span>{" "}
+              Bangkok
+              <span className="w-2 h-2 rounded-full bg-teal-500"></span>{" "}
+              Singapore
+              <span className="w-2 h-2 rounded-full bg-orange-400"></span>{" "}
+              Vietnam
+            </div>
+            <button className="px-3 py-1.5 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50">
+              Jan 2024 - Dec 2024
+            </button>
           </div>
         </div>
 
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={REVENUE_DATA} barSize={20} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#f0f0f0" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <Tooltip 
-                cursor={{ fill: 'transparent' }}
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+            <BarChart
+              data={REVENUE_DATA}
+              barSize={20}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={true}
+                stroke="#f0f0f0"
               />
-              <Bar dataKey="value1" stackId="a" fill="#A78BFA" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="value2" stackId="a" fill="#2DD4BF" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="value3" stackId="a" fill="#FBBF24" radius={[4, 4, 0, 0]} />
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#9ca3af", fontSize: 12 }}
+                dy={10}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#9ca3af", fontSize: 12 }}
+              />
+              <Tooltip
+                cursor={{ fill: "transparent" }}
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "none",
+                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                }}
+              />
+              <Bar
+                dataKey="value1"
+                stackId="a"
+                fill="#A78BFA"
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="value2"
+                stackId="a"
+                fill="#2DD4BF"
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="value3"
+                stackId="a"
+                fill="#FBBF24"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>

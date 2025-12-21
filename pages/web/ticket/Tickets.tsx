@@ -1,73 +1,79 @@
-import React,{useEffect} from "react";
-import Header from "../../components/Header";
-import { TICKETS } from "../../constants";
+import React, { useEffect, useState } from "react";
+import { TICKETS } from "../../../constants";
 import { ArrowRight } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import { getAllProducts } from "@/graphql/product";
+import PageHeader from "@/components/PageHeader";
+import Select from "@/components/Select";
+import SortSelect, { SortOption } from "@/components/SortSelect";
+import { useNavigate } from "react-router-dom";
+
+const SORT_OPTION: SortOption[] = [
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+];
 
 const Tickets = () => {
-  const { data: categories, isLoading: cLoading } = useCategories({
+  const navigate = useNavigate();
+  const [sort, setSort] = useState("newest");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+
+  const { data: CATEGORIES } = useCategories({
     limit: 10,
     page: 1,
   });
 
-  const { data: countries, isLoading: cnLoading } = useCountries();
+  const { data: COUNTRIES } = useCountries();
 
   const fetchProducts = async () => {
-    try{
+    try {
       const res = await getAllProducts();
       console.log(res);
-    }catch(err){
-      console.error(err)
+    } catch (err) {
+      console.error(err);
     }
-  }
+  };
 
   useEffect(() => {
     fetchProducts();
-  },[])
+  }, []);
 
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
-        <Header
-          title="Tickets"
-          subtitle="Measure your advertising ROI and report website traffic."
-        />
-        <div className="flex items-center my-10 gap-4">
-          <select className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
-            <option value="">Select Categories</option>
-            {cLoading ? (
-              <option disabled>Loading...</option>
-            ) : (
-              categories.map((cat: any) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))
-            )}
-          </select>
-          <select className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
-            <option value="">Select Country</option>
-            {cnLoading ? (
-              <option disabled>Loading...</option>
-            ) : (
-              countries.map((cat: any) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))
-            )}
-          </select>
-          <div className="text-sm text-gray-500 flex items-center gap-1">
-            Sort By: <span className="font-medium text-gray-900">Newest</span>
-          </div>
+    <div className="w-full  mx-auto">
+      <PageHeader
+        title="Tickets"
+        des="Measure your advertising ROI and report website traffic."
+      />
+      <div className="flex items-center justify-between my-10 gap-4 border border-[#21212124] py-[8px] px-[16px]">
+        <div className="flex items-center">
+          <Select
+            label="Categories"
+            placeholder="Categories"
+            options={CATEGORIES}
+            value={categories}
+            onChange={setCategories}
+            width="w-48"
+          />
+          <Select
+            label="Countries"
+            placeholder="Countries"
+            options={COUNTRIES}
+            value={countries}
+            onChange={setCountries}
+            width="w-48"
+          />
         </div>
-
-
+        <SortSelect options={SORT_OPTION} value={sort} onChange={setSort} />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {TICKETS.map((ticket) => (
           <div
             key={ticket.id}
+            onClick={() => {
+              navigate(`/tickets/${ticket.id}`);
+            }}
             className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow"
           >
             <div className="h-48 overflow-hidden relative">
