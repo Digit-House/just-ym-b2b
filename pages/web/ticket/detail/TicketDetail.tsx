@@ -4,14 +4,21 @@ import TicketInfo from "./_components/TicketInfo";
 import PackageTable from "./_components/PackageTable";
 import Tabs from "./_components/Tabs";
 import ActionButton from "@/components/ActionButton";
+import { useNavigate } from "react-router-dom";
 
 export default function TicketDetailPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("highlights");
 
   return (
     <div className="mx-auto  space-y-6">
       {/* Back */}
-      <button className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1">
+      <button
+        onClick={() => {
+          navigate("/tickets");
+        }}
+        className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+      >
         ← Back
       </button>
 

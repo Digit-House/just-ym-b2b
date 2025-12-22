@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import SummaryCard from "./_components/SummaryCard";
+import { useNavigate } from "react-router-dom";
 
 const TICKETS = Array.from({ length: 6 }).map((_, i) => ({
   id: `#TCK-1000${i + 1}`,
@@ -21,13 +22,19 @@ const getStatusClass = (status: string) => {
 };
 
 const BookingDetail = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
       {/* Back */}
-      <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+      <button
+        onClick={() => {
+          navigate("/bookings");
+        }}
+        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+      >
         <ArrowLeft size={16} />
         Back
       </button>

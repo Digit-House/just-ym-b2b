@@ -1,12 +1,11 @@
+import useAuthStore from "@/store/useAuthStore";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
-const isAuthenticated = () => {
-  return Boolean(localStorage.getItem("token"));
-};
-
 const ProtectedRoute = () => {
-  if (!isAuthenticated()) {
+  const { token } = useAuthStore();
+
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 
