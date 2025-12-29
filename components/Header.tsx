@@ -1,7 +1,9 @@
 import React from "react";
 import { Bell, ShoppingBag } from "lucide-react";
+import { useUser } from "@/provider/UserProvider";
 
 const Header: React.FC= () => {
+  const { user } = useUser();
   return (
     <header className="flex absolute top-0 left-0 justify-end items-start w-full  p-3">
       <div className="flex items-center gap-4">
@@ -15,12 +17,12 @@ const Header: React.FC= () => {
 
         <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
           <img
-            src="https://picsum.photos/id/64/100/100"
+            src="https://img.freepik.com/premium-vector/avatar-profil-picture-icon-vector-design-template_393879-5783.jpg?semt=ais_hybrid&w=740&q=80"
             alt="User"
             className="w-10 h-10 rounded-full object-cover border border-gray-200"
           />
           <div className="hidden md:block">
-            <p className="text-sm font-semibold text-gray-900">John Carter</p>
+            <p className="text-sm font-semibold text-gray-900">{user?.username}</p>
             <p className="text-xs text-gray-500">Account settings</p>
           </div>
         </div>

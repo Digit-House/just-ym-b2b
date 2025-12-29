@@ -19,7 +19,10 @@ const Sidebar = () => {
   const { setToken } = useAuthStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
   const isSettingsActive = location.pathname.startsWith("/settings");
 
   const navItemClass = (path: string) =>
