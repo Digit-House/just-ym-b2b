@@ -1,12 +1,15 @@
-import React from "react";
+import React,{useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useAuthStore from "@/store/useAuthStore";
 import { LoginFormValues, loginSchema } from "@/types/schema/authSchema";
+import { login } from "@/graphql/auth";
+import { getErrMsg } from "@/util/initData";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [errMsg,setErrMsg] = useState();
   const setToken = useAuthStore((state) => state.setToken);
 
   const {
@@ -18,14 +21,18 @@ const Login = () => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    // 👉 mock API login
-    console.log("Login data:", data);
-
-    // simulate success
-    const fakeToken = "demo-token";
-
-    setToken(fakeToken);
-    navigate("/", { replace: true });
+    try {
+      const res:any = await login(data.email, data.password);
+      if(res.data.login.accessToken) {
+        setToken(res.data.login.accessToken);
+        navigate("/", { replace: true });
+      }
+    } catch (err) {
+      setErrMsg(getErrMsg(err,"message"));
+      setTimeout(() => {
+        setErrMsg("");
+      },5000)
+    }
   };
 
   return (
@@ -39,12 +46,11 @@ const Login = () => {
           <input
             type="email"
             {...register("email")}
+            placeholder="Email"
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.email && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.email.message}
-            </p>
+            <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
           )}
         </div>
 
@@ -54,6 +60,7 @@ const Login = () => {
           <input
             type="password"
             {...register("password")}
+            placeholder="********"
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.password && (
@@ -62,7 +69,9 @@ const Login = () => {
             </p>
           )}
         </div>
-
+          {errMsg && (
+            <p className="text-sm text-red-500 mt-1">{errMsg}</p>
+          )}
         <button
           type="submit"
           disabled={isSubmitting}

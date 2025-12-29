@@ -7,11 +7,27 @@ import { LSKeys, clearLSItem } from "../util/initData";
 const removeTypenameLink = removeTypenameFromVariables();
 
 const httpLink = createHttpLink({
-  uri: 'https://api.justym.me/graphql',
+  uri: "https://api.justym.me/graphql",
 });
 
 const authLink = setContext((_, { headers }) => {
-  const accessToken = typeof window !== 'undefined' ? localStorage.getItem(LSKeys.token) : null;
+  let accessToken = null;
+
+  if (typeof window !== "undefined") {
+    const rawData = localStorage.getItem(LSKeys.authStorage);
+
+    if (rawData) {
+      try {
+        // 1. Parse the JSON string
+        const authInfo = JSON.parse(rawData);
+        // 2. Access the nested token property
+        accessToken = authInfo.state?.token;
+      } catch (error) {
+        console.error("Error parsing authInfo from localStorage", error);
+      }
+    }
+  }
+
   return {
     headers: {
       ...headers,
@@ -26,17 +42,18 @@ const errorLink = onError((error: any) => {
   if (graphQLErrors) {
     if (graphQLErrors.length > 0) {
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const error: any = graphQLErrors[0]?.extensions?.originalError || graphQLErrors[0];
-      
+      const error: any =
+        graphQLErrors[0]?.extensions?.originalError || graphQLErrors[0];
+
       // Handle Unauthorized Access
-      if (error?.statusCode === 401 || error?.message === 'Unauthorized') {
+      if (error?.statusCode === 401 || error?.message === "Unauthorized") {
         clearLSItem(LSKeys.callBack);
-        clearLSItem(LSKeys.token);
+        clearLSItem(LSKeys.authStorage);
         clearLSItem(LSKeys.riaseAssmt);
-        
+
         // Redirect to login or home if unauthorized
-        if (typeof window !== 'undefined') {
-             window.location.href = '/';
+        if (typeof window !== "undefined") {
+          window.location.href = "/";
         }
       }
     }
@@ -48,7 +65,10 @@ const errorLink = onError((error: any) => {
 });
 
 // Construct the link chain using .concat() to avoid needing ApolloLink.from
-const link = removeTypenameLink.concat(errorLink).concat(authLink).concat(httpLink);
+const link = removeTypenameLink
+  .concat(errorLink)
+  .concat(authLink)
+  .concat(httpLink);
 
 export const client = new ApolloClient({
   link,

@@ -19,7 +19,10 @@ const Sidebar = () => {
   const { setToken } = useAuthStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
   const isSettingsActive = location.pathname.startsWith("/settings");
 
   const navItemClass = (path: string) =>
@@ -37,7 +40,7 @@ const Sidebar = () => {
     }`;
 
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 z-10">
+    <div className="w-46 h-screen bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 z-10">
       {/* Logo Area */}
       <div className="p-6 flex justify-center items-center">
         <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">
