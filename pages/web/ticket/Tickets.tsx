@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/graphql/product";
 import SkeletonCard from "./_components/SkeletonCard";
+import { preFixImg } from "@/util/initData";
 
 
 const SORT_OPTION: SortOption[] = [
@@ -109,7 +110,7 @@ export default function Tickets() {
             >
               <div className="h-48 overflow-hidden relative">
                 <img
-                  src={p.image}
+                  src={preFixImg(p.image)}
                   alt={p.name}
                   className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
                 />

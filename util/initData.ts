@@ -38,3 +38,8 @@ export const getErrMsg = (error: ErrMsg, type: "code" | "message") => {
     return "Unexpected Error. Please Try Again Later !";
   }
 };
+
+
+export const preFixImg = (id:string) => {
+  return `https://api.justym.me/file/image/${id}`;
+}
