@@ -1,3 +1,6 @@
+export type UserRoleTypeT = "OWNER" | "RESELLER" | "USER" | "ADMIN" | "MANAGER";
+export type UserStatusT = "Active" | "Inactive";
+
 export type ProfileDataT = {
   dateOfBirth: string;
   email: string;
@@ -19,12 +22,40 @@ export type UserT = {
   imageURI: string;
   lastLogin: string;
   profileData: ProfileDataT;
-  roleIds:string[];
-  type:"OWNER"|"RESELLER"|"USER",
-  updatedAt:string;
-  username:string;
+  roleIds: string[];
+  type: UserRoleTypeT;
+  updatedAt: string;
+  username: string;
 };
 
+export interface UserRolesFilterT {
+  page: number;
+  limit: number;
+  orderBy: {
+    dir: string;
+  };
+  resellerId: string | null;
+}
+
+
+
+
+export interface UserRoleT {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  joinedDate: string;
+  role: UserRoleTypeT;
+  status: UserStatusT;
+  bookings: number;
+  lastBooking: string;
+  avatarColor: string;
+  createdAt: string;
+  description: string;
+  resellerId: string;
+  updatedAt: string;
+}
 
 export interface Product {
   id: string;
@@ -41,7 +72,7 @@ export interface Order {
   id: string;
   customerName: string;
   date: string;
-  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
   total: number;
   itemsCount: number;
 }
@@ -53,23 +84,7 @@ export interface InventoryStats {
 }
 
 export interface ChatMessage {
-  role: 'user' | 'model';
+  role: "user" | "model";
   text: string;
   timestamp: Date;
-}
-
-export type UserRole = 'Admin' | 'Manager' | 'Member';
-export type UserStatus = 'Active' | 'Inactive';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  joinedDate: string;
-  role: UserRole;
-  status: UserStatus;
-  bookings: number;
-  lastBooking: string;
-  avatarColor: string;
 }

@@ -25,8 +25,9 @@ export default function Tickets() {
   const [categories, setCategories] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
 
-  const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
   const { data: COUNTRIES } = useCountries();
+  const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
+
 
   const {
     data,

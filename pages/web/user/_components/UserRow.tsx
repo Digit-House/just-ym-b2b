@@ -1,12 +1,12 @@
 "use client";
 
+import { UserRoleT } from "@/types/user.type";
 import * as Icons from "lucide-react";
-import { User } from "@/types/user.type";
 
 type Props = {
-  user: User;
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+  user: UserRoleT;
+  onEdit: (user: UserRoleT) => void;
+  onDelete: (user: UserRoleT) => void;
 };
 
 export default function UserRow({ user, onEdit, onDelete }: Props) {
@@ -49,9 +49,9 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
       <td className="px-6 py-5">
         <span
           className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${
-            user.role === "Admin"
+            user.role === "ADMIN"
               ? "bg-green-100 text-green-700"
-              : user.role === "Manager"
+              : user.role === "MANAGER"
               ? "bg-blue-100 text-blue-700"
               : "bg-slate-100 text-slate-700"
           }`}

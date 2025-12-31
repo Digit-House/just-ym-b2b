@@ -1,61 +1,98 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
-import { MOCK_USERS } from "@/util/constants";
+import React, { useState, useCallback, useEffect } from "react";
 import Pagination from "@/components/Pagination";
-import { User } from "@/types/user.type";
 import UsersStats from "./_components/UsersStats";
 import UsersFilterBar from "./_components/UsersFilterBar";
 import UsersTable from "./_components/UsersTable";
 import ModalWrapper from "@/components/ModalWrapper";
 import UserForm from "./_components/UserForm";
+import { UserRolesFilterT, UserRoleT } from "@/types/user.type";
+import { getAllUsers,postUser } from "@/graphql/user";
+import { UserFormValues } from "@/types/schema/userSchema";
+import { toast } from "sonner";
+import { useUser } from "@/provider/UserProvider";
 
 const UsersManagement = () => {
-  const [page, setPage] = useState(1);
+  const {user} = useUser();
+  const [userRoles, setUserRoles] = useState<UserRoleT[]>([]);
   const [pageSize, setPageSize] = useState(5);
   const [query, setQuery] = useState("");
+  const [total, setTotal] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
+
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [filterData, setFilterData] = useState<UserRolesFilterT>({
+    page: 1,
+    limit: 10,
+    orderBy: {
+      dir: "desc",
+    },
+    resellerId: user?.id,
+  });
 
   const [modalState, setModalState] = useState<{
     mode: "add" | "edit" | "delete" | null;
-    user?: User | null;
+    user?: UserRoleT | null;
   }>({
     mode: null,
     user: null,
   });
 
-  const total = MOCK_USERS.length;
+  const onPageChange = (newPage: number) => {
+    setFilterData((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
+  };
 
-  // Pagination
-  const paginated = useMemo(
-    () => MOCK_USERS.slice((page - 1) * pageSize, page * pageSize),
-    [page, pageSize]
-  );
+  useEffect(() => {
+    fetchUserRoles();
+  }, [isFetching, filterData]);
 
-  // Search Filter
-  const filtered = useMemo(() => {
-    return paginated.filter(
-      (u) =>
-        u.name.toLowerCase().includes(query.toLowerCase()) ||
-        u.email.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [paginated, query]);
+  const fetchUserRoles = async () => {
+    try {
+      const res: any = await getAllUsers(filterData);
+      setUserRoles(res.data.findAllUsers.data);
+      setTotal(res.data.findAllUsers.total);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Modal actions
   const openAddModal = useCallback(() => {
     setModalState({ mode: "add" });
   }, []);
 
-  const openEditModal = useCallback((user: User) => {
+  const openEditModal = useCallback((user: UserRoleT) => {
     setModalState({ mode: "edit", user });
   }, []);
 
-  const openDeleteModal = useCallback((user: User) => {
+  const openDeleteModal = useCallback((user: UserRoleT) => {
     setModalState({ mode: "delete", user });
   }, []);
 
   const closeModal = useCallback(() => {
     setModalState({ mode: null, user: null });
   }, []);
+
+  const createUser = async (data: UserFormValues) => {
+    try {
+      setSubmitLoading(true);
+      const res = await postUser(data);
+      console.log(res,"84")
+      toast.success("User created successfully");
+      setIsFetching((prev) => !prev);
+      setModalState({ mode: null, user: null });
+    } catch (err) {
+      throw err;
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const editUser = async (data: UserFormValues) => {};
 
   return (
     <div>
@@ -74,19 +111,22 @@ const UsersManagement = () => {
       />
 
       <UsersTable
-        users={filtered}
+        users={userRoles}
         onEdit={openEditModal}
         onDelete={openDeleteModal}
       />
 
       <Pagination
-        page={page}
+        page={filterData.page}
         pageSize={pageSize}
         total={total}
-        onPageChange={setPage}
+        onPageChange={onPageChange}
         onPageSizeChange={(size) => {
           setPageSize(size);
-          setPage(1);
+          setFilterData((prev) => ({
+            ...prev,
+            page: 1,
+          }));
         }}
       />
 
@@ -100,8 +140,9 @@ const UsersManagement = () => {
           children={
             <UserForm
               mode="create"
+              loading={submitLoading}
               onCancel={closeModal}
-              onSubmit={async () => closeModal()}
+              onSubmit={createUser}
             />
           }
         />
@@ -115,6 +156,7 @@ const UsersManagement = () => {
           children={
             <UserForm
               mode="edit"
+              loading={submitLoading}
               initialValues={modalState.user}
               onCancel={closeModal}
               onSubmit={async () => closeModal()}
@@ -139,7 +181,6 @@ const UsersManagement = () => {
             <button
               className="w-full px-4 py-2 bg-red-600 text-white rounded-lg"
               onClick={() => {
-                // delete logic here
                 closeModal();
               }}
             >

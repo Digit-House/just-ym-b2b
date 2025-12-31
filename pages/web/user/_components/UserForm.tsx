@@ -1,121 +1,222 @@
-"use client"
+"use client";
 
-import React,{ useState, useEffect } from "react"
-
-export type UserFormValues = {
-  firstName: string
-  lastName: string
-  email: string
-  phoneNumber: string
-}
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserFormValues, userSchema } from "@/types/schema/userSchema";
+import InputField from "@/components/InputField";
+import { PhoneInput } from "@/components/PhoneInput";
+import { getErrMsg } from "@/util/initData";
+import { useUserRoles } from "@/hooks/useUserRoles";
+import { toast } from "sonner";
+import { get } from "http";
 
 type UserFormProps = {
-  initialValues?: Partial<UserFormValues>
-  mode: "create" | "edit"
-  onSubmit: (values: UserFormValues) => Promise<void>
-  onCancel: () => void
-}
+  loading: boolean;
+  initialValues?: Partial<UserFormValues>;
+  mode: "create" | "edit";
+  onSubmit: (values: UserFormValues) => Promise<void>;
+  onCancel: () => void;
+};
 
 export default function UserForm({
+  loading,
   initialValues,
   mode,
   onSubmit,
-  onCancel
+  onCancel,
 }: UserFormProps) {
-  const [values, setValues] = useState<UserFormValues>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-  })
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<UserFormValues>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      userName: initialValues?.userName || "",
+      email: initialValues?.email || "",
+      contactNo: initialValues?.contactNo || "",
+      countryCode: initialValues?.countryCode || "95",
+      roleIds: initialValues?.roleIds || [],
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const [loading, setLoading] = useState(false)
+  const { data: USER_ROLES } = useUserRoles({
+    limit: 10,
+    page: 1,
+    orderBy: { dir: "desc" },
+    resellerId: null,
+  });
 
-  useEffect(() => {
-    if (initialValues) {
-      setValues(prev => ({
-        ...prev,
-        ...initialValues,
-      }))
+  const roleIds = watch("roleIds") || [];
+
+  const submitHandler = async (values: UserFormValues) => {
+    try {
+      await onSubmit(values);
+      reset();
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
     }
-  }, [initialValues])
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setValues(prev => ({ ...prev, [name]: value }))
-  }
+  // Helper function to toggle role selection
+  const toggleRoleSelection = (roleId: string) => {
+    const isSelected = roleIds.includes(roleId);
+    let newRoleIds: string[];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    await onSubmit(values)
-    setLoading(false)
-  }
+    if (isSelected) {
+      // Remove if already selected
+      newRoleIds = roleIds.filter((id) => id !== roleId);
+    } else {
+      // Add if not selected
+      newRoleIds = [...roleIds, roleId];
+    }
+
+    // Update form value and trigger validation
+    setValue("roleIds", newRoleIds, { shouldValidate: true });
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
+      <InputField
+        label="User Name"
+        id="userName"
+        isRequired
+        placeholder="Enter user name!"
+        {...register("userName")}
+        errMsg={errors?.userName?.message}
+      />
+
+      <InputField
+        label="Email"
+        id="email"
+        isRequired
+        placeholder="Enter email!"
+        {...register("email")}
+        errMsg={errors?.email?.message}
+      />
+
+      {/* User Roles Select (Updated to Multi-Select List) */}
       <div>
-        <label className="block text-sm font-medium">First Name</label>
-        <input
-          className="w-full border rounded-md px-3 py-2"
-          name="firstName"
-          value={values.firstName}
-          onChange={handleChange}
-          required
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          User Roles <span className="text-red-500">*</span>
+        </label>
+
+        <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+          {USER_ROLES && USER_ROLES.length > 0 ? (
+            USER_ROLES.map((role) => {
+              const isSelected = roleIds.includes(role.id);
+              return (
+                <div
+                  key={role.id}
+                  onClick={() => toggleRoleSelection(role.id)}
+                  className={`
+                    flex items-center justify-between p-3 rounded-md cursor-pointer transition-all duration-200 border
+                    ${
+                      isSelected
+                        ? "bg-blue-50 border-blue-200 shadow-sm"
+                        : "bg-white border-transparent hover:bg-gray-100"
+                    }
+                  `}
+                >
+                  <span
+                    className={`text-sm font-medium ${
+                      isSelected ? "text-blue-900" : "text-gray-700"
+                    }`}
+                  >
+                    {role.name}
+                  </span>
+
+                  {/* Radio-like Visual Indicator */}
+                  <div
+                    className={`
+                      w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+                      ${isSelected ? "border-blue-600" : "border-gray-300"}
+                    `}
+                  >
+                    {isSelected && (
+                      <div className="w-2.5 h-2.5 bg-blue-600 rounded-full animate-in zoom-in duration-200" />
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="p-4 text-center text-sm text-gray-500">
+              No roles available
+            </div>
+          )}
+        </div>
+
+        {/* Validation Error Message */}
+        {errors?.roleIds && (
+          <p className="text-red-500 text-xs mt-1">{errors.roleIds.message}</p>
+        )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Last Name</label>
-        <input
-          className="w-full border rounded-md px-3 py-2"
-          name="lastName"
-          value={values.lastName}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      <PhoneInput
+        id="contactNo"
+        label="Phone Number"
+        isRequired
+        countryCallingCodeEditable={false}
+        className="items-center border border-gray-300 rounded-lg mt-1.5 bg-white"
+        defaultCountry="MM"
+        international={true}
+        onCountryChange={(country) => {
+          setValue("countryCode", country || "95");
+        }}
+        onChange={(value) => {
+          setValue("contactNo", value);
+        }}
+        value={initialValues?.contactNo || ""}
+        errMsg={errors?.contactNo?.message}
+      />
 
-      <div>
-        <label className="block text-sm font-medium">Email</label>
-        <input
-          className="w-full border rounded-md px-3 py-2"
-          name="email"
-          type="email"
-          value={values.email}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      <InputField
+        label="Password"
+        id="password"
+        isRequired
+        placeholder="Enter password!"
+        {...register("password")}
+        errMsg={errors?.password?.message}
+      />
 
-      <div>
-        <label className="block text-sm font-medium">Phone Number</label>
-        <input
-          className="w-full border rounded-md px-3 py-2"
-          name="phoneNumber"
-          type="tel"
-          value={values.phoneNumber}
-          onChange={handleChange}
-        />
-      </div>
+      <InputField
+        label="Confirm Password"
+        id="confirmPassword"
+        isRequired
+        placeholder="Enter confirm password!"
+        {...register("confirmPassword")}
+        errMsg={errors?.confirmPassword?.message}
+      />
 
+      {/* Action Buttons */}
       <div className="flex justify-end items-center gap-3 pt-3">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 bg-gray-200 rounded-md"
+          className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md"
+          disabled={isSubmitting}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? "Saving..." : mode === "create" ? "Create" : "Save"}
+          {isSubmitting || loading
+            ? "Saving..."
+            : mode === "create"
+            ? "Create"
+            : "Save"}
         </button>
       </div>
     </form>
-  )
+  );
 }

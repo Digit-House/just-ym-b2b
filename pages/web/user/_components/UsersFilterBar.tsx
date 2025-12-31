@@ -11,9 +11,9 @@ const UsersFilterBar = ({
   onAdd: () => void;
 }) => (
   <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6 flex flex-wrap items-center gap-4">
-    <div className="relative flex-1 min-w-[300px]">
+    <div className="relative flex-1 items-center min-w-[300px]">
       <Icons.Search
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+        className="absolute left-4 top-3 text-slate-400"
         size={18}
       />
       <input

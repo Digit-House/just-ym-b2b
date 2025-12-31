@@ -8,6 +8,7 @@ import { useUser } from '@/provider/UserProvider';
 const DashboardLayout = () => {
 
   const {setUser} = useUser();
+  const [loading, setLoading] = React.useState(true);
 
   const fetchMe = async () => {
     try{
@@ -15,12 +16,20 @@ const DashboardLayout = () => {
       setUser(res?.data?.me)
     }catch(err){
 
+    }finally{
+      setTimeout(() => {
+        setLoading(false);
+      },1000)
     }
   }
   
   useEffect(() => {
     fetchMe();
   }, []);
+
+  if(loading){
+    return <p>Loading...</p>
+  }
 
   return (
     <div className="flex min-h-screen">

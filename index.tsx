@@ -5,6 +5,7 @@ import { ApolloProvider } from '@apollo/client/react';
 import { client } from './graphql/client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getQueryClient } from './util/initData';
+import { Toaster } from './components/ui/sonner';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -19,5 +20,6 @@ root.render(
       <App />
       </QueryClientProvider>
     </ApolloProvider>
+    <Toaster theme="dark" />
   </React.StrictMode>
 );
