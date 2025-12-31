@@ -10,6 +10,7 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
+  Users2,
 } from "lucide-react";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -73,9 +74,9 @@ const Sidebar = () => {
           <span>My Bookings</span>
         </NavLink>
 
-        <NavLink to="/vouchers" className={navItemClass("/vouchers")}>
-          <Tags size={20} />
-          <span>Vouchers</span>
+        <NavLink to="/users" className={navItemClass("/users")}>
+          <Users2 size={20} />
+          <span>Users Management</span>
         </NavLink>
 
         <NavLink to="/reports" className={navItemClass("/reports")}>

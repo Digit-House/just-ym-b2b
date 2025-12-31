@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BOOKINGS } from "../../../constants";
-import { FileText, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { FileText, Download} from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
 import { useCountries } from "@/hooks/useCountries";
