@@ -11,7 +11,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/graphql/product";
 import SkeletonCard from "./_components/SkeletonCard";
 import { preFixImg } from "@/util/initData";
-
+import PageContainer from "@/components/PageContainer";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -28,7 +28,6 @@ export default function Tickets() {
   const { data: COUNTRIES } = useCountries();
   const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
 
-
   const {
     data,
     fetchNextPage,
@@ -38,7 +37,7 @@ export default function Tickets() {
     isError,
     error,
   } = useInfiniteQuery({
-    initialPageParam:1,
+    initialPageParam: 1,
     queryKey: ["products", { categories, countries, sort }],
     queryFn: fetchProducts,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
@@ -59,7 +58,7 @@ export default function Tickets() {
   }, [hasNextPage, isFetchingNextPage]);
 
   return (
-    <div className="w-full mx-auto">
+    <PageContainer>
       <PageHeader
         title="Tickets"
         des="Measure your advertising ROI and report website traffic."
@@ -132,7 +131,9 @@ export default function Tickets() {
                 <div className="mt-auto flex items-center justify-between">
                   <div>
                     <p className="text-xs text-gray-500">Special Price</p>
-                    <p className="text-lg font-bold text-gray-900">${p.dhSellingPrice}</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      ${p.dhSellingPrice}
+                    </p>
                   </div>
                   <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                     Book Now
@@ -161,6 +162,6 @@ export default function Tickets() {
       {!products.length && !isPending && (
         <p className="text-center text-gray-500 py-10">No products found.</p>
       )}
-    </div>
+    </PageContainer>
   );
 }

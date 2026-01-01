@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Header from "../../components/Header";
 import { UploadCloud } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import PageContainer from "@/components/PageContainer";
 
 const steps = [
   "Basic Information",
@@ -284,7 +285,7 @@ const KYCWizard = () => {
   };
 
   return (
-    <div className="w-full mx-auto">
+    <PageContainer>
       <PageHeader
         title="KYC Setting"
         des="Measure your advertising ROI and report website traffic."
@@ -356,7 +357,7 @@ const KYCWizard = () => {
           {currentStep === steps.length - 1 ? "Submit" : "Next"}
         </button>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

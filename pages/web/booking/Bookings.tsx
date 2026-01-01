@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { BOOKINGS } from "../../../constants";
-import { FileText, Download} from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
 import { useCountries } from "@/hooks/useCountries";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { useNavigate } from "react-router-dom";
+import PageContainer from "@/components/PageContainer";
 
 const STATUS = [
   {
@@ -55,7 +56,7 @@ const Bookings = () => {
   };
 
   return (
-    <div className="w-full mx-auto">
+    <PageContainer>
       <PageHeader
         title="My Bookings"
         des="Measure your advertising ROI and report website traffic."
@@ -148,9 +149,12 @@ const Bookings = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                        navigate(`/bookings/${booking.id}`)
-                      }} className="text-indigo-600 hover:text-indigo-800">
+                      <button
+                        onClick={() => {
+                          navigate(`/bookings/${booking.id}`);
+                        }}
+                        className="text-indigo-600 hover:text-indigo-800"
+                      >
                         <FileText size={18} />
                       </button>
                       <button className="text-indigo-600 hover:text-indigo-800">
@@ -165,16 +169,16 @@ const Bookings = () => {
         </div>
       </div>
       <Pagination
-          page={page}
-          pageSize={pageSize}
-          total={total}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(1); 
-          }}
-        />
-    </div>
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
+      />
+    </PageContainer>
   );
 };
 

@@ -13,6 +13,7 @@ import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
+import PageContainer from "@/components/PageContainer";
 
 const ReportCard = ({ title, value, subtext }: any) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
@@ -33,7 +34,7 @@ const Reports = () => {
   const { data: COUNTRIES } = useCountries();
 
   return (
-    <div className="w-full mx-auto">
+    <PageContainer>
       <PageHeader
         title="Reports"
         des="Measure your advertising ROI and report website traffic."
@@ -138,7 +139,7 @@ const Reports = () => {
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

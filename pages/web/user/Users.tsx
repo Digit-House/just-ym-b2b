@@ -13,6 +13,8 @@ import { UserFormValues } from "@/types/schema/userSchema";
 import { toast } from "sonner";
 import { useUser } from "@/provider/UserProvider";
 import DeleteModal from "@/components/DeleteModal";
+import PageContainer from "@/components/PageContainer";
+import PageHeader from "@/components/PageHeader";
 
 const UsersManagement = () => {
   const { user } = useUser();
@@ -96,14 +98,11 @@ const UsersManagement = () => {
   const editUser = async (data: UserFormValues) => {};
 
   return (
-    <div>
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
-        <p className="text-slate-500 text-sm">
-          Measure your advertising ROI and report website traffic.
-        </p>
-      </header>
-
+    <PageContainer>
+      <PageHeader
+        title="User Management"
+        des="Measure your advertising ROI and report website traffic."
+      />
       <UsersStats />
       <UsersFilterBar
         searchTerm={query}
@@ -131,7 +130,6 @@ const UsersManagement = () => {
         }}
       />
 
-      {/* Add Modal */}
       {modalState.mode === "add" && (
         <ModalWrapper
           title="Add User"
@@ -147,7 +145,6 @@ const UsersManagement = () => {
         />
       )}
 
-      {/* Edit Modal */}
       {modalState.mode === "edit" && modalState.user && (
         <ModalWrapper
           title="Edit User"
@@ -163,7 +160,7 @@ const UsersManagement = () => {
           }
         />
       )}
-      
+
       {modalState.mode === "delete" && modalState.user && (
         <DeleteModal
           title="Delete User?"
@@ -177,7 +174,7 @@ const UsersManagement = () => {
           }}
         />
       )}
-    </div>
+    </PageContainer>
   );
 };
 

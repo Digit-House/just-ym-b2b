@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
-  ChevronLeft,
   CreditCard,
   Landmark,
   Info,
@@ -12,6 +11,8 @@ import {
 } from "lucide-react";
 import { useWalletStore } from "@/store/useWalletStore";
 import PageHeader from "@/components/PageHeader";
+import BackBtn from "@/components/BackBtn";
+import PageContainer from "@/components/PageContainer";
 
 const TOPUP_PRESETS = [
   { label: "$1K", amount: 1000, value: 1000 },
@@ -70,18 +71,8 @@ const TopUp = () => {
   };
 
   return (
-    <div className="w-full mx-auto animate-in fade-in duration-500">
-      <Link
-        to="/wallet"
-        className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors mb-6 text-sm font-bold group"
-      >
-        <ChevronLeft
-          size={18}
-          className="group-hover:-translate-x-1 transition-transform"
-        />{" "}
-        Back to Wallet
-      </Link>
-
+    <PageContainer>
+      <BackBtn route="/wallet" title="Back to Wallet" />
       <PageHeader
         title="Top Up Credits"
         des="Add credits to your wallet to continue booking tickets"
@@ -405,7 +396,7 @@ const TopUp = () => {
           </button>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

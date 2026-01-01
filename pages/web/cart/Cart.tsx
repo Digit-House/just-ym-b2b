@@ -1,13 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { ChevronLeft, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
-import Header from "@/components/Header";
 import CartListItem from "./_components/CartListItem";
-import PaymentMethods from "./_components/PaymentMethods";
 import EmptyCart from "./_components/EmptyCart";
 import { useUser } from "@/provider/UserProvider";
 import PageHeader from "@/components/PageHeader";
+import BackBtn from "@/components/BackBtn";
+import PageContainer from "@/components/PageContainer";
 
 const Cart = () => {
   const { user } = useUser();
@@ -22,17 +21,8 @@ const Cart = () => {
   }
 
   return (
-    <div className="p-8 w-full  mx-auto animate-in fade-in duration-500">
-      <Link
-        to="/tickets"
-        className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors mb-6 text-sm font-bold group"
-      >
-        <ChevronLeft
-          size={18}
-          className="group-hover:-translate-x-1 transition-transform"
-        />{" "}
-        Back
-      </Link>
+     <PageContainer>
+      <BackBtn route="/tickets" title="Back" />
 
       <PageHeader
         title="Add To Cart"
@@ -172,7 +162,7 @@ const Cart = () => {
           </div>
         </div>
       </div>
-    </div>
+      </PageContainer>
   );
 };
 
