@@ -3,10 +3,10 @@ import React from "react";
 
 type Props = {
   className?: string;
-  children:React.ReactNode
+  children: React.ReactNode;
 };
 
-const PageContainer = ({ className = "",children }: Props) => {
+const PageContainer = ({ className = "", children }: Props) => {
   return (
     <div
       className={cn(
@@ -14,7 +14,7 @@ const PageContainer = ({ className = "",children }: Props) => {
         className
       )}
     >
-     {children}
+      {children}
     </div>
   );
 };
