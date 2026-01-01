@@ -20,6 +20,7 @@ import TicketDetailPage from "./pages/web/ticket/detail/TicketDetail";
 import Bookings from "./pages/web/booking/Bookings";
 import BookingDetail from "./pages/web/booking/detail/BookingDetail";
 import UsersManagement from "./pages/web/user/Users";
+import Cart from "./pages/web/cart/Cart";
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="users" element={<UsersManagement />} />
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="cart" element={<Cart />} />
 
           <Route path="settings">
             <Route index element={<Navigate to="general" replace />} />

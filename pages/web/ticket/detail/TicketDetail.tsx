@@ -38,7 +38,7 @@ const TicketDetail = () => {
 
   return (
     <div className="mx-auto space-y-6 animate-in fade-in duration-500">
-      {/* Navigation Header */}
+
       <Link 
         to="/tickets" 
         className="inline-flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors mb-6 text-sm font-bold group"
@@ -47,10 +47,7 @@ const TicketDetail = () => {
         Back to Listings
       </Link>
 
-      {/* Main Layout Grid */}
       <div className="flex flex-col gap-8">
-        
-        {/* Gallery Section */}
         <MediaCarousel 
           mediaList={mediaList}
           currentIndex={currentMediaIndex}
@@ -82,9 +79,9 @@ const TicketDetail = () => {
             />
           </div>
 
-          {/* Booking Widget (1/3 width) */}
           <div className="lg:col-span-1">
             <BookingPanel
+              product={product}
               options={product.productOptions}
               selectedIndex={selectedOptionIndex}
               onSelectIndex={setSelectedOptionIndex}
