@@ -66,7 +66,7 @@ const Cart = () => {
             ))}
           </div>
 
-          <PaymentMethods />
+          {/* <PaymentMethods /> */}
 
           <div className="mt-8 p-6 bg-red-50 rounded-2xl border border-red-100 flex gap-4 text-red-600">
             <div className="w-6 h-6 rounded-full border-2 border-red-200 flex items-center justify-center shrink-0 mt-0.5">
