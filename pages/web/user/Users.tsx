@@ -8,18 +8,20 @@ import UsersTable from "./_components/UsersTable";
 import ModalWrapper from "@/components/ModalWrapper";
 import UserForm from "./_components/UserForm";
 import { UserRolesFilterT, UserRoleT } from "@/types/user.type";
-import { getAllUsers,postUser } from "@/graphql/user";
+import { getAllUsers, postUser } from "@/graphql/user";
 import { UserFormValues } from "@/types/schema/userSchema";
 import { toast } from "sonner";
 import { useUser } from "@/provider/UserProvider";
+import DeleteModal from "@/components/DeleteModal";
 
 const UsersManagement = () => {
-  const {user} = useUser();
+  const { user } = useUser();
   const [userRoles, setUserRoles] = useState<UserRoleT[]>([]);
   const [pageSize, setPageSize] = useState(5);
   const [query, setQuery] = useState("");
   const [total, setTotal] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
+  const [deletModal, setDeleteModal] = useState(false);
 
   const [submitLoading, setSubmitLoading] = useState(false);
   const [filterData, setFilterData] = useState<UserRolesFilterT>({
@@ -81,7 +83,6 @@ const UsersManagement = () => {
     try {
       setSubmitLoading(true);
       const res = await postUser(data);
-      console.log(res,"84")
       toast.success("User created successfully");
       setIsFetching((prev) => !prev);
       setModalState({ mode: null, user: null });
@@ -130,8 +131,6 @@ const UsersManagement = () => {
         }}
       />
 
-      {/* ------------------- Modals ------------------- */}
-
       {/* Add Modal */}
       {modalState.mode === "add" && (
         <ModalWrapper
@@ -164,29 +163,18 @@ const UsersManagement = () => {
           }
         />
       )}
-
-      {/* Delete Confirmation */}
+      
       {modalState.mode === "delete" && modalState.user && (
-        <ModalWrapper
+        <DeleteModal
           title="Delete User?"
-          onClose={closeModal}
-          children={
-            <p className="text-slate-500 text-center">
-              Are you sure you want to delete{" "}
-              <b className="text-slate-800">{modalState.user.name}</b>? This
-              action cannot be undone.
-            </p>
-          }
-          footer={
-            <button
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg"
-              onClick={() => {
-                closeModal();
-              }}
-            >
-              Delete
-            </button>
-          }
+          des={`Are you sure you want to delete ${modalState.user.name}? This action cannot be undone.`}
+          isOpen={deletModal}
+          onClose={() => {
+            setDeleteModal(false);
+          }}
+          onConfirm={() => {
+            setDeleteModal(false);
+          }}
         />
       )}
     </div>

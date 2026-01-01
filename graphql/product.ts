@@ -1,7 +1,12 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { GET_ALL_PRODUCTS } from "./type-query/product";
-import { FilterProductListT, FindAllProductsT } from "@/types/product.type";
+import { GET_ALL_PRODUCTS, GET_PRODUCT_INFO } from "./type-query/product";
+import {
+  FilterProductListT,
+  FindAllProductsT,
+  ProductInfoResponse,
+  ProductInfoT,
+} from "@/types/product.type";
 
 export const getAllProducts = async (data: FilterProductListT) => {
   try {
@@ -10,7 +15,7 @@ export const getAllProducts = async (data: FilterProductListT) => {
       variables: {
         params: { ...data },
       },
-      fetchPolicy:"no-cache"
+      fetchPolicy: "no-cache",
     });
     //@ts-ignore
     return res.data.findAllProducts as FindAllProductsT;
@@ -19,6 +24,20 @@ export const getAllProducts = async (data: FilterProductListT) => {
   }
 };
 
+export const getProductInfo = async (productId: string) => {
+  try {
+    const res: ProductInfoResponse = await client.query({
+      query: warpGql(GET_PRODUCT_INFO),
+      variables: {
+        productId: productId,
+      },
+      fetchPolicy: "no-cache",
+    });
+    return res.data.getProductInfo as ProductInfoT;
+  } catch (err) {
+    throw err;
+  }
+};
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, { categories, countries, sort }] = queryKey;

@@ -7,6 +7,7 @@ import { UserFormValues } from "@/types/schema/userSchema";
 export const getMe = async () => {
   return client.query({
     query: warpGql(Me),
+    fetchPolicy:"no-cache"
   });
 };
 
@@ -39,7 +40,7 @@ export const postUser = async (payload: UserFormValues) => {
         imageURI: null,
         password: payload.password,
         roleIds: payload.roleIds,
-        type: "OWNER",
+        type: "RECELLER",
         username: payload.userName,
       },
     },
