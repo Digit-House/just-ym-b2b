@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   Users2,
+  Wallet,
 } from "lucide-react";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -73,6 +74,12 @@ const Sidebar = () => {
           <LayoutGrid size={20} />
           <span>My Bookings</span>
         </NavLink>
+
+        <NavLink to="/wallet" className={navItemClass('/wallet')}>
+          <Wallet size={20} />
+          <span>Wallet</span>
+        </NavLink>
+
 
         <NavLink to="/users" className={navItemClass("/users")}>
           <Users2 size={20} />

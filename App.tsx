@@ -21,6 +21,8 @@ import Bookings from "./pages/web/booking/Bookings";
 import BookingDetail from "./pages/web/booking/detail/BookingDetail";
 import UsersManagement from "./pages/web/user/Users";
 import Cart from "./pages/web/cart/Cart";
+import Wallet from "./pages/web/wallet/Wallet";
+import TopUp from "./pages/web/wallet/topup/Topup";
 
 const App = () => {
   return (
@@ -42,6 +44,8 @@ const App = () => {
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="reports" element={<Reports />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="wallet" element={<Wallet />} />
+          <Route path="wallet/topup" element={<TopUp />} />
 
           <Route path="settings">
             <Route index element={<Navigate to="general" replace />} />

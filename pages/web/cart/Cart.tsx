@@ -7,6 +7,7 @@ import CartListItem from "./_components/CartListItem";
 import PaymentMethods from "./_components/PaymentMethods";
 import EmptyCart from "./_components/EmptyCart";
 import { useUser } from "@/provider/UserProvider";
+import PageHeader from "@/components/PageHeader";
 
 const Cart = () => {
   const { user } = useUser();
@@ -33,9 +34,9 @@ const Cart = () => {
         Back
       </Link>
 
-      <Header
+      <PageHeader
         title="Add To Cart"
-        subtitle="Complete your booking details and payment information."
+        des="Complete your booking details and payment information."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
