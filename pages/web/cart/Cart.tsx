@@ -1,4 +1,3 @@
-import React from "react";
 import { Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import CartListItem from "./_components/CartListItem";
@@ -10,18 +9,27 @@ import PageContainer from "@/components/PageContainer";
 
 const Cart = () => {
   const { user } = useUser();
-  const { items, getTotal, clearCart } = useCartStore();
 
-  const subtotal = getTotal();
-  const discount = subtotal > 5000 ? 500 : 0;
-  const finalTotal = subtotal - discount;
+  const {
+    items,
+    selectedIds,
+    toggleSelect,
+    selectAll,
+    clearSelection,
+    clearCart,
+    getSelectedTotal,
+  } = useCartStore();
 
-  if (items.length === 0) {
-    return <EmptyCart />;
-  }
+  if (items.length === 0) return <EmptyCart />;
+
+  const selectedTotal = getSelectedTotal();
+  const discount = selectedTotal > 5000 ? 500 : 0;
+  const finalTotal = selectedTotal - discount;
+
+  const isAllSelected = items.length > 0 && selectedIds.length === items.length;
 
   return (
-     <PageContainer>
+    <PageContainer>
       <BackBtn route="/tickets" title="Back" />
 
       <PageHeader
@@ -30,19 +38,23 @@ const Cart = () => {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* LEFT */}
         <div className="lg:col-span-2">
           <div className="flex justify-between items-center mb-6 px-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked
-                readOnly
-                className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                checked={isAllSelected}
+                onChange={() =>
+                  isAllSelected ? clearSelection() : selectAll()
+                }
+                className="w-5 h-5 rounded border-gray-300"
               />
               <span className="text-sm font-black text-gray-500">
-                Selected ({items.length} Items)
+                Selected ({selectedIds.length} Items)
               </span>
             </label>
+
             <button
               onClick={clearCart}
               className="text-red-500 text-xs font-bold hover:underline flex items-center gap-1"
@@ -51,26 +63,17 @@ const Cart = () => {
             </button>
           </div>
 
-          <div className="space-y-2">
-            {items.map((item) => (
-              <CartListItem key={item.id} item={item} />
-            ))}
-          </div>
+          {items.map((item) => (
+            <CartListItem
+              key={item.id}
+              item={item}
+              checked={selectedIds.includes(item.id)}
+              onToggle={() => toggleSelect(item.id)}
+            />
+          ))}
 
-          {/* <PaymentMethods /> */}
-
-          <div className="mt-8 p-6 bg-red-50 rounded-2xl border border-red-100 flex gap-4 text-red-600">
-            <div className="w-6 h-6 rounded-full border-2 border-red-200 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-[10px] font-black">!</span>
-            </div>
-            <p className="text-xs font-bold leading-relaxed">
-              Once a Booking is completed, it cannot be cancelled with a refund,
-              unless otherwise stated in the Listing or the Supplier Terms
-              applicable to such Listing.
-            </p>
-          </div>
-
-          <div className="mt-12 flex items-center justify-between bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+          {/* TOTAL */}
+          <div className="mt-12 flex items-center justify-between bg-white p-8 rounded-3xl border shadow-sm">
             <div>
               <p className="text-lg font-black text-gray-900">
                 Total Payment :{" "}
@@ -79,16 +82,20 @@ const Cart = () => {
                 </span>
               </p>
               <p className="text-[10px] text-gray-400 font-bold mt-1">
-                By continuing, you agree to the General Terms, Privacy Policy,
-                and the Cancellation Policy
+                By continuing, you agree to the General Terms & Policies
               </p>
             </div>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-12 py-4 rounded-2xl shadow-xl shadow-indigo-100 transition-all transform active:scale-95">
+
+            <button
+              disabled={selectedIds.length === 0}
+              className="bg-indigo-600 disabled:bg-gray-300 text-white font-black px-12 py-4 rounded-2xl shadow-xl transition-all"
+            >
               Confirm Payment
             </button>
           </div>
         </div>
 
+        {/* RIGHT */}
         <div className="lg:col-span-1 space-y-8">
           <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm sticky top-8">
             <div className="bg-indigo-600 p-8 text-white relative overflow-hidden">
@@ -132,7 +139,7 @@ const Cart = () => {
                       Subtotal
                     </span>
                     <span className="text-sm font-black text-indigo-600">
-                      ฿ {subtotal.toLocaleString()}
+                      ฿ {selectedTotal.toLocaleString()}
                     </span>
                   </div>
                   {discount > 0 && (
@@ -155,14 +162,16 @@ const Cart = () => {
                 </span>
               </div>
 
-              <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-lg transition-colors mt-4">
+              <button 
+               disabled={selectedIds.length === 0}
+              className="w-full disabled:bg-gray-300 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-lg transition-colors mt-4">
                 Confirm & Pay
               </button>
             </div>
           </div>
         </div>
       </div>
-      </PageContainer>
+    </PageContainer>
   );
 };
 

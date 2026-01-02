@@ -59,7 +59,9 @@ const BookingPanel: React.FC<BookingPanelProps> = ({
     };
 
     addItem(cartItem);
+    if(isDirectBooking){
     navigate("/cart");
+    }
   };
 
   return (
