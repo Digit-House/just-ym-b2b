@@ -1,15 +1,15 @@
-import React from "react";
+import { UserManagementT } from "@/types/user.type";
 import UserRow from "./UserRow";
-import { UserRoleT } from "@/types/user.type";
+
 
 export default function UsersTable({
   users,
   onEdit,
   onDelete,
 }: {
-  users: UserRoleT[];
-  onEdit: (u: UserRoleT) => void;
-  onDelete: (u: UserRoleT) => void;
+  users: UserManagementT[];
+  onEdit: (u: UserManagementT) => void;
+  onDelete: (u: UserManagementT) => void;
 }) {
   return (
     <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
@@ -20,7 +20,7 @@ export default function UsersTable({
             <th className="px-6 py-4">Contact</th>
             <th className="px-6 py-4">Role</th>
             <th className="px-6 py-4 text-center">Status</th>
-            <th className="px-6 py-4">Bookings</th>
+            <th className="px-6 py-4">Last Login</th>
             <th className="px-6 py-4 text-right">Action</th>
           </tr>
         </thead>
@@ -37,7 +37,12 @@ export default function UsersTable({
           ) : (
             users.map((u) => (
               //@ts-ignore
-              <UserRow key={u.id} user={u} onEdit={onEdit} onDelete={onDelete} />
+              <UserRow
+                key={u.id}
+                user={u}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             ))
           )}
         </tbody>

@@ -9,7 +9,7 @@ export const useUserRoles = ({
   page = 1,
   orderBy = { dir: "desc" },
   resellerId,
-}: UserRolesFilterT) => {
+}: Omit<UserRolesFilterT,"active"|"type">) => {
   return useQuery({
     queryKey: ["user-roles", limit, page, orderBy.dir, resellerId],
     queryFn: async () => {

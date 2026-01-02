@@ -1,4 +1,4 @@
-export type UserRoleTypeT = "OWNER" | "RESELLER" | "USER" | "ADMIN" | "MANAGER";
+export type UserRoleTypeT = "OWNER" | "RESELLER" | "USER" | "ADMIN" | "MANAGER" | null;
 export type UserStatusT = "Active" | "Inactive";
 
 export type ProfileDataT = {
@@ -29,32 +29,32 @@ export type UserT = {
 };
 
 export interface UserRolesFilterT {
-  page: number;
+  active: null | boolean;
   limit: number;
   orderBy: {
     dir: string;
   };
-  resellerId: string | null;
+  page: number;
+  resellerId: null | string;
+  type: UserRoleTypeT;
 }
 
-
-
-
-export interface UserRoleT {
+export interface UserManagementT {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  joinedDate: string;
-  role: UserRoleTypeT;
-  status: UserStatusT;
-  bookings: number;
-  lastBooking: string;
-  avatarColor: string;
+  activeCount:number;
+  adminCount:number;
+  userCount:number;
+  total:number;
+  active: boolean;
+  contactNo: null | string;
   createdAt: string;
-  description: string;
-  resellerId: string;
+  email: string;
+  lastLogin: string;
+  roleIds: string[];
+  type: UserRoleTypeT;
+  roles: { id: string; name: string; resellerId: string; createdAt: string }[];
   updatedAt: string;
+  username: string;
 }
 
 export interface Product {

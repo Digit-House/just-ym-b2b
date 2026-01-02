@@ -1,13 +1,19 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { CREATE_USER, Me, USER_ROLES, USERS } from "./type-query/user";
+import {
+  CREATE_USER,
+  Me,
+  UPDATE_USER,
+  USER_ROLES,
+  USERS,
+} from "./type-query/user";
 import { UserRolesFilterT } from "@/types/user.type";
 import { UserFormValues } from "@/types/schema/userSchema";
 
 export const getMe = async () => {
   return client.query({
     query: warpGql(Me),
-    fetchPolicy:"no-cache"
+    fetchPolicy: "no-cache",
   });
 };
 
@@ -26,6 +32,7 @@ export const getAllUsers = async (data: UserRolesFilterT) => {
     variables: {
       params: { ...data },
     },
+    fetchPolicy: "no-cache",
   });
 };
 
@@ -40,8 +47,20 @@ export const postUser = async (payload: UserFormValues) => {
         imageURI: null,
         password: payload.password,
         roleIds: payload.roleIds,
-        type: "RECELLER",
-        username: payload.userName,
+        username: payload.username,
+      },
+      fetchPolicy: "no-cache",
+    },
+  });
+};
+
+export const updateUser = async (payload: UserFormValues, userId: string) => {
+  return client.mutate({
+    mutation: warpGql(UPDATE_USER),
+    variables: {
+      input: {
+        active: payload.active,
+        userId: userId,
       },
     },
   });

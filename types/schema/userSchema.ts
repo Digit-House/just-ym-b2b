@@ -4,8 +4,9 @@ export const PHONE_REGEX = /^\+?[0-9]{7,15}$/;
 
 export const userSchema = z
   .object({
-    userName: z.string().min(1, "User Name is required"),
-    email: z.string().email("Invalid email"),
+    username: z.string().min(1, "User Name is required"),
+    email: z.email("Invalid email"),
+    active: z.boolean().optional(),
     contactNo: z.string().trim().regex(PHONE_REGEX, "Invalid phone number"),
     countryCode: z.string().optional(),
     roleIds: z.array(z.string()).min(1, "At least one role must be selected"),

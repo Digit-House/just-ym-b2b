@@ -37,8 +37,9 @@ query Me {
 `;
 
 export const USER_ROLES = `
-query Data($params: RolePaginatedInput!) {
+query FindAllRoles($params: RolePaginatedInput!) {
   findAllRoles(params: $params) {
+    total
     data {
       createdAt
       description
@@ -47,10 +48,9 @@ query Data($params: RolePaginatedInput!) {
       resellerId
       updatedAt
     }
-    total
   }
 }
-`
+`;
 
 export const CREATE_USER = `
 mutation CreateUser($data: UserCreateInputDTO!) {
@@ -60,10 +60,18 @@ mutation CreateUser($data: UserCreateInputDTO!) {
 }
 `;
 
+export const UPDATE_USER = `
+mutation UpdateUser($input: UserUpdateInput!) {
+  updateUser(input: $input)
+}
+`;
+
 export const USERS = `
 query FindAllUsers($params: UserPaginatedInput!) {
   findAllUsers(params: $params) {
-    total
+    activeCount
+    adminCount
+    userCount
     data {
       active
       contactNo
@@ -71,19 +79,19 @@ query FindAllUsers($params: UserPaginatedInput!) {
       createdAt
       email
       id
-      imageURI
       lastLogin
-      providers
       roleIds
       roles {
         id
         name
         resellerId
+        createdAt
       }
       type
       updatedAt
       username
     }
+    total
   }
 }
-`
+`;

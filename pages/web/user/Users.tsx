@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Pagination from "@/components/Pagination";
 import UsersStats from "./_components/UsersStats";
 import UsersFilterBar from "./_components/UsersFilterBar";
 import UsersTable from "./_components/UsersTable";
 import ModalWrapper from "@/components/ModalWrapper";
 import UserForm from "./_components/UserForm";
-import { UserRolesFilterT, UserRoleT } from "@/types/user.type";
-import { getAllUsers, postUser } from "@/graphql/user";
+import { UserManagementT, UserRolesFilterT} from "@/types/user.type";
+import { getAllUsers, postUser, updateUser } from "@/graphql/user";
 import { UserFormValues } from "@/types/schema/userSchema";
 import { toast } from "sonner";
 import { useUser } from "@/provider/UserProvider";
@@ -18,26 +18,33 @@ import PageHeader from "@/components/PageHeader";
 
 const UsersManagement = () => {
   const { user } = useUser();
-  const [userRoles, setUserRoles] = useState<UserRoleT[]>([]);
+  const [userRoles, setUserRoles] = useState<UserManagementT[]>([]);
   const [pageSize, setPageSize] = useState(5);
-  const [query, setQuery] = useState("");
   const [total, setTotal] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [deletModal, setDeleteModal] = useState(false);
 
+  const [userStats, setUserStats] = useState({
+    userCount: 0,
+    activeCount: 0,
+    adminCount: 0,
+  });
+
   const [submitLoading, setSubmitLoading] = useState(false);
   const [filterData, setFilterData] = useState<UserRolesFilterT>({
+    active: true,
     page: 1,
     limit: 10,
     orderBy: {
       dir: "desc",
     },
     resellerId: user?.id,
+    type: null,
   });
 
   const [modalState, setModalState] = useState<{
     mode: "add" | "edit" | "delete" | null;
-    user?: UserRoleT | null;
+    user?: UserManagementT | null;
   }>({
     mode: null,
     user: null,
@@ -59,6 +66,11 @@ const UsersManagement = () => {
       const res: any = await getAllUsers(filterData);
       setUserRoles(res.data.findAllUsers.data);
       setTotal(res.data.findAllUsers.total);
+      setUserStats({
+        userCount: res.data.findAllUsers.userCount,
+        activeCount: res.data.findAllUsers.activeCount,
+        adminCount: res.data.findAllUsers.adminCount,
+      });
     } catch (err) {
       console.error(err);
     }
@@ -69,11 +81,11 @@ const UsersManagement = () => {
     setModalState({ mode: "add" });
   }, []);
 
-  const openEditModal = useCallback((user: UserRoleT) => {
+  const openEditModal = useCallback((user: UserManagementT) => {
     setModalState({ mode: "edit", user });
   }, []);
 
-  const openDeleteModal = useCallback((user: UserRoleT) => {
+  const openDeleteModal = useCallback((user: UserManagementT) => {
     setModalState({ mode: "delete", user });
   }, []);
 
@@ -84,7 +96,7 @@ const UsersManagement = () => {
   const createUser = async (data: UserFormValues) => {
     try {
       setSubmitLoading(true);
-      const res = await postUser(data);
+      await postUser(data);
       toast.success("User created successfully");
       setIsFetching((prev) => !prev);
       setModalState({ mode: null, user: null });
@@ -95,7 +107,21 @@ const UsersManagement = () => {
     }
   };
 
-  const editUser = async (data: UserFormValues) => {};
+  const editUser = async (data: UserFormValues) => {
+    try{
+      setSubmitLoading(true);
+      await updateUser(data,modalState.user?.id as string);
+      toast.success("User updated successfully");
+      setIsFetching((prev) => !prev);
+      setModalState({ mode: null, user: null });
+    }catch(err){
+      throw err;
+    }finally{
+      setSubmitLoading(false);
+    }
+  };
+
+ 
 
   return (
     <PageContainer>
@@ -103,10 +129,16 @@ const UsersManagement = () => {
         title="User Management"
         des="Measure your advertising ROI and report website traffic."
       />
-      <UsersStats />
+      <UsersStats userStats={userStats} />
       <UsersFilterBar
-        searchTerm={query}
-        onSearch={setQuery}
+        type={filterData.type}
+        onType={(value) => {
+          setFilterData({ ...filterData, type: value, page: 1 });
+        }}
+        active={filterData.active}
+        onActive={(value) => {
+          setFilterData({ ...filterData, active: value, page: 1 });
+        }}
         onAdd={openAddModal}
       />
 
@@ -155,7 +187,7 @@ const UsersManagement = () => {
               loading={submitLoading}
               initialValues={modalState.user}
               onCancel={closeModal}
-              onSubmit={async () => closeModal()}
+              onSubmit={editUser}
             />
           }
         />
@@ -164,7 +196,7 @@ const UsersManagement = () => {
       {modalState.mode === "delete" && modalState.user && (
         <DeleteModal
           title="Delete User?"
-          des={`Are you sure you want to delete ${modalState.user.name}? This action cannot be undone.`}
+          des={`Are you sure you want to delete ${modalState.user.username}? This action cannot be undone.`}
           isOpen={deletModal}
           onClose={() => {
             setDeleteModal(false);
