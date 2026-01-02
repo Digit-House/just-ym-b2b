@@ -49,7 +49,6 @@ const Pagination: React.FC<PaginationProps> = ({
         </select>
       </div>
 
-      {/* Range info */}
       <span>
         {start}-{end} of {total}
       </span>

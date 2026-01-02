@@ -19,7 +19,7 @@ import PageHeader from "@/components/PageHeader";
 const UsersManagement = () => {
   const { user } = useUser();
   const [userRoles, setUserRoles] = useState<UserManagementT[]>([]);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [deletModal, setDeleteModal] = useState(false);
@@ -31,6 +31,7 @@ const UsersManagement = () => {
   });
 
   const [submitLoading, setSubmitLoading] = useState(false);
+
   const [filterData, setFilterData] = useState<UserRolesFilterT>({
     active: true,
     page: 1,
@@ -87,6 +88,7 @@ const UsersManagement = () => {
 
   const openDeleteModal = useCallback((user: UserManagementT) => {
     setModalState({ mode: "delete", user });
+    setDeleteModal(true);
   }, []);
 
   const closeModal = useCallback(() => {
@@ -120,8 +122,6 @@ const UsersManagement = () => {
       setSubmitLoading(false);
     }
   };
-
- 
 
   return (
     <PageContainer>

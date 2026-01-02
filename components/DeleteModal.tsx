@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 type Props = {
   title: string;
@@ -8,8 +8,7 @@ type Props = {
   onConfirm: () => void;
 };
 
-const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
-  // Lock body scroll when modal is open
+const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }: Props) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -21,7 +20,6 @@ const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
     };
   }, [isOpen]);
 
-  // Prevent clicking inside the card from closing the modal
   const handleContentClick = (e) => {
     e.stopPropagation();
   };
@@ -30,7 +28,7 @@ const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
 
   return (
     <>
-      {/* Custom Animation Styles */}
+      {/*@ts-ignore */}
       <style jsx>{`
         @keyframes fadeIn {
           from {
@@ -58,7 +56,6 @@ const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
         }
       `}</style>
 
-      {/* Backdrop */}
       <div
         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in transition-opacity"
         onClick={onClose}
@@ -67,12 +64,10 @@ const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
         aria-labelledby="modal-title"
         aria-describedby="modal-desc"
       >
-        {/* Modal Card */}
         <div
           className="bg-white w-full max-w-sm rounded-xl shadow-xl text-center p-6 animate-slide-up transform transition-all"
           onClick={handleContentClick}
         >
-          {/* Warning Icon */}
           <div className="flex justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
               <svg
@@ -91,8 +86,6 @@ const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
               </svg>
             </div>
           </div>
-
-          {/* Text Content */}
           <h2
             id="modal-title"
             className="text-xl font-semibold text-gray-900 mb-2"
@@ -104,10 +97,7 @@ const DeleteModal = ({ title, des, isOpen, onClose, onConfirm }:Props) => {
             className="text-sm text-gray-500 leading-relaxed mb-6"
           >
             {des}
-            {/* Are you sure you want to delete? <strong>{userName}</strong>. This action cannot be undone. */}
           </p>
-
-          {/* Buttons */}
           <div className="flex gap-3 justify-center w-full">
             <button
               onClick={onConfirm}
