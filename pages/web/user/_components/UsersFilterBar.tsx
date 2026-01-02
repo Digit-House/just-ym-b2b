@@ -1,3 +1,4 @@
+import RoleCheckAction from "@/components/RoleCheckAction";
 import { UserRoleTypeT } from "@/types/user.type";
 import * as Icons from "lucide-react";
 
@@ -54,13 +55,15 @@ const UsersFilterBar = ({
       <option value={"true"}>Active</option>
       <option value={"false"}>Inactive</option>
     </select>
-    <button
-      onClick={() => onAdd()}
-      className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
-    >
-      <Icons.Plus size={18} />
-      Add User
-    </button>
+    <RoleCheckAction>
+      <button
+        onClick={() => onAdd()}
+        className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+      >
+        <Icons.Plus size={18} />
+        Add User
+      </button>
+    </RoleCheckAction>
   </div>
 );
 export default UsersFilterBar;

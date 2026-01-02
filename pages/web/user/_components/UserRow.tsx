@@ -1,6 +1,7 @@
 import * as Icons from "lucide-react";
 import dayjs from "dayjs";
 import { UserManagementT } from "@/types/user.type";
+import RoleCheckAction from "@/components/RoleCheckAction";
 
 type Props = {
   user: UserManagementT;
@@ -93,22 +94,32 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
       </td>
 
       {/* Actions */}
-      <td className="px-6 py-5 text-right">
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => onEdit(user)}
-            className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg"
-          >
-            <Icons.Edit2 size={16} />
-          </button>
-          <button
-            onClick={() => onDelete(user)}
-            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-          >
-            <Icons.Trash2 size={16} />
-          </button>
-        </div>
-      </td>
+      <RoleCheckAction
+        infoNode={
+          <td className="px-6 py-5 text-right">
+            <p className="text-xs font-bold text-gray-400 mb-0.5">
+              Permission Denied!
+            </p>
+          </td>
+        }
+      >
+        <td className="px-6 py-5 text-right">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => onEdit(user)}
+              className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg"
+            >
+              <Icons.Edit2 size={16} />
+            </button>
+            <button
+              onClick={() => onDelete(user)}
+              className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+            >
+              <Icons.Trash2 size={16} />
+            </button>
+          </div>
+        </td>
+      </RoleCheckAction>
     </tr>
   );
 }

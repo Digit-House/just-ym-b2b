@@ -1,5 +1,6 @@
 import { UserManagementT } from "@/types/user.type";
 import UserRow from "./UserRow";
+import RoleCheckAction from "@/components/RoleCheckAction";
 
 
 export default function UsersTable({
@@ -21,7 +22,7 @@ export default function UsersTable({
             <th className="px-6 py-4">Role</th>
             <th className="px-6 py-4 text-center">Status</th>
             <th className="px-6 py-4">Last Login</th>
-            <th className="px-6 py-4 text-right">Action</th>
+           <th className="px-6 py-4 text-right">Action</th>
           </tr>
         </thead>
         <tbody>

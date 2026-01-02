@@ -1,4 +1,10 @@
-export type UserRoleTypeT = "OWNER" | "RESELLER" | "USER" | "ADMIN" | "MANAGER" | null;
+export type UserRoleTypeT =
+  | "OWNER"
+  | "RESELLER"
+  | "USER"
+  | "ADMIN"
+  | "MANAGER"
+  | null;
 export type UserStatusT = "Active" | "Inactive";
 
 export type ProfileDataT = {
@@ -23,6 +29,10 @@ export type UserT = {
   lastLogin: string;
   profileData: ProfileDataT;
   roleIds: string[];
+  roles: {
+    id: string;
+    name: string;
+  }[];
   type: UserRoleTypeT;
   updatedAt: string;
   username: string;
@@ -41,10 +51,10 @@ export interface UserRolesFilterT {
 
 export interface UserManagementT {
   id: string;
-  activeCount:number;
-  adminCount:number;
-  userCount:number;
-  total:number;
+  activeCount: number;
+  adminCount: number;
+  userCount: number;
+  total: number;
   active: boolean;
   contactNo: null | string;
   createdAt: string;
