@@ -1,26 +1,29 @@
 import { UserT } from "@/types/user.type";
-import { createContext, useContext, useState, ReactNode } from "react";
-
+import React, { createContext, useContext, useState, ReactNode, Dispatch } from "react";
 
 type UserContextType = {
   user: UserT | null;
   setUser: (user: UserT | null) => void;
+  fetchWallet: boolean;
+  setFetchWallet:Dispatch<React.SetStateAction<boolean>>;
   logout: () => void;
 };
 
-// 👇 default empty context
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  const [fetchWallet, setFetchWallet] = useState(false);
   const [user, setUser] = useState<UserT | null>(null);
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("token");  // optional
+    localStorage.removeItem("token"); 
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout }}>
+    <UserContext.Provider
+      value={{ user, setUser, logout, fetchWallet, setFetchWallet }}
+    >
       {children}
     </UserContext.Provider>
   );

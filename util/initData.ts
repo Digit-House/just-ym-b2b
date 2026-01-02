@@ -6,6 +6,16 @@ export const LSKeys = {
   riaseAssmt: "riaseAssmt",
 };
 
+
+export const TOPUP_PRESETS = [
+  { label: "THB 1K", amount: 1000, value: 1000 },
+  { label: "THB 3K", amount: 3000, value: 2500 },
+  { label: "THB 5K", amount: 5000, value: 5000 },
+  { label: "THB 10K", amount: 10000, value: 10000 },
+  { label: "THB 25K", amount: 25000, value: 25000 },
+];
+
+
 export const getQueryClient = () => {
  return new QueryClient();
 }

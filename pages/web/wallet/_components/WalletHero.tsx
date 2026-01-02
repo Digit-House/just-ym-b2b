@@ -5,10 +5,11 @@ import { Link } from 'react-router-dom';
 
 interface WalletHeroProps {
   balance: number;
+  currency?: string;
 }
 
-const WalletHero: React.FC<WalletHeroProps> = ({ balance }) => (
-  <div className="bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-sm shadow-indigo-100 mb-5">
+const WalletHero: React.FC<WalletHeroProps> = ({currency, balance }) => (
+  <div className="bg-indigo-600 h-37.5 rounded-3xl p-8 text-white relative overflow-hidden shadow-sm shadow-indigo-100 mb-5">
     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div className="flex items-center gap-6">
@@ -17,7 +18,7 @@ const WalletHero: React.FC<WalletHeroProps> = ({ balance }) => (
         </div>
         <div>
           <p className="text-white/70 text-sm font-medium mb-1">Total Available Credits</p>
-          <h2 className="text-5xl font-black">${balance.toLocaleString()}</h2>
+          <h2 className="text-3xl font-black">{currency}&nbsp;{balance}</h2>
         </div>
       </div>
       <Link 
