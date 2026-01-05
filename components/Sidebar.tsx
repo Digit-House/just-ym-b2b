@@ -75,6 +75,22 @@ const Sidebar = () => {
           <span>My Bookings</span>
         </NavLink>
 
+        <NavLink to="/categories" className={navItemClass("/categories")}>
+          <LayoutGrid size={20} />
+          <span>Categories</span>
+        </NavLink>
+
+
+        <NavLink to="/countries" className={navItemClass("/countries")}>
+          <LayoutGrid size={20} />
+          <span>Countries</span>
+        </NavLink>
+
+        <NavLink to="/cities" className={navItemClass("/cities")}>
+          <LayoutGrid size={20} />
+          <span>Cities</span>
+        </NavLink>
+
         <NavLink to="/wallet" className={navItemClass('/wallet')}>
           <Wallet size={20} />
           <span>Wallet</span>

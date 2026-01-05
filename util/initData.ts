@@ -16,9 +16,25 @@ export const TOPUP_PRESETS = [
 ];
 
 
+let queryClient: QueryClient | undefined;
+
 export const getQueryClient = () => {
- return new QueryClient();
-}
+  if (!queryClient) {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: Infinity,
+          gcTime: Infinity,
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: false,
+        },
+      },
+    });
+  }
+
+  return queryClient;
+};
+
 
 export const clearLSItem = (key: string) => {
   if (typeof window !== "undefined") {
@@ -53,3 +69,5 @@ export const getErrMsg = (error: ErrMsg, type: "code" | "message") => {
 export const preFixImg = (id:string) => {
   return `https://api.justym.me/file/image/${id}`;
 }
+
+export const bool = (value: boolean) => (value ? "Yes" : "No");

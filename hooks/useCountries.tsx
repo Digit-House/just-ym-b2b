@@ -7,10 +7,19 @@ export const useCountries = () => {
   return useQuery({
     queryKey: ["countries"],
     queryFn: async () => {
-      const { data }:any = await client.query({
-        query: warpGql(GET_ALL_COUNTRIES),
-      });
-      return data?.countries;
+      try{
+        const { data }: any = await client.query({
+          query: warpGql(GET_ALL_COUNTRIES),
+          fetchPolicy: "cache-first",
+        });
+  
+        return data?.countries || [];
+      }catch(err){
+        console.log("Error fetching countries:", err);
+        return []
+      }
     },
+    staleTime: Infinity, 
+    gcTime: Infinity, 
   });
 };

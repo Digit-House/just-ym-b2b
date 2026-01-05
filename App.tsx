@@ -22,6 +22,9 @@ import UsersManagement from "./pages/web/user/Users";
 import Cart from "./pages/web/cart/Cart";
 import Wallet from "./pages/web/wallet/Wallet";
 import TopUp from "./pages/web/wallet/topup/Topup";
+import Countries from "./pages/admin/countries/Countries";
+import Cities from "./pages/admin/cities/Cities";
+import Categories from "./pages/admin/categories/Categories";
 
 const App = () => {
   return (
@@ -51,6 +54,11 @@ const App = () => {
             <Route path="general" element={<Settings />} />
             <Route path="kyc" element={<KYCWizard />} />
           </Route>
+
+          {/* ADMIN Routes */}
+          <Route path="countries" element={<Countries />}/>
+          <Route path="cities" element={<Cities />}/>
+          <Route path="categories" element={<Categories />}/>
         </Route>
       </Route>
 

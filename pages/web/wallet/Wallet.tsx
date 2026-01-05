@@ -14,7 +14,7 @@ const Wallet = () => {
 
   const { creditInfo } = useWalletStore();
   const [topUpData,setTopUpData] = useState<TopUpHistoryT[]>([]);
-  const [filterData, setFilterData] = useState<TopUpHistoryFilterT>({
+  const [filterData, _] = useState<TopUpHistoryFilterT>({
     limit: 10,
     orderBy: {
       dir: "desc",
