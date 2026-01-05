@@ -79,8 +79,6 @@ export default function UserForm({
     setValue("roleIds", newRoleIds, { shouldValidate: true });
   };
 
-  console.log(errors);
-
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
       <InputField

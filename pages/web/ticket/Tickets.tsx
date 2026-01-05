@@ -22,6 +22,7 @@ export default function Tickets() {
   const navigate = useNavigate();
 
   const [sort, setSort] = useState("desc");
+  const published = "PUBLISHED";
   const [categories, setCategories] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
 
@@ -38,7 +39,7 @@ export default function Tickets() {
     error,
   } = useInfiniteQuery({
     initialPageParam: 1,
-    queryKey: ["products", { categories, countries, sort }],
+    queryKey: ["products", { categories, countries, sort, published }],
     queryFn: fetchProducts,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
   });

@@ -40,7 +40,7 @@ export const getProductInfo = async (productId: string) => {
 };
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { categories, countries, sort }] = queryKey;
+  const [_key, { categories, countries, sort,published }] = queryKey;
 
   const filter = {
     category: categories[0] || "",
@@ -48,6 +48,7 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     countryId: countries[0] || "",
     limit: 10,
     page: pageParam,
+    published:published,
     orderBy: { dir: sort },
   };
 
