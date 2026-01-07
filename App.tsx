@@ -20,51 +20,53 @@ import Bookings from "./pages/web/booking/Bookings";
 import BookingDetail from "./pages/web/booking/detail/BookingDetail";
 import UsersManagement from "./pages/web/user/Users";
 import Cart from "./pages/web/cart/Cart";
-import Wallet from "./pages/web/wallet/Wallet";
-import TopUp from "./pages/web/wallet/topup/Topup";
 import Countries from "./pages/admin/countries/Countries";
 import Cities from "./pages/admin/cities/Cities";
 import Categories from "./pages/admin/categories/Categories";
+import Wallet from "./pages/web/wallet/Wallet";
+import Topup from "./pages/web/wallet/topup/Topup";
+import TopUp from "./pages/admin/topUp/TopUp";
 
 const App = () => {
   return (
     <Router>
-    <Routes>
-      {/* 🔓 Public */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-      </Route>
-
-      {/* 🔐 Protected */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="tickets" element={<Tickets />} />
-          <Route path="tickets/:id" element={<TicketDetailPage />} />
-          <Route path="bookings" element={<Bookings />} />
-          <Route path="users" element={<UsersManagement />} />
-          <Route path="bookings/:id" element={<BookingDetail />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="wallet" element={<Wallet />} />
-          <Route path="wallet/topup" element={<TopUp />} />
-
-          <Route path="settings">
-            <Route index element={<Navigate to="general" replace />} />
-            <Route path="general" element={<Settings />} />
-            <Route path="kyc" element={<KYCWizard />} />
-          </Route>
-
-          {/* ADMIN Routes */}
-          <Route path="countries" element={<Countries />}/>
-          <Route path="cities" element={<Cities />}/>
-          <Route path="categories" element={<Categories />}/>
+      <Routes>
+        {/* 🔓 Public */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
         </Route>
-      </Route>
 
-      {/* fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* 🔐 Protected */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="tickets" element={<Tickets />} />
+            <Route path="tickets/:id" element={<TicketDetailPage />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="users" element={<UsersManagement />} />
+            <Route path="bookings/:id" element={<BookingDetail />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="wallet" element={<Wallet />} />
+            <Route path="wallet/topup" element={<Topup />} />
+
+            <Route path="settings">
+              <Route index element={<Navigate to="general" replace />} />
+              <Route path="general" element={<Settings />} />
+              <Route path="kyc" element={<KYCWizard />} />
+            </Route>
+
+            {/* ADMIN Routes */}
+            <Route path="countries" element={<Countries />} />
+            <Route path="cities" element={<Cities />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="topup" element={<TopUp />} />
+          </Route>
+        </Route>
+
+        {/* fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
 };

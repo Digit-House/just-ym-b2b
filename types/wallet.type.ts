@@ -20,9 +20,10 @@ export interface TopUpHistoryT {
   relatedImages: string[];
   createdBy: {
     id: string;
-    active: boolean;
-    contactNo: string;
     email: string;
+    contactNo: string;
+    active: boolean;
+    username:string;
   };
   reseller: {
     id: string;
@@ -32,9 +33,9 @@ export interface TopUpHistoryT {
   confirmBy: {
     id: string;
     email: string;
-    countryCode: string;
     contactNo: string;
     active: boolean;
+    username:string;
   };
   status: string;
   topUpBalance: number;

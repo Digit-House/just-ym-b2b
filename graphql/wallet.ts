@@ -4,6 +4,7 @@ import {
   ADD_TOP_UP,
   GET_CREDIT_INFO,
   TOP_UP_HISTORY,
+  TOPUP_HISTORY,
 } from "./type-query/wallet";
 import { AddTopupPayloadT, TopUpHistoryFilterT } from "@/types/wallet.type";
 
@@ -20,7 +21,17 @@ export const getTopupHistory = async (payload: TopUpHistoryFilterT) => {
     variables: {
       data: { ...payload },
     },
-    fetchPolicy:"no-cache"
+    fetchPolicy: "no-cache",
+  });
+};
+
+export const getAdminTopupHistory = async (payload: TopUpHistoryFilterT) => {
+  return client.query({
+    query: warpGql(TOPUP_HISTORY),
+    variables: {
+      data: { ...payload },
+    },
+    fetchPolicy: "no-cache",
   });
 };
 

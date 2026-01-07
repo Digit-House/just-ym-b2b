@@ -12,6 +12,10 @@ import {
   ChevronUp,
   Users2,
   Wallet,
+  Building2,
+  Atom,
+  ChartBarStacked,
+  SquareStop,
 } from "lucide-react";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -76,26 +80,29 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink to="/categories" className={navItemClass("/categories")}>
-          <LayoutGrid size={20} />
+          <ChartBarStacked size={20} />
           <span>Categories</span>
         </NavLink>
 
-
         <NavLink to="/countries" className={navItemClass("/countries")}>
-          <LayoutGrid size={20} />
+          <Atom size={20} />
           <span>Countries</span>
         </NavLink>
 
         <NavLink to="/cities" className={navItemClass("/cities")}>
-          <LayoutGrid size={20} />
+          <Building2 size={20} />
           <span>Cities</span>
         </NavLink>
 
-        <NavLink to="/wallet" className={navItemClass('/wallet')}>
+        <NavLink to="/topup" className={navItemClass("/topup")}>
+        <SquareStop size={20} />
+          <span>Topup</span>
+        </NavLink>
+
+        <NavLink to="/wallet" className={navItemClass("/wallet")}>
           <Wallet size={20} />
           <span>Wallet</span>
         </NavLink>
-
 
         <NavLink to="/users" className={navItemClass("/users")}>
           <Users2 size={20} />

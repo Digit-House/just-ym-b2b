@@ -17,8 +17,6 @@ const SORT_OPTION: SortOption[] = [
 const Countries = () => {
   const { data: countries, isLoading } = useCountries();
   const [editCountry, setEditCountry] = useState<CountryT | null>(null);
-
-  const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -30,12 +28,12 @@ const Countries = () => {
   //         return +new Date(b.createdAt) - +new Date(a.createdAt);
   //       }
   //       return +new Date(a.createdAt) - +new Date(b.createdAt);
-  //     });
+  //     })?
 
   //     return list;
   //   }, [countries, sort]);
 
-  const paginatedCountries = countries.slice(
+  const paginatedCountries = countries?.slice(
     (page - 1) * pageSize,
     page * pageSize
   );
@@ -133,7 +131,7 @@ const Countries = () => {
       <Pagination
         page={page}
         pageSize={pageSize}
-        total={paginatedCountries.length}
+        total={paginatedCountries?.length}
         onPageChange={setPage}
         onPageSizeChange={(size) => {
           setPageSize(size);
