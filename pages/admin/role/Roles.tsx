@@ -13,8 +13,8 @@ import { Edit2, Plus, Trash2 } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { RoleT } from "@/types/role.type";
 import RoleForm from "./_components/RoleForm";
-import { ResellerT } from "@/types/reseller.type";
-import { getRoles } from "@/graphql/role";
+import { getRoles, postRole } from "@/graphql/role";
+import { RoleFormValues } from "@/types/schema/roleSchema";
 
 const Roles = () => {
   const [data, setData] = useState<RoleT[]>([]);
@@ -22,6 +22,8 @@ const Roles = () => {
     { label: string; value: string }[]
   >([]);
   const [loading, setLoading] = useState(false);
+
+  const [fetchAgain, setFetchAgain] = useState(false);
 
   const [modalState, setModalState] = useState<{
     mode: "create" | "edit" | null;
@@ -46,7 +48,19 @@ const Roles = () => {
 
   useEffect(() => {
     fetchRoles();
-  }, [filterData]);
+  }, [filterData, fetchAgain]);
+
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      const res: any = await getRoles(filterData);
+      setData(res?.data?.findAllRoles?.data || []);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchResellers();
@@ -72,11 +86,15 @@ const Roles = () => {
     }
   };
 
-  const fetchRoles = async () => {
+  const handleCreateRole = async (value: RoleFormValues) => {
     try {
       setLoading(true);
-      const res: any = await getRoles(filterData);
-      setData(res?.data?.findAllRoles?.data || []);
+      const res = await postRole(value);
+      toast.success("Successfully Created !");
+      closeModal();
+      setTimeout(() => {
+        setFetchAgain((prev) => !prev);
+      }, 2000);
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -86,10 +104,7 @@ const Roles = () => {
 
   return (
     <PageContainer>
-      <PageHeader
-        title="Role"
-        des="Manage role accounts."
-      />
+      <PageHeader title="Role" des="Manage role accounts." />
 
       {/* Top bar */}
       <div className="flex items-center flex-row-reverse justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
@@ -200,7 +215,7 @@ const Roles = () => {
             resellerOptions={resellerOptions}
             loading={loading}
             onCancel={closeModal}
-            onSubmit={() => {}}
+            onSubmit={handleCreateRole}
           />
         </ModalWrapper>
       )}

@@ -11,7 +11,7 @@ type Props = {
   initialValues: CountryT;
   loading?: boolean;
   onCancel: () => void;
-  onSubmit: (payload: { id: string; isPublished: boolean }) => void;
+  onSubmit: (id: string, isPublished: boolean) => void;
 };
 
 export default function CountryEditForm({
@@ -20,9 +20,7 @@ export default function CountryEditForm({
   onCancel,
   onSubmit,
 }: Props) {
-  const [isPublished, setIsPublished] = useState(
-    initialValues.isPublished
-  );
+  const [isPublished, setIsPublished] = useState(initialValues.isPublished);
 
   return (
     <div className="space-y-6">
@@ -68,10 +66,7 @@ export default function CountryEditForm({
             Control country visibility in listings
           </p>
         </div>
-        <Switch
-          checked={isPublished}
-          onCheckedChange={setIsPublished}
-        />
+        <Switch checked={isPublished} onCheckedChange={setIsPublished} />
       </div>
 
       {/* Actions */}
@@ -81,12 +76,7 @@ export default function CountryEditForm({
         </Button>
         <Button
           loading={loading}
-          onClick={() =>
-            onSubmit({
-              id: initialValues.id,
-              isPublished,
-            })
-          }
+          onClick={() => onSubmit(initialValues.id, isPublished)}
         >
           Save Changes
         </Button>
@@ -94,4 +84,3 @@ export default function CountryEditForm({
     </div>
   );
 }
-

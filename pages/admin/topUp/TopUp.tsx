@@ -7,16 +7,11 @@ import SortSelect, { SortOption } from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { TopUpHistoryT } from "@/types/wallet.type";
 import { getAdminTopupHistory} from "@/graphql/wallet";
-import { getErrMsg } from "@/util/initData";
+import { getErrMsg, SORT_OPTION } from "@/util/initData";
 import { toast } from "sonner";
 import { FileEdit } from "lucide-react";
 import ModalWrapper from "@/components/ModalWrapper";
 import TopUpEditForm from "./_components/TopUpEditForm";
-
-const SORT_OPTION: SortOption[] = [
-  { label: "Newest", value: "newest" },
-  { label: "Oldest", value: "oldest" },
-];
 
 const TopUp = () => {
   const [topUpData, setTopUpData] = useState<TopUpHistoryT[]>([]);

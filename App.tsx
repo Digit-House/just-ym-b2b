@@ -41,7 +41,7 @@ const App = () => {
         {/* 🔐 Protected */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<Dashboard />} />         
             <Route path="tickets" element={<Tickets />} />
             <Route path="tickets/:id" element={<TicketDetailPage />} />
             <Route path="bookings" element={<Bookings />} />
@@ -57,6 +57,7 @@ const App = () => {
               <Route path="general" element={<Settings />} />
               <Route path="kyc" element={<KYCWizard />} />
             </Route>
+
 
             {/* ADMIN Routes */}
             <Route path="countries" element={<Countries />} />

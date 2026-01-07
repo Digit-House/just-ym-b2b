@@ -68,6 +68,7 @@ export default function RoleForm({
       <InputField
         label="Name"
         {...register("name")}
+        isRequired
         errMsg={errors.name?.message}
       />
 
@@ -76,6 +77,7 @@ export default function RoleForm({
         label="Description"
         rows={4}
         {...register("description")}
+        isRequired
         errMsg={errors.description?.message}
       />
 

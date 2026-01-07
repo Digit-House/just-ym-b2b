@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import ReadOnly from "@/components/ReadOnly";
 import { CityT } from "@/types/cities.type";
 
-
 type Props = {
   initialValues: CityT;
   loading?: boolean;
   onCancel: () => void;
-  onSubmit: (payload: { id: string; isPublished: boolean }) => void;
+  onSubmit: (id: string, isPublished: boolean) => void;
 };
 
 export default function CityEditForm({
@@ -20,9 +19,7 @@ export default function CityEditForm({
   onCancel,
   onSubmit,
 }: Props) {
-  const [isPublished, setIsPublished] = useState(
-    initialValues.isPublished
-  );
+  const [isPublished, setIsPublished] = useState(initialValues.isPublished);
 
   return (
     <div className="space-y-6">
@@ -57,10 +54,7 @@ export default function CityEditForm({
             Control city visibility in listings
           </p>
         </div>
-        <Switch
-          checked={isPublished}
-          onCheckedChange={setIsPublished}
-        />
+        <Switch checked={isPublished} onCheckedChange={setIsPublished} />
       </div>
 
       {/* Actions */}
@@ -70,12 +64,7 @@ export default function CityEditForm({
         </Button>
         <Button
           loading={loading}
-          onClick={() =>
-            onSubmit({
-              id: initialValues.id,
-              isPublished,
-            })
-          }
+          onClick={() => onSubmit(initialValues.id, isPublished)}
         >
           Save Changes
         </Button>

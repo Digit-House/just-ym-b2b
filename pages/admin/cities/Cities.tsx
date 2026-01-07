@@ -1,27 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import SortSelect, { SortOption } from "@/components/SortSelect";
+import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { useCountries } from "@/hooks/useCountries";
 import { useCities } from "@/hooks/useCities";
-import { FileEdit} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { FileEdit } from "lucide-react";
 import { CityT } from "@/types/cities.type";
 import CityEditForm from "./_components/CityForm";
 import ModalWrapper from "@/components/ModalWrapper";
-
-const SORT_OPTION: SortOption[] = [
-  { label: "Newest", value: "newest" },
-  { label: "Oldest", value: "oldest" },
-];
+import { getErrMsg, SORT_OPTION } from "@/util/initData";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { putCity } from "@/graphql/city";
+import { toast } from "sonner";
 
 const Cities = () => {
-  const navigate = useNavigate();
+  const { data: dataCountry, isLoading: countryLoading } = useCountries({
+    limit: 250,
+    page: 1,
+    orderBy: {
+      dir: "asc",
+    },
+    isPublished: true,
+    search: undefined,
+  });
+  const countryData = dataCountry?.data ?? [];
 
-  const { data: countryData, isLoading: countryLoading } = useCountries();
+  const [loading, setLoading] = useState(false);
   const [editCity, setEditCity] = useState<CityT | null>(null);
 
   const [countryId, setCountryId] = useState<string>("");
@@ -29,33 +42,50 @@ const Cities = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data: cities = [], isLoading: cityLoading } = useCities(countryId);
-
-  const sortedCities = useMemo(() => {
-    const list = [...cities];
-
-    list.sort((a: CityT, b: CityT) => {
-      if (sort === "newest") {
-        return +new Date(b.createdAt) - +new Date(a.createdAt);
-      }
-      return +new Date(a.createdAt) - +new Date(b.createdAt);
-    });
-
-    return list;
-  }, [cities, sort]);
-
-  const paginatedCities = sortedCities.slice(
-    (page - 1) * pageSize,
-    page * pageSize
+  const [isPublished, setIsPublished] = useState<boolean | undefined>(
+    undefined
   );
+
+  const {
+    data,
+    isLoading: cityLoading,
+    refetch,
+  } = useCities({
+    countryId: countryId,
+    limit: pageSize,
+    page,
+    orderBy: {
+      dir: sort === "newest" ? "desc" : "asc",
+    },
+    isPublished,
+    search: null,
+  });
+
+  const cities = data?.data ?? [];
+  const total = data?.total ?? 0;
+
+  const updateCity = async (id: string, isPublished: boolean) => {
+    try {
+      setLoading(true);
+      await putCity(id, isPublished);
+      setEditCity(null);
+      await refetch();
+      toast.success("Successfully Updated!");
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PageContainer>
       <PageHeader title="Cities" des="Select a country to manage its cities." />
 
-      {/* Top bar */}
-      <div className="flex items-center gap-4 mb-5 border border-[#21212124] py-[8px] px-[16px]">
-        {/* Country Select */}
+      {/* Filters */}
+      <div className="flex flex-wrap items-center justify-end mb-5 gap-4 border border-[#21212124] py-2 px-4">
+        {/* Search */}
+
         <select
           value={countryId}
           onChange={(e) => {
@@ -72,10 +102,35 @@ const Cities = () => {
             </option>
           ))}
         </select>
+        <Select
+          value={
+            isPublished === undefined
+              ? "all"
+              : isPublished
+              ? "published"
+              : "draft"
+          }
+          onValueChange={(value) => {
+            if (value === "all") setIsPublished(undefined);
+            else setIsPublished(value === "published");
+          }}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <div className="ml-auto">
-          <SortSelect options={SORT_OPTION} value={sort} onChange={setSort} />
-        </div>
+        {/* Sort */}
+        <SortSelect
+          options={SORT_OPTION}
+          value={sort}
+          onChange={(value) => setSort(value as "newest" | "oldest")}
+        />
       </div>
 
       {/* Table */}
@@ -114,7 +169,7 @@ const Cities = () => {
 
               {!cityLoading &&
                 countryId &&
-                paginatedCities.map((city: CityT) => (
+                cities.map((city: CityT) => (
                   <tr
                     key={city.id}
                     className="bg-white border-b hover:bg-gray-50 transition-colors"
@@ -146,9 +201,7 @@ const Cities = () => {
 
                     <td className="px-6 py-4">
                       <button
-                        onClick={() =>
-                         setEditCity(city)
-                        }
+                        onClick={() => setEditCity(city)}
                         className="text-indigo-600 hover:text-indigo-800"
                       >
                         <FileEdit size={18} />
@@ -168,9 +221,9 @@ const Cities = () => {
           children={
             <CityEditForm
               initialValues={editCity}
-              loading={false}
+              loading={loading}
               onCancel={() => setEditCity(null)}
-              onSubmit={() => {}}
+              onSubmit={updateCity}
             />
           }
         />
@@ -181,7 +234,7 @@ const Cities = () => {
         <Pagination
           page={page}
           pageSize={pageSize}
-          total={sortedCities.length}
+          total={total}
           onPageChange={setPage}
           onPageSizeChange={(size) => {
             setPageSize(size);

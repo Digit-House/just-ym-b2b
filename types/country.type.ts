@@ -1,3 +1,13 @@
+export type CountryFilterT = {
+  page: number;
+  limit: number;
+  orderBy: {
+    dir: "asc" | "desc";
+  };
+  isPublished: null | boolean;
+  search: string | null;
+};
+
 export type CurrencyT = {
   code: string;
   creditCardFee: number;

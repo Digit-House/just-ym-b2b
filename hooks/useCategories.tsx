@@ -19,7 +19,7 @@ export const useCategories = ({
   return useQuery({
     queryKey: ["categories", limit, page, orderBy.dir],
     queryFn: async () => {
-      const { data }:any = await client.query({
+      const { data }: any = await client.query({
         query: warpGql(GET_ALL_CATEGORIES),
         variables: {
           params: {
@@ -28,6 +28,7 @@ export const useCategories = ({
             orderBy,
           },
         },
+        fetchPolicy: "no-cache",
       });
 
       return data?.findAllCategories?.data;

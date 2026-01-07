@@ -8,16 +8,11 @@ import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
 import { getResellers } from "@/graphql/reseller";
 import { ResellerT } from "@/types/reseller.type";
-import { getErrMsg } from "@/util/initData";
+import { getErrMsg, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
 import ModalWrapper from "@/components/ModalWrapper";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
-
-const SORT_OPTION: SortOption[] = [
-  { label: "Newest", value: "newest" },
-  { label: "Oldest", value: "oldest" },
-];
 
 const Resellers = () => {
   const [data, setData] = useState<ResellerT[]>([]);

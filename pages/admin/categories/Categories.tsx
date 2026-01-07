@@ -1,35 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import SortSelect, { SortOption } from "@/components/SortSelect";
+import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { useCategories } from "@/hooks/useCategories";
-import { FileEdit } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { CategoryT } from "@/types/categories.type";
-
-
-const SORT_OPTION: SortOption[] = [
-  { label: "Newest", value: "newest" },
-  { label: "Oldest", value: "oldest" },
-];
+import { getErrMsg, getQueryClient, SORT_OPTION } from "@/util/initData";
+import RoleCheckAction from "@/components/RoleCheckAction";
+import { Plus } from "lucide-react";
+import ModalWrapper from "@/components/ModalWrapper";
+import CategoryForm from "./_components/CategoryForm";
+import { CategoryFormValues } from "@/types/schema/categorySchema";
+import { toast } from "sonner";
+import { postCategory } from "@/graphql/category";
+import { Button } from "@/components/ui/button";
 
 const Categories = () => {
-  const navigate = useNavigate();
-
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data = [], isLoading } = useCategories({
+  const [loading, setLoading] = useState(false);
+
+  const [modalState, setModalState] = useState<{
+    mode: "create" | "edit" | null;
+    category?: CategoryT;
+  }>({
+    mode: null,
+    category: null,
+  });
+
+  const closeModal = useCallback(() => {
+    setModalState({ mode: null, category: null });
+  }, []);
+
+  const {
+    data = [],
+    isLoading,
+    refetch,
+  } = useCategories({
     limit: pageSize,
     page,
     orderBy: {
       dir: sort === "newest" ? "desc" : "asc",
     },
   });
+
+  const handleCreateCategory = async (value: CategoryFormValues) => {
+    try {
+      setLoading(true);
+      await postCategory(value.name);
+      toast.success("Successfully Created !");
+      closeModal();
+      await refetch();
+      // getQueryClient().invalidateQueries({
+      //   queryKey: ["categories", pageSize, page, sort],
+      // });
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PageContainer>
@@ -40,6 +74,19 @@ const Categories = () => {
 
       {/* Top bar */}
       <div className="flex items-center justify-end mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
+        <RoleCheckAction>
+          <Button
+            onClick={() => {
+              setModalState({ mode: "create" });
+            }}
+            size="lg"
+            type="button"
+            loading={loading}
+          >
+            <Plus size={18} />
+            Add Category
+          </Button>
+        </RoleCheckAction>
         <SortSelect
           options={SORT_OPTION}
           value={sort}
@@ -56,10 +103,15 @@ const Categories = () => {
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-900 uppercase bg-indigo-50">
               <tr>
+                <th className="px-6 py-4 font-semibold">Id</th>
                 <th className="px-6 py-4 font-semibold">Category Name</th>
-                <th className="px-6 py-4 font-semibold">Created At</th>
-                <th className="px-6 py-4 font-semibold">Last Updated</th>
-                <th className="px-6 py-4 font-semibold">Action</th>
+                <th className="px-6 py-4 font-semibold text-center">
+                  Created At
+                </th>
+                <th className="px-6 py-4 font-semibold text-right">
+                  Last Updated
+                </th>
+                {/* <th className="px-6 py-4 font-semibold">Action</th> */}
               </tr>
             </thead>
 
@@ -73,24 +125,27 @@ const Categories = () => {
               )}
 
               {!isLoading &&
-                data.map((category: CategoryT) => (
+                data.map((category: CategoryT, index: number) => (
                   <tr
                     key={category.id}
                     className="bg-white border-b hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4 font-medium text-gray-900">
+                      {index + 1}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900">
                       {category.name}
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       {new Date(category.createdAt).toLocaleString()}
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-right">
                       {new Date(category.updatedAt).toLocaleString()}
                     </td>
 
-                    <td className="px-6 py-4">
+                    {/* <td className="px-6 py-4">
                       <button
                         onClick={() =>
                           navigate(`/categories/${category.id}`)
@@ -99,13 +154,24 @@ const Categories = () => {
                       >
                         <FileEdit size={18} />
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {modalState.mode === "create" && (
+        <ModalWrapper title="Create Category" onClose={closeModal}>
+          <CategoryForm
+            mode="create"
+            loading={loading}
+            onCancel={closeModal}
+            onSubmit={handleCreateCategory}
+          />
+        </ModalWrapper>
+      )}
 
       {/* Pagination */}
       <Pagination
