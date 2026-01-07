@@ -6,17 +6,19 @@ import PageHeader from "@/components/PageHeader";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
-import { getResellers } from "@/graphql/reseller";
+import { createReseller, getResellers } from "@/graphql/reseller";
 import { ResellerT } from "@/types/reseller.type";
 import { getErrMsg, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
 import ModalWrapper from "@/components/ModalWrapper";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
+import { ResellerFormValues } from "@/types/schema/resellerSchema";
 
 const Resellers = () => {
   const [data, setData] = useState<ResellerT[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchAgain, setFetchAgain] = useState(false);
 
   const [modalState, setModalState] = useState<{
     mode: "create" | "edit" | null;
@@ -40,13 +42,34 @@ const Resellers = () => {
 
   useEffect(() => {
     fetchResellers();
-  }, [filterData]);
+  }, [filterData, fetchAgain]);
 
   const fetchResellers = async () => {
     try {
       setLoading(true);
       const res: any = await getResellers(filterData);
       setData(res?.data?.findAllResellers?.data || []);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateReseller = async (value: ResellerFormValues) => {
+    try {
+      setLoading(true);
+      await createReseller({
+        name: value.name,
+        credit: {
+          balance: value.balance,
+          currency: value.currency,
+          relatedImages: [""],
+        },
+      });
+      closeModal();
+      setFetchAgain((prev) => !prev);
+      toast.success("Successfully Created!");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -191,7 +214,7 @@ const Resellers = () => {
             mode="create"
             loading={loading}
             onCancel={closeModal}
-            onSubmit={() => {}}
+            onSubmit={handleCreateReseller}
           />
         </ModalWrapper>
       )}

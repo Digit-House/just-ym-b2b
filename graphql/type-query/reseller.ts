@@ -24,3 +24,11 @@ query FindAllResellers($params: AbstractPagedParams!) {
   }
 }
 `;
+
+export const CREATE_RESELLER = `
+mutation CreateReseller($data: ResellerCreateInputDTO!) {
+  createReseller(data: $data) {
+    id
+  }
+}
+`;

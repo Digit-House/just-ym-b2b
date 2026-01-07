@@ -6,7 +6,10 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import ReadOnly from "@/components/ReadOnly";
 import { ResellerT } from "@/types/reseller.type";
-import { ResellerFormValues, resellerSchema } from "@/types/schema/resellerSchema";
+import {
+  ResellerFormValues,
+  resellerSchema,
+} from "@/types/schema/resellerSchema";
 import InputField from "@/components/InputField";
 
 type Mode = "create" | "edit";
@@ -33,7 +36,7 @@ export default function ResellerForm({
     defaultValues: {
       name: initialValues?.name ?? "",
       active: initialValues?.active ?? true,
-      currency: initialValues?.credit?.currency ?? "",
+      currency: initialValues?.credit?.currency ?? "THB",
       balance: initialValues?.credit?.balance ?? 0,
     },
   });
@@ -62,6 +65,7 @@ export default function ResellerForm({
         <div>
           <InputField
             label="Reseller Name"
+            isRequired
             {...register("name")}
             errMsg={errors.name?.message}
           />
@@ -70,6 +74,7 @@ export default function ResellerForm({
         <div>
           <InputField
             label="Currency"
+            isRequired
             {...register("currency")}
             disabled={isEdit}
             errMsg={errors.currency?.message}
@@ -83,6 +88,7 @@ export default function ResellerForm({
           <InputField
             type="number"
             label="Initial Balance"
+            isRequired
             {...register("balance", { valueAsNumber: true })}
             disabled={isEdit}
             errMsg={errors.balance?.message}
@@ -105,15 +111,11 @@ export default function ResellerForm({
           />
           <ReadOnly
             label="Outstanding Debt"
-            value={
-              initialValues?.credit.hasOutstandingDebt ? "Yes" : "No"
-            }
+            value={initialValues?.credit.hasOutstandingDebt ? "Yes" : "No"}
           />
           <ReadOnly
             label="Last Updated"
-            value={new Date(
-              initialValues!.credit.updatedAt
-            ).toLocaleString()}
+            value={new Date(initialValues!.credit.updatedAt).toLocaleString()}
           />
         </div>
       )}
