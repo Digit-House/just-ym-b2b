@@ -16,6 +16,7 @@ import {
   Atom,
   ChartBarStacked,
   SquareStop,
+  HatGlasses,
 } from "lucide-react";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -102,6 +103,16 @@ const Sidebar = () => {
         <NavLink to="/wallet" className={navItemClass("/wallet")}>
           <Wallet size={20} />
           <span>Wallet</span>
+        </NavLink>
+
+        <NavLink to="/roles" className={navItemClass("/roles")}>
+        <HatGlasses size={20} />
+          <span>Roles</span>
+        </NavLink>
+
+        <NavLink to="/resellers" className={navItemClass("/resellers")}>
+        <HatGlasses size={20} />
+          <span>Resellers</span>
         </NavLink>
 
         <NavLink to="/users" className={navItemClass("/users")}>

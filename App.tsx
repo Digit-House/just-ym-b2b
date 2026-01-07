@@ -26,6 +26,8 @@ import Categories from "./pages/admin/categories/Categories";
 import Wallet from "./pages/web/wallet/Wallet";
 import Topup from "./pages/web/wallet/topup/Topup";
 import TopUp from "./pages/admin/topUp/TopUp";
+import Resellers from "./pages/admin/reseller/Resellers";
+import Roles from "./pages/admin/role/Roles";
 
 const App = () => {
   return (
@@ -61,6 +63,8 @@ const App = () => {
             <Route path="cities" element={<Cities />} />
             <Route path="categories" element={<Categories />} />
             <Route path="topup" element={<TopUp />} />
+            <Route path="resellers" element={<Resellers />} />
+            <Route path="roles" element={<Roles />} />
           </Route>
         </Route>
 

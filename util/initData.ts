@@ -1,3 +1,4 @@
+import { SortOption } from "@/components/SortSelect";
 import { QueryClient } from "@tanstack/react-query";
 
 export const LSKeys = {
@@ -5,6 +6,11 @@ export const LSKeys = {
   callBack: "callBack",
   riaseAssmt: "riaseAssmt",
 };
+
+export const SORT_OPTION: SortOption[] = [
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+];
 
 
 export const TOPUP_PRESETS = [

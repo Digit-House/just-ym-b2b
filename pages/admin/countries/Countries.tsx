@@ -7,7 +7,7 @@ import { useCountries } from "@/hooks/useCountries";
 import { FileEdit } from "lucide-react";
 import { CountryT } from "@/types/country.type";
 import ModalWrapper from "@/components/ModalWrapper";
-import CountryEditForm from "./countries/CountryForm";
+import CountryEditForm from "./_components/CountryForm";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "newest" },
