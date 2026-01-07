@@ -64,7 +64,7 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
     }
   }
 }
-`
+`;
 
 export const ADD_TOP_UP = `
 mutation TopUp($data: TopUpInput!) {
@@ -84,6 +84,15 @@ mutation TopUp($data: TopUpInput!) {
     status
     topUpBalance
     updatedAt
+  }
+}
+`;
+
+export const CONFIRM_TOPUP = `
+mutation ConfirmTopUp($data: ConfirmTopUpInput!) {
+  confirmTopUp(data: $data) {
+    message
+    status
   }
 }
 `;

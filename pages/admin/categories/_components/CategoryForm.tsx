@@ -37,8 +37,6 @@ export default function CategoryForm({
     formState: { errors },
   } = form;
 
-  console.log(errors);
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Name */}

@@ -2,6 +2,7 @@ import { warpGql } from "@/util";
 import client from "./client";
 import {
   ADD_TOP_UP,
+  CONFIRM_TOPUP,
   GET_CREDIT_INFO,
   TOP_UP_HISTORY,
   TOPUP_HISTORY,
@@ -40,6 +41,21 @@ export const addTopup = async (payload: AddTopupPayloadT) => {
     mutation: warpGql(ADD_TOP_UP),
     variables: {
       data: { ...payload },
+    },
+  });
+};
+
+export const confirmTopup = async (
+  creditTopUpId: string,
+  topUpBalance: number
+) => {
+  return client.mutate({
+    mutation: warpGql(CONFIRM_TOPUP),
+    variables: {
+      data: {
+        creditTopUpId: creditTopUpId,
+        topUpBalance: topUpBalance,
+      },
     },
   });
 };

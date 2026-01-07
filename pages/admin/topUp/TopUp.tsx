@@ -6,7 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { TopUpHistoryT } from "@/types/wallet.type";
-import { getAdminTopupHistory} from "@/graphql/wallet";
+import { confirmTopup, getAdminTopupHistory } from "@/graphql/wallet";
 import { getErrMsg, SORT_OPTION } from "@/util/initData";
 import { toast } from "sonner";
 import { FileEdit } from "lucide-react";
@@ -17,7 +17,7 @@ const TopUp = () => {
   const [topUpData, setTopUpData] = useState<TopUpHistoryT[]>([]);
   const [editTopUp, setEditTopUp] = useState<TopUpHistoryT | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [fetchAgain, setFetchAgain] = useState(false);
   const [filterData, setFilterData] = useState({
     limit: 10,
     page: 1,
@@ -29,14 +29,26 @@ const TopUp = () => {
 
   useEffect(() => {
     fetchTopUpHistory();
-  }, [filterData]);
+  }, [filterData, fetchAgain]);
 
   const fetchTopUpHistory = async () => {
     try {
       setLoading(true);
       const res: any = await getAdminTopupHistory(filterData);
-      console.log(res?.data?.findAllTopUpHistory?.data);
       setTopUpData(res?.data?.findAllTopUpHistory?.data || []);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTopUp = async (id: string, topUpBalance: number) => {
+    try {
+      setLoading(true);
+      await confirmTopup(id, topUpBalance);
+      setFetchAgain((prev) => !prev);
+      setEditTopUp(null);
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -126,9 +138,12 @@ const TopUp = () => {
                       {new Date(item.createdAt).toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
-                      <button onClick={() => {
-                        setEditTopUp(item);
-                      }} className="text-indigo-600 hover:text-indigo-800">
+                      <button
+                        onClick={() => {
+                          setEditTopUp(item);
+                        }}
+                        className="text-indigo-600 hover:text-indigo-800"
+                      >
                         <FileEdit size={18} />
                       </button>
                     </td>
@@ -141,14 +156,14 @@ const TopUp = () => {
 
       {editTopUp && (
         <ModalWrapper
-          title="Edit Country"
+          title="Edit TopUp"
           onClose={() => setEditTopUp(null)}
           children={
             <TopUpEditForm
               initialValues={editTopUp}
               loading={false}
               onCancel={() => setEditTopUp(null)}
-              onSubmit={() => {}}
+              onSubmit={updateTopUp}
             />
           }
         />
