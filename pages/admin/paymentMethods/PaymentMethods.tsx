@@ -52,20 +52,19 @@ const PaymentMethods = () => {
   };
 
   const handleCreatePaymentMethod = async (value: PaymentMethodFormValues) => {
-    console.log(value,"55")
-    // try {
-    //   setLoading(true);
-    //   await postPaymentMethod(value);
-    //   toast.success("Successfully Created !");
-    //   closeModal();
-    //   setTimeout(() => {
-    //     setFetchAgain((prev) => !prev);
-    //   }, 2000);
-    // } catch (err) {
-    //   toast.error(getErrMsg(err, "message"));
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      await postPaymentMethod(value);
+      toast.success("Successfully Created !");
+      closeModal();
+      setTimeout(() => {
+        setFetchAgain((prev) => !prev);
+      }, 2000);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditPaymentMethod = async (value: PaymentMethodFormValues) => {
@@ -212,7 +211,7 @@ const PaymentMethods = () => {
       </div>
 
       {modalState.mode === "create" && (
-        <ModalWrapper title="Create Role" onClose={closeModal}>
+        <ModalWrapper title="Create Payment Method" onClose={closeModal}>
           <PaymentMethodForm
             mode="create"
             initialValues={modalState.paymentMethod}
@@ -224,7 +223,7 @@ const PaymentMethods = () => {
       )}
 
       {modalState.mode === "edit" && (
-        <ModalWrapper title="Edit Role" onClose={closeModal}>
+        <ModalWrapper title="Edit Payment Method" onClose={closeModal}>
           <PaymentMethodForm
             mode="edit"
             initialValues={modalState.paymentMethod}

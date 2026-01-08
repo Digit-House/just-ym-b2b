@@ -18,6 +18,7 @@ import {
 } from "@/types/schema/paymentMethodSchema";
 import { Switch } from "@/components/ui/switch";
 import { ImageUpload } from "@/components/ImageUpload";
+import { useState } from "react";
 
 
 type Mode = "create" | "edit";
@@ -66,12 +67,21 @@ export default function PaymentMethodForm({
 
   const type = watch("type");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmitHandler = async (values: PaymentMethodFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const payload = isEdit ? { ...values, id: initialValues?.id } : values;
+      await onSubmit(payload);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <form
-      onSubmit={handleSubmit((values) => {
-        const payload = isEdit ? { ...values, id: initialValues?.id } : values;
-        onSubmit(payload);
-      })}
+      onSubmit={handleSubmit(onSubmitHandler)}
       className="space-y-6"
     >
       {/* Name */}
@@ -178,7 +188,7 @@ export default function PaymentMethodForm({
           Cancel
         </Button>
 
-        <Button type="submit" loading={loading}>
+        <Button type="submit" loading={isSubmitting}>
           {isEdit ? "Save Changes" : "Create"}
         </Button>
       </div>

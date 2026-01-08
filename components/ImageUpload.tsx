@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { getSignedUrlAndImageDataUpload } from "@/util";
 
 type ImageUploadProps = {
   value?: string;
@@ -11,17 +12,18 @@ type ImageUploadProps = {
 export function ImageUpload({ value, onChange, label, errMsg }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | undefined>(value);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Convert file to Base64 to store as string in the form
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setPreview(result);
-        onChange(result);
-      };
-      reader.readAsDataURL(file);
+      // Upload to S3 and get the URL
+      const result = await getSignedUrlAndImageDataUpload(file, "CREDIT_TOP_UP");
+      if (result.status === 200 && result.url) {
+        setPreview(result.url);
+        onChange(result.url);
+      } else {
+        console.error("Image upload failed:", result.message || "Unknown error");
+        // Optionally show an error to the user
+      }
     }
   };
 
