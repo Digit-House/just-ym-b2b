@@ -22,10 +22,21 @@ export default function Tickets() {
   const navigate = useNavigate();
 
   const [sort, setSort] = useState("desc");
+  const published = "PUBLISHED";
   const [categories, setCategories] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
 
-  const { data: COUNTRIES } = useCountries();
+  const { data: dataCountry } = useCountries({
+    limit: 250,
+    page: 1,
+    orderBy: {
+      dir: "asc",
+    },
+    isPublished: true,
+    search: undefined,
+  });
+
+  const COUNTRIES = dataCountry?.data;
   const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
 
   const {
@@ -38,7 +49,7 @@ export default function Tickets() {
     error,
   } = useInfiniteQuery({
     initialPageParam: 1,
-    queryKey: ["products", { categories, countries, sort }],
+    queryKey: ["products", { categories, countries, sort, published }],
     queryFn: fetchProducts,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
   });

@@ -31,6 +31,41 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
 }
 `;
 
+export const TOPUP_HISTORY = `
+query FindAllTopUpHistory($data: TopUpPagedParams!) {
+  findAllTopUpHistory(data: $data) {
+    total
+    data {
+      id
+      relatedImages
+      reseller {
+        active
+        id
+        name
+      }
+      status
+      resellerId
+      topUpBalance
+      updatedAt
+      currency
+      createdAt
+      confirmBy {
+        id
+        email
+        contactNo
+        username
+      }
+      createdBy {
+        id
+        email
+        contactNo
+        username
+      }
+    }
+  }
+}
+`;
+
 export const ADD_TOP_UP = `
 mutation TopUp($data: TopUpInput!) {
   topUp(data: $data) {
@@ -49,6 +84,15 @@ mutation TopUp($data: TopUpInput!) {
     status
     topUpBalance
     updatedAt
+  }
+}
+`;
+
+export const CONFIRM_TOPUP = `
+mutation ConfirmTopUp($data: ConfirmTopUpInput!) {
+  confirmTopUp(data: $data) {
+    message
+    status
   }
 }
 `;

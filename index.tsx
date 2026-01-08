@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ApolloProvider } from '@apollo/client/react';
@@ -14,12 +14,14 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
+  <Fragment>
     <ApolloProvider client={client}>
       <QueryClientProvider client={getQueryClient()}>
       <App />
       </QueryClientProvider>
     </ApolloProvider>
     <Toaster theme="dark" />
-  </React.StrictMode>
+    </Fragment>
+  // </React.StrictMode>
 );

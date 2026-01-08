@@ -18,7 +18,7 @@ import { useUser } from "@/provider/UserProvider";
 import React from "react";
 import { uploadMultipleImages } from "@/util";
 
-const TopUp = () => {
+const Topup = () => {
   const navigate = useNavigate();
   const { user, setFetchWallet } = useUser();
   const [loading, setLoading] = React.useState(false);
@@ -125,4 +125,4 @@ const TopUp = () => {
   );
 };
 
-export default TopUp;
+export default Topup;
