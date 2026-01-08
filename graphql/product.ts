@@ -1,11 +1,17 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { GET_ALL_PRODUCTS, GET_PRODUCT_INFO } from "./type-query/product";
+import {
+  GET_ALL_PRODUCTS,
+  GET_PRODUCT_INFO,
+  GET_PRODUCT_OPTIONS,
+} from "./type-query/product";
 import {
   FilterProductListT,
   FindAllProductsT,
   ProductInfoResponse,
   ProductInfoT,
+  ProductOptionResponse,
+  ProductOptionT,
 } from "@/types/product.type";
 
 export const getAllProducts = async (data: FilterProductListT) => {
@@ -56,4 +62,20 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     data: res?.data,
     nextPage: res?.data?.length ? pageParam + 1 : null,
   };
+};
+
+export const getProductOptions = async (productId: string, date: Date) => {
+  try {
+    const res: ProductOptionResponse = await client.query({
+      query: warpGql(GET_PRODUCT_OPTIONS),
+      variables: {
+        userProductId: productId,
+        date: date,
+      },
+      fetchPolicy: "no-cache",
+    });
+    return res.data.user_product.productOptions as ProductOptionT[];
+  } catch (err) {
+    throw err;
+  }
 };
