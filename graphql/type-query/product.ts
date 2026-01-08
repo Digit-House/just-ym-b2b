@@ -25,7 +25,6 @@ query FindAllProducts($params: UserProductsInput!) {
 }
 `;
 
-
 export const GET_PRODUCT_INFO = `
 query GetProductInfo($productId: String!) {
   getProductInfo(productId: $productId) {
@@ -105,4 +104,86 @@ query GetProductInfo($productId: String!) {
     }
   }
 }
-`
+`;
+
+export const GET_PRODUCT_OPTIONS = `
+query Query($userProductId: String!, $date: DateTime) {
+  user_product(id: $userProductId, date: $date) {
+    productOptions {
+      advanceBooking {
+        day
+        dayMinute
+        hour
+        minute
+        required
+      }
+      availability
+      createdAt
+      currency
+      definedDuration
+      demandType
+      description
+      id
+      inclusions
+      isDynamicPricing
+      isTagged
+      keywords
+      name
+      primaryTicket
+      productId
+      publishStart
+      questionIds
+      isCapacity
+      redeemEnd
+      redeemStart
+      ticketFormat
+      ticketType {
+        ageFrom
+        ageTo
+        applyToAllQna
+        createdAt
+        dhSellingPrice
+        id
+        issuanceLimit
+        maxPurchaseQty
+        minPurchaseQty
+        name
+        originalPrice
+        similarTicketId
+        sku
+        updatedAt
+        useBin
+        globaltixId
+      }
+      ticketValidity
+      timeSlot
+      tourInformation
+      type
+      updatedAt
+      visitDate {
+        isOpenDated
+        request
+        required
+      }
+      publishEnd
+      questions {
+        cartItemId
+        createdAt
+        globaltixId
+        id
+        isAnswerLater
+        optionCode
+        optionList {
+          key
+          value
+        }
+        optional
+        options
+        question
+        questionCode
+        type
+        updatedAt
+      }
+    }
+  }
+}`;

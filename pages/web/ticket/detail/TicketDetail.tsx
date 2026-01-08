@@ -9,6 +9,9 @@ import DetailTabs from "./_components/DetailTabs";
 import BookingPanel from "./_components/BookingPanel";
 import BackBtn from "@/components/BackBtn";
 import PageContainer from "@/components/PageContainer";
+import SevenDayPicker from "./_components/SevenDayPicker";
+import ProductionOptionSelecter from "./_components/ProductionOptionSelecter";
+import VariantSelecter from "./_components/VariantSelecter";
 
 const TicketDetail = () => {
   const { id } = useParams();
@@ -28,6 +31,14 @@ const TicketDetail = () => {
     mediaList,
     nextMedia,
     prevMedia,
+    pickedDate,
+    setPickedDate,
+    optionLoading,
+    setOptionLoading,
+    productOptions,
+    setProductOptions,
+    selectedProductOption,
+    setSelectedProductOption,
   } = useTicketDetail(id);
 
   if (!product || !currentOption) {
@@ -55,8 +66,7 @@ const TicketDetail = () => {
           productName={product.name}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Main Content (2/3 width) */}
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-12">
             <SummaryCard product={product} currentOption={currentOption} />
 
@@ -79,6 +89,31 @@ const TicketDetail = () => {
               onUpdateQty={updateQuantity}
               totalPrice={totalPrice}
             />
+          </div>
+        </div> */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {product.name}
+        </h1>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <h3 className="text-2xl font-bold text-gray-900">Package Info</h3>
+            <SevenDayPicker
+              pickedDate={pickedDate}
+              setPickedDate={setPickedDate}
+              product={product}
+            />
+            <ProductionOptionSelecter
+              loading={optionLoading}
+              productOptions={productOptions}
+              selectedProductOption={selectedProductOption}
+              setSelectedProductOption={setSelectedProductOption}
+            />
+            {selectedProductOption && (
+              <VariantSelecter
+                selectedProductOption={selectedProductOption}
+                setSelectedProductOption={setSelectedProductOption}
+              />
+            )}
           </div>
         </div>
       </div>

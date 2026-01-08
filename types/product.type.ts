@@ -1,3 +1,8 @@
+export enum AVAILABILITY_ENUM {
+  AVAILABLE = "AVAILABLE",
+  UNAVAILABLE = "NOT_AVAILABLE",
+}
+
 export type FindAllProductsT = {
   data: ProductT[];
   total: number;
@@ -31,6 +36,14 @@ export type ProductT = {
 export interface ProductInfoResponse {
   data: {
     getProductInfo: ProductInfoT;
+  };
+}
+
+export interface ProductOptionResponse {
+  data: {
+    user_product: {
+      productOptions: ProductOptionT[];
+    };
   };
 }
 
@@ -98,7 +111,43 @@ export interface FixedDayT {
 }
 
 export interface ProductOptionT {
+  createdAt: Date;
+  currency: string;
+  definedDuration: string;
+  demandType: string;
+  description: string;
+  id: string;
+  inclusions: string[];
+  isDynamicPricing: boolean;
+  isTagged: boolean;
+  keywords: string;
+  name: string;
+  primaryTicket: string;
+  productId: string;
+  publishStart: Date;
+  isCapacity: boolean;
+  redeemEnd: Date;
+  redeemStart: Date;
+  ticketFormat: string;
   ticketType: TicketTypeT[];
+  ticketValidity: string;
+  timeSlot: string[];
+  tourInformation: string[];
+  type: string;
+  updatedAt: Date;
+  publishEnd: Date;
+  questions: ProductOptionQuestionT[];
+  visitDate: VisitDateT;
+  advanceBooking: AdvanceBookingT | null;
+  availability: AVAILABILITY_ENUM | null;
+}
+
+export interface AdvanceBookingT {
+  day: number;
+  dayMinute: number;
+  hour: number;
+  minute: number;
+  required: boolean;
 }
 
 export interface TicketTypeT {
@@ -121,4 +170,56 @@ export interface TicketTypeT {
   similarTicketId: number | null;
   createdAt: string;
   updatedAt: string;
+  quantity: number;
+}
+
+export interface ProductOptionQuestionT {
+  cartItemId: string;
+  createdAt: Date;
+  globaltixId: string;
+  id: string;
+  isAnswerLater: boolean;
+  optionCode: string;
+  optional: boolean;
+  optionList: OptionT[];
+  options: string[];
+  question: string;
+  questionCode: string;
+  type: string;
+  updatedAt: Date;
+}
+
+export interface VisitDateT {
+  isOpenDated: boolean;
+  request: boolean;
+  required: boolean;
+}
+
+export interface OptionT {
+  key: string;
+  value: string;
+}
+
+export interface EventAvailableDataT {
+  available: number;
+  enableEmp: boolean;
+  id: number;
+  isAdHoc: boolean;
+  isInactive: boolean;
+  seriesId: number;
+  seriesName: string;
+  time: string;
+  total: number;
+  unlimited: number;
+  used: number;
+}
+
+export interface SelectedProductOptionT {
+  id: string;
+  ticketType: TicketTypeT[];
+  totalPrice: number;
+  name: string;
+  questions: ProductOptionQuestionT[];
+  visitDate: VisitDateT;
+  isCapacity: boolean;
 }
