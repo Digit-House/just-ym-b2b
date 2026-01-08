@@ -52,19 +52,20 @@ const PaymentMethods = () => {
   };
 
   const handleCreatePaymentMethod = async (value: PaymentMethodFormValues) => {
-    try {
-      setLoading(true);
-      await postPaymentMethod(value);
-      toast.success("Successfully Created !");
-      closeModal();
-      setTimeout(() => {
-        setFetchAgain((prev) => !prev);
-      }, 2000);
-    } catch (err) {
-      toast.error(getErrMsg(err, "message"));
-    } finally {
-      setLoading(false);
-    }
+    console.log(value,"55")
+    // try {
+    //   setLoading(true);
+    //   await postPaymentMethod(value);
+    //   toast.success("Successfully Created !");
+    //   closeModal();
+    //   setTimeout(() => {
+    //     setFetchAgain((prev) => !prev);
+    //   }, 2000);
+    // } catch (err) {
+    //   toast.error(getErrMsg(err, "message"));
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleEditPaymentMethod = async (value: PaymentMethodFormValues) => {

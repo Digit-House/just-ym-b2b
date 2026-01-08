@@ -17,6 +17,8 @@ import {
   PaymentMethodFormValues,
 } from "@/types/schema/paymentMethodSchema";
 import { Switch } from "@/components/ui/switch";
+import { ImageUpload } from "@/components/ImageUpload";
+
 
 type Mode = "create" | "edit";
 
@@ -68,7 +70,6 @@ export default function PaymentMethodForm({
     <form
       onSubmit={handleSubmit((values) => {
         const payload = isEdit ? { ...values, id: initialValues?.id } : values;
-
         onSubmit(payload);
       })}
       className="space-y-6"
@@ -108,7 +109,6 @@ export default function PaymentMethodForm({
       </div>
 
       {/* Bank fields */}
-      {/* {type === "BANK_TRANSFER" && ( */}
       <>
         <InputField
           label="Bank Name"
@@ -131,21 +131,20 @@ export default function PaymentMethodForm({
           errMsg={errors.accountNumber?.message}
         />
       </>
-      {/* )} */}
 
-      {/* QR Code */}
-      {/* {type === "QR_CODE" && ( */}
-      <InputField
-        label="QR Code URL"
-        {...register("qrCodeUrl")}
+      {/* QR Code URL - Changed to ImageUpload */}
+      <ImageUpload
+        label="QR Code Image"
+        value={watch("qrCodeUrl")}
+        onChange={(val) => setValue("qrCodeUrl", val)}
         errMsg={errors.qrCodeUrl?.message}
       />
-      {/* )} */}
 
-      {/* Logo */}
-      <InputField
-        label="Logo URL"
-        {...register("logo")}
+      {/* Logo URL - Changed to ImageUpload */}
+      <ImageUpload
+        label="Logo Image"
+        value={watch("logo")}
+        onChange={(val) => setValue("logo", val)}
         errMsg={errors.logo?.message}
       />
 
