@@ -28,6 +28,7 @@ import Topup from "./pages/web/wallet/topup/Topup";
 import TopUp from "./pages/admin/topUp/TopUp";
 import Resellers from "./pages/admin/reseller/Resellers";
 import Roles from "./pages/admin/role/Roles";
+import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
 
 const App = () => {
   return (
@@ -41,7 +42,7 @@ const App = () => {
         {/* 🔐 Protected */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />         
+            <Route index element={<Dashboard />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="tickets/:id" element={<TicketDetailPage />} />
             <Route path="bookings" element={<Bookings />} />
@@ -58,7 +59,6 @@ const App = () => {
               <Route path="kyc" element={<KYCWizard />} />
             </Route>
 
-
             {/* ADMIN Routes */}
             <Route path="countries" element={<Countries />} />
             <Route path="cities" element={<Cities />} />
@@ -66,6 +66,7 @@ const App = () => {
             <Route path="topup" element={<TopUp />} />
             <Route path="resellers" element={<Resellers />} />
             <Route path="roles" element={<Roles />} />
+            <Route path="paymentMethods" element={<PaymentMethods />} />
           </Route>
         </Route>
 

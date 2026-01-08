@@ -67,6 +67,7 @@ export default function RoleForm({
       {/* Name */}
       <InputField
         label="Name"
+        
         {...register("name")}
         isRequired
         errMsg={errors.name?.message}

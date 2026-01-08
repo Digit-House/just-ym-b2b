@@ -68,6 +68,12 @@ export const navConfig: NavItem[] = [
     types: ["OWNER"],
   },
   {
+    label: "Payment",
+    path: "/paymentMethods",
+    icon: SquareStop,
+    types: ["OWNER"],
+  },
+  {
     label: "Roles",
     path: "/roles",
     icon: HatGlasses,

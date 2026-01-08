@@ -73,7 +73,7 @@ export default function TopUpEditForm({
           Cancel
         </Button>
 
-        <Button type="submit" loading={loading} disabled={!isDirty}>
+        <Button type="submit" loading={loading}>
           Save Changes
         </Button>
       </div>

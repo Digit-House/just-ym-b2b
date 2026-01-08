@@ -89,7 +89,7 @@ const Roles = () => {
   const handleCreateRole = async (value: RoleFormValues) => {
     try {
       setLoading(true);
-      const res = await postRole(value);
+       await postRole(value);
       toast.success("Successfully Created !");
       closeModal();
       setTimeout(() => {
