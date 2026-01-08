@@ -1,6 +1,6 @@
 import { useUser } from "@/provider/UserProvider";
 import useAuthStore from "@/store/useAuthStore";
-import { navConfig, NavItem } from "@/types/navitem.type";
+import { NAV_CONFIG, NavItem } from "@/types/navitem.type";
 import { USER_TYPE } from "@/types/role.type";
 import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { useState } from "react";
@@ -20,7 +20,7 @@ const Sidebar = () => {
       : location.pathname.startsWith(path);
 
   const navItemClass = (path: string) =>
-    `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+    `flex items-center gap-3 px-2 py-3 rounded-lg text-md transition-colors ${
       isActive(path)
         ? "text-indigo-600 bg-indigo-50 font-medium"
         : "text-gray-600 hover:bg-gray-100"
@@ -50,7 +50,7 @@ const Sidebar = () => {
 
       {/* NAV */}
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-20">
-        {navConfig.map((item) => {
+        {NAV_CONFIG.map((item) => {
           if (!canShow(item.types)) return null;
 
           // SETTINGS DROPDOWN

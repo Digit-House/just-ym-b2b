@@ -3,12 +3,16 @@ import {
   BarChart3,
   Building2,
   ChartBarStacked,
+  CreditCard,
+  DollarSign,
+  FileText,
   HatGlasses,
   Home,
   LayoutGrid,
   Settings,
-  SquareStop,
   Ticket,
+  UserPlus,
+  UserRoundCog,
   Users2,
   Wallet,
 } from "lucide-react";
@@ -22,68 +26,12 @@ export type NavItem = {
   children?: NavItem[];
 };
 
-export const navConfig: NavItem[] = [
+export const NAV_CONFIG: NavItem[] = [
   {
     label: "Dashboard",
     path: "/",
     icon: Home,
     types: "ALL",
-  },
-  {
-    label: "Tickets",
-    path: "/tickets",
-    icon: Ticket,
-    types: "ALL",
-  },
-  {
-    label: "My Bookings",
-    path: "/bookings",
-    icon: LayoutGrid,
-    types: ["RESELLER"],
-  },
-  {
-    label: "Wallet",
-    path: "/wallet",
-    icon: Wallet,
-    types: "ALL",
-  },
-  {
-    label: "Users Management",
-    path: "/users",
-    icon: Users2,
-    types: "ALL",
-  },
-  {
-    label: "Reports",
-    path: "/reports",
-    icon: BarChart3,
-    types: ["RESELLER"],
-  },
-
-  // ADMIN ONLY
-  {
-    label: "Topup",
-    path: "/topup",
-    icon: SquareStop,
-    types: ["OWNER"],
-  },
-  {
-    label: "Payment",
-    path: "/paymentMethods",
-    icon: SquareStop,
-    types: ["OWNER"],
-  },
-  {
-    label: "Roles",
-    path: "/roles",
-    icon: HatGlasses,
-    types: ["OWNER"],
-  },
-  {
-    label: "Resellers",
-    path: "/resellers",
-    icon: HatGlasses,
-    types: ["OWNER"],
   },
   {
     label: "Categories",
@@ -103,6 +51,63 @@ export const navConfig: NavItem[] = [
     icon: Building2,
     types: ["OWNER"],
   },
+  {
+    label: "Tickets",
+    path: "/tickets",
+    icon: Ticket,
+    types: "ALL",
+  },
+  {
+    label: "My Bookings",
+    path: "/bookings",
+    icon: FileText,
+    types: ["RESELLER"],
+  },
+  {
+    label: "Wallet",
+    path: "/wallet",
+    icon: Wallet,
+    types: "ALL",
+  },
+  {
+    label: "Reports",
+    path: "/reports",
+    icon: BarChart3,
+    types: ["RESELLER"],
+  },
+
+  // ADMIN ONLY
+  {
+    label: "Topup",
+    path: "/topup",
+    icon: DollarSign,
+    types: ["OWNER"],
+  },
+  {
+    label: "Payment",
+    path: "/paymentMethods",
+    icon: CreditCard,
+    types: ["OWNER"],
+  },
+  {
+    label: "Roles",
+    path: "/roles",
+    icon: UserRoundCog,
+    types: ["OWNER"],
+  },
+  {
+    label: "Resellers",
+    path: "/resellers",
+    icon: UserPlus,
+    types: ["OWNER"],
+  },
+  {
+    label: "Users Management",
+    path: "/users",
+    icon: Users2,
+    types: "ALL",
+  },
+  
 
   // SETTINGS (USER ONLY)
   {
