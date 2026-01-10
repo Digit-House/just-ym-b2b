@@ -29,6 +29,7 @@ import TopUp from "./pages/admin/topUp/TopUp";
 import Resellers from "./pages/admin/reseller/Resellers";
 import Roles from "./pages/admin/role/Roles";
 import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
+import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 
 const App = () => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
             <Route index element={<Dashboard />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="tickets/:id" element={<TicketDetailPage />} />
+            <Route path="tickets/user-info" element={<UserInfoPage />} />
             <Route path="bookings" element={<Bookings />} />
             <Route path="users" element={<UsersManagement />} />
             <Route path="bookings/:id" element={<BookingDetail />} />

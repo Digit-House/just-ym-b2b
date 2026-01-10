@@ -1,5 +1,10 @@
-import { getProductInfo, getProductOptions } from "@/graphql/product";
 import {
+  getProductInfo,
+  getProductOptions,
+  getTicketTypeEventAvailable,
+} from "@/graphql/product";
+import {
+  ADD_TO_CART_USER_TYPE,
   AVAILABILITY_ENUM,
   ProductInfoT,
   ProductOptionT,
@@ -8,6 +13,8 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { addDays } from "date-fns";
+import { useCartStore } from "@/store/useCartStore";
+import { TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE } from "@/graphql/type-query/product";
 
 export const useTicketDetail = (id?: string) => {
   const [product, setProduct] = useState<ProductInfoT | null>(null);
@@ -21,6 +28,8 @@ export const useTicketDetail = (id?: string) => {
   const [productOptions, setProductOptions] = useState<ProductOptionT[]>([]);
   const [selectedProductOption, setSelectedProductOption] =
     useState<SelectedProductOptionT | null>(null);
+  const [eventLoading, setEventLoading] = useState(false);
+  const { setEventList } = useCartStore();
 
   useEffect(() => {
     if (!id) return;
@@ -31,6 +40,13 @@ export const useTicketDetail = (id?: string) => {
     if (!id || !pickedDate) return;
     fetchProductOptions(id);
   }, [id, pickedDate]);
+
+  useEffect(() => {
+    if (!selectedProductOption) return;
+    if (selectedProductOption.isCapacity) {
+      fetchEventAvailable();
+    }
+  }, [selectedProductOption]);
 
   const fetchProduct = async (productId: string) => {
     try {
@@ -64,6 +80,25 @@ export const useTicketDetail = (id?: string) => {
       toast.error(err?.message || "Failed to load product");
     } finally {
       setOptionLoading(false);
+    }
+  };
+
+  const fetchEventAvailable = async () => {
+    if (!selectedProductOption) return;
+    try {
+      setEventLoading(true);
+      const data: TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE = {
+        dateFrom: pickedDate.toISOString(),
+        dateTo: pickedDate.toISOString(),
+        globalTixTicketTypeID:
+          selectedProductOption.ticketType[0].globaltixId || 0,
+      };
+      const res = await getTicketTypeEventAvailable(data);
+      setEventList(res);
+    } catch (err) {
+      toast.error(err?.message || "Failed to event available");
+    } finally {
+      setEventLoading(false);
     }
   };
 
@@ -125,5 +160,6 @@ export const useTicketDetail = (id?: string) => {
     setProductOptions,
     selectedProductOption,
     setSelectedProductOption,
+    eventLoading,
   };
 };
