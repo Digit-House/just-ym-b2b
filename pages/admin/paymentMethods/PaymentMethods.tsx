@@ -16,6 +16,14 @@ import ModalWrapper from "@/components/ModalWrapper";
 import PaymentMethodForm from "./_components/PaymentMethodForm";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { PaymentMethodFormValues } from "@/types/schema/paymentMethodSchema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const PaymentMethods = () => {
   const [loading, setLoading] = useState(false);
@@ -93,30 +101,36 @@ const PaymentMethods = () => {
       {/* Top filter bar */}
       <div className="flex items-center justify-between mb-5 gap-3 border border-[#21212124] py-[8px] px-[16px]">
         <RoleCheckAction>
-          <button
-            onClick={() => {
-              setModalState({ mode: "create" });
-            }}
-            className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
-          >
-            <Plus size={18} />
-            Add Payment Method
-          </button>
+          <RoleCheckAction>
+            <Button
+              onClick={() => {
+                setModalState({ mode: "create" });
+              }}
+              size="lg"
+              type="button"
+              loading={loading}
+            >
+              <Plus size={18} />
+              Add Payment Method
+            </Button>
+          </RoleCheckAction>
         </RoleCheckAction>
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
+        <Select
           value={isActive === null ? "all" : isActive ? "active" : "inactive"}
-          onChange={(e) => {
-            const value = e.target.value;
-            setIsActive(
-              value === "all" ? null : value === "active" ? true : false
-            );
+          onValueChange={(value) => {
+            setIsActive(value === "all" ? null : value === "active");
           }}
         >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="all">All</option>
-        </select>
+          <SelectTrigger className="h-9 w-[160px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}

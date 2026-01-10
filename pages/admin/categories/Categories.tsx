@@ -7,7 +7,7 @@ import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { useCategories } from "@/hooks/useCategories";
 import { CategoryT } from "@/types/categories.type";
-import { getErrMsg, getQueryClient, SORT_OPTION } from "@/util/initData";
+import { getErrMsg,PAGE_SIZE,SORT_OPTION } from "@/util/initData";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { Plus } from "lucide-react";
 import ModalWrapper from "@/components/ModalWrapper";
@@ -16,11 +16,12 @@ import { CategoryFormValues } from "@/types/schema/categorySchema";
 import { toast } from "sonner";
 import { postCategory } from "@/graphql/category";
 import { Button } from "@/components/ui/button";
+import { SortT } from "@/types/index.type";
 
 const Categories = () => {
-  const [sort, setSort] = useState<"newest" | "oldest">("newest");
+  const [sort, setSort] = useState<SortT>("newest");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   const [loading, setLoading] = useState(false);
 
@@ -55,9 +56,6 @@ const Categories = () => {
       toast.success("Successfully Created !");
       closeModal();
       await refetch();
-      // getQueryClient().invalidateQueries({
-      //   queryKey: ["categories", pageSize, page, sort],
-      // });
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -71,9 +69,7 @@ const Categories = () => {
         title="Categories"
         des="Manage available categories used across the system."
       />
-
-      {/* Top bar */}
-      <div className="flex items-center justify-end mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
+      <div className="flex items-center justify-between mb-5 gap-4 border border-[#21212124] py-2 px-4">
         <RoleCheckAction>
           <Button
             onClick={() => {
@@ -111,6 +107,7 @@ const Categories = () => {
                 <th className="px-6 py-4 font-semibold text-right">
                   Last Updated
                 </th>
+                {/* //don't remove */}
                 {/* <th className="px-6 py-4 font-semibold">Action</th> */}
               </tr>
             </thead>
@@ -145,6 +142,7 @@ const Categories = () => {
                       {new Date(category.updatedAt).toLocaleString()}
                     </td>
 
+                    {/* //don't remove */}
                     {/* <td className="px-6 py-4">
                       <button
                         onClick={() =>
@@ -172,8 +170,6 @@ const Categories = () => {
           />
         </ModalWrapper>
       )}
-
-      {/* Pagination */}
       <Pagination
         page={page}
         pageSize={pageSize}

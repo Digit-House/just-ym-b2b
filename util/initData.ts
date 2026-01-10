@@ -1,6 +1,8 @@
 import { SortOption } from "@/components/SortSelect";
 import { QueryClient } from "@tanstack/react-query";
 
+export const PAGE_SIZE=10;
+
 export const LSKeys = {
   authStorage: "auth-storage",
   callBack: "callBack",

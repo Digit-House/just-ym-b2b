@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { putCity } from "@/graphql/city";
 import { toast } from "sonner";
+import { SortT } from "@/types/index.type";
 
 const Cities = () => {
   const { data: dataCountry, isLoading: countryLoading } = useCountries({
@@ -38,7 +39,7 @@ const Cities = () => {
   const [editCity, setEditCity] = useState<CityT | null>(null);
 
   const [countryId, setCountryId] = useState<string>("");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState<SortT>("newest");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -82,50 +83,51 @@ const Cities = () => {
     <PageContainer>
       <PageHeader title="Cities" des="Select a country to manage its cities." />
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center justify-end mb-5 gap-4 border border-[#21212124] py-2 px-4">
-        {/* Search */}
+      <div className="flex flex-wrap items-center justify-between mb-5 gap-4 border border-[#21212124] py-3 px-4">
+        <div className="flex items-center gap-2">
+          <Select
+            value={countryId || ""}
+            onValueChange={(value) => {
+              setCountryId(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 w-50">
+              <SelectValue placeholder="Select Country" />
+            </SelectTrigger>
 
-        <select
-          value={countryId}
-          onChange={(e) => {
-            setCountryId(e.target.value);
-            setPage(1);
-          }}
-          className="h-9 rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        >
-          <option value="">Select Country</option>
+            <SelectContent className="h-125">
+              {countryData?.map((country) => (
+                <SelectItem key={country.id} value={country.id}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={
+              isPublished === undefined
+                ? "all"
+                : isPublished
+                ? "published"
+                : "draft"
+            }
+            onValueChange={(value) => {
+              if (value === "all") setIsPublished(undefined);
+              else setIsPublished(value === "published");
+            }}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          {countryData?.map((country) => (
-            <option key={country.id} value={country.id}>
-              {country.name}
-            </option>
-          ))}
-        </select>
-        <Select
-          value={
-            isPublished === undefined
-              ? "all"
-              : isPublished
-              ? "published"
-              : "draft"
-          }
-          onValueChange={(value) => {
-            if (value === "all") setIsPublished(undefined);
-            else setIsPublished(value === "published");
-          }}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Sort */}
         <SortSelect
           options={SORT_OPTION}
           value={sort}
@@ -133,7 +135,6 @@ const Cities = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
@@ -229,7 +230,6 @@ const Cities = () => {
         />
       )}
 
-      {/* Pagination */}
       {countryId && (
         <Pagination
           page={page}

@@ -66,6 +66,7 @@ export default function ResellerForm({
           <InputField
             label="Reseller Name"
             isRequired
+            placeholder="Mg Mg"
             {...register("name")}
             errMsg={errors.name?.message}
           />
@@ -76,7 +77,7 @@ export default function ResellerForm({
             label="Currency"
             isRequired
             {...register("currency")}
-            disabled={isEdit}
+            disabled={true}
             errMsg={errors.currency?.message}
           />
         </div>
@@ -89,6 +90,7 @@ export default function ResellerForm({
             type="number"
             label="Initial Balance"
             isRequired
+            placeholder="1000"
             {...register("balance", { valueAsNumber: true })}
             disabled={isEdit}
             errMsg={errors.balance?.message}

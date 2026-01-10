@@ -67,7 +67,7 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Wallet",
     path: "/wallet",
     icon: Wallet,
-    types: "ALL",
+    types: ["RESELLER"],
   },
   {
     label: "Reports",
@@ -107,7 +107,6 @@ export const NAV_CONFIG: NavItem[] = [
     icon: Users2,
     types: "ALL",
   },
-  
 
   // SETTINGS (USER ONLY)
   {

@@ -8,12 +8,13 @@ import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
 import { createReseller, getResellers } from "@/graphql/reseller";
 import { ResellerT } from "@/types/reseller.type";
-import { getErrMsg, SORT_OPTION } from "@/util/initData";
+import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
 import ModalWrapper from "@/components/ModalWrapper";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { ResellerFormValues } from "@/types/schema/resellerSchema";
+import { Button } from "@/components/ui/button";
 
 const Resellers = () => {
   const [data, setData] = useState<ResellerT[]>([]);
@@ -33,7 +34,7 @@ const Resellers = () => {
   }, []);
 
   const [filterData, setFilterData] = useState({
-    limit: 10,
+    limit: PAGE_SIZE,
     page: 1,
     orderBy: {
       dir: "desc" as "asc" | "desc",
@@ -101,15 +102,17 @@ const Resellers = () => {
         />
 
         <RoleCheckAction>
-          <button
+          <Button
             onClick={() => {
               setModalState({ mode: "create" });
             }}
-            className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+            size="lg"
+            type="button"
+            loading={loading}
           >
             <Plus size={18} />
             Add Reseller
-          </button>
+          </Button>
         </RoleCheckAction>
       </div>
 

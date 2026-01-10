@@ -64,25 +64,24 @@ export default function RoleForm({
       })}
       className="space-y-6"
     >
-      {/* Name */}
+
       <InputField
         label="Name"
-        
+        placeholder="MANAGER"
         {...register("name")}
         isRequired
         errMsg={errors.name?.message}
       />
 
-      {/* Description */}
       <TextareaField
         label="Description"
         rows={4}
+        placeholder="Hello Description"
         {...register("description")}
         isRequired
         errMsg={errors.description?.message}
       />
-
-      {/* Reseller Select */}
+      
       <div className="space-y-1">
         <label className="text-sm font-medium">Reseller</label>
         <Select
@@ -90,10 +89,10 @@ export default function RoleForm({
           onValueChange={(val) => setValue("resellerId", val)}
           disabled={isEdit}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select reseller" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="w-full">
             {resellerOptions.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}

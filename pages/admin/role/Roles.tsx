@@ -7,7 +7,7 @@ import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
 import { getResellers } from "@/graphql/reseller";
-import { getErrMsg, SORT_OPTION } from "@/util/initData";
+import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ModalWrapper from "@/components/ModalWrapper";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
@@ -15,6 +15,7 @@ import { RoleT } from "@/types/role.type";
 import RoleForm from "./_components/RoleForm";
 import { getRoles, postRole } from "@/graphql/role";
 import { RoleFormValues } from "@/types/schema/roleSchema";
+import { Button } from "@/components/ui/button";
 
 const Roles = () => {
   const [data, setData] = useState<RoleT[]>([]);
@@ -22,7 +23,7 @@ const Roles = () => {
     { label: string; value: string }[]
   >([]);
   const [loading, setLoading] = useState(false);
-
+  const [total, setTotal] = useState(0);
   const [fetchAgain, setFetchAgain] = useState(false);
 
   const [modalState, setModalState] = useState<{
@@ -38,7 +39,7 @@ const Roles = () => {
   }, []);
 
   const [filterData, setFilterData] = useState({
-    limit: 10,
+    limit: PAGE_SIZE,
     page: 1,
     orderBy: {
       dir: "desc" as "asc" | "desc",
@@ -55,6 +56,7 @@ const Roles = () => {
       setLoading(true);
       const res: any = await getRoles(filterData);
       setData(res?.data?.findAllRoles?.data || []);
+      setTotal(res?.data?.findAllRoles?.total || 0);
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -89,7 +91,7 @@ const Roles = () => {
   const handleCreateRole = async (value: RoleFormValues) => {
     try {
       setLoading(true);
-       await postRole(value);
+      await postRole(value);
       toast.success("Successfully Created !");
       closeModal();
       setTimeout(() => {
@@ -105,8 +107,6 @@ const Roles = () => {
   return (
     <PageContainer>
       <PageHeader title="Role" des="Manage role accounts." />
-
-      {/* Top bar */}
       <div className="flex items-center flex-row-reverse justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
         <SortSelect
           options={SORT_OPTION}
@@ -123,19 +123,20 @@ const Roles = () => {
         />
 
         <RoleCheckAction>
-          <button
+          <Button
             onClick={() => {
               setModalState({ mode: "create" });
             }}
-            className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+            size="lg"
+            type="button"
+            loading={loading}
           >
             <Plus size={18} />
             Add Role
-          </button>
+          </Button>
         </RoleCheckAction>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
@@ -233,14 +234,10 @@ const Roles = () => {
         </ModalWrapper>
       )}
 
-      {/* Pagination */}
       <Pagination
         page={filterData.page}
         pageSize={filterData.limit}
-        total={
-          filterData.page * filterData.limit +
-          (data.length === filterData.limit ? filterData.limit : 0)
-        }
+        total={total}
         onPageChange={(page) => setFilterData((prev) => ({ ...prev, page }))}
         onPageSizeChange={(limit) =>
           setFilterData((prev) => ({

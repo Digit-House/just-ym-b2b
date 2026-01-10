@@ -7,7 +7,7 @@ import { FileEdit } from "lucide-react";
 import { CountryT } from "@/types/country.type";
 import ModalWrapper from "@/components/ModalWrapper";
 import CountryEditForm from "./_components/CountryForm";
-import { getErrMsg, SORT_OPTION } from "@/util/initData";
+import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import SortSelect from "@/components/SortSelect";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,14 +20,14 @@ import {
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "sonner";
 import { putCountry } from "@/graphql/country";
-import { ref } from "process";
+import { SortT } from "@/types/index.type";
 
 const Countries = () => {
-  const [sort, setSort] = useState<"newest" | "oldest">("newest");
+  const [sort, setSort] = useState<SortT>("newest");
   const [editCountry, setEditCountry] = useState<CountryT | null>(null);
 
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
@@ -72,42 +72,39 @@ const Countries = () => {
         title="Countries"
         des="Manage available countries and their configurations."
       />
+      <div className="flex flex-wrap items-center justify-between mb-5 gap-4 border border-[#21212124] py-3 px-4">
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Search country..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-55 text-sm"
+          />
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center justify-end mb-5 gap-4 border border-[#21212124] py-2 px-4">
-        {/* Search */}
-        <Input
-          placeholder="Search country..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-55 h-8.75 text-sm"
-        />
+          <Select
+            value={
+              isPublished === undefined
+                ? "all"
+                : isPublished
+                ? "published"
+                : "draft"
+            }
+            onValueChange={(value) => {
+              if (value === "all") setIsPublished(undefined);
+              else setIsPublished(value === "published");
+            }}
+          >
+            <SelectTrigger className="w-[160px] ">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        {/* Status Filter */}
-        <Select
-          value={
-            isPublished === undefined
-              ? "all"
-              : isPublished
-              ? "published"
-              : "draft"
-          }
-          onValueChange={(value) => {
-            if (value === "all") setIsPublished(undefined);
-            else setIsPublished(value === "published");
-          }}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Sort */}
         <SortSelect
           options={SORT_OPTION}
           value={sort}
@@ -115,7 +112,6 @@ const Countries = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
@@ -182,7 +178,6 @@ const Countries = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {editCountry && (
         <ModalWrapper title="Edit Country" onClose={() => setEditCountry(null)}>
           <CountryEditForm
@@ -194,7 +189,6 @@ const Countries = () => {
         </ModalWrapper>
       )}
 
-      {/* Pagination */}
       <Pagination
         page={page}
         pageSize={pageSize}

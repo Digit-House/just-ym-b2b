@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
-import { RoleFormValues, roleSchema } from "@/types/schema/roleSchema";
 import { CategoryFormValues, categorySchema } from "@/types/schema/categorySchema";
 
 type Props = {
@@ -39,14 +38,12 @@ export default function CategoryForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Name */}
       <InputField
         label="Name"
         {...register("name")}
         errMsg={errors.name?.message}
       />
 
-      {/* Actions */}
       <div className="flex justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel

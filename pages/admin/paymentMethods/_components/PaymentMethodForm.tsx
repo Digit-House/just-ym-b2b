@@ -20,7 +20,6 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUpload } from "@/components/ImageUpload";
 import { useState } from "react";
 
-
 type Mode = "create" | "edit";
 
 type Props = {
@@ -80,19 +79,7 @@ export default function PaymentMethodForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmitHandler)}
-      className="space-y-6"
-    >
-      {/* Name */}
-      <InputField
-        label="Name"
-        {...register("name")}
-        isRequired
-        errMsg={errors.name?.message}
-      />
-
-      {/* Type */}
+    <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-6">
       <div className="space-y-1">
         <label className="text-sm font-medium">
           Type <span className="text-red-500">*</span>
@@ -104,13 +91,13 @@ export default function PaymentMethodForm({
           }
           disabled={isEdit}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
             <SelectItem value="QR_CODE">QR Code</SelectItem>
-            <SelectItem value="OTHER">Other</SelectItem>
+            {/* <SelectItem value="OTHER">Other</SelectItem> */}
           </SelectContent>
         </Select>
         {errors.type && (
@@ -118,11 +105,19 @@ export default function PaymentMethodForm({
         )}
       </div>
 
-      {/* Bank fields */}
       <>
+        <InputField
+          label="Name"
+          {...register("name")}
+          placeholder="KBZ Pay,AYA Pay"
+          isRequired
+          errMsg={errors.name?.message}
+        />
+
         <InputField
           label="Bank Name"
           isRequired
+          placeholder="KBZ"
           {...register("bankName")}
           errMsg={errors.bankName?.message}
         />
@@ -130,6 +125,7 @@ export default function PaymentMethodForm({
         <InputField
           label="Account Name"
           isRequired
+          placeholder="Mg Mg"
           {...register("accountName")}
           errMsg={errors.accountName?.message}
         />
@@ -137,20 +133,12 @@ export default function PaymentMethodForm({
         <InputField
           label="Account Number"
           isRequired
+          placeholder="09193939399"
           {...register("accountNumber")}
           errMsg={errors.accountNumber?.message}
         />
       </>
 
-      {/* QR Code URL - Changed to ImageUpload */}
-      <ImageUpload
-        label="QR Code Image"
-        value={watch("qrCodeUrl")}
-        onChange={(val) => setValue("qrCodeUrl", val)}
-        errMsg={errors.qrCodeUrl?.message}
-      />
-
-      {/* Logo URL - Changed to ImageUpload */}
       <ImageUpload
         label="Logo Image"
         value={watch("logo")}
@@ -158,22 +146,29 @@ export default function PaymentMethodForm({
         errMsg={errors.logo?.message}
       />
 
+      <ImageUpload
+        label="QR Code Image"
+        value={watch("qrCodeUrl")}
+        onChange={(val) => setValue("qrCodeUrl", val)}
+        errMsg={errors.qrCodeUrl?.message}
+      />
+
       <TextareaField
         label="Description"
         rows={4}
+        placeholder="Hello Descirption"
         {...register("description")}
         errMsg={errors.description?.message}
       />
 
-      {/* Instructions */}
       <TextareaField
         label="Instructions"
         rows={4}
+        placeholder="Hello Instructions"
         {...register("instructions")}
         errMsg={errors.instructions?.message}
       />
 
-      {/* Active */}
       <div className="flex items-center justify-between border rounded-lg px-4 py-3">
         <span className="text-sm font-medium">Active</span>
         <Switch
@@ -182,7 +177,6 @@ export default function PaymentMethodForm({
         />
       </div>
 
-      {/* Actions */}
       <div className="flex justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel

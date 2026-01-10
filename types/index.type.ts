@@ -5,3 +5,5 @@ export interface FilterT {
     },
     page:number;
 }
+
+export type SortT = "newest" | "oldest"
