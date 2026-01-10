@@ -14,6 +14,7 @@ export type ResellerCreditT = {
   lastMonthUsage: number;
   hasOutstandingDebt: boolean;
   createdAt: string;
+  relatedImages?: string[];
 };
 
 export type ResellerT = {

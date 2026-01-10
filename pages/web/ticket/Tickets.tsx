@@ -116,7 +116,6 @@ export default function Tickets() {
           {products.map((p) => (
             <div
               key={p.id}
-              onClick={() => navigate(`/tickets/${p.id}`)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="h-48 overflow-hidden relative">
@@ -146,9 +145,20 @@ export default function Tickets() {
                       ${p.dhSellingPrice}
                     </p>
                   </div>
-                  <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    Book Now
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/admin-tickets/edit/${p.id}`)}
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => navigate(`/tickets/${p.id}`)}
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Book Now
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

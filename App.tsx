@@ -13,7 +13,7 @@ import Login from "./pages/auth/Login";
 import Dashboard from "./pages/web/Dashboard";
 import Reports from "./pages/web/Reports";
 import KYCWizard from "./pages/web/KYCWizard";
-import Tickets from "./pages/web/ticket/Tickets";
+import UserTickets from "./pages/web/ticket/Tickets";
 import Settings from "./pages/web/Settings";
 import TicketDetailPage from "./pages/web/ticket/detail/TicketDetail";
 import Bookings from "./pages/web/booking/Bookings";
@@ -29,6 +29,8 @@ import TopUp from "./pages/admin/topUp/TopUp";
 import Resellers from "./pages/admin/reseller/Resellers";
 import Roles from "./pages/admin/role/Roles";
 import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
+import AdminTickets from "./pages/admin/tickets/Tickets";
+import AdminTicketEdit from "./pages/admin/tickets/edit/[id]/TicketEdit";
 import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 
 const App = () => {
@@ -44,7 +46,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="tickets" element={<Tickets />} />
+            <Route path="tickets" element={<UserTickets />} />
             <Route path="tickets/:id" element={<TicketDetailPage />} />
             <Route path="tickets/user-info" element={<UserInfoPage />} />
             <Route path="bookings" element={<Bookings />} />
@@ -69,6 +71,7 @@ const App = () => {
             <Route path="resellers" element={<Resellers />} />
             <Route path="roles" element={<Roles />} />
             <Route path="paymentMethods" element={<PaymentMethods />} />
+            <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
           </Route>
         </Route>
 

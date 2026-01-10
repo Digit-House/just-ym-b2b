@@ -77,6 +77,12 @@ export const NAV_CONFIG: NavItem[] = [
   },
 
   // ADMIN ONLY
+  // {
+  //   label: "Tickets",
+  //   path: "/admin-tickets",
+  //   icon: Ticket,
+  //   types: ["OWNER"],
+  // },
   {
     label: "Topup",
     path: "/topup",

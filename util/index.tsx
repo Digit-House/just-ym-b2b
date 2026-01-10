@@ -9,7 +9,7 @@ export const warpGql = (query: string) => {
 
 export const getSignedUrlAndImageDataUpload = async (
   fileData: File | null,
-  folder: "CREDIT_TOP_UP",
+  folder: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE",
   uploadUrl?: string | null
 ) => {
   if (fileData) {

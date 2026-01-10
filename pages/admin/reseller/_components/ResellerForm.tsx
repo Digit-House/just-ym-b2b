@@ -11,6 +11,7 @@ import {
   resellerSchema,
 } from "@/types/schema/resellerSchema";
 import InputField from "@/components/InputField";
+import { ImageUpload } from "@/components/ImageUpload";
 
 type Mode = "create" | "edit";
 
@@ -38,6 +39,7 @@ export default function ResellerForm({
       active: initialValues?.active ?? true,
       currency: initialValues?.credit?.currency ?? "THB",
       balance: initialValues?.credit?.balance ?? 0,
+      relatedImages: initialValues?.credit?.relatedImages || [],
     },
   });
 
@@ -49,11 +51,15 @@ export default function ResellerForm({
       onSubmit={handleSubmit((values) => {
         const payload =
           mode === "create"
-            ? values
+            ? {
+                ...values,
+                relatedImages: values.relatedImages || [],
+              }
             : {
                 id: initialValues!.id,
                 name: values.name,
                 active: values.active,
+                relatedImages: values.relatedImages || [],
               };
 
         onSubmit(payload);
@@ -103,6 +109,17 @@ export default function ResellerForm({
             value={initialValues?.credit.totalUsage.toLocaleString()}
           />
         )}
+      </div>
+
+      {/* Related Images */}
+      <div>
+        <ImageUpload
+          label="Related Images"
+          value={watch("relatedImages")?.[0] || ""}
+          onChange={(val) => setValue("relatedImages", val ? [val] : [])}
+          errMsg={errors.relatedImages?.message}
+          folderType="CREDIT_TOP_UP"
+        />
       </div>
 
       {isEdit && (

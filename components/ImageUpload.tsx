@@ -7,22 +7,21 @@ type ImageUploadProps = {
   onChange: (value: string) => void;
   label?: string;
   errMsg?: string;
+  folderType: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE";
 };
 
-export function ImageUpload({ value, onChange, label, errMsg }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, label, folderType, errMsg }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | undefined>(value);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Upload to S3 and get the URL
-      const result = await getSignedUrlAndImageDataUpload(file, "CREDIT_TOP_UP");
+      const result = await getSignedUrlAndImageDataUpload(file, folderType);
       if (result.status === 200 && result.url) {
         setPreview(result.url);
         onChange(result.url);
       } else {
         console.error("Image upload failed:", result.message || "Unknown error");
-        // Optionally show an error to the user
       }
     }
   };

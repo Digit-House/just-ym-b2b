@@ -24,7 +24,7 @@ const SevenDayPicker = ({
     const days = Array.from({ length: 7 }, (_, i) => addDays(selectedDate, i));
     setDayList(days);
   }, [selectedDate]);
-  console.log(dayList, selectedDate);
+  
   return (
     <div className="w-full ">
       <h5 className="mb-3">Select Date</h5>

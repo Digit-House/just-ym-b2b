@@ -32,3 +32,11 @@ mutation CreateReseller($data: ResellerCreateInputDTO!) {
   }
 }
 `;
+
+export const UPDATE_RESELLER = `
+mutation UpdateReseller($id: String!, $data: ResellerUpdateInputDTO!) {
+  updateReseller(id: $id, data: $data) {
+    id
+  }
+}
+`;

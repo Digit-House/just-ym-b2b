@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import SortSelect, { SortOption } from "@/components/SortSelect";
+import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
-import { createReseller, getResellers } from "@/graphql/reseller";
+import { createReseller, getResellers, updateReseller } from "@/graphql/reseller";
 import { ResellerT } from "@/types/reseller.type";
 import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
@@ -65,12 +65,33 @@ const Resellers = () => {
         credit: {
           balance: value.balance,
           currency: value.currency,
-          relatedImages: [""],
+          relatedImages: value.relatedImages || [],
         },
       });
       closeModal();
       setFetchAgain((prev) => !prev);
       toast.success("Successfully Created!");
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditReseller = async (value: ResellerFormValues) => {
+    try {
+      setLoading(true);
+      await updateReseller(modalState.reseller!.id, {
+        id: modalState.reseller!.id,
+        name: value.name,
+        active: value.active,
+        credit: {
+          relatedImages: value.relatedImages || [],
+        },
+      });
+      closeModal();
+      setFetchAgain((prev) => !prev);
+      toast.success("Successfully Updated!");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -84,8 +105,6 @@ const Resellers = () => {
         title="Resellers"
         des="Manage reseller accounts and credit balances."
       />
-
-      {/* Top bar */}
       <div className="flex items-center flex-row-reverse justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
         <SortSelect
           options={SORT_OPTION}
@@ -115,8 +134,7 @@ const Resellers = () => {
           </Button>
         </RoleCheckAction>
       </div>
-
-      {/* Table */}
+      
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
@@ -229,12 +247,11 @@ const Resellers = () => {
             initialValues={modalState.reseller!}
             loading={loading}
             onCancel={closeModal}
-            onSubmit={() => {}}
+            onSubmit={handleEditReseller}
           />
         </ModalWrapper>
       )}
 
-      {/* Pagination */}
       <Pagination
         page={filterData.page}
         pageSize={filterData.limit}

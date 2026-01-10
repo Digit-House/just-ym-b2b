@@ -122,21 +122,25 @@ export default function PaymentMethodForm({
           errMsg={errors.bankName?.message}
         />
 
-        <InputField
-          label="Account Name"
-          isRequired
-          placeholder="Mg Mg"
-          {...register("accountName")}
-          errMsg={errors.accountName?.message}
-        />
+        {type === "BANK_TRANSFER" && (
+          <>
+            <InputField
+              label="Account Name"
+              isRequired
+              placeholder="Mg Mg"
+              {...register("accountName")}
+              errMsg={errors.accountName?.message}
+            />
 
-        <InputField
-          label="Account Number"
-          isRequired
-          placeholder="09193939399"
-          {...register("accountNumber")}
-          errMsg={errors.accountNumber?.message}
-        />
+            <InputField
+              label="Account Number"
+              isRequired
+              placeholder="09193939399"
+              {...register("accountNumber")}
+              errMsg={errors.accountNumber?.message}
+            />
+          </>
+        )}
       </>
 
       <ImageUpload
@@ -144,14 +148,18 @@ export default function PaymentMethodForm({
         value={watch("logo")}
         onChange={(val) => setValue("logo", val)}
         errMsg={errors.logo?.message}
+        folderType="CREDIT_TOP_UP"
       />
 
-      <ImageUpload
-        label="QR Code Image"
-        value={watch("qrCodeUrl")}
-        onChange={(val) => setValue("qrCodeUrl", val)}
-        errMsg={errors.qrCodeUrl?.message}
-      />
+      {type === "QR_CODE" && (
+        <ImageUpload
+          label="QR Code Image"
+          value={watch("qrCodeUrl")}
+          onChange={(val) => setValue("qrCodeUrl", val)}
+          errMsg={errors.qrCodeUrl?.message}
+          folderType="CREDIT_TOP_UP"
+        />
+      )}
 
       <TextareaField
         label="Description"

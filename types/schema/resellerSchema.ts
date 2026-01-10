@@ -6,6 +6,7 @@ export const resellerSchema = z.object({
   active: z.boolean(),
   currency: z.string().min(1, "Currency is required"),
   balance: z.number().min(0),
+  relatedImages: z.string().array().optional(),
 });
 
 export type ResellerFormValues = z.infer<typeof resellerSchema>;
