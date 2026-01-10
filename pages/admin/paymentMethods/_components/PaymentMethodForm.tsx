@@ -17,6 +17,9 @@ import {
   PaymentMethodFormValues,
 } from "@/types/schema/paymentMethodSchema";
 import { Switch } from "@/components/ui/switch";
+import { ImageUpload } from "@/components/ImageUpload";
+import { useState } from "react";
+
 
 type Mode = "create" | "edit";
 
@@ -64,13 +67,21 @@ export default function PaymentMethodForm({
 
   const type = watch("type");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmitHandler = async (values: PaymentMethodFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const payload = isEdit ? { ...values, id: initialValues?.id } : values;
+      await onSubmit(payload);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <form
-      onSubmit={handleSubmit((values) => {
-        const payload = isEdit ? { ...values, id: initialValues?.id } : values;
-
-        onSubmit(payload);
-      })}
+      onSubmit={handleSubmit(onSubmitHandler)}
       className="space-y-6"
     >
       {/* Name */}
@@ -108,7 +119,6 @@ export default function PaymentMethodForm({
       </div>
 
       {/* Bank fields */}
-      {/* {type === "BANK_TRANSFER" && ( */}
       <>
         <InputField
           label="Bank Name"
@@ -131,21 +141,20 @@ export default function PaymentMethodForm({
           errMsg={errors.accountNumber?.message}
         />
       </>
-      {/* )} */}
 
-      {/* QR Code */}
-      {/* {type === "QR_CODE" && ( */}
-      <InputField
-        label="QR Code URL"
-        {...register("qrCodeUrl")}
+      {/* QR Code URL - Changed to ImageUpload */}
+      <ImageUpload
+        label="QR Code Image"
+        value={watch("qrCodeUrl")}
+        onChange={(val) => setValue("qrCodeUrl", val)}
         errMsg={errors.qrCodeUrl?.message}
       />
-      {/* )} */}
 
-      {/* Logo */}
-      <InputField
-        label="Logo URL"
-        {...register("logo")}
+      {/* Logo URL - Changed to ImageUpload */}
+      <ImageUpload
+        label="Logo Image"
+        value={watch("logo")}
+        onChange={(val) => setValue("logo", val)}
         errMsg={errors.logo?.message}
       />
 
@@ -179,7 +188,7 @@ export default function PaymentMethodForm({
           Cancel
         </Button>
 
-        <Button type="submit" loading={loading}>
+        <Button type="submit" loading={isSubmitting}>
           {isEdit ? "Save Changes" : "Create"}
         </Button>
       </div>

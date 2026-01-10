@@ -211,7 +211,7 @@ const PaymentMethods = () => {
       </div>
 
       {modalState.mode === "create" && (
-        <ModalWrapper title="Create Role" onClose={closeModal}>
+        <ModalWrapper title="Create Payment Method" onClose={closeModal}>
           <PaymentMethodForm
             mode="create"
             initialValues={modalState.paymentMethod}
@@ -223,7 +223,7 @@ const PaymentMethods = () => {
       )}
 
       {modalState.mode === "edit" && (
-        <ModalWrapper title="Edit Role" onClose={closeModal}>
+        <ModalWrapper title="Edit Payment Method" onClose={closeModal}>
           <PaymentMethodForm
             mode="edit"
             initialValues={modalState.paymentMethod}
