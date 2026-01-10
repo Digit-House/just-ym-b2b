@@ -3,6 +3,12 @@ export enum AVAILABILITY_ENUM {
   UNAVAILABLE = "NOT_AVAILABLE",
 }
 
+export enum CART_ICON_ENUM {
+  USER = "USER",
+  TIME = "TIME",
+  GUEST = "GUEST",
+}
+
 export type FindAllProductsT = {
   data: ProductT[];
   total: number;
@@ -44,6 +50,12 @@ export interface ProductOptionResponse {
     user_product: {
       productOptions: ProductOptionT[];
     };
+  };
+}
+
+export interface TicketTypeEventAvailableResponse {
+  data: {
+    checkEventAvailability: EVENT_AVAILABLE_DATA_TYPE[];
   };
 }
 
@@ -223,3 +235,49 @@ export interface SelectedProductOptionT {
   visitDate: VisitDateT;
   isCapacity: boolean;
 }
+
+export type QusetionT = {
+  answer: string;
+  id: string;
+};
+
+export interface AnswerT {
+  cartItemId: string | null;
+  eventId: string | null;
+  eventTime: string | null;
+  quantity: number;
+  questionList: QusetionT[];
+  ticketTypeId: string;
+  visitDate: string;
+}
+
+export interface GuestInfoT {
+  ticket: TicketTypeT;
+  guestIndex: number;
+  ticketIndex: number;
+  isFilled: boolean;
+}
+
+export interface EVENT_AVAILABLE_DATA_TYPE {
+  available: number;
+  enableEmp: boolean;
+  id: number;
+  isAdHoc: boolean;
+  isInactive: boolean;
+  seriesId: number;
+  seriesName: string;
+  time: string;
+  total: number;
+  unlimited: number;
+  used: number;
+}
+
+export type ADD_TO_CART_USER_TYPE = {
+  name: string;
+  email: string;
+  phone: string;
+  sameAsLeader: boolean;
+  leaderName: string;
+  leaderEmail: string;
+  leaderPhone: string;
+};

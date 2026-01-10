@@ -1,4 +1,10 @@
 import { CartItemT } from "@/types/cart.type";
+import {
+  AnswerT,
+  EVENT_AVAILABLE_DATA_TYPE,
+  GuestInfoT,
+  SelectedProductOptionT,
+} from "@/types/product.type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -18,11 +24,53 @@ interface CartState {
   getTotal: () => number;
   getSelectedItems: () => CartItemT[];
   getSelectedTotal: () => number;
+
+  finalPackage: SelectedProductOptionT | null;
+  setFinalPackage: (item: SelectedProductOptionT | null) => void;
+
+  answerList: AnswerT[];
+  setAnswerList: (item: AnswerT[]) => void;
+
+  guestList: GuestInfoT[];
+  setGuestList: (item: GuestInfoT[]) => void;
+
+  step: number;
+  setStep: (item: number) => void;
+
+  variantStep: number;
+  setVariantStep: (item: number) => void;
+
+  eventList: EVENT_AVAILABLE_DATA_TYPE[];
+  setEventList: (item: EVENT_AVAILABLE_DATA_TYPE[]) => void;
+
+  addToCartCount: number;
+  setAddToCartCount: (item: number) => void;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
+      finalPackage: null,
+      setFinalPackage: (item) => set({ finalPackage: item }),
+
+      answerList: [],
+      setAnswerList: (item) => set({ answerList: item }),
+
+      guestList: [],
+      setGuestList: (item) => set({ guestList: item }),
+
+      step: 1,
+      setStep: (item) => set({ step: item }),
+
+      variantStep: 1,
+      setVariantStep: (item) => set({ variantStep: item }),
+
+      eventList: [],
+      setEventList: (item) => set({ eventList: item }),
+
+      addToCartCount: 0,
+      setAddToCartCount: (item) => set({ addToCartCount: item }),
+
       items: [],
       selectedIds: [],
 
@@ -50,7 +98,10 @@ export const useCartStore = create<CartState>()(
                     ticketTypes: item.ticketTypes
                       .map((tt) =>
                         tt.id === ticketTypeId
-                          ? { ...tt, quantity: Math.max(0, tt.quantity + delta) }
+                          ? {
+                              ...tt,
+                              quantity: Math.max(0, tt.quantity + delta),
+                            }
                           : tt
                       )
                       .filter((tt) => tt.quantity > 0),
@@ -90,9 +141,7 @@ export const useCartStore = create<CartState>()(
         ),
 
       getSelectedItems: () =>
-        get().items.filter((item) =>
-          get().selectedIds.includes(item.id)
-        ),
+        get().items.filter((item) => get().selectedIds.includes(item.id)),
 
       getSelectedTotal: () =>
         get()
@@ -112,6 +161,12 @@ export const useCartStore = create<CartState>()(
       partialize: (state) => ({
         items: state.items,
         selectedIds: state.selectedIds,
+        finalPackage: state.finalPackage,
+        answerList: state.answerList,
+        step: state.step,
+        variantStep: state.variantStep,
+        eventList: state.eventList,
+        addToCartCount: state.addToCartCount,
       }),
     }
   )

@@ -1,3 +1,5 @@
+import { GuestInfoT, QusetionT } from "@/types/product.type";
+
 export const GET_ALL_PRODUCTS = `
 query FindAllProducts($params: UserProductsInput!) {
   findAllProducts(params: $params) {
@@ -185,5 +187,81 @@ query Query($userProductId: String!, $date: DateTime) {
         updatedAt
       }
     }
+  }
+}`;
+
+export interface TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE {
+  dateFrom: string;
+  dateTo: string;
+  globalTixTicketTypeID: number;
+}
+
+export interface GUEST_USER_INFO_TYPE {
+  customerName: string;
+  email: string;
+  mobileNumber: string | null;
+}
+
+export interface ADD_TO_CART_DATA_TYPE {
+  cartItemId: string | null;
+  eventId: string | null;
+  eventTime: string | null;
+  quantity: number;
+  questionList: [QusetionT][];
+  ticketTypeId: string | null;
+  visitDate: string | null;
+  guestInfoSameAsUserInfo: boolean;
+  guestUserInfo: GUEST_USER_INFO_TYPE;
+  guestInfo: GUEST_USER_INFO_TYPE | null;
+}
+
+export const GET_TICKET_TYPE_EVENT_AVAILABLE = `
+query CheckEventAvailability($data: TicketTypeEventAvailableInput!) {
+  checkEventAvailability(data: $data) {
+    available
+    enableEmp
+    id
+    isAdHoc
+    isInactive
+    seriesId
+    seriesName
+    time
+    total
+    unlimited
+    used
+  }
+}`;
+
+export const GET_ADD_TO_CART_QUERY = `
+query Query {
+  myCart {
+    id
+    items {
+      currency
+      eventId
+      eventTime
+      globaltixTicketTypeId
+      id
+      image
+      price
+      productId
+      productName
+      productOptionId
+      productOptionName
+      quantity
+      questionIds
+      ticketTypeId
+      ticketTypeName
+      visitDate
+      questionList
+    }
+  }
+}
+`;
+
+export const ADD_TO_CART_MUTATION = `mutation Mutation($item: CartItemInput!) {
+  addToCart(item: $item) {
+    itemsCount
+    success
   }
 }`;

@@ -77,8 +77,8 @@ const VariantSelecter = ({
       <h5>Guest</h5>
       <div className="mt-4 border border-[#D9D9D9] rounded-2xl p-6 w-full flex flex-col lg:gap-10 md:gap-6 gap-2">
         {selectedProductOption.ticketType.map((item: TicketTypeT) => (
-          <div className="flex lg:gap-10 gap-5" key={item.id}>
-            <div className="flex flex-col flex-1 gap-2">
+          <div className="lg:gap-10 gap-5 grid grid-cols-4" key={item.id}>
+            <div className="flex flex-col flex-1 gap-2 col-span-2">
               <p className="text-black text-xl font-bold">{item.name}</p>
               {item.ageFrom && item.ageTo && (
                 <p className="text-nowrap">
@@ -86,7 +86,7 @@ const VariantSelecter = ({
                 </p>
               )}
             </div>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 ">
               <div className="flex items-center gap-2 lg:gap-10 md:gap-5 ">
                 <button
                   disabled={item.quantity <= 0}
@@ -142,19 +142,34 @@ const VariantSelecter = ({
                 </p>
               ) : null}
             </div>
-            <div>
-              <div>
-                <p>{item.dhSellingPrice.toFixed(2)}</p>
+            <div className="flex gap-4 col-span-1 justify-end">
+              <div
+                className={`flex flex-col gap-2 ${
+                  item.originalPrice < item.dhSellingPrice
+                    ? " justify-between"
+                    : " justify-center"
+                }`}
+              >
+                <p className="font-medium">
+                  ฿ {item.dhSellingPrice.toFixed(2)}
+                </p>
+                {item.originalPrice < item.dhSellingPrice && (
+                  <p className="line-through font-medium">
+                    ฿ {item.originalPrice.toFixed(2)}
+                  </p>
+                )}
               </div>
               {item.originalPrice < item.dhSellingPrice && (
-                <p>
-                  {(
-                    ((item.originalPrice - item.dhSellingPrice) /
-                      item.originalPrice) *
-                    100
-                  ).toFixed(2)}
-                  % off
-                </p>
+                <div>
+                  <p className="md:px-2 md:py-1 px-1 py-0.5 rounded-full bg-[#c4e9c7]">
+                    {(
+                      ((item.originalPrice - item.dhSellingPrice) /
+                        item.originalPrice) *
+                      100
+                    ).toFixed(2)}
+                    % off
+                  </p>
+                </div>
               )}
             </div>
           </div>
