@@ -58,27 +58,25 @@ export const ticketSchema = z.object({
   termsAndConditions: z.string().min(1, "Terms and conditions are required"),
   productOptions: z.array(
     z.object({
-      createdAt: z.date(),
-      currency: z.string(),
-      definedDuration: z.string(),
-      demandType: z.string(),
-      description: z.string(),
-      id: z.string(),
-      inclusions: z.array(z.string()),
-      isDynamicPricing: z.boolean(),
-      isTagged: z.boolean(),
-      keywords: z.string(),
-      name: z.string(),
-      primaryTicket: z.string(),
-      productId: z.string(),
-      publishStart: z.date(),
-      isCapacity: z.boolean(),
-      redeemEnd: z.date(),
-      redeemStart: z.date(),
-      ticketFormat: z.string(),
+      currency: z.string().optional(),
+      definedDuration: z.string().optional(),
+      demandType: z.string().optional(),
+      description: z.string().optional(),
+      inclusions: z.array(z.string()).optional(),
+      isDynamicPricing: z.boolean().optional(),
+      isTagged: z.boolean().optional(),
+      keywords: z.string().optional(),
+      name: z.string().optional(),
+      primaryTicket: z.string().optional(),
+      productId: z.string().optional(),
+      publishStart: z.date().optional(),
+      isCapacity: z.boolean().optional(),
+      redeemEnd: z.date().optional(),
+      redeemStart: z.date().optional(),
+      ticketFormat: z.string().optional(),
       ticketType: z.array(
         z.object({
-          id: z.string(),
+          id: z.string().optional(),
           name: z.string(),
           sku: z.string(),
           globaltixId: z.number().int(),
@@ -100,12 +98,12 @@ export const ticketSchema = z.object({
           quantity: z.number().int(),
         })
       ),
-      ticketValidity: z.string(),
-      timeSlot: z.array(z.string()),
-      tourInformation: z.array(z.string()),
-      type: z.string(),
-      updatedAt: z.date(),
-      publishEnd: z.date(),
+      ticketValidity: z.string().optional(),
+      timeSlot: z.array(z.string()).optional(),
+      tourInformation: z.array(z.string()).optional(),
+      type: z.string().optional(),
+      // updatedAt: z.date(),
+      // publishEnd: z.date().optional(),
       questions: z.array(
         z.object({
           cartItemId: z.string(),
@@ -127,12 +125,12 @@ export const ticketSchema = z.object({
           type: z.string(),
           updatedAt: z.date(),
         })
-      ),
+      ).optional(),
       visitDate: z.object({
         isOpenDated: z.boolean(),
         request: z.boolean(),
         required: z.boolean(),
-      }),
+      }).optional(),
       advanceBooking: z
         .object({
           day: z.number().int(),
@@ -141,8 +139,8 @@ export const ticketSchema = z.object({
           minute: z.number().int(),
           required: z.boolean(),
         })
-        .nullable(),
-      availability: z.enum(["AVAILABLE", "NOT_AVAILABLE"]).nullable(),
+        .nullable().optional(),
+      availability: z.enum(["AVAILABLE", "NOT_AVAILABLE"]).nullable().optional(),
     })
   ),
 });
