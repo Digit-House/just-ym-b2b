@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Control, FieldErrors, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, ProductOptionT, TicketTypeT } from "@/types/product.type";
@@ -27,18 +27,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   mode,
   initialValues,
 }) => {
-  // Initialize ticket types from initial values
-  const [ticketTypes, setTicketTypes] = useState<TicketTypeT[]>(
-    initialValues?.productOptions && initialValues.productOptions.length > 0
-      ? initialValues.productOptions[0]?.ticketType ?? []
-      : []
-  );
+  // Watch the productOptions field to trigger re-renders when it changes
+  const watchedProductOptions = watch("productOptions");
 
-  const addTicketType = () => {
+  const addProductOption = () => {
     const newTicketType: TicketTypeT = {
       id: `new-ticket-type-${Date.now()}`,
-      name: "New Package",
-      sku: "",
+      name: "New Package", // Default value that meets validation
+      sku: "", // May need validation depending on schema
       globaltixId: 0,
       issuanceLimit: null,
       maxPurchaseQty: null,
@@ -58,56 +54,83 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
       quantity: 0,
     };
 
-    setTicketTypes((prev) => [...prev, newTicketType]);
+    // Create a new product option with the default ticket type
+    const newOption: ProductOptionT = {
+      createdAt: new Date(),
+      currency: "THB",
+      definedDuration: "",
+      demandType: "FIXED",
+      description: "",
+      id: `product-option-${Date.now()}`,
+      inclusions: [],
+      isDynamicPricing: false,
+      isTagged: false,
+      keywords: "",
+      name: `Package Option ${watchedProductOptions?.length + 1 || 1}`,
+      primaryTicket: "",
+      productId: initialValues?.id || "",
+      publishStart: new Date(),
+      isCapacity: false,
+      redeemEnd: new Date(),
+      redeemStart: new Date(),
+      ticketFormat: "DIGITAL",
+      ticketType: [newTicketType], // Start with one default ticket type
+      ticketValidity: "PERPETUAL",
+      timeSlot: [],
+      tourInformation: [],
+      type: "STANDARD",
+      updatedAt: new Date(),
+      publishEnd: new Date(),
+      questions: [],
+      visitDate: {
+        isOpenDated: false,
+        request: false,
+        required: false,
+      },
+      advanceBooking: null,
+      availability: null,
+    };
 
-    // Update the form state for product options
+    // Add the new product option to the form state
     const currentOptions = getValues("productOptions") || [];
-    if (currentOptions.length === 0) {
-      // Create a default product option if none exists
-      const defaultOption: ProductOptionT = {
-        createdAt: new Date(),
-        currency: "USD",
-        definedDuration: "",
-        demandType: "FIXED",
-        description: "",
-        id: `default-option-${Date.now()}`,
-        inclusions: [],
-        isDynamicPricing: false,
-        isTagged: false,
-        keywords: "",
-        name: "Default Package",
-        primaryTicket: "",
-        productId: initialValues?.id || "",
-        publishStart: new Date(),
-        isCapacity: false,
-        redeemEnd: new Date(),
-        redeemStart: new Date(),
-        ticketFormat: "DIGITAL",
-        ticketType: [newTicketType],
-        ticketValidity: "PERPETUAL",
-        timeSlot: [],
-        tourInformation: [],
-        type: "STANDARD",
-        updatedAt: new Date(),
-        publishEnd: new Date(),
-        questions: [],
-        visitDate: {
-          isOpenDated: false,
-          request: false,
-          required: false,
-        },
-        advanceBooking: null,
-        availability: null,
+    const updatedOptions = [...currentOptions, newOption];
+    setValue("productOptions", updatedOptions, { shouldDirty: true });
+  };
+
+  const addVariant = (optionIndex: number) => {
+    const newTicketType: TicketTypeT = {
+      id: `new-ticket-type-${Date.now()}`,
+      name: "New Variant", // Default value that meets validation
+      sku: "", // May need validation depending on schema
+      globaltixId: 0,
+      issuanceLimit: null,
+      maxPurchaseQty: null,
+      minPurchaseQty: null,
+      useBin: false,
+      applyToAllQna: false,
+      ageFrom: null,
+      ageTo: null,
+      nettPrice: 0,
+      dhNetPrice: 0,
+      dhSellingPrice: 0,
+      dhRecommendedSellingPrice: 0,
+      originalPrice: 0,
+      similarTicketId: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      quantity: 0,
+    };
+
+    // Add the new ticket type to the specified product option
+    const currentOptions = getValues("productOptions") || [];
+    const updatedOptions = [...currentOptions];
+    
+    if (updatedOptions[optionIndex]) {
+      updatedOptions[optionIndex] = {
+        ...updatedOptions[optionIndex],
+        ticketType: [...updatedOptions[optionIndex].ticketType, newTicketType],
       };
-      setValue("productOptions", [defaultOption]);
-    } else {
-      // Update the first option's ticket types
-      const updatedOptions = [...currentOptions];
-      updatedOptions[0] = {
-        ...updatedOptions[0],
-        ticketType: [...updatedOptions[0].ticketType, newTicketType],
-      };
-      setValue("productOptions", updatedOptions);
+      setValue("productOptions", updatedOptions, { shouldDirty: true });
     }
   };
 
@@ -127,7 +150,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
-      shouldValidate: true,
+    });
+  };
+
+  const removeProductOption = (optionIndex: number) => {
+    const currentOptions = getValues("productOptions") || [];
+    const updatedOptions = currentOptions.filter((_, oi) => oi !== optionIndex);
+    setValue("productOptions", updatedOptions, {
+      shouldDirty: true,
     });
   };
 
@@ -154,7 +184,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
-      shouldValidate: true,
     });
   };
 
@@ -173,18 +202,42 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h4 className="text-lg font-medium">Packages</h4>
-          <Button type="button" onClick={addTicketType} size="sm">
+          <Button type="button" onClick={addProductOption} size="sm">
             <Plus className="h-4 w-4 mr-1" /> Add Package
           </Button>
         </div>
 
         <div className="space-y-6">
-          {getValues("productOptions")?.map((option, optionIndex) => (
-            <div key={optionIndex} className="space-y-4">
-              {/* Optional product option title */}
-              <h4 className="text-lg font-semibold">
-                Product Option {optionIndex + 1}
-              </h4>
+          {watchedProductOptions?.map((option, optionIndex) => (
+            <div key={option.id || `option-${optionIndex}`} className="space-y-4 p-6 rounded-lg border bg-gray-50">
+              {/* Product option header */}
+              <div className="flex justify-between items-start mb-4">
+                <h4 className="text-lg font-semibold">
+                  Package Option {optionIndex + 1}: {option.name}
+                </h4>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => addVariant(optionIndex)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Add Variant
+                  </Button>
+                  
+                  {watchedProductOptions?.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeProductOption(optionIndex)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
 
               {option.ticketType?.map((ticketType, ticketIndex) => {
                 const ticketErrors =
@@ -205,7 +258,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                     <div className="flex justify-between items-start mb-4">
                       <h5 className="font-medium text-lg flex items-center gap-2">
                         <Tag className="h-4 w-4 text-indigo-500" />
-                        {ticketType.name || `Package ${ticketIndex + 1}`}
+                        {ticketType.name || `Variant ${ticketIndex + 1}`}
                       </h5>
 
                       <Button
@@ -222,11 +275,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                     </div>
 
                     {/* Basic info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                       <InputField
                         label="Package Name"
                         value={ticketType.name}
-                        // errMsg={!!ticketErrors?.name}
+                        errMsg={ticketErrors?.name?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -241,6 +294,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         label="Quantity"
                         type="number"
                         value={ticketType.quantity}
+                        errMsg={ticketErrors?.quantity?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -255,7 +309,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                       <InputField
                         label="SKU"
                         value={ticketType.sku}
-                        // error={!!ticketErrors?.sku?.message}
+                        errMsg={ticketErrors?.sku?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -270,7 +324,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         label="GlobalTix ID"
                         type="number"
                         value={ticketType.globaltixId}
-                        // error={!!ticketErrors?.globaltixId}
+                        errMsg={ticketErrors?.globaltixId?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -288,7 +342,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         label="Original Price ($)"
                         type="number"
                         value={ticketType.originalPrice}
-                        // error={!!ticketErrors?.originalPrice}
+                        errMsg={ticketErrors?.originalPrice?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -303,7 +357,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         label="DH Net Price ($)"
                         type="number"
                         value={ticketType.dhNetPrice}
-                        // error={!!ticketErrors?.dhNetPrice}
+                        errMsg={ticketErrors?.dhNetPrice?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -318,7 +372,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         label="DH Selling Price ($)"
                         type="number"
                         value={ticketType.dhSellingPrice}
-                        // error={!!ticketErrors?.dhSellingPrice}
+                        errMsg={ticketErrors?.dhSellingPrice?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -333,7 +387,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         label="DH Recommended Price ($)"
                         type="number"
                         value={ticketType.dhRecommendedSellingPrice}
-                        // error={!!ticketErrors?.dhRecommendedSellingPrice}
+                        errMsg={ticketErrors?.dhRecommendedSellingPrice?.message}
                         onChange={(e) =>
                           updateTicketType(
                             optionIndex,
@@ -384,9 +438,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
           ))}
 
           {/* Empty state */}
-          {!getValues("productOptions")?.some(
-            (o) => o.ticketType && o.ticketType.length > 0
-          ) && (
+          {!watchedProductOptions?.length && (
             <div className="p-8 bg-gray-50 rounded-xl border text-center">
               <Tag className="h-12 w-12 text-indigo-500 mx-auto mb-4" />
               <h4 className="text-lg font-medium mb-2">
@@ -396,7 +448,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 Add your first package to configure pricing and ticket
                 options.
               </p>
-              <Button type="button" onClick={addTicketType}>
+              <Button type="button" onClick={addProductOption}>
                 <Plus className="h-4 w-4 mr-1" />
                 Add Your First Package
               </Button>

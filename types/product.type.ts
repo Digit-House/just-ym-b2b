@@ -155,13 +155,7 @@ export interface ProductOptionT {
   availability: AVAILABILITY_ENUM | null;
 }
 
-export interface AdvanceBookingT {
-  day: number;
-  dayMinute: number;
-  hour: number;
-  minute: number;
-  required: boolean;
-}
+
 
 export interface TicketTypeT {
   id: string;
@@ -184,6 +178,14 @@ export interface TicketTypeT {
   createdAt: string;
   updatedAt: string;
   quantity: number;
+}
+
+export interface AdvanceBookingT {
+  day: number;
+  dayMinute: number;
+  hour: number;
+  minute: number;
+  required: boolean;
 }
 
 export interface ProductOptionQuestionT {

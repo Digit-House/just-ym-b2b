@@ -81,6 +81,7 @@ query FindAllUsers($params: UserPaginatedInput!) {
       id
       lastLogin
       roleIds
+      resellerId
       roles {
         id
         name

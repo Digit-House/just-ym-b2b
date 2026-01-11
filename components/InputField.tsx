@@ -20,7 +20,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
         <input
           ref={ref} // Attach the forwarded ref here
           id={id}
-          className="w-full border rounded-md px-3 py-2 text-sm"
+          className={`w-full border rounded-md px-3 py-2 text-sm ${errMsg ? 'border-red-500' : 'border-gray-300'}`}
           {...rest}
         />
 

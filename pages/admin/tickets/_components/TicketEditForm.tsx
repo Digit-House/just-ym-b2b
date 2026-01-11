@@ -106,8 +106,57 @@ const TicketEditForm: React.FC<Props> = ({
     options: <Tag className="h-4 w-4" />,
   };
 
-  // Tab navigation
-  const nextTab = () => {
+  // Function to get fields specific to current tab for validation
+  const getTabFields = (tabId: string): (keyof TicketFormValues)[] => {
+    switch (tabId) {
+      case "basic-info":
+        return [
+          "name",
+          "category",
+          "addressLine",
+          "location",
+          "city",
+          "postalCode",
+          "timezoneOffset",
+          "originalPrice",
+          "keywords",
+          "image",
+          "isBestSeller",
+          "isCancellable",
+          "isGTRecommend",
+          "isInstantConfirmation",
+          "isOpenDated"
+        ];
+      case "details":
+        return [
+          "description",
+          "whatToExpect",
+          "termsAndConditions"
+        ];
+      case "location":
+        return [
+          "latitude",
+          "longitude"
+        ];
+      case "media":
+        return [
+          "image"
+        ];
+      case "operating-hours":
+        return [
+          "operatingHours"
+        ];
+      case "options":
+        return [
+          "productOptions"
+        ];
+      default:
+        return [];
+    }
+  };
+
+  // Tab navigation with validation
+  const nextTab = async () => {
     const tabs = [
       "basic-info",
       "details",
@@ -117,6 +166,17 @@ const TicketEditForm: React.FC<Props> = ({
       "options",
     ];
     const currentIndex = tabs.indexOf(currentTab);
+    
+    // Validate current tab before moving to next
+    const currentTabFields = getTabFields(currentTab);
+    if (currentTabFields.length > 0) {
+      const isValid = await trigger(currentTabFields);
+      
+      if (!isValid) {
+        return; // Stay on current tab if validation fails
+      }
+    }
+    
     if (currentIndex < tabs.length - 1) {
       setCurrentTab(tabs[currentIndex + 1]);
     }
@@ -143,19 +203,19 @@ const TicketEditForm: React.FC<Props> = ({
         return !!(
           errors.name ||
           errors.category ||
-          errors.description ||
-          errors.whatToExpect ||
           errors.addressLine ||
           errors.location ||
-          errors.postalCode ||
           errors.city ||
-          errors.cityId ||
-          errors.countryId ||
-          errors.latitude ||
-          errors.longitude ||
+          errors.postalCode ||
+          errors.timezoneOffset ||
+          errors.originalPrice ||
           errors.keywords ||
           errors.image ||
-          errors.termsAndConditions
+          errors.isBestSeller ||
+          errors.isCancellable ||
+          errors.isGTRecommend ||
+          errors.isInstantConfirmation ||
+          errors.isOpenDated
         );
       case "details":
         return !!(
@@ -168,18 +228,18 @@ const TicketEditForm: React.FC<Props> = ({
       case "media":
         return !!errors.image;
       case "operating-hours":
-        // No direct form fields in schema for operating hours, only nested properties
-        return false; // Simplified - you can add more detailed checks
+        // Check if operatingHours has validation issues
+        return !!(errors.operatingHours);
       case "options":
-        // Complex validation for product options - simplified here
-        return false; // Would need more complex validation logic
+        // Check if productOptions has validation issues
+        return !!(errors.productOptions);
       default:
         return false;
     }
   };
 
   const submitHandler = async (values: TicketFormValues) => {
-    // Validate all fields before submission
+    // Validate all fields before final submission
     const isValid = await trigger();
 
     if (!isValid) {
@@ -370,16 +430,7 @@ const TicketEditForm: React.FC<Props> = ({
         {currentTab !== "options" ? (
           <Button
             type="button"
-            onClick={async () => {
-              // Validate current tab before moving to next
-              const isValid = await trigger();
-              if (isValid) {
-                nextTab();
-              } else {
-                // Show validation errors for current tab
-                return;
-              }
-            }}
+            onClick={nextTab}
             className="flex items-center gap-2"
           >
             Next →
