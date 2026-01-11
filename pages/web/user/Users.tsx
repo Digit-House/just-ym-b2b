@@ -39,7 +39,7 @@ const UsersManagement = () => {
     orderBy: {
       dir: "desc",
     },
-    resellerId: null,
+    resellerId: user.type === "OWNER" ? null : user?.id,
     type: null,
   });
 
