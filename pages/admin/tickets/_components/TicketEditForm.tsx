@@ -2,15 +2,25 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import InputField from "@/components/InputField";
-import TextareaField from "@/components/TextareaField";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Plus, Minus, Calendar, MapPin, Clock } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Info,
+  MapPinIcon,
+  Tag,
+  Locate,
+} from "lucide-react";
 import { TicketFormValues, ticketSchema } from "@/types/schema/ticketSchema";
-import { ProductInfoT, ProductOptionT, TicketTypeT, FixedDayT } from "@/types/product.type";
-import { ImageUpload } from "@/components/ImageUpload";
+import {
+  ProductInfoT,
+} from "@/types/product.type";
+import BasicInfoTab from "./BasicInfoTab";
+import LocationTab from "./LocationTab";
+import DetailsTab from "./DetailsTab";
+import MediaTab from "./MediaTab";
+import OperatingHoursTab from "./OperatingHoursTab";
+import OptionsTab from "./OptionsTab";
+
 
 type Mode = "create" | "edit";
 
@@ -30,7 +40,7 @@ const TicketEditForm: React.FC<Props> = ({
   onSubmit,
 }) => {
   const isEdit = mode === "edit";
-  
+
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
@@ -75,668 +85,372 @@ const TicketEditForm: React.FC<Props> = ({
   });
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     watch,
     setValue,
     getValues,
+    trigger,
   } = form;
 
   const [currentTab, setCurrentTab] = useState("basic-info");
 
-  // State for dynamic arrays
-  const [exclusions, setExclusions] = useState<string[]>(initialValues?.exclusions ?? []);
-  const [highlights, setHighlights] = useState<string[]>(initialValues?.highlights ?? []);
-  const [howToUseList, setHowToUseList] = useState<string[]>(initialValues?.howToUseList ?? []);
-  const [inclusions, setInclusions] = useState<string[]>(initialValues?.inclusions ?? []);
-  const [thingsToNote, setThingsToNote] = useState<string[]>(initialValues?.thingsToNote ?? []);
-  const [blockedDates, setBlockedDates] = useState(initialValues?.blockedDate ?? []);
-  const [mediaItems, setMediaItems] = useState(initialValues?.media ?? []);
-  const [fixedDays, setFixedDays] = useState<FixedDayT[]>(initialValues?.operatingHours.fixedDays ?? []);
+  // Icon mapping for tabs
+  const tabIcons = {
+    "basic-info": <Info className="h-4 w-4" />,
+    details: <MapPinIcon className="h-4 w-4" />,
+    location: <Locate className="h-4 w-4" />,
+    media: <MapPin className="h-4 w-4" />,
+    "operating-hours": <Clock className="h-4 w-4" />,
+    options: <Tag className="h-4 w-4" />,
+  };
 
-  // Tab navigation
-  const nextTab = () => {
-    const tabs = ["basic-info", "details", "media", "operating-hours", "options"];
+  // Function to get fields specific to current tab for validation
+  const getTabFields = (tabId: string): (keyof TicketFormValues)[] => {
+    switch (tabId) {
+      case "basic-info":
+        return [
+          "name",
+          "category",
+          "addressLine",
+          "location",
+          "city",
+          "postalCode",
+          "timezoneOffset",
+          "originalPrice",
+          "keywords",
+          "image",
+          "isBestSeller",
+          "isCancellable",
+          "isGTRecommend",
+          "isInstantConfirmation",
+          "isOpenDated"
+        ];
+      case "details":
+        return [
+          "description",
+          "whatToExpect",
+          "termsAndConditions"
+        ];
+      case "location":
+        return [
+          "latitude",
+          "longitude"
+        ];
+      case "media":
+        return [
+          "image"
+        ];
+      case "operating-hours":
+        return [
+          "operatingHours"
+        ];
+      case "options":
+        return [
+          "productOptions"
+        ];
+      default:
+        return [];
+    }
+  };
+
+  // Tab navigation with validation
+  const nextTab = async () => {
+    const tabs = [
+      "basic-info",
+      "details",
+      "location",
+      "media",
+      "operating-hours",
+      "options",
+    ];
     const currentIndex = tabs.indexOf(currentTab);
+    
+    // Validate current tab before moving to next
+    const currentTabFields = getTabFields(currentTab);
+    if (currentTabFields.length > 0) {
+      const isValid = await trigger(currentTabFields);
+      
+      if (!isValid) {
+        return; // Stay on current tab if validation fails
+      }
+    }
+    
     if (currentIndex < tabs.length - 1) {
       setCurrentTab(tabs[currentIndex + 1]);
     }
   };
 
   const prevTab = () => {
-    const tabs = ["basic-info", "details", "media", "operating-hours", "options"];
+    const tabs = [
+      "basic-info",
+      "details",
+      "location",
+      "media",
+      "operating-hours",
+      "options",
+    ];
     const currentIndex = tabs.indexOf(currentTab);
     if (currentIndex > 0) {
       setCurrentTab(tabs[currentIndex - 1]);
     }
   };
 
-  // Simple tab navigation buttons
-  const TabButton = ({ id, label }: { id: string; label: string }) => (
-    <button
-      onClick={() => setCurrentTab(id)}
-      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-        currentTab === id
-          ? 'bg-indigo-600 text-white'
-          : 'text-gray-600 hover:bg-gray-100'
-      }`}
-    >
-      {label}
-    </button>
-  );
-
-  // Array management functions
-  const addToArray = (setter: React.Dispatch<React.SetStateAction<string[]>>, value: string = "") => {
-    setter(prev => [...prev, value]);
+  const hasTabErrors = (tabId: string): boolean => {
+    switch (tabId) {
+      case "basic-info":
+        return !!(
+          errors.name ||
+          errors.category ||
+          errors.addressLine ||
+          errors.location ||
+          errors.city ||
+          errors.postalCode ||
+          errors.timezoneOffset ||
+          errors.originalPrice ||
+          errors.keywords ||
+          errors.image ||
+          errors.isBestSeller ||
+          errors.isCancellable ||
+          errors.isGTRecommend ||
+          errors.isInstantConfirmation ||
+          errors.isOpenDated
+        );
+      case "details":
+        return !!(
+          errors.description ||
+          errors.whatToExpect ||
+          errors.termsAndConditions
+        );
+      case "location":
+        return !!(errors.latitude || errors.longitude);
+      case "media":
+        return !!errors.image;
+      case "operating-hours":
+        // Check if operatingHours has validation issues
+        return !!(errors.operatingHours);
+      case "options":
+        // Check if productOptions has validation issues
+        return !!(errors.productOptions);
+      default:
+        return false;
+    }
   };
 
-  const removeFromArray = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number) => {
-    setter(prev => prev.filter((_, i) => i !== index));
-  };
+  const submitHandler = async (values: TicketFormValues) => {
+    // Validate all fields before final submission
+    const isValid = await trigger();
 
-  const updateArrayValue = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number, value: string) => {
-    setter(prev => prev.map((item, i) => i === index ? value : item));
-  };
+    if (!isValid) {
+      // Optionally switch to the first tab with errors
+      const tabs = [
+        "basic-info",
+        "details",
+        "location",
+        "media",
+        "operating-hours",
+        "options",
+      ];
+      for (const tab of tabs) {
+        if (hasTabErrors(tab)) {
+          setCurrentTab(tab);
+          break;
+        }
+      }
+      return;
+    }
 
-  const addBlockedDate = () => {
-    setBlockedDates(prev => [...prev, { date: "", title: "" }]);
-  };
-
-  const removeBlockedDate = (index: number) => {
-    setBlockedDates(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const updateBlockedDate = (index: number, field: keyof typeof blockedDates[0], value: string) => {
-    setBlockedDates(prev => 
-      prev.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
-    );
-  };
-
-  const addMediaItem = () => {
-    setMediaItems(prev => [...prev, { extension: "", name: "", path: "", size: 0, type: "" }]);
-  };
-
-  const removeMediaItem = (index: number) => {
-    setMediaItems(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const updateMediaItem = (index: number, field: keyof typeof mediaItems[0], value: string | number) => {
-    setMediaItems(prev => 
-      prev.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
-    );
-  };
-
-  const addFixedDay = () => {
-    setFixedDays(prev => [...prev, { day: "", startHour: "", endHour: "" }]);
-  };
-
-  const removeFixedDay = (index: number) => {
-    setFixedDays(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const updateFixedDay = (index: number, field: keyof FixedDayT, value: string) => {
-    setFixedDays(prev => 
-      prev.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
-    );
-  };
-
-  const submitHandler = (values: TicketFormValues) => {
     // Update values with dynamic arrays
     const payload = {
       ...values,
-      exclusions,
-      highlights,
-      howToUseList,
-      inclusions,
-      thingsToNote,
-      blockedDate: blockedDates,
-      media: mediaItems,
+      exclusions: values.exclusions || [],
+      highlights: values.highlights || [],
+      howToUseList: values.howToUseList || [],
+      inclusions: values.inclusions || [],
+      thingsToNote: values.thingsToNote || [],
+      blockedDate: values.blockedDate || [],
+      media: values.media || [],
       operatingHours: {
         ...values.operatingHours,
-        fixedDays
-      }
+        fixedDays: values.operatingHours?.fixedDays || [],
+      },
     };
-    
+
     onSubmit(payload);
   };
 
+  const TabButton = ({ id, label }: { id: string; label: string }) => (
+    <button
+      onClick={() => setCurrentTab(id)}
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors relative ${
+        currentTab === id
+          ? "bg-indigo-100 text-indigo-700 border border-indigo-200"
+          : "text-gray-600 hover:bg-gray-50 border border-transparent"
+      }`}
+    >
+      {tabIcons[id as keyof typeof tabIcons]}
+      {label}
+      {hasTabErrors(id) && (
+        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+          <span className="text-xs text-white">!</span>
+        </span>
+      )}
+    </button>
+  );
+
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
-      {/* Custom Tabs Navigation */}
-      <div className="flex flex-wrap gap-2 border-b pb-2">
+      {/* Validation Summary - Shows validation errors at the top */}
+      {Object.keys(errors).length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h4 className="text-red-800 font-medium flex items-center gap-2">
+            <span className="font-bold">⚠️ Validation Errors:</span>
+          </h4>
+          <ul className="mt-2 space-y-1 text-red-700 text-sm">
+            {Object.entries(errors).map(
+              ([key, error]) =>
+                error?.message && (
+                  <li key={key} className="flex items-start">
+                    <span className="mr-2">•</span>
+                    <span>
+                      {key}: {error.message.toString()}
+                    </span>
+                  </li>
+                )
+            )}
+          </ul>
+        </div>
+      )}
+
+      {/* Custom Tabs Navigation - Modern style with error indicators */}
+      <div className="flex flex-wrap gap-3 border-b pb-4">
         <TabButton id="basic-info" label="Basic Info" />
         <TabButton id="details" label="Details" />
+        <TabButton id="location" label="Location" />
         <TabButton id="media" label="Media" />
         <TabButton id="operating-hours" label="Operating Hours" />
-        <TabButton id="options" label="Options" />
+        <TabButton id="options" label="Pricing & Packages" />
       </div>
 
-      <div className="p-4 border rounded-lg min-h-[400px]">
+      <div className="p-6 border rounded-xl min-h-[500px] bg-white shadow-sm relative">
+        {/* Error indicator for current tab */}
+        {hasTabErrors(currentTab) && (
+          <div className="absolute top-4 right-4 bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm flex items-center">
+            <span className="mr-1">⚠️</span> Errors
+          </div>
+        )}
+
         {/* Basic Info Tab */}
         {currentTab === "basic-info" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Basic Information</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InputField
-                label="Name"
-                {...register("name")}
-                errMsg={errors.name?.message}
-              />
-              
-              <InputField
-                label="Category"
-                {...register("category")}
-                errMsg={errors.category?.message}
-              />
-              
-              <InputField
-                label="Address Line"
-                {...register("addressLine")}
-                errMsg={errors.addressLine?.message}
-              />
-              
-              <InputField
-                label="Location"
-                {...register("location")}
-                errMsg={errors.location?.message}
-              />
-              
-              <InputField
-                label="City"
-                {...register("city")}
-                errMsg={errors.city?.message}
-              />
-              
-              <InputField
-                label="Postal Code"
-                {...register("postalCode")}
-                errMsg={errors.postalCode?.message}
-              />
-              
-              <InputField
-                label="Country ID"
-                {...register("countryId")}
-                errMsg={errors.countryId?.message}
-              />
-              
-              <InputField
-                label="City ID"
-                type="number"
-                {...register("cityId", { valueAsNumber: true })}
-                errMsg={errors.cityId?.message}
-              />
-              
-              <InputField
-                label="City Relation ID"
-                {...register("city_relation_id")}
-                errMsg={errors.city_relation_id?.message}
-              />
-              
-              <InputField
-                label="Latitude"
-                type="number"
-                {...register("latitude", { valueAsNumber: true })}
-                errMsg={errors.latitude?.message}
-              />
-              
-              <InputField
-                label="Longitude"
-                type="number"
-                {...register("longitude", { valueAsNumber: true })}
-                errMsg={errors.longitude?.message}
-              />
-              
-              <InputField
-                label="Timezone Offset"
-                type="number"
-                {...register("timezoneOffset", { valueAsNumber: true })}
-                errMsg={errors.timezoneOffset?.message}
-              />
-              
-              <InputField
-                label="Original Price"
-                type="number"
-                {...register("originalPrice", { valueAsNumber: true })}
-                errMsg={errors.originalPrice?.message}
-              />
-              
-              <InputField
-                label="Keywords"
-                {...register("keywords")}
-                errMsg={errors.keywords?.message}
-              />
-              
-              <InputField
-                label="Image URL"
-                {...register("image")}
-                errMsg={errors.image?.message}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isBestSeller"
-                  checked={watch("isBestSeller")}
-                  onCheckedChange={(checked) => setValue("isBestSeller", Boolean(checked))}
-                />
-                <Label htmlFor="isBestSeller">Is Best Seller</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isCancellable"
-                  checked={watch("isCancellable")}
-                  onCheckedChange={(checked) => setValue("isCancellable", Boolean(checked))}
-                />
-                <Label htmlFor="isCancellable">Is Cancellable</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isGTRecommend"
-                  checked={watch("isGTRecommend")}
-                  onCheckedChange={(checked) => setValue("isGTRecommend", Boolean(checked))}
-                />
-                <Label htmlFor="isGTRecommend">Is GT Recommend</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isInstantConfirmation"
-                  checked={watch("isInstantConfirmation")}
-                  onCheckedChange={(checked) => setValue("isInstantConfirmation", Boolean(checked))}
-                />
-                <Label htmlFor="isInstantConfirmation">Is Instant Confirmation</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isOpenDated"
-                  checked={watch("isOpenDated")}
-                  onCheckedChange={(checked) => setValue("isOpenDated", Boolean(checked))}
-                />
-                <Label htmlFor="isOpenDated">Is Open Dated</Label>
-              </div>
-            </div>
-          </div>
+          <BasicInfoTab
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues}
+          />
+        )}
+
+        {/* Location Tab */}
+        {currentTab === "location" && (
+          <LocationTab
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues}
+          />
         )}
 
         {/* Details Tab */}
         {currentTab === "details" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Details</h3>
-            
-            <TextareaField
-              label="Description"
-              rows={4}
-              {...register("description")}
-              errMsg={errors.description?.message}
-            />
-            
-            <TextareaField
-              label="What To Expect"
-              rows={4}
-              {...register("whatToExpect")}
-              errMsg={errors.whatToExpect?.message}
-            />
-            
-            <TextareaField
-              label="Terms & Conditions"
-              rows={4}
-              {...register("termsAndConditions")}
-              errMsg={errors.termsAndConditions?.message}
-            />
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Highlights</Label>
-                <Button type="button" onClick={() => addToArray(setHighlights)} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Highlight
-                </Button>
-              </div>
-              {highlights.map((highlight, index) => (
-                <div key={index} className="flex gap-2">
-                  <InputField
-                    label={`Highlight ${index + 1}`}
-                    value={highlight}
-                    onChange={(e) => updateArrayValue(setHighlights, index, e.target.value)}
-                    placeholder="Highlight"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => removeFromArray(setHighlights, index)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">How To Use List</Label>
-                <Button type="button" onClick={() => addToArray(setHowToUseList)} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add How To Use Item
-                </Button>
-              </div>
-              {howToUseList.map((item, index) => (
-                <div key={index} className="flex gap-2">
-                  <InputField
-                    label={`How To Use ${index + 1}`}
-                    value={item}
-                    onChange={(e) => updateArrayValue(setHowToUseList, index, e.target.value)}
-                    placeholder="How to use item"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => removeFromArray(setHowToUseList, index)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Inclusions</Label>
-                <Button type="button" onClick={() => addToArray(setInclusions)} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Inclusion
-                </Button>
-              </div>
-              {inclusions.map((inclusion, index) => (
-                <div key={index} className="flex gap-2">
-                  <InputField
-                    label={`Inclusion ${index + 1}`}
-                    value={inclusion}
-                    onChange={(e) => updateArrayValue(setInclusions, index, e.target.value)}
-                    placeholder="Inclusion"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => removeFromArray(setInclusions, index)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Exclusions</Label>
-                <Button type="button" onClick={() => addToArray(setExclusions)} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Exclusion
-                </Button>
-              </div>
-              {exclusions.map((exclusion, index) => (
-                <div key={index} className="flex gap-2">
-                  <InputField
-                    label={`Exclusion ${index + 1}`}
-                    value={exclusion}
-                    onChange={(e) => updateArrayValue(setExclusions, index, e.target.value)}
-                    placeholder="Exclusion"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => removeFromArray(setExclusions, index)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Things To Note</Label>
-                <Button type="button" onClick={() => addToArray(setThingsToNote)} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Note
-                </Button>
-              </div>
-              {thingsToNote.map((note, index) => (
-                <div key={index} className="flex gap-2">
-                  <InputField
-                    label={`Thing To Note ${index + 1}`}
-                    value={note}
-                    onChange={(e) => updateArrayValue(setThingsToNote, index, e.target.value)}
-                    placeholder="Thing to note"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => removeFromArray(setThingsToNote, index)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Blocked Dates</Label>
-                <Button type="button" onClick={addBlockedDate} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Blocked Date
-                </Button>
-              </div>
-              {blockedDates.map((date, index) => (
-                <div key={index} className="grid grid-cols-2 gap-2">
-                  <InputField
-                    label={`Date ${index + 1}`}
-                    value={date.date}
-                    onChange={(e) => updateBlockedDate(index, "date", e.target.value)}
-                    placeholder="Date (YYYY-MM-DD)"
-                  />
-                  <div className="flex gap-2">
-                    <InputField
-                      label={`Title ${index + 1}`}
-                      value={date.title}
-                      onChange={(e) => updateBlockedDate(index, "title", e.target.value)}
-                      placeholder="Title"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="icon"
-                      onClick={() => removeBlockedDate(index)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <DetailsTab
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues}
+          />
         )}
 
         {/* Media Tab */}
         {currentTab === "media" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Media</h3>
-            
-            <ImageUpload
-              label="Main Image"
-              value={watch("image")}
-              onChange={(val) => setValue("image", val)}
-              errMsg={errors.image?.message}
-              folderType="PRODUCT_MEDIA"
-            />
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Additional Media Items</Label>
-                <Button type="button" onClick={addMediaItem} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Media Item
-                </Button>
-              </div>
-              {mediaItems.map((media, index) => (
-                <div key={index} className="grid grid-cols-4 gap-2">
-                  <InputField
-                    label={`Path ${index + 1}`}
-                    value={media.path}
-                    onChange={(e) => updateMediaItem(index, "path", e.target.value)}
-                    placeholder="Image Path"
-                  />
-                  <InputField
-                    label={`Name ${index + 1}`}
-                    value={media.name}
-                    onChange={(e) => updateMediaItem(index, "name", e.target.value)}
-                    placeholder="Name"
-                  />
-                  <InputField
-                    label={`Extension ${index + 1}`}
-                    value={media.extension}
-                    onChange={(e) => updateMediaItem(index, "extension", e.target.value)}
-                    placeholder="Extension"
-                  />
-                  <div className="flex gap-2">
-                    <InputField
-                      label={`Size ${index + 1}`}
-                      type="number"
-                      value={media.size}
-                      onChange={(e) => updateMediaItem(index, "size", parseInt(e.target.value))}
-                      placeholder="Size"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="icon"
-                      onClick={() => removeMediaItem(index)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MediaTab
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues}
+          />
         )}
 
         {/* Operating Hours Tab */}
         {currentTab === "operating-hours" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Operating Hours</h3>
-            
-            <div className="space-y-2">
-              <InputField
-                label="Custom Hours"
-                {...register("operatingHours.custom")}
-                placeholder="Custom operating hours"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isToursActivities"
-                checked={watch("operatingHours.isToursActivities") || false}
-                onCheckedChange={(checked) => setValue("operatingHours.isToursActivities", checked)}
-              />
-              <Label htmlFor="isToursActivities">Is Tours Activities</Label>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="font-medium">Fixed Days</Label>
-                <Button type="button" onClick={addFixedDay} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> Add Day
-                </Button>
-              </div>
-              {fixedDays.map((day, index) => (
-                <div key={index} className="grid grid-cols-3 gap-2">
-                  <InputField
-                    label={`Day ${index + 1}`}
-                    value={day.day}
-                    onChange={(e) => updateFixedDay(index, "day", e.target.value)}
-                    placeholder="Day (e.g., Monday)"
-                  />
-                  <InputField
-                    label={`Start Hour ${index + 1}`}
-                    value={day.startHour}
-                    onChange={(e) => updateFixedDay(index, "startHour", e.target.value)}
-                    placeholder="Start Hour (HH:MM)"
-                  />
-                  <div className="flex gap-2">
-                    <InputField
-                      label={`End Hour ${index + 1}`}
-                      value={day.endHour}
-                      onChange={(e) => updateFixedDay(index, "endHour", e.target.value)}
-                      placeholder="End Hour (HH:MM)"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="icon"
-                      onClick={() => removeFixedDay(index)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <OperatingHoursTab
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues}
+          />
         )}
 
         {/* Options Tab */}
         {currentTab === "options" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Product Options</h3>
-            <p className="text-sm text-gray-500">Product options can be managed separately in the product options section.</p>
-          </div>
+          <OptionsTab
+            control={control}
+            errors={errors}
+            watch={watch}
+            getValues={getValues}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues}
+          />
         )}
       </div>
 
       {/* Navigation buttons */}
-      <div className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline" 
+      <div className="flex justify-between pt-4 border-t border-gray-200">
+        <Button
+          type="button"
+          variant="outline"
           onClick={prevTab}
           disabled={currentTab === "basic-info"}
+          className="flex items-center gap-2"
         >
-          Previous
+          ← Previous
         </Button>
-        
+
         {currentTab !== "options" ? (
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             onClick={nextTab}
+            className="flex items-center gap-2"
           >
-            Next
+            Next →
           </Button>
         ) : (
-          <div className="flex gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
               onClick={onCancel}
+              className="flex items-center gap-2"
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               loading={loading}
+              className="flex items-center gap-2"
             >
-              {isEdit ? "Update Ticket" : "Create Ticket"}
+              {isEdit ? <>Save Changes</> : <>Create Ticket</>}
             </Button>
           </div>
         )}

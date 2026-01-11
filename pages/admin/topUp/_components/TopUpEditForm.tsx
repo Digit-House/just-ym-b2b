@@ -6,6 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import ReadOnly from "@/components/ReadOnly";
 import InputField from "@/components/InputField";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { TopUpHistoryT } from "@/types/wallet.type";
 import {
@@ -17,7 +25,7 @@ type Props = {
   initialValues: TopUpHistoryT;
   loading?: boolean;
   onCancel: () => void;
-  onSubmit: (id: string, topUpBalance: number) => void;
+  onSubmit: (id: string, topUpBalance: number, status: string) => void;
 };
 
 export default function TopUpEditForm({
@@ -30,15 +38,18 @@ export default function TopUpEditForm({
     register,
     handleSubmit,
     formState: { errors, isDirty },
+    watch,
+    setValue,
   } = useForm<TopUpEditValues>({
     resolver: zodResolver(topUpEditSchema),
     defaultValues: {
       topUpBalance: initialValues.topUpBalance,
+      status: initialValues.status,
     },
   });
 
   const submitHandler = (values: TopUpEditValues) => {
-    onSubmit(initialValues.id, values.topUpBalance);
+    onSubmit(initialValues.id, values.topUpBalance, values.status);
   };
 
   return (
@@ -47,7 +58,40 @@ export default function TopUpEditForm({
       <div className="grid grid-cols-2 gap-4 text-sm">
         <ReadOnly label="Reseller" value={initialValues.reseller?.name} />
         <ReadOnly label="Currency" value={initialValues.currency} />
-        <ReadOnly label="Status" value={initialValues.status} />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <div className="flex gap-2">
+            <Select
+              value={watch("status")}
+              onValueChange={(value) => setValue("status", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="CONFIRMED">CONFIRMED</SelectItem>
+                  <SelectItem value="REJECTED">REJECTED</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <span
+              className={`px-3 py-2 rounded-full text-xs font-medium inline-block min-w-[80px] text-center ${
+                watch("status") === "CONFIRMED"
+                  ? "bg-green-100 text-green-700"
+                  : watch("status") === "PENDING"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {watch("status")}
+            </span>
+          </div>
+          {errors.status && (
+            <p className="mt-1 text-sm text-red-500">{errors.status.message}</p>
+          )}
+        </div>
         <ReadOnly label="Created By" value={initialValues.createdBy?.email} />
         <ReadOnly
           label="Created At"

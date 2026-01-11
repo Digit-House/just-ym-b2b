@@ -87,7 +87,7 @@ export default function RoleForm({
         <Select
           value={watch("resellerId")}
           onValueChange={(val) => setValue("resellerId", val)}
-          disabled={isEdit}
+          // disabled={isEdit}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select reseller" />

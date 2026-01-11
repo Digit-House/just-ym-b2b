@@ -1,8 +1,6 @@
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProductInfo } from "@/graphql/product";
-import { ProductInfoT } from "@/types/product.type";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import TicketEditForm from "@/pages/admin/tickets/_components/TicketEditForm";
@@ -16,6 +14,7 @@ const AdminTicketEdit = () => {
     queryFn: () => getProductInfo(id!),
     enabled: !!id,
   });
+
 
   if (isLoading) {
     return <div>Loading ticket...</div>;

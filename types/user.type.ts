@@ -61,6 +61,7 @@ export interface UserManagementT {
   email: string;
   lastLogin: string;
   roleIds: string[];
+  resellerId: null | string;
   type: UserRoleTypeT;
   roles: { id: string; name: string; resellerId: string; createdAt: string }[];
   updatedAt: string;

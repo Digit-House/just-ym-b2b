@@ -11,6 +11,7 @@ export const userSchema = z
     countryCode: z.string().optional(),
     roleIds: z.array(z.string()).min(1, "At least one role must be selected"),
     password: z.string().min(6, "Password must be at least 6 characters"),
+    resellerId: z.string().optional(),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

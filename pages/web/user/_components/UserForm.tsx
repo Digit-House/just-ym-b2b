@@ -9,6 +9,10 @@ import { getErrMsg } from "@/util/initData";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { toast } from "sonner";
 import { Fragment } from "react/jsx-runtime";
+import { getResellers } from "@/graphql/reseller";
+import { ResellerT } from "@/types/reseller.type";
+import { useEffect, useState } from "react";
+import { useUser } from "@/provider/UserProvider";
 
 type UserFormProps = {
   loading: boolean;
@@ -25,11 +29,16 @@ export default function UserForm({
   onSubmit,
   onCancel,
 }: UserFormProps) {
+  console.log(initialValues,"32")
+  const {user} = useUser();
+  const userType = user.type as "OWNER" | "RESELLER";
   const {
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
+    setError,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<UserFormValues>({
@@ -42,6 +51,7 @@ export default function UserForm({
       countryCode: initialValues?.countryCode || "95",
       roleIds: initialValues?.roleIds || [],
       password: mode === "edit" ? "defaultPassword" : "",
+      resellerId: initialValues?.resellerId || null,
       confirmPassword: mode === "edit" ? "defaultPassword" : "",
     },
   });
@@ -53,10 +63,33 @@ export default function UserForm({
     resellerId: null,
   });
 
+  useEffect(() => {
+    fetchResellers();
+  },[])
+
+  const [resellerData, setResellerData] = useState<ResellerT[]>([]);
+
   const roleIds = watch("roleIds") || [];
+
+  const fetchResellers = async () => {
+      try {
+        const res: any = await getResellers({ limit: 50, page: 1, orderBy: { dir: "desc" } });
+        setResellerData(res?.data?.findAllResellers?.data || []);
+      } catch (err) {
+        toast.error(getErrMsg(err, "message"));
+      } 
+    };
 
   const submitHandler = async (values: UserFormValues) => {
     try {
+      // Additional validation for OWNER user type
+      if (userType === "OWNER" && !values.resellerId) {
+        setError("resellerId", {
+          type: "manual",
+          message: "Reseller is required for OWNER accounts"
+        });
+        return;
+      }
       await onSubmit(values);
       reset();
     } catch (err) {
@@ -81,6 +114,11 @@ export default function UserForm({
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
+    {errors.root && (
+      <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">
+        {errors.root.message}
+      </div>
+    )}
       <InputField
         label="User Name"
         id="userName"
@@ -100,6 +138,29 @@ export default function UserForm({
         disabled={mode === "edit"}
         errMsg={errors?.email?.message}
       />
+      {/* Reseller Selection - Only for OWNER user type */}
+      {userType === "OWNER" && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Reseller <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={getValues("resellerId") || ""}
+            {...register("resellerId", { required: "Reseller is required for OWNER accounts" })}
+            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value={""}>Select a reseller</option>
+            {resellerData.map((reseller) => (
+              <option key={reseller.id} value={reseller.id}>
+                {reseller.name}
+              </option>
+            ))}
+          </select>
+          {errors?.resellerId && (
+            <p className="text-red-500 text-xs mt-1">{errors.resellerId.message}</p>
+          )}
+        </div>
+      )}
 
       {/* User Roles Select (Updated to Multi-Select List) */}
       <div>

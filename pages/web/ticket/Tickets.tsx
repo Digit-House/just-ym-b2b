@@ -12,6 +12,7 @@ import { fetchProducts } from "@/graphql/product";
 import SkeletonCard from "./_components/SkeletonCard";
 import { preFixImg } from "@/util/initData";
 import PageContainer from "@/components/PageContainer";
+import { useUser } from "@/provider/UserProvider";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -22,6 +23,7 @@ export default function Tickets() {
   const navigate = useNavigate();
 
   const [sort, setSort] = useState("desc");
+  const {user} = useUser();
   const published = "PUBLISHED";
   const [categories, setCategories] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
@@ -146,12 +148,14 @@ export default function Tickets() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => navigate(`/admin-tickets/edit/${p.id}`)}
-                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Edit
-                    </button>
+                    {user?.type === "ADMIN" && (
+                      <button
+                        onClick={() => navigate(`/admin-tickets/edit/${p.id}`)}
+                        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
                     <button
                       onClick={() => navigate(`/tickets/${p.id}`)}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"

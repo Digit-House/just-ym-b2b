@@ -62,10 +62,10 @@ const TopUp = () => {
     }
   };
 
-  const updateTopUp = async (id: string, topUpBalance: number) => {
+  const updateTopUp = async (id: string, topUpBalance: number, status: string) => {
     try {
       setLoading(true);
-      await confirmTopup(id, topUpBalance);
+      await confirmTopup(id, topUpBalance, status);
       setFetchAgain((prev) => !prev);
       setEditTopUp(null);
     } catch (err) {

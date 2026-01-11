@@ -45,6 +45,7 @@ export const postUser = async (payload: UserFormValues) => {
         countryCode: payload.countryCode,
         email: payload.email,
         imageURI: null,
+        resellerId: payload.resellerId || null,
         password: payload.password,
         roleIds: payload.roleIds,
         username: payload.username,

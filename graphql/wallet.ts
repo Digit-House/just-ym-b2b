@@ -47,7 +47,8 @@ export const addTopup = async (payload: AddTopupPayloadT) => {
 
 export const confirmTopup = async (
   creditTopUpId: string,
-  topUpBalance: number
+  topUpBalance: number,
+  status: string
 ) => {
   return client.mutate({
     mutation: warpGql(CONFIRM_TOPUP),
@@ -55,6 +56,7 @@ export const confirmTopup = async (
       data: {
         creditTopUpId: creditTopUpId,
         topUpBalance: topUpBalance,
+        status: status
       },
     },
   });
