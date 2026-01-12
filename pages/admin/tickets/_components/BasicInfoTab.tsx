@@ -1,7 +1,7 @@
 import React from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT } from "@/types/product.type";
+import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { useCities } from "@/hooks/useCities";
+import { useCountries } from "@/hooks/useCountries";
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -21,7 +22,7 @@ type BasicInfoTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
@@ -34,8 +35,16 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 }) => {
   const isEdit = mode === "edit";
 
-  // Fetch categories and cities
+  // Fetch categories, countries and cities
   const { data: categories = [] } = useCategories({ limit: 50, page: 1 });
+  const { data: countriesResponse } = useCountries({ 
+    limit: 50, 
+    page: 1, 
+    orderBy: { dir: "asc" }, 
+    isPublished: true,
+    search: undefined,
+  });
+  const countries = countriesResponse?.data || [];
   const { data: citiesData } = useCities({
     countryId: watch("countryId") || "",
     limit: 50,
@@ -172,6 +181,41 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               />
             )}
           />
+        </div>
+
+        <div
+          className={`space-y-3 ${
+            errors.countryId
+              ? "border border-red-300 rounded-lg p-3 bg-red-50"
+              : ""
+          }`}
+        >
+          <Label>Country</Label>
+          <Controller
+            name="countryId"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger
+                  className={`w-full ${errors.countryId ? "border-red-500" : ""}`}
+                >
+                  <SelectValue placeholder="Select a country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country.id} value={country.id}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.countryId && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.countryId.message?.toString()}
+            </p>
+          )}
         </div>
 
         <div
@@ -462,6 +506,34 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               </Label>
               <p className="text-xs text-gray-500">
                 Allow flexible dates
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={`flex items-center space-x-3 p-3 rounded-lg ${
+              errors.isPublished
+                ? "bg-red-50 border border-red-300"
+                : "bg-gray-50"
+            }`}
+          >
+            <Controller
+              name="isPublished"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="isPublished"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <div>
+              <Label htmlFor="isPublished" className="font-medium">
+                Published
+              </Label>
+              <p className="text-xs text-gray-500">
+                Make ticket available to customers
               </p>
             </div>
           </div>

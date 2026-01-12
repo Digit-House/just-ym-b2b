@@ -51,6 +51,7 @@ query GetProductInfo($productId: String!) {
     isBestSeller
     isCancellable
     isGTRecommend
+    isPublished
     isInstantConfirmation
     isOpenDated
     keywords
@@ -265,3 +266,11 @@ export const ADD_TO_CART_MUTATION = `mutation Mutation($item: CartItemInput!) {
     success
   }
 }`;
+
+export const UPDATE_PRODUCT_MUTATION = `mutation UpdateProduct($data: ProductUpdateInput!) {
+  updateProduct(data: $data) {
+    message
+    status
+  }
+}
+`;

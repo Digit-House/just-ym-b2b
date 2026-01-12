@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 import { TicketFormValues, ticketSchema } from "@/types/schema/ticketSchema";
 import {
   ProductInfoT,
+  UpdateProductPayloadT,
 } from "@/types/product.type";
 import BasicInfoTab from "./BasicInfoTab";
 import LocationTab from "./LocationTab";
@@ -20,13 +21,15 @@ import DetailsTab from "./DetailsTab";
 import MediaTab from "./MediaTab";
 import OperatingHoursTab from "./OperatingHoursTab";
 import OptionsTab from "./OptionsTab";
+import { getSignedUrlAndImageDataUpload } from "@/util";
+import { ImageUploadRef } from "@/components/ImageUpload";
 
 
 type Mode = "create" | "edit";
 
 type Props = {
   mode: Mode;
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: TicketFormValues) => void;
@@ -46,32 +49,43 @@ const TicketEditForm: React.FC<Props> = ({
     defaultValues: {
       id: initialValues?.id ?? "",
       name: initialValues?.name ?? "",
-      category: initialValues?.category ?? "",
+      category: (initialValues as any)?.category ?? "",
       description: initialValues?.description ?? "",
       whatToExpect: initialValues?.whatToExpect ?? "",
       addressLine: initialValues?.addressLine ?? "",
       location: initialValues?.location ?? "",
       postalCode: initialValues?.postalCode ?? "",
-      city: initialValues?.city ?? "",
-      cityId: initialValues?.cityId ?? 0,
-      city_relation_id: initialValues?.city_relation_id ?? "",
-      countryId: initialValues?.countryId ?? "",
+      city: (initialValues as any)?.city ?? "",
+      cityId: (initialValues as any)?.cityId ?? 0,
+      city_relation_id: (initialValues as any)?.city_relation_id ?? "",
+      countryId: (initialValues as any)?.countryId ?? "",
       latitude: initialValues?.latitude ?? 0,
       longitude: initialValues?.longitude ?? 0,
       keywords: initialValues?.keywords ?? "",
       image: initialValues?.image ?? "",
       exclusions: initialValues?.exclusions ?? [],
+      exclusions_mm: (initialValues as UpdateProductPayloadT)?.exclusions_mm ?? [],
+      fromPrice: (initialValues as UpdateProductPayloadT)?.fromPrice ?? 0,
+      fromReseller: (initialValues as UpdateProductPayloadT)?.fromReseller ?? "",
       highlights: initialValues?.highlights ?? [],
+      highlights_mm: (initialValues as UpdateProductPayloadT)?.highlights_mm ?? [],
       howToUseList: initialValues?.howToUseList ?? [],
+      howToUseList_mm: (initialValues as UpdateProductPayloadT)?.howToUseList_mm ?? [],
       inclusions: initialValues?.inclusions ?? [],
-      thingsToNote: initialValues?.thingsToNote ?? [],
+      inclustions_mm: (initialValues as UpdateProductPayloadT)?.inclustions_mm ?? [],
       isBestSeller: initialValues?.isBestSeller ?? false,
       isCancellable: initialValues?.isCancellable ?? false,
       isGTRecommend: initialValues?.isGTRecommend ?? false,
       isInstantConfirmation: initialValues?.isInstantConfirmation ?? false,
       isOpenDated: initialValues?.isOpenDated ?? false,
+      isOwnContracted: (initialValues as UpdateProductPayloadT)?.isOwnContracted ?? false,
+      isPublished: (initialValues as UpdateProductPayloadT)?.isPublished ?? false,
       originalPrice: initialValues?.originalPrice ?? 0,
       timezoneOffset: initialValues?.timezoneOffset ?? 0,
+      termsAndConditions: initialValues?.termsAndConditions ?? "",
+      termsAndConditions_mm: (initialValues as UpdateProductPayloadT)?.termsAndConditions_mm ?? "",
+      thingsToNote: initialValues?.thingsToNote ?? [],
+      thingsToNode_mm: (initialValues as UpdateProductPayloadT)?.thingsToNode_mm ?? [],
       blockedDate: initialValues?.blockedDate ?? [],
       media: initialValues?.media ?? [],
       operatingHours: initialValues?.operatingHours ?? {
@@ -79,7 +93,6 @@ const TicketEditForm: React.FC<Props> = ({
         isToursActivities: null,
         fixedDays: [],
       },
-      termsAndConditions: initialValues?.termsAndConditions ?? "",
       productOptions: initialValues?.productOptions ?? [],
     },
   });
@@ -95,6 +108,17 @@ const TicketEditForm: React.FC<Props> = ({
   } = form;
 
   const [currentTab, setCurrentTab] = useState("basic-info");
+
+  // Refs for media items to handle deferred uploads
+  const mediaItemRefs = useRef<Map<number, ImageUploadRef>>(new Map());
+
+  const setMediaItemRef = (index: number) => (ref: ImageUploadRef | null) => {
+    if (ref) {
+      mediaItemRefs.current.set(index, ref);
+    } else {
+      mediaItemRefs.current.delete(index);
+    }
+  };
 
   // Icon mapping for tabs
   const tabIcons = {
@@ -131,7 +155,16 @@ const TicketEditForm: React.FC<Props> = ({
         return [
           "description",
           "whatToExpect",
-          "termsAndConditions"
+          "termsAndConditions",
+          "exclusions",
+          "exclusions_mm",
+          "highlights",
+          "highlights_mm",
+          "howToUseList",
+          "howToUseList_mm",
+          "inclusions",
+          "inclustions_mm",
+          "thingsToNote"
         ];
       case "location":
         return [
@@ -221,7 +254,16 @@ const TicketEditForm: React.FC<Props> = ({
         return !!(
           errors.description ||
           errors.whatToExpect ||
-          errors.termsAndConditions
+          errors.termsAndConditions ||
+          errors.exclusions ||
+          errors.exclusions_mm ||
+          errors.highlights ||
+          errors.highlights_mm ||
+          errors.howToUseList ||
+          errors.howToUseList_mm ||
+          errors.inclusions ||
+          errors.inclustions_mm ||
+          errors.thingsToNote
         );
       case "location":
         return !!(errors.latitude || errors.longitude);
@@ -261,16 +303,55 @@ const TicketEditForm: React.FC<Props> = ({
       return;
     }
 
+    // Process media uploads
+    let processedMedia = [...(values.media || [])];
+    
+    // Process each media item to upload to S3 if needed
+    for (let i = 0; i < processedMedia.length; i++) {
+      const mediaItem = processedMedia[i];
+      
+      // Check if this media item has a local file that needs to be uploaded
+      if (mediaItem.path && (mediaItem.path.startsWith('blob:') || mediaItem.path.startsWith('data:'))) {
+        // Get the file from the ref if available
+        const mediaRef = mediaItemRefs.current.get(i);
+        if (mediaRef) {
+          const fileToUpload = mediaRef.getFileToUpload();
+          if (fileToUpload) {
+            try {
+              const result = await getSignedUrlAndImageDataUpload(fileToUpload, "PRODUCT_MEDIA");
+              if (result.status === 200 && result.url) {
+                // Update the media item with the new URL
+                processedMedia[i] = { ...mediaItem, path: result.url };
+              }
+            } catch (error) {
+              console.error(`Error uploading media item ${i}:`, error);
+            }
+          }
+        }
+      }
+    }
+
     // Update values with dynamic arrays
     const payload = {
       ...values,
       exclusions: values.exclusions || [],
+      exclusions_mm: values.exclusions_mm || [],
+      fromPrice: values.fromPrice || 0,
+      fromReseller: values.fromReseller || "",
       highlights: values.highlights || [],
+      highlights_mm: values.highlights_mm || [],
       howToUseList: values.howToUseList || [],
+      howToUseList_mm: values.howToUseList_mm || [],
       inclusions: values.inclusions || [],
+      inclustions_mm: values.inclustions_mm || [],
+      isOwnContracted: values.isOwnContracted || false,
+      isPublished: values.isPublished || false,
+      termsAndConditions: values.termsAndConditions || "",
+      termsAndConditions_mm: values.termsAndConditions_mm || "",
       thingsToNote: values.thingsToNote || [],
+      thingsToNode_mm: values.thingsToNode_mm || [],
       blockedDate: values.blockedDate || [],
-      media: values.media || [],
+      media: processedMedia,
       operatingHours: {
         ...values.operatingHours,
         fixedDays: values.operatingHours?.fixedDays || [],
@@ -349,7 +430,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
         )}
 
@@ -361,7 +442,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
         )}
 
@@ -373,7 +454,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
         )}
 
@@ -385,7 +466,8 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
+            setMediaItemRef={setMediaItemRef}
           />
         )}
 
@@ -397,7 +479,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
         )}
 
@@ -410,7 +492,7 @@ const TicketEditForm: React.FC<Props> = ({
             getValues={getValues}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
         )}
       </div>
