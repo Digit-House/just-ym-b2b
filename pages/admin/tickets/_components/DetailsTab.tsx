@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
@@ -13,33 +13,71 @@ type DetailsTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: UpdateProductPayloadT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const DetailsTab: React.FC<DetailsTabProps> = ({
   control,
   errors,
+  watch,
+  setValue,
   initialValues,
 }) => {
   // State for dynamic arrays
   const [exclusions, setExclusions] = useState<string[]>(
-    initialValues?.exclusions ?? []
+    (initialValues as UpdateProductPayloadT)?.exclusions ?? []
+  );
+  const [exclusions_mm, setExclusionsMm] = useState<string[]>(
+    (initialValues as UpdateProductPayloadT)?.exclusions_mm ?? []
   );
   const [highlights, setHighlights] = useState<string[]>(
-    initialValues?.highlights ?? []
+    (initialValues as UpdateProductPayloadT)?.highlights ?? []
+  );
+  const [highlights_mm, setHighlightsMm] = useState<string[]>(
+    (initialValues as UpdateProductPayloadT)?.highlights_mm ?? []
   );
   const [howToUseList, setHowToUseList] = useState<string[]>(
-    initialValues?.howToUseList ?? []
+    (initialValues as UpdateProductPayloadT)?.howToUseList ?? []
+  );
+  const [howToUseList_mm, setHowToUseListMm] = useState<string[]>(
+    (initialValues as UpdateProductPayloadT)?.howToUseList_mm ?? []
   );
   const [inclusions, setInclusions] = useState<string[]>(
-    initialValues?.inclusions ?? []
+    (initialValues as UpdateProductPayloadT)?.inclusions ?? []
+  );
+  const [inclusions_mm, setInclusionsMm] = useState<string[]>(
+    (initialValues as UpdateProductPayloadT)?.inclustions_mm ?? []
   );
   const [thingsToNote, setThingsToNote] = useState<string[]>(
-    initialValues?.thingsToNote ?? []
+    (initialValues as UpdateProductPayloadT)?.thingsToNote ?? []
+  );
+  const [thingsToNoteMm, setThingsToNoteMm] = useState<string[]>(
+    (initialValues as UpdateProductPayloadT)?.thingsToNode_mm ?? []
   );
   const [blockedDates, setBlockedDates] = useState(
-    initialValues?.blockedDate ?? []
+    (initialValues as UpdateProductPayloadT)?.blockedDate ?? []
   );
+
+  // Synchronize _mm fields with form values
+  useEffect(() => {
+    setValue("exclusions_mm", exclusions_mm);
+  }, [exclusions_mm, setValue]);
+
+  useEffect(() => {
+    setValue("highlights_mm", highlights_mm);
+  }, [highlights_mm, setValue]);
+
+  useEffect(() => {
+    setValue("howToUseList_mm", howToUseList_mm);
+  }, [howToUseList_mm, setValue]);
+
+  useEffect(() => {
+    setValue("inclustions_mm", inclusions_mm);
+  }, [inclusions_mm, setValue]);
+
+  useEffect(() => {
+    setValue("thingsToNode_mm", thingsToNoteMm);
+  }, [thingsToNoteMm, setValue]);
 
   // Array management functions
   const addToArray = (
@@ -180,226 +218,448 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
       </div>
 
       <div className="border-t pt-6 space-y-8">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
+        <div className="border-t pt-6 space-y-6">
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium flex items-center gap-2">
               <NotebookIcon className="h-5 w-5 text-green-500" />
-              <h4 className="text-lg font-medium">Highlights</h4>
-            </div>
-            <Button
-              type="button"
-              onClick={() => addToArray(setHighlights)}
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Highlight
-            </Button>
-          </div>
+              Exclusions
+            </h4>
 
-          <div className="grid grid-cols-2 gap-3">
-            {highlights.map((highlight, index) => (
-              <div
-                key={index}
-                className="flex items-center py-3 rounded-lg w-full"
-              >
-                <InputField
-                  value={highlight}
-                  onChange={(e) =>
-                    updateArrayValue(setHighlights, index, e.target.value)
-                  }
-                  placeholder="Enter highlight"
-                  className="w-full rounded-md "
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Exclusions
+                </h5>
+                {exclusions.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setExclusions, index, e.target.value)
+                      }
+                      placeholder="Enter exclusion"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setExclusions, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFromArray(setHighlights, index)}
-                  className="text-red-500  hover:text-red-700 hover:bg-red-50"
+                  onClick={() => addToArray(setExclusions)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Plus className="h-4 w-4 mr-1" /> Add Exclusion
                 </Button>
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              <h4 className="text-lg font-medium">How To Use</h4>
-            </div>
-            <Button
-              type="button"
-              onClick={() => addToArray(setHowToUseList)}
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Instruction
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {howToUseList.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center py-3 rounded-lg w-full"
-              >
-                <InputField
-                  value={item}
-                  onChange={(e) =>
-                    updateArrayValue(
-                      setHowToUseList,
-                      index,
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter instruction"
-                  className="w-full rounded-md"
-                />
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Exclusions MM
+                </h5>
+                {exclusions_mm.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setExclusionsMm, index, e.target.value)
+                      }
+                      placeholder="Enter exclusion (MM)"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setExclusionsMm, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFromArray(setHowToUseList, index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => addToArray(setExclusionsMm)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Plus className="h-4 w-4 mr-1" /> Add Exclusion MM
                 </Button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              <h4 className="text-lg font-medium">Inclusions</h4>
             </div>
-            <Button
-              type="button"
-              onClick={() => addToArray(setInclusions)}
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Inclusion
-            </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {inclusions.map((inclusion, index) => (
-              <div
-                key={index}
-                className="flex items-center py-3 rounded-lg w-full"
-              >
-                <InputField
-                  value={inclusion}
-                  onChange={(e) =>
-                    updateArrayValue(setInclusions, index, e.target.value)
-                  }
-                  placeholder="Enter inclusion"
-                  className="w-full rounded-md"
-                />
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium flex items-center gap-2">
+              <NotebookIcon className="h-5 w-5 text-green-500" />
+              Highlights
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Highlights
+                </h5>
+                {highlights.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setHighlights, index, e.target.value)
+                      }
+                      placeholder="Enter highlight"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setHighlights, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFromArray(setInclusions, index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => addToArray(setHighlights)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Plus className="h-4 w-4 mr-1" /> Add Highlight
                 </Button>
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              <h4 className="text-lg font-medium">Exclusions</h4>
-            </div>
-            <Button
-              type="button"
-              onClick={() => addToArray(setExclusions)}
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Exclusion
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {exclusions.map((exclusion, index) => (
-              <div
-                key={index}
-                className="flex items-center py-3 rounded-lg w-full"
-              >
-                <InputField
-                  value={exclusion}
-                  onChange={(e) =>
-                    updateArrayValue(setExclusions, index, e.target.value)
-                  }
-                  placeholder="Enter exclusion"
-                  className="w-full rounded-md"
-                />
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Highlights MM
+                </h5>
+                {highlights_mm.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setHighlightsMm, index, e.target.value)
+                      }
+                      placeholder="Enter highlight (MM)"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setHighlightsMm, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFromArray(setExclusions, index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => addToArray(setHighlightsMm)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Plus className="h-4 w-4 mr-1" /> Add Highlight MM
                 </Button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              <h4 className="text-lg font-medium">Things To Note</h4>
             </div>
-            <Button
-              type="button"
-              onClick={() => addToArray(setThingsToNote)}
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Note
-            </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {thingsToNote.map((note, index) => (
-              <div
-                key={index}
-                className="flex items-center py-3 rounded-lg w-full"
-              >
-                <InputField
-                  value={note}
-                  onChange={(e) =>
-                    updateArrayValue(
-                      setThingsToNote,
-                      index,
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter note"
-                  className="w-full rounded-md"
-                />
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium flex items-center gap-2">
+              <NotebookIcon className="h-5 w-5 text-green-500" />
+              How to Use
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  How to Use
+                </h5>
+                {howToUseList.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setHowToUseList, index, e.target.value)
+                      }
+                      placeholder="Enter instruction"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setHowToUseList, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFromArray(setThingsToNote, index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => addToArray(setHowToUseList)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Plus className="h-4 w-4 mr-1" /> Add Instruction
                 </Button>
               </div>
-            ))}
+
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  How to Use MM
+                </h5>
+                {howToUseList_mm.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(
+                          setHowToUseListMm,
+                          index,
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter instruction (MM)"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setHowToUseListMm, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  onClick={() => addToArray(setHowToUseListMm)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Instruction MM
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium flex items-center gap-2">
+              <NotebookIcon className="h-5 w-5 text-green-500" />
+              Inclusions
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Inclusions
+                </h5>
+                {inclusions.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setInclusions, index, e.target.value)
+                      }
+                      placeholder="Enter inclusion"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setInclusions, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  onClick={() => addToArray(setInclusions)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Inclusion
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Inclusions MM
+                </h5>
+                {inclusions_mm.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setInclusionsMm, index, e.target.value)
+                      }
+                      placeholder="Enter inclusion (MM)"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setInclusionsMm, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  onClick={() => addToArray(setInclusionsMm)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Inclusion MM
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium flex items-center gap-2">
+              <NotebookIcon className="h-5 w-5 text-green-500" />
+              Things to Note
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Things to Note
+                </h5>
+                {thingsToNote.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(setThingsToNote, index, e.target.value)
+                      }
+                      placeholder="Enter note"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setThingsToNote, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  onClick={() => addToArray(setThingsToNote)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Note
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                <h5 className="text-md font-medium text-gray-700">
+                  Things to Note MM
+                </h5>
+                {thingsToNoteMm.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center py-3 rounded-lg w-full"
+                  >
+                    <InputField
+                      value={item}
+                      onChange={(e) =>
+                        updateArrayValue(
+                          setThingsToNoteMm,
+                          index,
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter note (MM)"
+                      className="w-full rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromArray(setThingsToNoteMm, index)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  onClick={() => addToArray(setThingsToNoteMm)}
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Note MM
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -435,9 +695,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               <div
                 key={index}
                 className={`p-4 rounded-lg border grid grid-cols-1 md:grid-cols-2 gap-4 ${
-                  errors.blockedDate?.[index]
-                    ? "bg-red-50 border-red-300"
-                    : ""
+                  errors.blockedDate?.[index] ? "bg-red-50 border-red-300" : ""
                 }`}
               >
                 <div
@@ -491,6 +749,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Grouped Fields Section */}
       </div>
     </div>
   );

@@ -51,6 +51,7 @@ query GetProductInfo($productId: String!) {
     isBestSeller
     isCancellable
     isGTRecommend
+    isPublished
     isInstantConfirmation
     isOpenDated
     keywords

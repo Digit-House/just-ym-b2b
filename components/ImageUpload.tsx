@@ -1,46 +1,59 @@
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 
 type ImageUploadProps = {
   value?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, file?: File) => void;
   label?: string;
   errMsg?: string;
   isRequired?: boolean;
   folderType: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE";
 };
 
-export function ImageUpload({
+export type ImageUploadRef = {
+  getFileToUpload: () => File | null;
+};
+
+export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   value,
   onChange,
   label,
   folderType,
   isRequired,
   errMsg,
-}: ImageUploadProps) {
+}, ref) => {
   const [preview, setPreview] = useState<string | undefined>(value);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const result = await getSignedUrlAndImageDataUpload(file, folderType);
-      if (result.status === 200 && result.url) {
-        setPreview(result.url);
-        onChange(result.url);
-      } else {
-        console.error(
-          "Image upload failed:",
-          result.message || "Unknown error"
-        );
-      }
+      // Store the file locally instead of immediately uploading
+      setFileToUpload(file);
+      // Create a preview URL for the selected file
+      const previewUrl = URL.createObjectURL(file);
+      setPreview(previewUrl);
+      // Pass the preview URL and file object to the parent component
+      onChange(previewUrl, file);
     }
   };
 
   const handleRemove = () => {
     setPreview(undefined);
+    setFileToUpload(null);
     onChange("");
   };
+
+  // Method to get the file that needs to be uploaded
+  const getFileToUpload = () => {
+    return fileToUpload;
+  };
+
+  // Expose the method to get the file via ref
+  useImperativeHandle(ref, () => ({
+    getFileToUpload
+  }));
 
   return (
     <div className="space-y-1">
@@ -84,4 +97,8 @@ export function ImageUpload({
       {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}
     </div>
   );
-}
+});
+
+ImageUpload.displayName = 'ImageUpload';
+
+export default ImageUpload;

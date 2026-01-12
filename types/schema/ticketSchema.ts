@@ -18,17 +18,28 @@ export const ticketSchema = z.object({
   keywords: z.string().min(1, "Keywords are required"),
   image: z.string().min(1, "Image is required"),
   exclusions: z.array(z.string()),
+  exclusions_mm: z.array(z.string()),
+  fromPrice: z.number(),
+  fromReseller: z.string(),
   highlights: z.array(z.string()),
+  highlights_mm: z.array(z.string()),
   howToUseList: z.array(z.string()),
+  howToUseList_mm: z.array(z.string()),
   inclusions: z.array(z.string()),
-  thingsToNote: z.array(z.string()),
+  inclustions_mm: z.array(z.string()),
   isBestSeller: z.boolean(),
   isCancellable: z.boolean(),
   isGTRecommend: z.boolean(),
   isInstantConfirmation: z.boolean(),
   isOpenDated: z.boolean(),
+  isOwnContracted: z.boolean(),
+  isPublished: z.boolean(),
   originalPrice: z.number().min(0, "Original price must be greater than or equal to 0"),
   timezoneOffset: z.number().int(),
+  termsAndConditions: z.string().min(1, "Terms and conditions are required"),
+  termsAndConditions_mm: z.string(),
+  thingsToNote: z.array(z.string()),
+  thingsToNode_mm: z.array(z.string()),
   blockedDate: z.array(
     z.object({
       date: z.string(),
@@ -55,7 +66,6 @@ export const ticketSchema = z.object({
       })
     ),
   }),
-  termsAndConditions: z.string().min(1, "Terms and conditions are required"),
   productOptions: z.array(
     z.object({
       currency: z.string().optional(),

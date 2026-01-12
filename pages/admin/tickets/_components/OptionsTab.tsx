@@ -15,7 +15,7 @@ type OptionsTabProps = {
   getValues: UseFormGetValues<TicketFormValues>;
   setValue: UseFormSetValue<TicketFormValues>;
   mode: "create" | "edit";
-  initialValues?: UpdateProductPayloadT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const OptionsTab: React.FC<OptionsTabProps> = ({

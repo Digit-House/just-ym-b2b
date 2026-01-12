@@ -10,7 +10,7 @@ type LocationTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: UpdateProductPayloadT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const LocationTab: React.FC<LocationTabProps> = ({

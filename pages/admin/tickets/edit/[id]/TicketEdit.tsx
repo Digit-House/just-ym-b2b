@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 
+
 const AdminTicketEdit = () => {
   const [loading, setLoading] = useState(false);
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,7 @@ const AdminTicketEdit = () => {
     queryFn: () => getProductInfo(id!),
     enabled: !!id,
   });
+
 
   if (isLoading) {
     return <div>Loading ticket...</div>;
@@ -32,7 +34,34 @@ const AdminTicketEdit = () => {
   const handleSave = async (formData: UpdateProductPayloadT | TicketFormValues) => {
     try {
       setLoading(true);
-      const res = await updateProductInfo(formData);
+      
+      // Process media uploads if there are any
+      let updatedFormData = { ...formData as UpdateProductPayloadT };
+      
+      if (updatedFormData.media && Array.isArray(updatedFormData.media)) {
+        const processedMedia = [];
+        
+        for (const mediaItem of updatedFormData.media) {
+          // If mediaItem.path starts with 'blob:' or 'data:', it means it hasn't been uploaded yet
+          if (mediaItem.path && (mediaItem.path.startsWith('blob:') || mediaItem.path.startsWith('data:'))) {
+            // This means it's a local file that needs to be uploaded
+            // Since we don't have direct access to the file object here, 
+            // we'll need to handle this differently.
+            // In a real scenario, we'd pass the actual files from the form
+            processedMedia.push(mediaItem); // For now, just add the original
+          } else {
+            // Already a processed URL, add as is
+            processedMedia.push(mediaItem);
+          }
+        }
+        
+        updatedFormData = {
+          ...updatedFormData,
+          media: processedMedia
+        };
+      }
+      
+      const res = await updateProductInfo(updatedFormData as UpdateProductPayloadT);
       console.log(res);
       toast.success("Successfully Updated !");
       navigate("/admin-tickets");

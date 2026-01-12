@@ -15,7 +15,7 @@ type OperatingHoursTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: UpdateProductPayloadT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
@@ -25,7 +25,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
 }) => {
   // State for fixed days
   const [fixedDays, setFixedDays] = useState<FixedDayT[]>(
-    initialValues?.operatingHours.fixedDays ?? []
+    (initialValues as UpdateProductPayloadT)?.operatingHours?.fixedDays ?? []
   );
 
   const addFixedDay = () => {

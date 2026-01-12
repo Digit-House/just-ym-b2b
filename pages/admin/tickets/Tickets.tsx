@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import ModalWrapper from "@/components/ModalWrapper";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts, getProductInfo } from "@/graphql/product";
-import { ProductInfoT } from "@/types/product.type";
 import TicketEditForm from "./_components/TicketEditForm";
 
 const Tickets = () => {
@@ -21,6 +20,7 @@ const Tickets = () => {
       countryId: "", 
       limit: 100, 
       page: 1, 
+      published:"UNPUBLISHED",
       orderBy: { dir: "desc" } 
     }),
   });

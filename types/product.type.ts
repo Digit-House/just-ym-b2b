@@ -23,6 +23,7 @@ export type FilterProductListT = {
     dir: string;
   };
   page: number;
+  published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
 };
 
 export type ProductT = {
@@ -119,10 +120,15 @@ export interface ProductInfoT {
   keywords: string;
   image: string;
   exclusions: string[];
+  exclusions_mm: string[];
   highlights: string[];
+  highlights_mm: string[];
   howToUseList: string[];
+  howToUseList_mm: string[];
   inclusions: string[];
+  inclustions_mm: string[];
   thingsToNote: string[];
+  thingsToNode_mm: string[];
   isBestSeller: boolean;
   isCancellable: boolean;
   isGTRecommend: boolean;
@@ -136,6 +142,7 @@ export interface ProductInfoT {
   media: MediaFileT[];
   operatingHours: OperatingHoursT;
   termsAndConditions: string;
+  termsAndConditions_mm: string;
   productOptions: ProductOptionT[];
 }
 
@@ -145,12 +152,12 @@ export interface BlockedDateT {
 }
 
 export interface MediaFileT {
-  extension: "jpeg" | "png";
-  isPublished:boolean;
-  name: string;
-  path: string;
-  size: number;
-  type: string;
+  extension: "jpeg" | "png" | null;
+  isPublished: boolean | null;
+  name: string | null;
+  path: string | null;
+  size: number | null;
+  type: string | null;
 }
 
 export interface OperatingHoursT {

@@ -11,7 +11,9 @@ import {
   resellerSchema,
 } from "@/types/schema/resellerSchema";
 import InputField from "@/components/InputField";
-import { ImageUpload } from "@/components/ImageUpload";
+import { useRef } from "react";
+import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
+import { getSignedUrlAndImageDataUpload } from "@/util";
 
 type Mode = "create" | "edit";
 
@@ -49,15 +51,31 @@ export default function ResellerForm({
     },
   });
 
+  const relatedImagesRef = useRef<ImageUploadRef>(null);
+
   return (
     <form
-      onSubmit={handleSubmit((values) => {
+      onSubmit={handleSubmit(async (values) => {
+        // Handle deferred image uploads
+        let updatedValues = { ...values };
+        
+        // Upload related images if there's a file to upload
+        if (relatedImagesRef.current) {
+          const relatedImageFile = relatedImagesRef.current.getFileToUpload();
+          if (relatedImageFile) {
+            const result = await getSignedUrlAndImageDataUpload(relatedImageFile, "CREDIT_TOP_UP");
+            if (result.status === 200 && result.url) {
+              updatedValues = { ...updatedValues, relatedImages: [result.url] };
+            }
+          }
+        }
+        
         const payload =
           mode === "create"
-            ? values
+            ? updatedValues
             : {
                 id: initialValues!.id,
-                ...values,
+                ...updatedValues,
               };
 
         onSubmit(payload);
@@ -105,6 +123,7 @@ export default function ResellerForm({
 
       {/* Related Images */}
       <ImageUpload
+        ref={relatedImagesRef}
         label="Related Images"
         isRequired
         value={watch("relatedImages")?.[0] || ""}
