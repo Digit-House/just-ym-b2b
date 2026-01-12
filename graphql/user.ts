@@ -1,13 +1,14 @@
 import { warpGql } from "@/util";
 import client from "./client";
 import {
+  CHANGE_PASSWORD,
   CREATE_USER,
   Me,
   UPDATE_USER,
   USER_ROLES,
   USERS,
 } from "./type-query/user";
-import { UserRolesFilterT } from "@/types/user.type";
+import { UserChangePasswordT, UserRolesFilterT } from "@/types/user.type";
 import { UserFormValues } from "@/types/schema/userSchema";
 
 export const getMe = async () => {
@@ -64,5 +65,18 @@ export const updateUser = async (payload: UserFormValues, userId: string) => {
         userId: userId,
       },
     },
+  });
+};
+
+export const updatePassword = async (payload: UserChangePasswordT) => {
+  return client.mutate({
+    mutation: warpGql(CHANGE_PASSWORD),
+    variables: {
+      input: {
+        newPassword: payload.newPassword,
+        oldPassword: payload.oldPassword,
+      },
+    },
+    fetchPolicy: "no-cache",
   });
 };

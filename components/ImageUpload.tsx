@@ -7,10 +7,18 @@ type ImageUploadProps = {
   onChange: (value: string) => void;
   label?: string;
   errMsg?: string;
+  isRequired?: boolean;
   folderType: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE";
 };
 
-export function ImageUpload({ value, onChange, label, folderType, errMsg }: ImageUploadProps) {
+export function ImageUpload({
+  value,
+  onChange,
+  label,
+  folderType,
+  isRequired,
+  errMsg,
+}: ImageUploadProps) {
   const [preview, setPreview] = useState<string | undefined>(value);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +29,10 @@ export function ImageUpload({ value, onChange, label, folderType, errMsg }: Imag
         setPreview(result.url);
         onChange(result.url);
       } else {
-        console.error("Image upload failed:", result.message || "Unknown error");
+        console.error(
+          "Image upload failed:",
+          result.message || "Unknown error"
+        );
       }
     }
   };
@@ -34,11 +45,11 @@ export function ImageUpload({ value, onChange, label, folderType, errMsg }: Imag
   return (
     <div className="space-y-1">
       {label && (
-        <label className="text-sm font-medium">
-          {label}
+        <label className="block text-sm font-medium">
+          {label} {isRequired && <span className="text-red-500">*</span>}
         </label>
       )}
-      
+
       <div className="relative group w-full h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
         <input
           type="file"
@@ -70,9 +81,7 @@ export function ImageUpload({ value, onChange, label, folderType, errMsg }: Imag
         )}
       </div>
 
-      {errMsg && (
-        <p className="text-xs text-red-500">{errMsg}</p>
-      )}
+      {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}
     </div>
   );
 }

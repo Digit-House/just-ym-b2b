@@ -31,7 +31,13 @@ const Reports = () => {
     page: 1,
   });
 
-  const { data: COUNTRIES } = useCountries();
+  const { data: COUNTRIES } = useCountries({
+    limit: 250,
+    page: 1,
+    orderBy: { dir: "asc" },
+    isPublished: true,
+    search: undefined,
+  });
 
   return (
     <PageContainer>
@@ -77,7 +83,7 @@ const Reports = () => {
             <Select
               label="Countries"
               placeholder="Countries"
-              options={COUNTRIES}
+              options={COUNTRIES.data}
               value={countries}
               onChange={setCountries}
               width="w-32"

@@ -214,12 +214,13 @@ const Resellers = () => {
                         >
                           <Edit2 size={16} />
                         </button>
-                        <button
+                        {/* //no delete */}
+                        {/* <button
                           onClick={() => {}}
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
                         >
                           <Trash2 size={16} />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>

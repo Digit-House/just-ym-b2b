@@ -21,6 +21,13 @@ import {
   TopUpEditValues,
 } from "@/types/schema/topUpEditSchema";
 
+
+const STATUS_STYLE: Record<string, string> = {
+  CONFIRMED: "bg-green-50 text-green-700",
+  PENDING: "bg-yellow-50 text-yellow-700",
+  REJECTED: "bg-red-50 text-red-700",
+};
+
 type Props = {
   initialValues: TopUpHistoryT;
   loading?: boolean;
@@ -37,7 +44,7 @@ export default function TopUpEditForm({
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors },
     watch,
     setValue,
   } = useForm<TopUpEditValues>({
@@ -48,51 +55,19 @@ export default function TopUpEditForm({
     },
   });
 
+  const status = watch("status");
+
   const submitHandler = (values: TopUpEditValues) => {
     onSubmit(initialValues.id, values.topUpBalance, values.status);
   };
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
-      {/* Read-only info */}
       <div className="grid grid-cols-2 gap-4 text-sm">
         <ReadOnly label="Reseller" value={initialValues.reseller?.name} />
         <ReadOnly label="Currency" value={initialValues.currency} />
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <div className="flex gap-2">
-            <Select
-              value={watch("status")}
-              onValueChange={(value) => setValue("status", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="PENDING">PENDING</SelectItem>
-                  <SelectItem value="CONFIRMED">CONFIRMED</SelectItem>
-                  <SelectItem value="REJECTED">REJECTED</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <span
-              className={`px-3 py-2 rounded-full text-xs font-medium inline-block min-w-[80px] text-center ${
-                watch("status") === "CONFIRMED"
-                  ? "bg-green-100 text-green-700"
-                  : watch("status") === "PENDING"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {watch("status")}
-            </span>
-          </div>
-          {errors.status && (
-            <p className="mt-1 text-sm text-red-500">{errors.status.message}</p>
-          )}
-        </div>
         <ReadOnly label="Created By" value={initialValues.createdBy?.email} />
+        <ReadOnly label="Confirm By" value={initialValues.confirmBy?.email} />
         <ReadOnly
           label="Created At"
           value={new Date(initialValues.createdAt).toLocaleString()}
@@ -101,9 +76,83 @@ export default function TopUpEditForm({
           label="Last Updated"
           value={new Date(initialValues.updatedAt).toLocaleString()}
         />
+
+        <div className="col-span-2">
+          <p className="mb-2 text-sm font-medium text-gray-700">
+            Related Images
+          </p>
+
+          {initialValues.relatedImages?.length ? (
+            <div className="grid grid-cols-3 gap-3">
+              {initialValues.relatedImages.map((img, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-square overflow-hidden rounded-lg border"
+                >
+                  <img
+                    src={img}
+                    alt={`Top-up image ${index + 1}`}
+                    className="h-full w-full object-cover transition-transform hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-400">No images available</p>
+          )}
+        </div>
       </div>
 
-      {/* Editable field */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Status  <span className="text-red-500">*</span>
+        </label>
+
+        <div className="flex gap-2">
+          <Select
+            value={status}
+            onValueChange={(value) => setValue("status", value)}
+          >
+            <SelectTrigger
+              className={`w-full capitalize ${STATUS_STYLE[status]}`}
+            >
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  value="PENDING"
+                  className="text-yellow-700 focus:bg-yellow-50"
+                >
+                  🟡 Pending
+                </SelectItem>
+
+                <SelectItem
+                  value="CONFIRMED"
+                  className="text-green-700 focus:bg-green-50"
+                >
+                  🟢 Confirmed
+                </SelectItem>
+
+                <SelectItem
+                  value="REJECTED"
+                  className="text-red-700 focus:bg-red-50"
+                >
+                  🔴 Rejected
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {errors.status && (
+          <p className="mt-1 text-sm text-red-500">
+            {errors.status.message}
+          </p>
+        )}
+      </div>
+
       <InputField
         label="Top-up Balance"
         type="number"
@@ -111,7 +160,6 @@ export default function TopUpEditForm({
         errMsg={errors.topUpBalance?.message}
       />
 
-      {/* Actions */}
       <div className="flex justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel

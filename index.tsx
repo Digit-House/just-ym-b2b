@@ -21,7 +21,7 @@ root.render(
       <App />
       </QueryClientProvider>
     </ApolloProvider>
-    <Toaster theme="dark" />
+    <Toaster richColors />
     </Fragment>
   // </React.StrictMode>
 );

@@ -148,14 +148,13 @@ export default function Tickets() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    {user?.type === "ADMIN" && (
+                   
                       <button
                         onClick={() => navigate(`/admin-tickets/edit/${p.id}`)}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
                         Edit
                       </button>
-                    )}
                     <button
                       onClick={() => navigate(`/tickets/${p.id}`)}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"

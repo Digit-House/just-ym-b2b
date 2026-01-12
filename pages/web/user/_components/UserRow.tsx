@@ -111,12 +111,13 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
             >
               <Icons.Edit2 size={16} />
             </button>
-            <button
+            {/* //no delete */}
+            {/* <button
               onClick={() => onDelete(user)}
               className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
             >
               <Icons.Trash2 size={16} />
-            </button>
+            </button> */}
           </div>
         </td>
       </RoleCheckAction>
