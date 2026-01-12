@@ -23,6 +23,7 @@ export type FilterProductListT = {
     dir: string;
   };
   page: number;
+  published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
 };
 
 export type ProductT = {
@@ -59,6 +60,48 @@ export interface TicketTypeEventAvailableResponse {
   };
 }
 
+export interface UpdateProductPayloadT {
+  id:string;
+  image:string;
+  addressLine:string;
+  description:string;
+  exclusions:string[];
+  exclusions_mm:string[];
+  fromPrice:number;
+  fromReseller:string;
+  highlights:string[];
+  highlights_mm:string[]
+  howToUseList:string[];
+  howToUseList_mm:string[];
+  inclusions:string[];
+  inclustions_mm:string[];
+  isBestSeller:boolean;
+  isCancellable:boolean;
+  isGTRecommend:boolean;
+  isInstantConfirmation:boolean;
+  isOpenDated:boolean;
+  isOwnContracted:boolean;
+  isPublished:boolean;
+  keywords:string;
+  latitude:number;
+  location:string;
+  longitude:number;
+  media:MediaFileT[];
+  name:string;
+  operatingHours: OperatingHoursT;
+  originalPrice:number;
+  postalCode:string;
+  productOptions: ProductOptionT[];
+  termsAndConditions:string;
+  termsAndConditions_mm:string;
+  thingsToNote: string[];
+  thingsToNode_mm:string[];
+  timezoneOffset:number;
+  whatToExpect:string;
+  blockedDate: BlockedDateT[];
+}
+
+
 export interface ProductInfoT {
   id: string;
   name: string;
@@ -77,10 +120,15 @@ export interface ProductInfoT {
   keywords: string;
   image: string;
   exclusions: string[];
+  exclusions_mm: string[];
   highlights: string[];
+  highlights_mm: string[];
   howToUseList: string[];
+  howToUseList_mm: string[];
   inclusions: string[];
+  inclustions_mm: string[];
   thingsToNote: string[];
+  thingsToNode_mm: string[];
   isBestSeller: boolean;
   isCancellable: boolean;
   isGTRecommend: boolean;
@@ -94,6 +142,7 @@ export interface ProductInfoT {
   media: MediaFileT[];
   operatingHours: OperatingHoursT;
   termsAndConditions: string;
+  termsAndConditions_mm: string;
   productOptions: ProductOptionT[];
 }
 
@@ -103,11 +152,12 @@ export interface BlockedDateT {
 }
 
 export interface MediaFileT {
-  extension: string;
-  name: string;
-  path: string;
-  size: number;
-  type: string;
+  extension: "jpeg" | "png" | null;
+  isPublished: boolean | null;
+  name: string | null;
+  path: string | null;
+  size: number | null;
+  type: string | null;
 }
 
 export interface OperatingHoursT {
@@ -284,3 +334,5 @@ export type ADD_TO_CART_USER_TYPE = {
   leaderEmail: string;
   leaderPhone: string;
 };
+
+

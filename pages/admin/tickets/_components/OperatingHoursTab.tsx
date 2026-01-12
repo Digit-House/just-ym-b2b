@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT, FixedDayT } from "@/types/product.type";
+import { ProductInfoT, FixedDayT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ type OperatingHoursTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
@@ -25,7 +25,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
 }) => {
   // State for fixed days
   const [fixedDays, setFixedDays] = useState<FixedDayT[]>(
-    initialValues?.operatingHours.fixedDays ?? []
+    (initialValues as UpdateProductPayloadT)?.operatingHours?.fixedDays ?? []
   );
 
   const addFixedDay = () => {

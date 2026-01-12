@@ -8,6 +8,7 @@ import {
   GET_PRODUCT_OPTIONS,
   GET_TICKET_TYPE_EVENT_AVAILABLE,
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
+  UPDATE_PRODUCT_MUTATION,
 } from "./type-query/product";
 import {
   EVENT_AVAILABLE_DATA_TYPE,
@@ -18,6 +19,7 @@ import {
   ProductOptionResponse,
   ProductOptionT,
   TicketTypeEventAvailableResponse,
+  UpdateProductPayloadT,
 } from "@/types/product.type";
 
 export const getAllProducts = async (data: FilterProductListT) => {
@@ -45,7 +47,23 @@ export const getProductInfo = async (productId: string) => {
       },
       fetchPolicy: "no-cache",
     });
-    return res.data.getProductInfo as ProductInfoT;
+    return res.data.getProductInfo as ProductInfoT | UpdateProductPayloadT;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const updateProductInfo = async (data: UpdateProductPayloadT) => {
+  try {
+    const res = await client.mutate({
+      mutation: warpGql(UPDATE_PRODUCT_MUTATION),
+      variables: {
+        data: {
+          ...data,
+        },
+      },
+    });
+    return res;
   } catch (err) {
     throw err;
   }
