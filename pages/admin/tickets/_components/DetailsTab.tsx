@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT } from "@/types/product.type";
+import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import TextareaField from "@/components/TextareaField";
 import InputField from "@/components/InputField";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ type DetailsTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT;
 };
 
 const DetailsTab: React.FC<DetailsTabProps> = ({

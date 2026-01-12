@@ -1,7 +1,7 @@
 import React from "react";
 import { Control, FieldErrors, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT, ProductOptionT, TicketTypeT } from "@/types/product.type";
+import { ProductInfoT, ProductOptionT, TicketTypeT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ type OptionsTabProps = {
   getValues: UseFormGetValues<TicketFormValues>;
   setValue: UseFormSetValue<TicketFormValues>;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT;
 };
 
 const OptionsTab: React.FC<OptionsTabProps> = ({

@@ -59,6 +59,48 @@ export interface TicketTypeEventAvailableResponse {
   };
 }
 
+export interface UpdateProductPayloadT {
+  id:string;
+  image:string;
+  addressLine:string;
+  description:string;
+  exclusions:string[];
+  exclusions_mm:string[];
+  fromPrice:number;
+  fromReseller:string;
+  highlights:string[];
+  highlights_mm:string[]
+  howToUseList:string[];
+  howToUseList_mm:string[];
+  inclusions:string[];
+  inclustions_mm:string[];
+  isBestSeller:boolean;
+  isCancellable:boolean;
+  isGTRecommend:boolean;
+  isInstantConfirmation:boolean;
+  isOpenDated:boolean;
+  isOwnContracted:boolean;
+  isPublished:boolean;
+  keywords:string;
+  latitude:number;
+  location:string;
+  longitude:number;
+  media:MediaFileT[];
+  name:string;
+  operatingHours: OperatingHoursT;
+  originalPrice:number;
+  postalCode:string;
+  productOptions: ProductOptionT[];
+  termsAndConditions:string;
+  termsAndConditions_mm:string;
+  thingsToNote: string[];
+  thingsToNode_mm:string[];
+  timezoneOffset:number;
+  whatToExpect:string;
+  blockedDate: BlockedDateT[];
+}
+
+
 export interface ProductInfoT {
   id: string;
   name: string;
@@ -103,7 +145,8 @@ export interface BlockedDateT {
 }
 
 export interface MediaFileT {
-  extension: string;
+  extension: "jpeg" | "png";
+  isPublished:boolean;
   name: string;
   path: string;
   size: number;
@@ -284,3 +327,5 @@ export type ADD_TO_CART_USER_TYPE = {
   leaderEmail: string;
   leaderPhone: string;
 };
+
+

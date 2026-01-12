@@ -13,6 +13,7 @@ import {
 import { TicketFormValues, ticketSchema } from "@/types/schema/ticketSchema";
 import {
   ProductInfoT,
+  UpdateProductPayloadT,
 } from "@/types/product.type";
 import BasicInfoTab from "./BasicInfoTab";
 import LocationTab from "./LocationTab";
@@ -26,7 +27,7 @@ type Mode = "create" | "edit";
 
 type Props = {
   mode: Mode;
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: TicketFormValues) => void;

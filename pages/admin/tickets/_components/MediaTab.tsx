@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT, MediaFileT } from "@/types/product.type";
+import {
+  ProductInfoT,
+  MediaFileT,
+  UpdateProductPayloadT,
+} from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {Plus, Minus } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
 
 type MediaTabProps = {
@@ -14,7 +18,7 @@ type MediaTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT;
 };
 
 const MediaTab: React.FC<MediaTabProps> = ({
@@ -30,7 +34,14 @@ const MediaTab: React.FC<MediaTabProps> = ({
   const addMediaItem = () => {
     setMediaItems((prev) => [
       ...prev,
-      { extension: "", name: "", path: "", size: 0, type: "" },
+      {
+        extension: "",
+        name: "",
+        path: "",
+        size: 0,
+        type: "",
+        isPublished: false,
+      },
     ]);
   };
 
@@ -78,9 +89,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
       <div className="space-y-6">
         <div
           className={`space-y-4 ${
-            errors.image
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
+            errors.image ? "border border-red-300 rounded-lg p-3 bg-red-50" : ""
           }`}
         >
           <Controller
@@ -117,9 +126,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <path d="M21 15l-5-5L5 21"></path>
               </svg>
-              <h4 className="text-lg font-medium">
-                Additional Media Items
-              </h4>
+              <h4 className="text-lg font-medium">Additional Media Items</h4>
             </div>
             <Button
               type="button"
