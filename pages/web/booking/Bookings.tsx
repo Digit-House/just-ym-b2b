@@ -35,7 +35,17 @@ const Bookings = () => {
   const [countries, setCountries] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<string[]>([]);
 
-  const { data: COUNTRIES } = useCountries();
+   const { data: COUNTRIES } = useCountries({
+      limit: 250,
+      page: 1,
+      orderBy: {
+        dir: "asc",
+      },
+      isPublished: true,
+      search: undefined,
+    });
+
+    console.log(COUNTRIES);
 
   const paginatedBookings = BOOKINGS.slice(
     (page - 1) * pageSize,
@@ -66,7 +76,7 @@ const Bookings = () => {
           <Select
             label="Country"
             placeholder="Country"
-            options={COUNTRIES}
+            options={COUNTRIES.data}
             value={countries}
             onChange={setCountries}
             width="w-48"

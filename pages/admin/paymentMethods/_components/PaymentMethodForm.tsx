@@ -142,6 +142,16 @@ export default function PaymentMethodForm({
           </>
         )}
       </>
+      {type === "QR_CODE" && (
+        <ImageUpload
+          label="QR Code Image"
+          isRequired
+          value={watch("qrCodeUrl")}
+          onChange={(val) => setValue("qrCodeUrl", val)}
+          errMsg={errors.qrCodeUrl?.message}
+          folderType="CREDIT_TOP_UP"
+        />
+      )}
 
       <ImageUpload
         label="Logo Image"
@@ -150,16 +160,6 @@ export default function PaymentMethodForm({
         errMsg={errors.logo?.message}
         folderType="CREDIT_TOP_UP"
       />
-
-      {type === "QR_CODE" && (
-        <ImageUpload
-          label="QR Code Image"
-          value={watch("qrCodeUrl")}
-          onChange={(val) => setValue("qrCodeUrl", val)}
-          errMsg={errors.qrCodeUrl?.message}
-          folderType="CREDIT_TOP_UP"
-        />
-      )}
 
       <TextareaField
         label="Description"

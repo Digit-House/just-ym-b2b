@@ -66,6 +66,12 @@ mutation UpdateUser($input: UserUpdateInput!) {
 }
 `;
 
+export const CHANGE_PASSWORD = `
+mutation ChangePassword($input: UserChangePasswordInput!) {
+  changePassword(input: $input)
+}
+`;
+
 export const USERS = `
 query FindAllUsers($params: UserPaginatedInput!) {
   findAllUsers(params: $params) {
