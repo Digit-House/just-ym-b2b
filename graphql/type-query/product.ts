@@ -83,6 +83,57 @@ query GetProductInfo($productId: String!) {
     updatedAt
     whatToExpect
     productOptions {
+     advanceBooking {
+        day
+        dayMinute
+        hour
+        minute
+        required
+      }
+      availability
+      cancellationNotes
+      cancellationPolicy {
+        percentReturn
+        refundDuration
+      }
+      currency
+      id
+      demandType
+      description
+      exclusions
+      exclusions_mm
+      globaltixId
+      howToUse
+      howToUse_mm
+      image
+      inclusions
+      inclusions_mm
+      isCancellable
+      isCapacity
+      isDynamicPricing
+      isPublished
+      isTagged
+      keywords
+      name
+      primaryTicket
+      productId
+      publishEnd
+      publishStart
+      questionIds
+      redeemEnd
+      redeemStart
+      termsAndConditions
+      termsAndConditions_mm
+      ticketFormat
+      ticketValidity
+      timeSlot
+      tourInformation
+      type
+      visitDate {
+        isOpenDated
+        request
+        required
+      }
       ticketType {
         ageFrom
         ageTo

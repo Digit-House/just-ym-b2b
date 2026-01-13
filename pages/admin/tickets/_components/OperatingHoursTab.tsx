@@ -23,11 +23,20 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
   errors,
   initialValues,
 }) => {
-  // State for fixed days
-  const [fixedDays, setFixedDays] = useState<FixedDayT[]>(
-    (initialValues as UpdateProductPayloadT)?.operatingHours?.fixedDays ?? []
-  );
-
+  // State for fixed days - Handle nullable values from updated schema
+  const [fixedDays, setFixedDays] = useState<FixedDayT[]>(() => {
+    const initialFixedDays = (initialValues as UpdateProductPayloadT)?.operatingHours?.fixedDays;
+    if (initialFixedDays && Array.isArray(initialFixedDays)) {
+      // Convert potentially nullable FixedDay objects to FixedDayT with default values
+      return initialFixedDays.map(day => ({
+        day: day.day ?? "",
+        startHour: day.startHour ?? "",
+        endHour: day.endHour ?? ""
+      }));
+    }
+    return [];
+  });
+  
   const addFixedDay = () => {
     setFixedDays((prev) => [...prev, { day: "", startHour: "", endHour: "" }]);
   };
@@ -117,7 +126,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
               render={({ field }) => (
                 <Switch
                   id="isToursActivities"
-                  checked={field.value || false}
+                  checked={!!field.value}
                   onCheckedChange={field.onChange}
                 />
               )}
@@ -145,7 +154,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
               </svg>
               <h4 className="text-lg font-medium">Fixed Days</h4>
             </div>
-            <Button type="button" onClick={addFixedDay} size="sm">
+            <Button type="button" onClick={addFixedDay} size="sm" disabled>
               <Plus className="h-4 w-4 mr-1" /> Add Day
             </Button>
           </div>
@@ -218,6 +227,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({
                       size="icon"
                       onClick={() => removeFixedDay(index)}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      disabled
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -28,13 +28,56 @@ type MediaTabProps = {
 const MediaTab: React.FC<MediaTabProps> = ({
   control,
   errors,
+  watch,
+  setValue,
   initialValues,
   setMediaItemRef,
 }) => {
+  // Use a ref to store the initial media items to prevent re-initialization
+  const initialMediaItemsRef = useRef<MediaFileT[] | null>(null);
+  const hasInitializedFromFormRef = useRef<boolean>(false);
+  
+  // Initialize the ref with initial values only once
+  if (initialMediaItemsRef.current === null) {
+    initialMediaItemsRef.current = (initialValues as UpdateProductPayloadT)?.media ?? [];
+  }
+  
   // State for media items
-  const [mediaItems, setMediaItems] = useState<MediaFileT[]>(
-    (initialValues as UpdateProductPayloadT)?.media ?? []
-  );
+  const [mediaItems, setMediaItems] = useState<MediaFileT[]>(initialMediaItemsRef.current);
+  
+  // Initialize from form state on mount if available
+  useEffect(() => {
+    if (!hasInitializedFromFormRef.current) {
+      const formMedia = watch('media');
+      if (formMedia && Array.isArray(formMedia) && formMedia.length > 0) {
+        setMediaItems([...formMedia]);
+      }
+      hasInitializedFromFormRef.current = true;
+    }
+  }, [watch('media')]);
+  
+  // Synchronize media items with form state
+  useEffect(() => {
+    setValue('media', mediaItems);
+  }, [mediaItems, setValue]);
+  
+  // Watch for external changes to media in form state and update local state
+  // Only when the change comes from outside this component
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      if (name === 'media' && type === 'change') {
+        // Only update if the change came from outside this component
+        // We can differentiate by checking if our local state differs from form state
+        const currentFormMedia = value.media;
+        if (currentFormMedia && JSON.stringify(currentFormMedia) !== JSON.stringify(mediaItems)) {
+          setMediaItems([...currentFormMedia]);
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [watch, mediaItems]);
+  
 
   // Refs for ImageUpload components
   const mediaItemRefs = React.useRef<Map<number, ImageUploadRef>>(new Map());
@@ -218,13 +261,8 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     folderType="PRODUCT_MEDIA"
                   />
                 </div>
-                <div
-                  className={`${
-                    errors.media?.[index]?.name
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
-                >
+                {/* Hidden Name Input Field */}
+                <div className="hidden">
                   <InputField
                     label="Name"
                     value={media.name || ""}
@@ -234,13 +272,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     placeholder="Name"
                   />
                 </div>
-                <div
-                  className={`${
-                    errors.media?.[index]?.extension
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
-                >
+                <div className="hidden">
                   <InputField
                     label="Extension"
                     value={media.extension || ""}
@@ -250,13 +282,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     placeholder="Extension"
                   />
                 </div>
-                <div
-                  className={`${
-                    errors.media?.[index]?.type
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
-                >
+                <div className="hidden">
                   <InputField
                     label="Type"
                     value={media.type || ""}
@@ -267,7 +293,8 @@ const MediaTab: React.FC<MediaTabProps> = ({
                   />
                 </div>
                 <div className="flex gap-2">
-                  <div className="flex-grow">
+                  {/* Hidden Size Input Field */}
+                  <div className="flex-grow hidden">
                     <div
                       className={`${
                         errors.media?.[index]?.size

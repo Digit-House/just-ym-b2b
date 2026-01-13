@@ -44,56 +44,105 @@ const TicketEditForm: React.FC<Props> = ({
 }) => {
   const isEdit = mode === "edit";
 
+  // Transform API data to form format
+  const transformApiDataToForm = (apiData: any) => {
+    if (!apiData || !apiData.productOptions) return apiData;
+    
+    // Create transformed product options that match the form schema
+    const transformedProductOptions = apiData.productOptions.map((option: any) => {
+      return {
+        id: option.id || null,
+        name: option.name || null,
+        description: option.description || null,
+        image: option.image || null,
+        keywords: option.keywords || null,
+        inclusions: option.inclusions || [],
+        inclusions_mm: option.inclusions_mm || [],
+        exclusions: option.exclusions || [],
+        exclusions_mm: option.exclusions_mm || [],
+        howToUse: option.howToUse || null,
+        howToUse_mm: option.howToUse_mm || null,
+        termsAndConditions: option.termsAndConditions || null,
+        termsAndConditions_mm: option.termsAndConditions_mm || null,
+        cancellationNotes: option.cancellationNotes || null,
+        cancellationPolicy: option.cancellationPolicy || null,
+        advanceBooking: option.advanceBooking || null,
+        isCancellable: option.isCancellable || null,
+        isPublished: option.isPublished || null,
+        isTagged: option.isTagged || null,
+        primaryTicket: option.primaryTicket ? Boolean(option.primaryTicket) : null, // Convert string to boolean
+        publishStart: option.publishStart || null,
+        publishEnd: option.publishEnd || null,
+        redeemStart: option.redeemStart || null,
+        redeemEnd: option.redeemEnd || null,
+        sourceName: option.sourceName || null,
+        sourceTitle: option.sourceTitle || null,
+        tourInformation: option.tourInformation || [],
+        visitDate: option.visitDate || null,
+        // Transform ticketType (singular from API) to ticketTypes (plural for form) with field mapping
+        ticketTypes: option.ticketType ? option.ticketType.map((ticket: any) => ({
+          // Map API fields to form fields
+          dhNetMerchantPrice: ticket.nettPrice || ticket.originalPrice || null,
+          dhNetPrice: ticket.dhNetPrice || null,
+          dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice || null,
+          dhSellingPrice: ticket.dhSellingPrice || null,
+          ticketTypeId: ticket.id || ticket.ticketTypeId || null,
+        })) : [],
+      };
+    });
+    
+    return {
+      ...apiData,
+      productOptions: transformedProductOptions,
+    };
+  };
+
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
-      id: initialValues?.id ?? "",
-      name: initialValues?.name ?? "",
-      category: (initialValues as any)?.category ?? "",
-      description: initialValues?.description ?? "",
-      whatToExpect: initialValues?.whatToExpect ?? "",
-      addressLine: initialValues?.addressLine ?? "",
-      location: initialValues?.location ?? "",
-      postalCode: initialValues?.postalCode ?? "",
-      city: (initialValues as any)?.city ?? "",
-      cityId: (initialValues as any)?.cityId ?? 0,
-      city_relation_id: (initialValues as any)?.city_relation_id ?? "",
-      countryId: (initialValues as any)?.countryId ?? "",
-      latitude: initialValues?.latitude ?? 0,
-      longitude: initialValues?.longitude ?? 0,
-      keywords: initialValues?.keywords ?? "",
-      image: initialValues?.image ?? "",
-      exclusions: initialValues?.exclusions ?? [],
-      exclusions_mm: (initialValues as UpdateProductPayloadT)?.exclusions_mm ?? [],
-      fromPrice: (initialValues as UpdateProductPayloadT)?.fromPrice ?? 0,
-      fromReseller: (initialValues as UpdateProductPayloadT)?.fromReseller ?? "",
-      highlights: initialValues?.highlights ?? [],
-      highlights_mm: (initialValues as UpdateProductPayloadT)?.highlights_mm ?? [],
-      howToUseList: initialValues?.howToUseList ?? [],
-      howToUseList_mm: (initialValues as UpdateProductPayloadT)?.howToUseList_mm ?? [],
-      inclusions: initialValues?.inclusions ?? [],
-      inclustions_mm: (initialValues as UpdateProductPayloadT)?.inclustions_mm ?? [],
-      isBestSeller: initialValues?.isBestSeller ?? false,
-      isCancellable: initialValues?.isCancellable ?? false,
-      isGTRecommend: initialValues?.isGTRecommend ?? false,
-      isInstantConfirmation: initialValues?.isInstantConfirmation ?? false,
-      isOpenDated: initialValues?.isOpenDated ?? false,
-      isOwnContracted: (initialValues as UpdateProductPayloadT)?.isOwnContracted ?? false,
-      isPublished: (initialValues as UpdateProductPayloadT)?.isPublished ?? false,
-      originalPrice: initialValues?.originalPrice ?? 0,
-      timezoneOffset: initialValues?.timezoneOffset ?? 0,
-      termsAndConditions: initialValues?.termsAndConditions ?? "",
-      termsAndConditions_mm: (initialValues as UpdateProductPayloadT)?.termsAndConditions_mm ?? "",
-      thingsToNote: initialValues?.thingsToNote ?? [],
-      thingsToNode_mm: (initialValues as UpdateProductPayloadT)?.thingsToNode_mm ?? [],
-      blockedDate: initialValues?.blockedDate ?? [],
-      media: initialValues?.media ?? [],
+      id: initialValues?.id ?? null,
+      name: initialValues?.name ?? null,
+      description: initialValues?.description ?? null,
+      whatToExpect: initialValues?.whatToExpect ?? null,
+      addressLine: initialValues?.addressLine ?? null,
+      location: initialValues?.location ?? null,
+      postalCode: initialValues?.postalCode ?? null,
+      countryId: (initialValues as any)?.countryId ?? null,
+      city_relation_id: (initialValues as any)?.city_relation_id ?? null,
+      latitude: initialValues?.latitude ?? null,
+      longitude: initialValues?.longitude ?? null,
+      keywords: initialValues?.keywords ?? null,
+      image: initialValues?.image ?? null,
+      media: (initialValues as any)?.media ?? null,
+      exclusions: (initialValues as any)?.exclusions ?? null,
+      exclusions_mm: (initialValues as any)?.exclusions_mm ?? null,
+      fromPrice: null,
+      fromReseller: null,
+      originalPrice: (initialValues as any)?.originalPrice ?? null,
+      timezoneOffset: (initialValues as any)?.timezoneOffset ?? null,
+      highlights: (initialValues as any)?.highlights ?? null,
+      highlights_mm: (initialValues as any)?.highlights_mm ?? null,
+      howToUseList: (initialValues as any)?.howToUseList ?? null,
+      howToUseList_mm: (initialValues as any)?.howToUseList_mm ?? null,
+      inclusions: (initialValues as any)?.inclusions ?? null,
+      inclusions_mm: (initialValues as any)?.inclusions_mm ?? null,
+      isBestSeller: (initialValues as any)?.isBestSeller ?? null,
+      isCancellable: (initialValues as any)?.isCancellable ?? null,
+      isGTRecommend: (initialValues as any)?.isGTRecommend ?? null,
+      isInstantConfirmation: (initialValues as any)?.isInstantConfirmation ?? null,
+      isOpenDated: (initialValues as any)?.isOpenDated ?? null,
+      isOwnContracted: null,
+      isPublished: null,
+      termsAndConditions: (initialValues as any)?.termsAndConditions ?? null,
+      termsAndConditions_mm: (initialValues as any)?.termsAndConditions_mm ?? null,
+      thingsToNote: initialValues?.thingsToNote ?? null,
+      thingsToNote_mm: (initialValues as any)?.thingsToNote_mm ?? null,
       operatingHours: initialValues?.operatingHours ?? {
         custom: null,
         isToursActivities: null,
         fixedDays: [],
       },
-      productOptions: initialValues?.productOptions ?? [],
+      productOptions: transformApiDataToForm(initialValues as any)?.productOptions ?? null,
     },
   });
 
@@ -136,10 +185,8 @@ const TicketEditForm: React.FC<Props> = ({
       case "basic-info":
         return [
           "name",
-          "category",
           "addressLine",
           "location",
-          "city",
           "postalCode",
           "timezoneOffset",
           "originalPrice",
@@ -163,7 +210,7 @@ const TicketEditForm: React.FC<Props> = ({
           "howToUseList",
           "howToUseList_mm",
           "inclusions",
-          "inclustions_mm",
+          "inclusions_mm",
           "thingsToNote"
         ];
       case "location":
@@ -235,10 +282,8 @@ const TicketEditForm: React.FC<Props> = ({
       case "basic-info":
         return !!(
           errors.name ||
-          errors.category ||
           errors.addressLine ||
           errors.location ||
-          errors.city ||
           errors.postalCode ||
           errors.timezoneOffset ||
           errors.originalPrice ||
@@ -262,7 +307,7 @@ const TicketEditForm: React.FC<Props> = ({
           errors.howToUseList ||
           errors.howToUseList_mm ||
           errors.inclusions ||
-          errors.inclustions_mm ||
+          errors.inclusions_mm ||
           errors.thingsToNote
         );
       case "location":
@@ -303,58 +348,89 @@ const TicketEditForm: React.FC<Props> = ({
       return;
     }
 
-    // Process media uploads
-    let processedMedia = [...(values.media || [])];
+    // Process media uploads if media exists
+    let processedMedia = values.media || [];
     
     // Process each media item to upload to S3 if needed
-    for (let i = 0; i < processedMedia.length; i++) {
-      const mediaItem = processedMedia[i];
-      
-      // Check if this media item has a local file that needs to be uploaded
-      if (mediaItem.path && (mediaItem.path.startsWith('blob:') || mediaItem.path.startsWith('data:'))) {
-        // Get the file from the ref if available
-        const mediaRef = mediaItemRefs.current.get(i);
-        if (mediaRef) {
-          const fileToUpload = mediaRef.getFileToUpload();
-          if (fileToUpload) {
-            try {
-              const result = await getSignedUrlAndImageDataUpload(fileToUpload, "PRODUCT_MEDIA");
-              if (result.status === 200 && result.url) {
-                // Update the media item with the new URL
-                processedMedia[i] = { ...mediaItem, path: result.url };
+    if (processedMedia && Array.isArray(processedMedia)) {
+      for (let i = 0; i < processedMedia.length; i++) {
+        const mediaItem = processedMedia[i];
+        
+        // Check if this media item has a local file that needs to be uploaded
+        if (mediaItem?.path && (mediaItem.path.startsWith('blob:') || mediaItem.path.startsWith('data:'))) {
+          // Get the file from the ref if available
+          const mediaRef = mediaItemRefs.current.get(i);
+          if (mediaRef) {
+            const fileToUpload = mediaRef.getFileToUpload();
+            if (fileToUpload) {
+              try {
+                const result = await getSignedUrlAndImageDataUpload(fileToUpload, "PRODUCT_MEDIA");
+                if (result.status === 200 && result.url) {
+                  // Update the media item with the new URL
+                  processedMedia[i] = { ...mediaItem, path: result.url };
+                }
+              } catch (error) {
+                console.error(`Error uploading media item ${i}:`, error);
               }
-            } catch (error) {
-              console.error(`Error uploading media item ${i}:`, error);
             }
           }
         }
       }
     }
 
-    // Update values with dynamic arrays
-    const payload = {
+    // Update values with proper defaults for nullable fields
+    const payload: any = {
       ...values,
-      exclusions: values.exclusions || [],
-      exclusions_mm: values.exclusions_mm || [],
-      fromPrice: values.fromPrice || 0,
-      fromReseller: values.fromReseller || "",
-      highlights: values.highlights || [],
-      highlights_mm: values.highlights_mm || [],
-      howToUseList: values.howToUseList || [],
-      howToUseList_mm: values.howToUseList_mm || [],
-      inclusions: values.inclusions || [],
-      inclustions_mm: values.inclustions_mm || [],
-      isOwnContracted: values.isOwnContracted || false,
-      isPublished: values.isPublished || false,
-      termsAndConditions: values.termsAndConditions || "",
-      termsAndConditions_mm: values.termsAndConditions_mm || "",
-      thingsToNote: values.thingsToNote || [],
-      thingsToNode_mm: values.thingsToNode_mm || [],
-      blockedDate: values.blockedDate || [],
+      // Ensure array fields have proper defaults
+      exclusions: values.exclusions || null,
+      exclusions_mm: values.exclusions_mm || null,
+      highlights: values.highlights || null,
+      highlights_mm: values.highlights_mm || null,
+      howToUseList: values.howToUseList || null,
+      howToUseList_mm: values.howToUseList_mm || null,
+      inclusions: values.inclusions || null,
+      inclusions_mm: values.inclusions_mm || null,
+      termsAndConditions: values.termsAndConditions || null,
+      termsAndConditions_mm: values.termsAndConditions_mm || null,
+      thingsToNote: values.thingsToNote || null,
+      thingsToNote_mm: values.thingsToNote_mm || null,
+      
+      // Ensure numeric fields have proper defaults
+      fromPrice: values.fromPrice || null,
+      originalPrice: values.originalPrice || null,
+      timezoneOffset: values.timezoneOffset || null,
+      latitude: values.latitude || null,
+      longitude: values.longitude || null,
+      countryId: values.countryId || null,
+      city_relation_id: values.city_relation_id || null,
+      
+      // Ensure boolean fields have proper defaults
+      isBestSeller: values.isBestSeller || null,
+      isCancellable: values.isCancellable || null,
+      isGTRecommend: values.isGTRecommend || null,
+      isInstantConfirmation: values.isInstantConfirmation || null,
+      isOpenDated: values.isOpenDated || null,
+      isOwnContracted: values.isOwnContracted || null,
+      isPublished: values.isPublished || null,
+      
+      // Ensure string fields have proper defaults
+      name: values.name || null,
+      description: values.description || null,
+      whatToExpect: values.whatToExpect || null,
+      addressLine: values.addressLine || null,
+      location: values.location || null,
+      postalCode: values.postalCode || null,
+      keywords: values.keywords || null,
+      image: values.image || null,
+      fromReseller: values.fromReseller || null,
+      
+      // Process media
       media: processedMedia,
+      
+      // Process operating hours
       operatingHours: {
         ...values.operatingHours,
-        fixedDays: values.operatingHours?.fixedDays || [],
+        fixedDays: values.operatingHours?.fixedDays || null,
       },
     };
 
@@ -379,6 +455,8 @@ const TicketEditForm: React.FC<Props> = ({
       )}
     </button>
   );
+
+  console.log(errors);
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
@@ -423,7 +501,7 @@ const TicketEditForm: React.FC<Props> = ({
         )}
 
         {/* Basic Info Tab */}
-        {currentTab === "basic-info" && (
+        <div style={{ display: currentTab === "basic-info" ? "block" : "none" }}>
           <BasicInfoTab
             control={control}
             errors={errors}
@@ -432,10 +510,10 @@ const TicketEditForm: React.FC<Props> = ({
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
         {/* Location Tab */}
-        {currentTab === "location" && (
+        <div style={{ display: currentTab === "location" ? "block" : "none" }}>
           <LocationTab
             control={control}
             errors={errors}
@@ -444,10 +522,10 @@ const TicketEditForm: React.FC<Props> = ({
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
         {/* Details Tab */}
-        {currentTab === "details" && (
+        <div style={{ display: currentTab === "details" ? "block" : "none" }}>
           <DetailsTab
             control={control}
             errors={errors}
@@ -456,10 +534,10 @@ const TicketEditForm: React.FC<Props> = ({
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
         {/* Media Tab */}
-        {currentTab === "media" && (
+        <div style={{ display: currentTab === "media" ? "block" : "none" }}>
           <MediaTab
             control={control}
             errors={errors}
@@ -469,10 +547,10 @@ const TicketEditForm: React.FC<Props> = ({
             initialValues={initialValues as UpdateProductPayloadT}
             setMediaItemRef={setMediaItemRef}
           />
-        )}
+        </div>
 
         {/* Operating Hours Tab */}
-        {currentTab === "operating-hours" && (
+        <div style={{ display: currentTab === "operating-hours" ? "block" : "none" }}>
           <OperatingHoursTab
             control={control}
             errors={errors}
@@ -481,10 +559,10 @@ const TicketEditForm: React.FC<Props> = ({
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
         {/* Options Tab */}
-        {currentTab === "options" && (
+        <div style={{ display: currentTab === "options" ? "block" : "none" }}>
           <OptionsTab
             control={control}
             errors={errors}
@@ -494,7 +572,7 @@ const TicketEditForm: React.FC<Props> = ({
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
       </div>
 
       {/* Navigation buttons */}

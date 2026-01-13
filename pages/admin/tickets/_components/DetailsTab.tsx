@@ -23,7 +23,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
   setValue,
   initialValues,
 }) => {
-  // State for dynamic arrays
+  // State for dynamic arrays - Handle nullable values from updated schema
   const [exclusions, setExclusions] = useState<string[]>(
     (initialValues as UpdateProductPayloadT)?.exclusions ?? []
   );
@@ -46,17 +46,15 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
     (initialValues as UpdateProductPayloadT)?.inclusions ?? []
   );
   const [inclusions_mm, setInclusionsMm] = useState<string[]>(
-    (initialValues as UpdateProductPayloadT)?.inclustions_mm ?? []
+    (initialValues as UpdateProductPayloadT)?.inclusions_mm ?? []
   );
   const [thingsToNote, setThingsToNote] = useState<string[]>(
     (initialValues as UpdateProductPayloadT)?.thingsToNote ?? []
   );
   const [thingsToNoteMm, setThingsToNoteMm] = useState<string[]>(
-    (initialValues as UpdateProductPayloadT)?.thingsToNode_mm ?? []
+    (initialValues as UpdateProductPayloadT)?.thingsToNote_mm ?? [] // Fixed typo: thingsToNode_mm -> thingsToNote_mm
   );
-  const [blockedDates, setBlockedDates] = useState(
-    (initialValues as UpdateProductPayloadT)?.blockedDate ?? []
-  );
+  const [blockedDates, setBlockedDates] = useState<any[]>([]); // blockedDate doesn't exist in the updated schema
 
   // Synchronize _mm fields with form values
   useEffect(() => {
@@ -72,11 +70,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
   }, [howToUseList_mm, setValue]);
 
   useEffect(() => {
-    setValue("inclustions_mm", inclusions_mm);
+    setValue("inclusions_mm", inclusions_mm);
   }, [inclusions_mm, setValue]);
 
   useEffect(() => {
-    setValue("thingsToNode_mm", thingsToNoteMm);
+    setValue("thingsToNote_mm", thingsToNoteMm);
   }, [thingsToNoteMm, setValue]);
 
   // Array management functions
@@ -663,92 +661,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5 text-orange-500"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              <h4 className="text-lg font-medium">Blocked Dates</h4>
-            </div>
-            <Button type="button" onClick={addBlockedDate} size="sm">
-              <Plus className="h-4 w-4 mr-1" /> Add Date
-            </Button>
-          </div>
 
-          <div className="grid grid-cols-1 gap-3">
-            {blockedDates.map((date, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border grid grid-cols-1 md:grid-cols-2 gap-4 ${
-                  errors.blockedDate?.[index] ? "bg-red-50 border-red-300" : ""
-                }`}
-              >
-                <div
-                  className={`${
-                    errors.blockedDate?.[index]?.date
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
-                >
-                  <InputField
-                    label="Date"
-                    type="datetime-local"
-                    value={date.date}
-                    onChange={(e) =>
-                      updateBlockedDate(index, "date", e.target.value)
-                    }
-                    placeholder="YYYY-MM-DD"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <div
-                    className={`${
-                      errors.blockedDate?.[index]?.title
-                        ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                        : ""
-                    }`}
-                  >
-                    <InputField
-                      label="Title"
-                      value={date.title}
-                      onChange={(e) =>
-                        updateBlockedDate(index, "title", e.target.value)
-                      }
-                      placeholder="Event title"
-                      className="grow"
-                    />
-                  </div>
-                  <div className="flex items-end pb-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeBlockedDate(index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Grouped Fields Section */}
       </div>

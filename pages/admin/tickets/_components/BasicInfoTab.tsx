@@ -106,40 +106,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           />
         </div>
 
-        <div
-          className={`space-y-3 ${
-            errors.category
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Label>Category</Label>
-          <Controller
-            name="category"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger
-                  className={`w-full ${errors.category ? "border-red-500" : ""}`}
-                >
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.category && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.category.message?.toString()}
-            </p>
-          )}
-        </div>
+
 
         <div
           className={`space-y-3 ${
@@ -195,7 +162,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             name="countryId"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select value={field.value?.toString() ?? ""} onValueChange={(value) => field.onChange(value === "" ? null : Number(value))}>
                 <SelectTrigger
                   className={`w-full ${errors.countryId ? "border-red-500" : ""}`}
                 >
@@ -203,7 +170,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem key={country.id} value={country.id}>
+                    <SelectItem key={country.id} value={country.id.toString()}>
                       {country.name}
                     </SelectItem>
                   ))}
@@ -218,40 +185,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           )}
         </div>
 
-        <div
-          className={`space-y-3 ${
-            errors.city
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Label>City</Label>
-          <Controller
-            name="city"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger
-                  className={`w-full ${errors.city ? "border-red-500" : ""}`}
-                >
-                  <SelectValue placeholder="Select a city" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city.id} value={city.name}>
-                      {city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.city && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.city.message?.toString()}
-            </p>
-          )}
-        </div>
+
 
         <div
           className={`space-y-3 ${
@@ -289,7 +223,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 label="Timezone Offset"
                 type="number"
                 {...field}
-                value={field.value || ""}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
                 errMsg={errors.timezoneOffset?.message}
                 placeholder="Enter timezone offset"
               />
@@ -312,7 +247,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 label="Original Price"
                 type="number"
                 {...field}
-                value={field.value || ""}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
                 errMsg={errors.originalPrice?.message}
                 placeholder="Enter original price"
               />

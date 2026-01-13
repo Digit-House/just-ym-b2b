@@ -1,3 +1,6 @@
+import z from "zod";
+import { ticketSchema } from "./schema/ticketSchema";
+
 export enum AVAILABILITY_ENUM {
   AVAILABLE = "AVAILABLE",
   UNAVAILABLE = "NOT_AVAILABLE",
@@ -100,6 +103,8 @@ export interface UpdateProductPayloadT {
   whatToExpect:string;
   blockedDate: BlockedDateT[];
 }
+
+// export type UpdateProductPayloadT = z.infer<typeof ticketSchema>;
 
 
 export interface ProductInfoT {

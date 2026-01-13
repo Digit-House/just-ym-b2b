@@ -59,7 +59,8 @@ const LocationTab: React.FC<LocationTabProps> = ({
                 label="Latitude"
                 type="number"
                 {...field}
-                value={field.value || ""}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
                 errMsg={errors.latitude?.message}
                 placeholder="Enter latitude"
               />
@@ -81,7 +82,8 @@ const LocationTab: React.FC<LocationTabProps> = ({
                 label="Longitude"
                 type="number"
                 {...field}
-                value={field.value || ""}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
                 errMsg={errors.longitude?.message}
                 placeholder="Enter longitude"
               />
