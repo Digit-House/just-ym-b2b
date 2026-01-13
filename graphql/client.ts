@@ -90,7 +90,7 @@ const errorLink = new ErrorLink(({ error }) => {
     error.errors.forEach((err: any) => {
       const statusCode = err?.status;
       if (statusCode === 401 || err?.message === "Unauthorized") {
-        // handleUnauthorized();
+        handleUnauthorized();
       }
 
       console.error(
@@ -110,7 +110,7 @@ const errorLink = new ErrorLink(({ error }) => {
         err?.extensions?.response?.status;
 
       if (status === 401) {
-        // handleUnauthorized();
+        handleUnauthorized();
       }
 
       console.error(
@@ -127,7 +127,7 @@ const errorLink = new ErrorLink(({ error }) => {
     (error as any)?.response?.status;
 
   if (networkStatus === 401) {
-    // handleUnauthorized();
+    handleUnauthorized();
   }
 
   console.error("[Network error]", error);
