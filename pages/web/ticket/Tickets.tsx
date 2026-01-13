@@ -150,7 +150,9 @@ export default function Tickets() {
                   {p.description}
                 </p>
 
-                <button className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors">
+                <button
+                 onClick={() => navigate(`/tickets/${p.id}`)}
+                className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors">
                   Read More <ArrowRight size={16} className="ml-1" />
                 </button>
 

@@ -5,7 +5,7 @@ import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import TextareaField from "@/components/TextareaField";
 import InputField from "@/components/InputField";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, NotebookIcon } from "lucide-react";
+import { Trash2, Plus, NotebookIcon, FileText, ListTodo } from "lucide-react";
 
 type DetailsTabProps = {
   control: Control<TicketFormValues>;
@@ -23,7 +23,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
   setValue,
   initialValues,
 }) => {
-  // State for dynamic arrays - Handle nullable values from updated schema
+  // State for dynamic arrays
   const [exclusions, setExclusions] = useState<string[]>(
     (initialValues as UpdateProductPayloadT)?.exclusions ?? []
   );
@@ -52,30 +52,57 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
     (initialValues as UpdateProductPayloadT)?.thingsToNote ?? []
   );
   const [thingsToNoteMm, setThingsToNoteMm] = useState<string[]>(
-    (initialValues as UpdateProductPayloadT)?.thingsToNote_mm ?? [] // Fixed typo: thingsToNode_mm -> thingsToNote_mm
+    (initialValues as UpdateProductPayloadT)?.thingsToNote_mm ?? []
   );
-  const [blockedDates, setBlockedDates] = useState<any[]>([]); // blockedDate doesn't exist in the updated schema
+  const [termsAndConditionsMm, setTermsAndConditionsMm] = useState<string>(
+    (initialValues as UpdateProductPayloadT)?.termsAndConditions_mm ?? ""
+  );
+  const [blockedDates, setBlockedDates] = useState<any[]>([]);
 
-  // Synchronize _mm fields with form values
+  // Synchronize all array fields with form values
+  useEffect(() => {
+    setValue("exclusions", exclusions);
+  }, [exclusions, setValue]);
+
   useEffect(() => {
     setValue("exclusions_mm", exclusions_mm);
   }, [exclusions_mm, setValue]);
+
+  useEffect(() => {
+    setValue("highlights", highlights);
+  }, [highlights, setValue]);
 
   useEffect(() => {
     setValue("highlights_mm", highlights_mm);
   }, [highlights_mm, setValue]);
 
   useEffect(() => {
+    setValue("howToUseList", howToUseList);
+  }, [howToUseList, setValue]);
+
+  useEffect(() => {
     setValue("howToUseList_mm", howToUseList_mm);
   }, [howToUseList_mm, setValue]);
+
+  useEffect(() => {
+    setValue("inclusions", inclusions);
+  }, [inclusions, setValue]);
 
   useEffect(() => {
     setValue("inclusions_mm", inclusions_mm);
   }, [inclusions_mm, setValue]);
 
   useEffect(() => {
+    setValue("thingsToNote", thingsToNote);
+  }, [thingsToNote, setValue]);
+
+  useEffect(() => {
     setValue("thingsToNote_mm", thingsToNoteMm);
   }, [thingsToNoteMm, setValue]);
+
+  useEffect(() => {
+    setValue("termsAndConditions_mm", termsAndConditionsMm);
+  }, [termsAndConditionsMm, setValue]);
 
   // Array management functions
   const addToArray = (
@@ -119,7 +146,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div className="border-b pb-4">
         <h3 className="text-xl font-semibold flex items-center gap-2">
           <svg
@@ -147,11 +175,12 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
         </p>
       </div>
 
+      {/* Group 1: Overview Fields */}
       <div className="space-y-6">
         <div
           className={`space-y-3 ${
             errors.description
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
+              ? "border border-red-300 rounded-lg p-4 bg-red-50"
               : ""
           }`}
         >
@@ -161,6 +190,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="Description"
+                isRequired={true}
                 rows={5}
                 {...field}
                 errMsg={errors.description?.message}
@@ -173,7 +203,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
         <div
           className={`space-y-3 ${
             errors.whatToExpect
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
+              ? "border border-red-300 rounded-lg p-4 bg-red-50"
               : ""
           }`}
         >
@@ -183,6 +213,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="What To Expect"
+                isRequired={true}
                 rows={5}
                 {...field}
                 errMsg={errors.whatToExpect?.message}
@@ -191,480 +222,499 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             )}
           />
         </div>
+      </div>
 
-        <div
-          className={`space-y-3 ${
-            errors.termsAndConditions
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Controller
-            name="termsAndConditions"
-            control={control}
-            render={({ field }) => (
-              <TextareaField
-                label="Terms & Conditions"
-                rows={5}
-                {...field}
-                errMsg={errors.termsAndConditions?.message}
-                placeholder="Enter terms and conditions for this ticket..."
-              />
-            )}
-          />
+      <hr className="border-gray-200" />
+
+      {/* Group 2: Terms & Conditions */}
+      <div className="space-y-6">
+        <h4 className="text-md font-semibold text-gray-800 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-gray-600" />
+          Terms & Conditions
+        </h4>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div
+            className={`space-y-3 ${
+              errors.termsAndConditions
+                ? "border border-red-300 rounded-lg p-4 bg-red-50"
+                : ""
+            }`}
+          >
+            <Controller
+              name="termsAndConditions"
+              control={control}
+              render={({ field }) => (
+                <TextareaField
+                  label="Terms & Conditions (English)"
+                  rows={6}
+                  {...field}
+                  errMsg={errors.termsAndConditions?.message}
+                  placeholder="Enter terms and conditions..."
+                />
+              )}
+            />
+          </div>
+
+          <div
+            className={`space-y-3 ${
+              errors.termsAndConditions_mm
+                ? "border border-red-300 rounded-lg p-4 bg-red-50"
+                : ""
+            }`}
+          >
+            <Controller
+              name="termsAndConditions_mm"
+              control={control}
+              render={({ field }) => (
+                <TextareaField
+                  label="Terms & Conditions (Myanmar)"
+                  rows={6}
+                  {...field}
+                  value={termsAndConditionsMm}
+                  onChange={(e) => setTermsAndConditionsMm(e.target.value)}
+                  errMsg={errors.termsAndConditions_mm?.message}
+                  placeholder="Enter terms and conditions in Myanmar..."
+                />
+              )}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="border-t pt-6 space-y-8">
-        <div className="border-t pt-6 space-y-6">
-          <div className="space-y-4">
-            <h4 className="text-lg font-medium flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              Exclusions
-            </h4>
+      <hr className="border-gray-200" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Exclusions
-                </h5>
+      {/* Group 3: Dynamic Lists */}
+      
+      {/* Exclusions Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+           <NotebookIcon className="h-5 w-5 text-red-500" />
+           <h4 className="text-lg font-semibold text-gray-800">Exclusions</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+           {/* English */}
+          <div className="space-y-3">
+            <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">English</h5>
+            <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
                 {exclusions.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setExclusions, index, e.target.value)
-                      }
-                      placeholder="Enter exclusion"
-                      className="w-full rounded-md"
+                <div key={index} className="relative group">
+                    <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setExclusions, index, e.target.value)}
+                        placeholder="Enter exclusion"
+                        rows={2}
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setExclusions, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFromArray(setExclusions, index)}
+                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                        >
+                        <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
                 ))}
                 <Button
-                  type="button"
-                  onClick={() => addToArray(setExclusions)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
+                type="button"
+                onClick={() => addToArray(setExclusions)}
+                size="sm"
+                variant="outline"
+                className="w-full"
                 >
-                  <Plus className="h-4 w-4 mr-1" /> Add Exclusion
+                <Plus className="h-4 w-4 mr-2" /> Add Exclusion
                 </Button>
-              </div>
+            </div>
+          </div>
 
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Exclusions MM
-                </h5>
+          {/* Myanmar */}
+          <div className="space-y-3">
+            <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">Myanmar</h5>
+            <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
                 {exclusions_mm.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setExclusionsMm, index, e.target.value)
-                      }
-                      placeholder="Enter exclusion (MM)"
-                      className="w-full rounded-md"
+                <div key={index} className="relative group">
+                    <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setExclusionsMm, index, e.target.value)}
+                        placeholder="Enter exclusion (MM)"
+                        rows={2}
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setExclusionsMm, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFromArray(setExclusionsMm, index)}
+                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                        >
+                        <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
                 ))}
                 <Button
-                  type="button"
-                  onClick={() => addToArray(setExclusionsMm)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
+                type="button"
+                onClick={() => addToArray(setExclusionsMm)}
+                size="sm"
+                variant="outline"
+                className="w-full"
                 >
-                  <Plus className="h-4 w-4 mr-1" /> Add Exclusion MM
+                <Plus className="h-4 w-4 mr-2" /> Add Exclusion MM
                 </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-lg font-medium flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              Highlights
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Highlights
-                </h5>
-                {highlights.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setHighlights, index, e.target.value)
-                      }
-                      placeholder="Enter highlight"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setHighlights, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setHighlights)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Highlight
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Highlights MM
-                </h5>
-                {highlights_mm.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setHighlightsMm, index, e.target.value)
-                      }
-                      placeholder="Enter highlight (MM)"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setHighlightsMm, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setHighlightsMm)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Highlight MM
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-lg font-medium flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              How to Use
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  How to Use
-                </h5>
-                {howToUseList.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setHowToUseList, index, e.target.value)
-                      }
-                      placeholder="Enter instruction"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setHowToUseList, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setHowToUseList)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Instruction
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  How to Use MM
-                </h5>
-                {howToUseList_mm.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(
-                          setHowToUseListMm,
-                          index,
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter instruction (MM)"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setHowToUseListMm, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setHowToUseListMm)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Instruction MM
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-lg font-medium flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              Inclusions
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Inclusions
-                </h5>
-                {inclusions.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setInclusions, index, e.target.value)
-                      }
-                      placeholder="Enter inclusion"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setInclusions, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setInclusions)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Inclusion
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Inclusions MM
-                </h5>
-                {inclusions_mm.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setInclusionsMm, index, e.target.value)
-                      }
-                      placeholder="Enter inclusion (MM)"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setInclusionsMm, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setInclusionsMm)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Inclusion MM
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-lg font-medium flex items-center gap-2">
-              <NotebookIcon className="h-5 w-5 text-green-500" />
-              Things to Note
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Things to Note
-                </h5>
-                {thingsToNote.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(setThingsToNote, index, e.target.value)
-                      }
-                      placeholder="Enter note"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setThingsToNote, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setThingsToNote)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Note
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <h5 className="text-md font-medium text-gray-700">
-                  Things to Note MM
-                </h5>
-                {thingsToNoteMm.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center py-3 rounded-lg w-full"
-                  >
-                    <InputField
-                      value={item}
-                      onChange={(e) =>
-                        updateArrayValue(
-                          setThingsToNoteMm,
-                          index,
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter note (MM)"
-                      className="w-full rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromArray(setThingsToNoteMm, index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() => addToArray(setThingsToNoteMm)}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Note MM
-                </Button>
-              </div>
             </div>
           </div>
         </div>
-
-
-
-        {/* Grouped Fields Section */}
       </div>
+
+      <hr className="border-gray-200" />
+
+      {/* Highlights Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+           <NotebookIcon className="h-5 w-5 text-yellow-500" />
+           <h4 className="text-lg font-semibold text-gray-800">Highlights</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">English</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {highlights.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setHighlights, index, e.target.value)}
+                        placeholder="Enter highlight"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setHighlights, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setHighlights)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Highlight
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">Myanmar</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {highlights_mm.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setHighlightsMm, index, e.target.value)}
+                        placeholder="Enter highlight (MM)"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setHighlightsMm, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setHighlightsMm)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Highlight MM
+                    </Button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <hr className="border-gray-200" />
+
+      {/* How to Use Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+           <ListTodo className="h-5 w-5 text-blue-500" />
+           <h4 className="text-lg font-semibold text-gray-800">How to Use</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">English</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {howToUseList.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setHowToUseList, index, e.target.value)}
+                        placeholder="Enter instruction"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setHowToUseList, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setHowToUseList)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Instruction
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">Myanmar</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {howToUseList_mm.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setHowToUseListMm, index, e.target.value)}
+                        placeholder="Enter instruction (MM)"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setHowToUseListMm, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setHowToUseListMm)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Instruction MM
+                    </Button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <hr className="border-gray-200" />
+
+      {/* Inclusions Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+           <NotebookIcon className="h-5 w-5 text-green-500" />
+           <h4 className="text-lg font-semibold text-gray-800">Inclusions</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">English</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {inclusions.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setInclusions, index, e.target.value)}
+                        placeholder="Enter inclusion"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setInclusions, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setInclusions)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Inclusion
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">Myanmar</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {inclusions_mm.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setInclusionsMm, index, e.target.value)}
+                        placeholder="Enter inclusion (MM)"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setInclusionsMm, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setInclusionsMm)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Inclusion MM
+                    </Button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <hr className="border-gray-200" />
+
+      {/* Things to Note Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+           <NotebookIcon className="h-5 w-5 text-purple-500" />
+           <h4 className="text-lg font-semibold text-gray-800">Things to Note</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">English</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {thingsToNote.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setThingsToNote, index, e.target.value)}
+                        placeholder="Enter note"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setThingsToNote, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setThingsToNote)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Note
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-3">
+                <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">Myanmar</h5>
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    {thingsToNoteMm.map((item, index) => (
+                    <div key={index} className="relative group">
+                        <TextareaField
+                        label=""
+                        value={item}
+                        onChange={(e) => updateArrayValue(setThingsToNoteMm, index, e.target.value)}
+                        placeholder="Enter note (MM)"
+                        rows={2}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromArray(setThingsToNoteMm, index)}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    ))}
+                    <Button
+                    type="button"
+                    onClick={() => addToArray(setThingsToNoteMm)}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" /> Add Note MM
+                    </Button>
+                </div>
+            </div>
+        </div>
+      </div>
+
     </div>
   );
 };

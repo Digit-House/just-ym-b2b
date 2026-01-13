@@ -33,7 +33,6 @@ export const useCountries = ({
           },
           //fetchPolicy: "no-cache",
         });
-        console.log(data,"36")
         return data?.countries || [];
       } catch (err) {
         console.log("Error fetching countries:", err);

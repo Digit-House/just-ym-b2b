@@ -20,7 +20,12 @@ const AdminTicketEdit = () => {
     queryKey: ["ticket", id],
     queryFn: () => getProductInfo(id!),
     enabled: !!id,
+    gcTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
+  //ee
 
 
   if (isLoading) {
@@ -61,10 +66,9 @@ const AdminTicketEdit = () => {
         };
       }
       
-      const res = await updateProductInfo(updatedFormData as UpdateProductPayloadT);
-      console.log(res);
+     await updateProductInfo(updatedFormData as UpdateProductPayloadT);
       toast.success("Successfully Updated !");
-      navigate("/admin-tickets");
+      navigate("/tickets");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {

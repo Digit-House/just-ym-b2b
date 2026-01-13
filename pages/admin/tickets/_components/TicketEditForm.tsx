@@ -132,7 +132,7 @@ const TicketEditForm: React.FC<Props> = ({
       isInstantConfirmation: (initialValues as any)?.isInstantConfirmation ?? null,
       isOpenDated: (initialValues as any)?.isOpenDated ?? null,
       isOwnContracted: null,
-      isPublished: null,
+      isPublished: (initialValues as any)?.isPublished ?? null,
       termsAndConditions: (initialValues as any)?.termsAndConditions ?? null,
       termsAndConditions_mm: (initialValues as any)?.termsAndConditions_mm ?? null,
       thingsToNote: initialValues?.thingsToNote ?? null,
@@ -456,7 +456,6 @@ const TicketEditForm: React.FC<Props> = ({
     </button>
   );
 
-  console.log(errors);
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
@@ -482,6 +481,17 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
       )}
 
+     <div className="flex flex-col items-end">
+       <Button
+         type="submit"
+         loading={loading}
+         className="flex items-center gap-2"
+         disabled={currentTab === "options" && Object.keys(errors).length > 0}
+       >
+         {isEdit ? <>Save Changes</> : <>Create Ticket</>}
+       </Button>
+     </div>
+
       {/* Custom Tabs Navigation - Modern style with error indicators */}
       <div className="flex flex-wrap gap-3 border-b pb-4">
         <TabButton id="basic-info" label="Basic Info" />
@@ -500,7 +510,6 @@ const TicketEditForm: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Basic Info Tab */}
         <div style={{ display: currentTab === "basic-info" ? "block" : "none" }}>
           <BasicInfoTab
             control={control}
@@ -512,19 +521,16 @@ const TicketEditForm: React.FC<Props> = ({
           />
         </div>
 
-        {/* Location Tab */}
         <div style={{ display: currentTab === "location" ? "block" : "none" }}>
           <LocationTab
             control={control}
             errors={errors}
-            watch={watch}
             setValue={setValue}
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
         </div>
 
-        {/* Details Tab */}
         <div style={{ display: currentTab === "details" ? "block" : "none" }}>
           <DetailsTab
             control={control}
@@ -569,6 +575,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             getValues={getValues}
             setValue={setValue}
+            trigger={trigger}
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
           />
@@ -604,13 +611,6 @@ const TicketEditForm: React.FC<Props> = ({
               className="flex items-center gap-2"
             >
               Cancel
-            </Button>
-            <Button
-              type="submit"
-              loading={loading}
-              className="flex items-center gap-2"
-            >
-              {isEdit ? <>Save Changes</> : <>Create Ticket</>}
             </Button>
           </div>
         )}

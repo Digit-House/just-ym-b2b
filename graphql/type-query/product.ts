@@ -43,11 +43,15 @@ query GetProductInfo($productId: String!) {
     createdAt
     description
     exclusions
+    exclusions_mm
     highlights
+    highlights_mm
     howToUseList
+    howToUseList_mm
     id
     image
     inclusions
+    inclusions_mm
     isBestSeller
     isCancellable
     isGTRecommend
@@ -78,6 +82,7 @@ query GetProductInfo($productId: String!) {
     originalPrice
     postalCode
     termsAndConditions
+    thingsToNote_mm 
     thingsToNote
     timezoneOffset
     updatedAt

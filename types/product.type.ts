@@ -77,7 +77,7 @@ export interface UpdateProductPayloadT {
   howToUseList:string[];
   howToUseList_mm:string[];
   inclusions:string[];
-  inclustions_mm:string[];
+  inclusions_mm:string[];
   isBestSeller:boolean;
   isCancellable:boolean;
   isGTRecommend:boolean;
@@ -98,7 +98,7 @@ export interface UpdateProductPayloadT {
   termsAndConditions:string;
   termsAndConditions_mm:string;
   thingsToNote: string[];
-  thingsToNode_mm:string[];
+  thingsToNote_mm:string[];
   timezoneOffset:number;
   whatToExpect:string;
   blockedDate: BlockedDateT[];
@@ -131,9 +131,9 @@ export interface ProductInfoT {
   howToUseList: string[];
   howToUseList_mm: string[];
   inclusions: string[];
-  inclustions_mm: string[];
+  inclusions_mm: string[];
   thingsToNote: string[];
-  thingsToNode_mm: string[];
+  thingsToNote_mm: string[];
   isBestSeller: boolean;
   isCancellable: boolean;
   isGTRecommend: boolean;

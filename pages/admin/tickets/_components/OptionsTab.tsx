@@ -1,5 +1,5 @@
-import React from "react";
-import { Control, FieldErrors, UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import React, { useEffect } from "react";
+import { Control, FieldErrors, UseFormGetValues, UseFormSetValue, UseFormTrigger } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
@@ -14,6 +14,7 @@ type OptionsTabProps = {
   watch: any;
   getValues: UseFormGetValues<TicketFormValues>;
   setValue: UseFormSetValue<TicketFormValues>;
+  trigger: UseFormTrigger<TicketFormValues>;
   mode: "create" | "edit";
   initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
@@ -24,11 +25,21 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   watch,
   getValues,
   setValue,
+  trigger,
   mode,
   initialValues,
 }) => {
   // Watch the productOptions field to trigger re-renders when it changes
   const watchedProductOptions = watch("productOptions");
+
+  // Trigger validation when product options change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      trigger('productOptions');
+    }, 300); // Small delay to avoid excessive triggering
+    
+    return () => clearTimeout(timer);
+  }, [watchedProductOptions, trigger]);
 
   const addProductOption = () => {
     // Create a new product option with default values based on the API structure
@@ -81,6 +92,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     const currentOptions = getValues("productOptions") ?? [];
     const updatedOptions = [...currentOptions, newOption];
     setValue("productOptions", updatedOptions, { shouldDirty: true });
+    
+    // Trigger validation after the update
+    setTimeout(() => trigger('productOptions'), 0);
   };
 
   const addTicketType = (optionIndex: number) => {
@@ -104,6 +118,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
         ticketTypes: [...currentTicketTypes, newTicketType],
       };
       setValue("productOptions", updatedOptions, { shouldDirty: true });
+      
+      // Trigger validation after the update
+      setTimeout(() => trigger('productOptions'), 0);
     }
   };
 
@@ -124,6 +141,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
     });
+    
+    // Trigger validation after the update
+    setTimeout(() => trigger('productOptions'), 0);
   };
 
   const removeProductOption = (optionIndex: number) => {
@@ -132,6 +152,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
     });
+    
+    // Trigger validation after the update
+    setTimeout(() => trigger('productOptions'), 0);
   };
 
   const updateTicketType = (
@@ -161,6 +184,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
     });
+    
+    // Trigger validation after the update
+    setTimeout(() => trigger('productOptions'), 0);
   };
 
   const updateProductOption = (
@@ -187,6 +213,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
     });
+    
+    // Trigger validation after the update
+    setTimeout(() => trigger('productOptions'), 0);
   };
 
   return (
@@ -337,6 +366,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                         <InputField
                           label="DH Net Price"
+                          isRequired={true}
                           type="number"
                           value={ticketType.dhNetPrice ?? ""}
                           onChange={(e) => {
@@ -369,6 +399,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                         <InputField
                           label="DH Selling Price"
+                          isRequired={true}
                           type="number"
                           value={ticketType.dhSellingPrice ?? ""}
                           onChange={(e) => {
