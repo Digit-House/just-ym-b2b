@@ -2,6 +2,7 @@ import { warpGql } from "@/util";
 import client from "./client";
 import {
   CREATE_PAYMENT_METHOD,
+  DELETE_PAYMENT_METHOD,
   GET_PAYMENT_METHODS,
   UPDATE_PAYMENT_METHOD,
 } from "./type-query/paymentMethod";
@@ -54,6 +55,16 @@ export const putPaymentMethod = async (data: PaymentMethodFormValues) => {
         qrCodeUrl: data.qrCodeUrl,
         type: data.type,
       },
+    },
+    fetchPolicy: "no-cache",
+  });
+};
+
+export const removePaymentMethod = async (id: string) => {
+  return client.mutate({
+    mutation: warpGql(DELETE_PAYMENT_METHOD),
+    variables: {
+      removePaymentMethodId: id,
     },
   });
 };

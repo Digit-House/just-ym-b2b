@@ -21,3 +21,12 @@ query FindAllRoles($params: RolePaginatedInput!) {
   }
 }
 `
+
+export const REMOVE_ROLE = `
+mutation RemoveRole($removeRoleId: String!) {
+  removeRole(id: $removeRoleId) {
+    message
+    status
+  }
+}
+`;

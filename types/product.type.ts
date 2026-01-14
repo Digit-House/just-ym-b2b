@@ -1,4 +1,6 @@
 import { BOOKING_STATUS_ENUM } from "./booking.type";
+import z from "zod";
+import { ticketSchema } from "./schema/ticketSchema";
 
 export enum AVAILABILITY_ENUM {
   AVAILABLE = "AVAILABLE",
@@ -25,6 +27,7 @@ export type FilterProductListT = {
     dir: string;
   };
   page: number;
+  published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
 };
 
 export type FilterBookingListT = {
@@ -76,6 +79,49 @@ export interface TicketTypeEventAvailableResponse {
   };
 }
 
+export interface UpdateProductPayloadT {
+  id: string;
+  image: string;
+  addressLine: string;
+  description: string;
+  exclusions: string[];
+  exclusions_mm: string[];
+  fromPrice: number;
+  fromReseller: string;
+  highlights: string[];
+  highlights_mm: string[];
+  howToUseList: string[];
+  howToUseList_mm: string[];
+  inclusions: string[];
+  inclusions_mm: string[];
+  isBestSeller: boolean;
+  isCancellable: boolean;
+  isGTRecommend: boolean;
+  isInstantConfirmation: boolean;
+  isOpenDated: boolean;
+  isOwnContracted: boolean;
+  isPublished: boolean;
+  keywords: string;
+  latitude: number;
+  location: string;
+  longitude: number;
+  media: MediaFileT[];
+  name: string;
+  operatingHours: OperatingHoursT;
+  originalPrice: number;
+  postalCode: string;
+  productOptions: ProductOptionT[];
+  termsAndConditions: string;
+  termsAndConditions_mm: string;
+  thingsToNote: string[];
+  thingsToNote_mm: string[];
+  timezoneOffset: number;
+  whatToExpect: string;
+  blockedDate: BlockedDateT[];
+}
+
+// export type UpdateProductPayloadT = z.infer<typeof ticketSchema>;
+
 export interface ProductInfoT {
   id: string;
   name: string;
@@ -94,10 +140,15 @@ export interface ProductInfoT {
   keywords: string;
   image: string;
   exclusions: string[];
+  exclusions_mm: string[];
   highlights: string[];
+  highlights_mm: string[];
   howToUseList: string[];
+  howToUseList_mm: string[];
   inclusions: string[];
+  inclusions_mm: string[];
   thingsToNote: string[];
+  thingsToNote_mm: string[];
   isBestSeller: boolean;
   isCancellable: boolean;
   isGTRecommend: boolean;
@@ -111,6 +162,7 @@ export interface ProductInfoT {
   media: MediaFileT[];
   operatingHours: OperatingHoursT;
   termsAndConditions: string;
+  termsAndConditions_mm: string;
   productOptions: ProductOptionT[];
 }
 
@@ -120,11 +172,12 @@ export interface BlockedDateT {
 }
 
 export interface MediaFileT {
-  extension: string;
-  name: string;
-  path: string;
-  size: number;
-  type: string;
+  extension: "jpeg" | "png" | null;
+  isPublished: boolean | null;
+  name: string | null;
+  path: string | null;
+  size: number | null;
+  type: string | null;
 }
 
 export interface OperatingHoursT {

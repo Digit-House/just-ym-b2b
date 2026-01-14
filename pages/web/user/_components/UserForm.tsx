@@ -13,6 +13,15 @@ import { getResellers } from "@/graphql/reseller";
 import { ResellerT } from "@/types/reseller.type";
 import { useEffect, useState } from "react";
 import { useUser } from "@/provider/UserProvider";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LockKeyhole } from "lucide-react";
 
 type UserFormProps = {
   loading: boolean;
@@ -22,6 +31,11 @@ type UserFormProps = {
   onCancel: () => void;
 };
 
+const STATUS_STYLE: Record<"true" | "false", string> = {
+  true: "bg-green-50 text-green-700",
+  false: "bg-red-50 text-red-700",
+};
+
 export default function UserForm({
   loading,
   initialValues,
@@ -29,8 +43,7 @@ export default function UserForm({
   onSubmit,
   onCancel,
 }: UserFormProps) {
-  console.log(initialValues,"32")
-  const {user} = useUser();
+  const { user } = useUser();
   const userType = user.type as "OWNER" | "RESELLER";
   const {
     register,
@@ -51,7 +64,7 @@ export default function UserForm({
       countryCode: initialValues?.countryCode || "95",
       roleIds: initialValues?.roleIds || [],
       password: mode === "edit" ? "defaultPassword" : "",
-      resellerId: initialValues?.resellerId || null,
+      resellerId: initialValues?.resellerId || "",
       confirmPassword: mode === "edit" ? "defaultPassword" : "",
     },
   });
@@ -65,20 +78,26 @@ export default function UserForm({
 
   useEffect(() => {
     fetchResellers();
-  },[])
+  }, []);
 
   const [resellerData, setResellerData] = useState<ResellerT[]>([]);
 
   const roleIds = watch("roleIds") || [];
 
+  console.log(errors);
+
   const fetchResellers = async () => {
-      try {
-        const res: any = await getResellers({ limit: 50, page: 1, orderBy: { dir: "desc" } });
-        setResellerData(res?.data?.findAllResellers?.data || []);
-      } catch (err) {
-        toast.error(getErrMsg(err, "message"));
-      } 
-    };
+    try {
+      const res: any = await getResellers({
+        limit: 50,
+        page: 1,
+        orderBy: { dir: "desc" },
+      });
+      setResellerData(res?.data?.findAllResellers?.data || []);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    }
+  };
 
   const submitHandler = async (values: UserFormValues) => {
     try {
@@ -86,7 +105,7 @@ export default function UserForm({
       if (userType === "OWNER" && !values.resellerId) {
         setError("resellerId", {
           type: "manual",
-          message: "Reseller is required for OWNER accounts"
+          message: "Reseller is required for OWNER accounts",
         });
         return;
       }
@@ -97,10 +116,7 @@ export default function UserForm({
     }
   };
 
-  // Helper function to toggle role selection
   const toggleRoleSelection = (roleId: string) => {
-    if (mode === "edit") return;
-
     const isSelected = roleIds.includes(roleId);
     let newRoleIds: string[];
 
@@ -114,11 +130,11 @@ export default function UserForm({
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
-    {errors.root && (
-      <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">
-        {errors.root.message}
-      </div>
-    )}
+      {errors.root && (
+        <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">
+          {errors.root.message}
+        </div>
+      )}
       <InputField
         label="User Name"
         id="userName"
@@ -140,13 +156,21 @@ export default function UserForm({
       />
       {/* Reseller Selection - Only for OWNER user type */}
       {userType === "OWNER" && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Reseller <span className="text-red-500">*</span>
+        <div className="flex gap-2 flex-col">
+          <label className="flex items-center gap-1 text-sm font-medium">
+            Reseller{" "}
+            {mode === "edit" ? (
+              <LockKeyhole size={12} className="text-red-500 mb-[1px]" />
+            ) : (
+              <span className="text-red-500">*</span>
+            )}
           </label>
           <select
             value={getValues("resellerId") || ""}
-            {...register("resellerId", { required: "Reseller is required for OWNER accounts" })}
+            {...register("resellerId", {
+              required: "Reseller is required for OWNER accounts",
+            })}
+            disabled={mode === "edit"}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
             <option value={""}>Select a reseller</option>
@@ -157,7 +181,9 @@ export default function UserForm({
             ))}
           </select>
           {errors?.resellerId && (
-            <p className="text-red-500 text-xs mt-1">{errors.resellerId.message}</p>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.resellerId.message}
+            </p>
           )}
         </div>
       )}
@@ -220,23 +246,52 @@ export default function UserForm({
         )}
       </div>
 
-      {mode === "edit" && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Active Status
-          </label>
-          <select
-            {...register("active", { setValueAs: (v) => v === "true" })}
-            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Status <span className="text-red-500">*</span>
+        </label>
+
+        <div className="flex gap-2">
+          <Select
+            value={String(watch("active"))}
+            onValueChange={(value) =>
+              setValue("active", value === "true", {
+                shouldValidate: true,
+              })
+            }
           >
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
-          </select>
-          {errors?.active && (
-            <p className="text-red-500 text-xs mt-1">{errors.active.message}</p>
-          )}
+            <SelectTrigger
+              className={`w-full ${
+                STATUS_STYLE[String(watch("active")) as "true" | "false"]
+              }`}
+            >
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  value="true"
+                  className="text-green-700 focus:bg-green-50"
+                >
+                  🟢 Active
+                </SelectItem>
+
+                <SelectItem
+                  value="false"
+                  className="text-red-700 focus:bg-red-50"
+                >
+                  🔴 Inactive
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+
+        {errors.active && (
+          <p className="mt-1 text-sm text-red-500">{errors.active.message}</p>
+        )}
+      </div>
 
       <PhoneInput
         id="contactNo"

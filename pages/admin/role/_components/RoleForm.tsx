@@ -3,12 +3,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import InputField from "@/components/InputField";
-import { RoleFormValues, roleSchema } from "@/types/schema/roleSchema";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TextareaField from "@/components/TextareaField";
-
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RoleFormValues, roleSchema } from "@/types/schema/roleSchema";
 
 type Mode = "create" | "edit";
 
@@ -25,6 +28,11 @@ type Props = {
   onCancel: () => void;
   onSubmit: (payload: RoleFormValues & { id?: string }) => void;
 };
+
+const ROLE_OPTIONS = [
+  { label: "ADMIN", value: "ADMIN" },
+  { label: "MANAGER", value: "MANAGER" },
+];
 
 export default function RoleForm({
   mode,
@@ -46,12 +54,12 @@ export default function RoleForm({
   });
 
   const {
-    register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
   } = form;
+
 
   return (
     <form
@@ -64,35 +72,64 @@ export default function RoleForm({
       })}
       className="space-y-6"
     >
+      {/* Role Name */}
+      <div className="space-y-1">
+        <label className="text-sm font-medium">
+          Name <span className="text-red-500">*</span>
+        </label>
 
-      <InputField
-        label="Name"
-        placeholder="MANAGER"
-        {...register("name")}
-        isRequired
-        errMsg={errors.name?.message}
-      />
+        <Select
+          value={watch("name")}
+          onValueChange={(val) =>
+            setValue("name", val, { shouldValidate: true })
+          }
+          // disabled={isEdit} // optional
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select role name" />
+          </SelectTrigger>
 
+          <SelectContent>
+            {ROLE_OPTIONS.map((role) => (
+              <SelectItem key={role.value} value={role.value}>
+                {role.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {errors.name && (
+          <p className="text-xs text-red-500">{errors.name.message}</p>
+        )}
+      </div>
+
+      {/* Description */}
       <TextareaField
         label="Description"
         rows={4}
         placeholder="Hello Description"
-        {...register("description")}
+        {...form.register("description")}
         isRequired
         errMsg={errors.description?.message}
       />
-      
+
+      {/* Reseller */}
       <div className="space-y-1">
-        <label className="text-sm font-medium">Reseller</label>
+        <label className="text-sm font-medium">
+          Reseller <span className="text-red-500">*</span>
+        </label>
+
         <Select
           value={watch("resellerId")}
-          onValueChange={(val) => setValue("resellerId", val)}
-          // disabled={isEdit}
+          onValueChange={(val) =>
+            setValue("resellerId", val, { shouldValidate: true })
+          }
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select reseller" />
           </SelectTrigger>
-          <SelectContent className="w-full">
+
+          <SelectContent>
             {resellerOptions.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}
@@ -100,6 +137,7 @@ export default function RoleForm({
             ))}
           </SelectContent>
         </Select>
+
         {errors.resellerId && (
           <p className="text-xs text-red-500">
             {errors.resellerId.message}

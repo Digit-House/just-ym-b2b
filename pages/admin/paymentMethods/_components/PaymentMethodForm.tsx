@@ -17,8 +17,9 @@ import {
   PaymentMethodFormValues,
 } from "@/types/schema/paymentMethodSchema";
 import { Switch } from "@/components/ui/switch";
-import { ImageUpload } from "@/components/ImageUpload";
-import { useState } from "react";
+import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
+import { getSignedUrlAndImageDataUpload } from "@/util";
+import { useState, useRef } from "react";
 
 type Mode = "create" | "edit";
 
@@ -68,10 +69,39 @@ export default function PaymentMethodForm({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Refs for ImageUpload components
+  const logoImageUploadRef = useRef<ImageUploadRef>(null);
+  const qrCodeImageUploadRef = useRef<ImageUploadRef>(null);
+
   const onSubmitHandler = async (values: PaymentMethodFormValues) => {
     setIsSubmitting(true);
     try {
-      const payload = isEdit ? { ...values, id: initialValues?.id } : values;
+      // Handle deferred image uploads
+      let updatedValues = { ...values };
+      
+      // Upload logo if there's a file to upload
+      if (logoImageUploadRef.current) {
+        const logoFile = logoImageUploadRef.current.getFileToUpload();
+        if (logoFile) {
+          const result = await getSignedUrlAndImageDataUpload(logoFile, "CREDIT_TOP_UP");
+          if (result.status === 200 && result.url) {
+            updatedValues = { ...updatedValues, logo: result.url };
+          }
+        }
+      }
+      
+      // Upload QR code if there's a file to upload
+      if (type === "QR_CODE" && qrCodeImageUploadRef.current) {
+        const qrCodeFile = qrCodeImageUploadRef.current.getFileToUpload();
+        if (qrCodeFile) {
+          const result = await getSignedUrlAndImageDataUpload(qrCodeFile, "CREDIT_TOP_UP");
+          if (result.status === 200 && result.url) {
+            updatedValues = { ...updatedValues, qrCodeUrl: result.url };
+          }
+        }
+      }
+      
+      const payload = isEdit ? { ...updatedValues, id: initialValues?.id } : updatedValues;
       await onSubmit(payload);
     } finally {
       setIsSubmitting(false);
@@ -142,24 +172,26 @@ export default function PaymentMethodForm({
           </>
         )}
       </>
-
-      <ImageUpload
-        label="Logo Image"
-        value={watch("logo")}
-        onChange={(val) => setValue("logo", val)}
-        errMsg={errors.logo?.message}
-        folderType="CREDIT_TOP_UP"
-      />
-
       {type === "QR_CODE" && (
         <ImageUpload
+          ref={qrCodeImageUploadRef}
           label="QR Code Image"
+          isRequired
           value={watch("qrCodeUrl")}
           onChange={(val) => setValue("qrCodeUrl", val)}
           errMsg={errors.qrCodeUrl?.message}
           folderType="CREDIT_TOP_UP"
         />
       )}
+
+      <ImageUpload
+        ref={logoImageUploadRef}
+        label="Logo Image"
+        value={watch("logo")}
+        onChange={(val) => setValue("logo", val)}
+        errMsg={errors.logo?.message}
+        folderType="CREDIT_TOP_UP"
+      />
 
       <TextareaField
         label="Description"

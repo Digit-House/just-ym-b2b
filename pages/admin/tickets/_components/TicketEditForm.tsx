@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 import { TicketFormValues, ticketSchema } from "@/types/schema/ticketSchema";
 import {
   ProductInfoT,
+  UpdateProductPayloadT,
 } from "@/types/product.type";
 import BasicInfoTab from "./BasicInfoTab";
 import LocationTab from "./LocationTab";
@@ -20,13 +21,15 @@ import DetailsTab from "./DetailsTab";
 import MediaTab from "./MediaTab";
 import OperatingHoursTab from "./OperatingHoursTab";
 import OptionsTab from "./OptionsTab";
+import { getSignedUrlAndImageDataUpload } from "@/util";
+import { ImageUploadRef } from "@/components/ImageUpload";
 
 
 type Mode = "create" | "edit";
 
 type Props = {
   mode: Mode;
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: TicketFormValues) => void;
@@ -41,46 +44,105 @@ const TicketEditForm: React.FC<Props> = ({
 }) => {
   const isEdit = mode === "edit";
 
+  // Transform API data to form format
+  const transformApiDataToForm = (apiData: any) => {
+    if (!apiData || !apiData.productOptions) return apiData;
+    
+    // Create transformed product options that match the form schema
+    const transformedProductOptions = apiData.productOptions.map((option: any) => {
+      return {
+        id: option.id || null,
+        name: option.name || null,
+        description: option.description || null,
+        image: option.image || null,
+        keywords: option.keywords || null,
+        inclusions: option.inclusions || [],
+        inclusions_mm: option.inclusions_mm || [],
+        exclusions: option.exclusions || [],
+        exclusions_mm: option.exclusions_mm || [],
+        howToUse: option.howToUse || null,
+        howToUse_mm: option.howToUse_mm || null,
+        termsAndConditions: option.termsAndConditions || null,
+        termsAndConditions_mm: option.termsAndConditions_mm || null,
+        cancellationNotes: option.cancellationNotes || null,
+        cancellationPolicy: option.cancellationPolicy || null,
+        advanceBooking: option.advanceBooking || null,
+        isCancellable: option.isCancellable || null,
+        isPublished: option.isPublished || null,
+        isTagged: option.isTagged || null,
+        primaryTicket: option.primaryTicket ? Boolean(option.primaryTicket) : null, // Convert string to boolean
+        publishStart: option.publishStart || null,
+        publishEnd: option.publishEnd || null,
+        redeemStart: option.redeemStart || null,
+        redeemEnd: option.redeemEnd || null,
+        sourceName: option.sourceName || null,
+        sourceTitle: option.sourceTitle || null,
+        tourInformation: option.tourInformation || [],
+        visitDate: option.visitDate || null,
+        // Transform ticketType (singular from API) to ticketTypes (plural for form) with field mapping
+        ticketTypes: option.ticketType ? option.ticketType.map((ticket: any) => ({
+          // Map API fields to form fields
+          dhNetMerchantPrice: ticket.nettPrice || ticket.originalPrice || null,
+          dhNetPrice: ticket.dhNetPrice || null,
+          dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice || null,
+          dhSellingPrice: ticket.dhSellingPrice || null,
+          ticketTypeId: ticket.id || ticket.ticketTypeId || null,
+        })) : [],
+      };
+    });
+    
+    return {
+      ...apiData,
+      productOptions: transformedProductOptions,
+    };
+  };
+
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
-      id: initialValues?.id ?? "",
-      name: initialValues?.name ?? "",
-      category: initialValues?.category ?? "",
-      description: initialValues?.description ?? "",
-      whatToExpect: initialValues?.whatToExpect ?? "",
-      addressLine: initialValues?.addressLine ?? "",
-      location: initialValues?.location ?? "",
-      postalCode: initialValues?.postalCode ?? "",
-      city: initialValues?.city ?? "",
-      cityId: initialValues?.cityId ?? 0,
-      city_relation_id: initialValues?.city_relation_id ?? "",
-      countryId: initialValues?.countryId ?? "",
-      latitude: initialValues?.latitude ?? 0,
-      longitude: initialValues?.longitude ?? 0,
-      keywords: initialValues?.keywords ?? "",
-      image: initialValues?.image ?? "",
-      exclusions: initialValues?.exclusions ?? [],
-      highlights: initialValues?.highlights ?? [],
-      howToUseList: initialValues?.howToUseList ?? [],
-      inclusions: initialValues?.inclusions ?? [],
-      thingsToNote: initialValues?.thingsToNote ?? [],
-      isBestSeller: initialValues?.isBestSeller ?? false,
-      isCancellable: initialValues?.isCancellable ?? false,
-      isGTRecommend: initialValues?.isGTRecommend ?? false,
-      isInstantConfirmation: initialValues?.isInstantConfirmation ?? false,
-      isOpenDated: initialValues?.isOpenDated ?? false,
-      originalPrice: initialValues?.originalPrice ?? 0,
-      timezoneOffset: initialValues?.timezoneOffset ?? 0,
-      blockedDate: initialValues?.blockedDate ?? [],
-      media: initialValues?.media ?? [],
+      id: initialValues?.id ?? null,
+      name: initialValues?.name ?? null,
+      description: initialValues?.description ?? null,
+      whatToExpect: initialValues?.whatToExpect ?? null,
+      addressLine: initialValues?.addressLine ?? null,
+      location: initialValues?.location ?? null,
+      postalCode: initialValues?.postalCode ?? null,
+      countryId: (initialValues as any)?.countryId ?? null,
+      city_relation_id: (initialValues as any)?.city_relation_id ?? null,
+      latitude: initialValues?.latitude ?? null,
+      longitude: initialValues?.longitude ?? null,
+      keywords: initialValues?.keywords ?? null,
+      image: initialValues?.image ?? null,
+      media: (initialValues as any)?.media ?? null,
+      exclusions: (initialValues as any)?.exclusions ?? null,
+      exclusions_mm: (initialValues as any)?.exclusions_mm ?? null,
+      fromPrice: null,
+      fromReseller: null,
+      originalPrice: (initialValues as any)?.originalPrice ?? null,
+      timezoneOffset: (initialValues as any)?.timezoneOffset ?? null,
+      highlights: (initialValues as any)?.highlights ?? null,
+      highlights_mm: (initialValues as any)?.highlights_mm ?? null,
+      howToUseList: (initialValues as any)?.howToUseList ?? null,
+      howToUseList_mm: (initialValues as any)?.howToUseList_mm ?? null,
+      inclusions: (initialValues as any)?.inclusions ?? null,
+      inclusions_mm: (initialValues as any)?.inclusions_mm ?? null,
+      isBestSeller: (initialValues as any)?.isBestSeller ?? null,
+      isCancellable: (initialValues as any)?.isCancellable ?? null,
+      isGTRecommend: (initialValues as any)?.isGTRecommend ?? null,
+      isInstantConfirmation: (initialValues as any)?.isInstantConfirmation ?? null,
+      isOpenDated: (initialValues as any)?.isOpenDated ?? null,
+      isOwnContracted: null,
+      isPublished: (initialValues as any)?.isPublished ?? null,
+      termsAndConditions: (initialValues as any)?.termsAndConditions ?? null,
+      termsAndConditions_mm: (initialValues as any)?.termsAndConditions_mm ?? null,
+      thingsToNote: initialValues?.thingsToNote ?? null,
+      thingsToNote_mm: (initialValues as any)?.thingsToNote_mm ?? null,
       operatingHours: initialValues?.operatingHours ?? {
         custom: null,
         isToursActivities: null,
         fixedDays: [],
       },
-      termsAndConditions: initialValues?.termsAndConditions ?? "",
-      productOptions: initialValues?.productOptions ?? [],
+      productOptions: transformApiDataToForm(initialValues as any)?.productOptions ?? null,
     },
   });
 
@@ -95,6 +157,17 @@ const TicketEditForm: React.FC<Props> = ({
   } = form;
 
   const [currentTab, setCurrentTab] = useState("basic-info");
+
+  // Refs for media items to handle deferred uploads
+  const mediaItemRefs = useRef<Map<number, ImageUploadRef>>(new Map());
+
+  const setMediaItemRef = (index: number) => (ref: ImageUploadRef | null) => {
+    if (ref) {
+      mediaItemRefs.current.set(index, ref);
+    } else {
+      mediaItemRefs.current.delete(index);
+    }
+  };
 
   // Icon mapping for tabs
   const tabIcons = {
@@ -112,10 +185,8 @@ const TicketEditForm: React.FC<Props> = ({
       case "basic-info":
         return [
           "name",
-          "category",
           "addressLine",
           "location",
-          "city",
           "postalCode",
           "timezoneOffset",
           "originalPrice",
@@ -131,7 +202,16 @@ const TicketEditForm: React.FC<Props> = ({
         return [
           "description",
           "whatToExpect",
-          "termsAndConditions"
+          "termsAndConditions",
+          "exclusions",
+          "exclusions_mm",
+          "highlights",
+          "highlights_mm",
+          "howToUseList",
+          "howToUseList_mm",
+          "inclusions",
+          "inclusions_mm",
+          "thingsToNote"
         ];
       case "location":
         return [
@@ -202,10 +282,8 @@ const TicketEditForm: React.FC<Props> = ({
       case "basic-info":
         return !!(
           errors.name ||
-          errors.category ||
           errors.addressLine ||
           errors.location ||
-          errors.city ||
           errors.postalCode ||
           errors.timezoneOffset ||
           errors.originalPrice ||
@@ -221,7 +299,16 @@ const TicketEditForm: React.FC<Props> = ({
         return !!(
           errors.description ||
           errors.whatToExpect ||
-          errors.termsAndConditions
+          errors.termsAndConditions ||
+          errors.exclusions ||
+          errors.exclusions_mm ||
+          errors.highlights ||
+          errors.highlights_mm ||
+          errors.howToUseList ||
+          errors.howToUseList_mm ||
+          errors.inclusions ||
+          errors.inclusions_mm ||
+          errors.thingsToNote
         );
       case "location":
         return !!(errors.latitude || errors.longitude);
@@ -261,19 +348,89 @@ const TicketEditForm: React.FC<Props> = ({
       return;
     }
 
-    // Update values with dynamic arrays
-    const payload = {
+    // Process media uploads if media exists
+    let processedMedia = values.media || [];
+    
+    // Process each media item to upload to S3 if needed
+    if (processedMedia && Array.isArray(processedMedia)) {
+      for (let i = 0; i < processedMedia.length; i++) {
+        const mediaItem = processedMedia[i];
+        
+        // Check if this media item has a local file that needs to be uploaded
+        if (mediaItem?.path && (mediaItem.path.startsWith('blob:') || mediaItem.path.startsWith('data:'))) {
+          // Get the file from the ref if available
+          const mediaRef = mediaItemRefs.current.get(i);
+          if (mediaRef) {
+            const fileToUpload = mediaRef.getFileToUpload();
+            if (fileToUpload) {
+              try {
+                const result = await getSignedUrlAndImageDataUpload(fileToUpload, "PRODUCT_MEDIA");
+                if (result.status === 200 && result.url) {
+                  // Update the media item with the new URL
+                  processedMedia[i] = { ...mediaItem, path: result.url };
+                }
+              } catch (error) {
+                console.error(`Error uploading media item ${i}:`, error);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Update values with proper defaults for nullable fields
+    const payload: any = {
       ...values,
-      exclusions: values.exclusions || [],
-      highlights: values.highlights || [],
-      howToUseList: values.howToUseList || [],
-      inclusions: values.inclusions || [],
-      thingsToNote: values.thingsToNote || [],
-      blockedDate: values.blockedDate || [],
-      media: values.media || [],
+      // Ensure array fields have proper defaults
+      exclusions: values.exclusions || null,
+      exclusions_mm: values.exclusions_mm || null,
+      highlights: values.highlights || null,
+      highlights_mm: values.highlights_mm || null,
+      howToUseList: values.howToUseList || null,
+      howToUseList_mm: values.howToUseList_mm || null,
+      inclusions: values.inclusions || null,
+      inclusions_mm: values.inclusions_mm || null,
+      termsAndConditions: values.termsAndConditions || null,
+      termsAndConditions_mm: values.termsAndConditions_mm || null,
+      thingsToNote: values.thingsToNote || null,
+      thingsToNote_mm: values.thingsToNote_mm || null,
+      
+      // Ensure numeric fields have proper defaults
+      fromPrice: values.fromPrice || null,
+      originalPrice: values.originalPrice || null,
+      timezoneOffset: values.timezoneOffset || null,
+      latitude: values.latitude || null,
+      longitude: values.longitude || null,
+      countryId: values.countryId || null,
+      city_relation_id: values.city_relation_id || null,
+      
+      // Ensure boolean fields have proper defaults
+      isBestSeller: values.isBestSeller || null,
+      isCancellable: values.isCancellable || null,
+      isGTRecommend: values.isGTRecommend || null,
+      isInstantConfirmation: values.isInstantConfirmation || null,
+      isOpenDated: values.isOpenDated || null,
+      isOwnContracted: values.isOwnContracted || null,
+      isPublished: values.isPublished || null,
+      
+      // Ensure string fields have proper defaults
+      name: values.name || null,
+      description: values.description || null,
+      whatToExpect: values.whatToExpect || null,
+      addressLine: values.addressLine || null,
+      location: values.location || null,
+      postalCode: values.postalCode || null,
+      keywords: values.keywords || null,
+      image: values.image || null,
+      fromReseller: values.fromReseller || null,
+      
+      // Process media
+      media: processedMedia,
+      
+      // Process operating hours
       operatingHours: {
         ...values.operatingHours,
-        fixedDays: values.operatingHours?.fixedDays || [],
+        fixedDays: values.operatingHours?.fixedDays || null,
       },
     };
 
@@ -299,6 +456,7 @@ const TicketEditForm: React.FC<Props> = ({
     </button>
   );
 
+
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
       {/* Validation Summary - Shows validation errors at the top */}
@@ -323,6 +481,17 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
       )}
 
+     <div className="flex flex-col items-end">
+       <Button
+         type="submit"
+         loading={loading}
+         className="flex items-center gap-2"
+         disabled={currentTab === "options" && Object.keys(errors).length > 0}
+       >
+         {isEdit ? <>Save Changes</> : <>Create Ticket</>}
+       </Button>
+     </div>
+
       {/* Custom Tabs Navigation - Modern style with error indicators */}
       <div className="flex flex-wrap gap-3 border-b pb-4">
         <TabButton id="basic-info" label="Basic Info" />
@@ -341,78 +510,76 @@ const TicketEditForm: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Basic Info Tab */}
-        {currentTab === "basic-info" && (
+        <div style={{ display: currentTab === "basic-info" ? "block" : "none" }}>
           <BasicInfoTab
             control={control}
             errors={errors}
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
-        {/* Location Tab */}
-        {currentTab === "location" && (
+        <div style={{ display: currentTab === "location" ? "block" : "none" }}>
           <LocationTab
             control={control}
             errors={errors}
-            watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
-        {/* Details Tab */}
-        {currentTab === "details" && (
+        <div style={{ display: currentTab === "details" ? "block" : "none" }}>
           <DetailsTab
             control={control}
             errors={errors}
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
         {/* Media Tab */}
-        {currentTab === "media" && (
+        <div style={{ display: currentTab === "media" ? "block" : "none" }}>
           <MediaTab
             control={control}
             errors={errors}
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
+            setMediaItemRef={setMediaItemRef}
           />
-        )}
+        </div>
 
         {/* Operating Hours Tab */}
-        {currentTab === "operating-hours" && (
+        <div style={{ display: currentTab === "operating-hours" ? "block" : "none" }}>
           <OperatingHoursTab
             control={control}
             errors={errors}
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
 
         {/* Options Tab */}
-        {currentTab === "options" && (
+        <div style={{ display: currentTab === "options" ? "block" : "none" }}>
           <OptionsTab
             control={control}
             errors={errors}
             watch={watch}
             getValues={getValues}
             setValue={setValue}
+            trigger={trigger}
             mode={mode}
-            initialValues={initialValues}
+            initialValues={initialValues as UpdateProductPayloadT}
           />
-        )}
+        </div>
       </div>
 
       {/* Navigation buttons */}
@@ -444,13 +611,6 @@ const TicketEditForm: React.FC<Props> = ({
               className="flex items-center gap-2"
             >
               Cancel
-            </Button>
-            <Button
-              type="submit"
-              loading={loading}
-              className="flex items-center gap-2"
-            >
-              {isEdit ? <>Save Changes</> : <>Create Ticket</>}
             </Button>
           </div>
         )}

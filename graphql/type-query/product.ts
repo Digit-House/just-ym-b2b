@@ -43,14 +43,19 @@ query GetProductInfo($productId: String!) {
     createdAt
     description
     exclusions
+    exclusions_mm
     highlights
+    highlights_mm
     howToUseList
+    howToUseList_mm
     id
     image
     inclusions
+    inclusions_mm
     isBestSeller
     isCancellable
     isGTRecommend
+    isPublished
     isInstantConfirmation
     isOpenDated
     keywords
@@ -77,6 +82,7 @@ query GetProductInfo($productId: String!) {
     originalPrice
     postalCode
     termsAndConditions
+    thingsToNote_mm 
     thingsToNote
     timezoneOffset
     updatedAt
@@ -301,6 +307,14 @@ mutation RemoveFromCart($cartItemId: String!) {
   removeFromCart(cartItemId: $cartItemId) {
     itemsCount
     success
+  }
+}
+`;
+
+export const UPDATE_PRODUCT_MUTATION = `mutation UpdateProduct($data: ProductUpdateInput!) {
+  updateProduct(data: $data) {
+    message
+    status
   }
 }
 `;

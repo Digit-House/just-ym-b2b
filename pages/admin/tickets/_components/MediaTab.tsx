@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef as reactUseRef } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT, MediaFileT } from "@/types/product.type";
+import {
+  ProductInfoT,
+  MediaFileT,
+  UpdateProductPayloadT,
+} from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {Plus, Minus } from "lucide-react";
-import { ImageUpload } from "@/components/ImageUpload";
+import { Plus, Minus, Upload, X } from "lucide-react";
+import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useRef } from "react";
+import { getSignedUrlAndImageDataUpload } from "@/util";
 
 type MediaTabProps = {
   control: Control<TicketFormValues>;
@@ -14,23 +21,93 @@ type MediaTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
+  setMediaItemRef?: (index: number) => (ref: ImageUploadRef | null) => void;
 };
 
 const MediaTab: React.FC<MediaTabProps> = ({
   control,
   errors,
+  watch,
+  setValue,
   initialValues,
+  setMediaItemRef,
 }) => {
+  // Use a ref to store the initial media items to prevent re-initialization
+  const initialMediaItemsRef = useRef<MediaFileT[] | null>(null);
+  const hasInitializedFromFormRef = useRef<boolean>(false);
+  
+  // Initialize the ref with initial values only once
+  if (initialMediaItemsRef.current === null) {
+    initialMediaItemsRef.current = (initialValues as UpdateProductPayloadT)?.media ?? [];
+  }
+  
   // State for media items
-  const [mediaItems, setMediaItems] = useState<MediaFileT[]>(
-    initialValues?.media ?? []
-  );
+  const [mediaItems, setMediaItems] = useState<MediaFileT[]>(initialMediaItemsRef.current);
+  
+  // Initialize from form state on mount if available
+  useEffect(() => {
+    if (!hasInitializedFromFormRef.current) {
+      const formMedia = watch('media');
+      if (formMedia && Array.isArray(formMedia) && formMedia.length > 0) {
+        setMediaItems([...formMedia]);
+      }
+      hasInitializedFromFormRef.current = true;
+    }
+  }, [watch('media')]);
+  
+  // Synchronize media items with form state
+  useEffect(() => {
+    setValue('media', mediaItems);
+  }, [mediaItems, setValue]);
+  
+  // Watch for external changes to media in form state and update local state
+  // Only when the change comes from outside this component
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      if (name === 'media' && type === 'change') {
+        // Only update if the change came from outside this component
+        // We can differentiate by checking if our local state differs from form state
+        const currentFormMedia = value.media;
+        if (currentFormMedia && JSON.stringify(currentFormMedia) !== JSON.stringify(mediaItems)) {
+          setMediaItems([...currentFormMedia]);
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [watch, mediaItems]);
+  
+
+  // Refs for ImageUpload components
+  const mediaItemRefs = React.useRef<Map<number, ImageUploadRef>>(new Map());
+
+  // Use the provided ref function if available, otherwise use local ref management
+  const setImageUploadRef = (index: number) => (ref: ImageUploadRef | null) => {
+    if (setMediaItemRef) {
+      // Use the ref function provided by parent component
+      setMediaItemRef(index)(ref);
+    } else {
+      // Use local ref management
+      if (ref) {
+        mediaItemRefs.current.set(index, ref);
+      } else {
+        mediaItemRefs.current.delete(index);
+      }
+    }
+  };
 
   const addMediaItem = () => {
     setMediaItems((prev) => [
       ...prev,
-      { extension: "", name: "", path: "", size: 0, type: "" },
+      {
+        type: null,
+        size: null,
+        path: null,
+        name: null,
+        isPublished: null,
+        extension: null,
+      },
     ]);
   };
 
@@ -41,11 +118,55 @@ const MediaTab: React.FC<MediaTabProps> = ({
   const updateMediaItem = (
     index: number,
     field: keyof (typeof mediaItems)[0],
-    value: string | number
+    value: string | number | boolean | null
   ) => {
     setMediaItems((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
+  };
+
+  // This will be updated when we have file information
+  const handleMediaItemImageUpload = (index: number, imageUrl: string, file?: File) => {
+    // If we have the original file object, extract information from it
+    let name = null;
+    let extension = null;
+    let size = null;
+    let type = null;
+    
+    if (file) {
+      // Extract name and extension from the file object
+      const originalName = file.name;
+      const lastDotIndex = originalName.lastIndexOf('.');
+      
+      if (lastDotIndex !== -1) {
+        name = originalName.substring(0, lastDotIndex);
+        extension = originalName.substring(lastDotIndex + 1).toLowerCase();
+      } else {
+        // If no extension, use the whole name
+        name = originalName;
+      }
+      
+      size = file.size;
+      type = file.type;
+    } else {
+      // Fallback to extracting from URL if file object isn't available
+      const fileName = imageUrl.split('/').pop() || '';
+      const lastDotIndex = fileName.lastIndexOf('.');
+      
+      if (lastDotIndex !== -1) {
+        name = fileName.substring(0, lastDotIndex);
+        extension = fileName.substring(lastDotIndex + 1).toLowerCase();
+      } else {
+        // If no extension, use the whole name
+        name = fileName;
+      }
+    }
+    
+    updateMediaItem(index, 'path', imageUrl);
+    updateMediaItem(index, 'name', name);
+    updateMediaItem(index, 'extension', extension);
+    updateMediaItem(index, 'size', size);
+    updateMediaItem(index, 'type', type);
   };
 
   return (
@@ -76,27 +197,6 @@ const MediaTab: React.FC<MediaTabProps> = ({
       </div>
 
       <div className="space-y-6">
-        <div
-          className={`space-y-4 ${
-            errors.image
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Controller
-            name="image"
-            control={control}
-            render={({ field }) => (
-              <ImageUpload
-                label="Main Image"
-                value={field.value}
-                onChange={field.onChange}
-                errMsg={errors.image?.message}
-                folderType="PRODUCT_MEDIA"
-              />
-            )}
-          />
-        </div>
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -117,9 +217,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <path d="M21 15l-5-5L5 21"></path>
               </svg>
-              <h4 className="text-lg font-medium">
-                Additional Media Items
-              </h4>
+              <h4 className="text-lg font-medium">Media Items</h4>
             </div>
             <Button
               type="button"
@@ -132,10 +230,10 @@ const MediaTab: React.FC<MediaTabProps> = ({
           </div>
 
           <div className="space-y-4">
-            {mediaItems.map((media, index) => (
+            {mediaItems?.map((media, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg border grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ${
+                className={`p-4 rounded-lg border grid grid-cols-1  gap-4 ${
                   errors.media?.[index]
                     ? "bg-red-50 border-red-300"
                     : "bg-gray-50"
@@ -148,53 +246,55 @@ const MediaTab: React.FC<MediaTabProps> = ({
                       : ""
                   }`}
                 >
-                  <Label>Image Path</Label>
-                  <InputField
-                    label="Image Path"
+                  <ImageUpload
+                    ref={setImageUploadRef(index)}
+                    label="Media Image"
                     value={media.path}
-                    onChange={(e) =>
-                      updateMediaItem(index, "path", e.target.value)
-                    }
-                    placeholder="Image path"
+                    onChange={(val, file) => {
+                      // Update the path with the preview URL for now
+                      updateMediaItem(index, 'path', val);
+                      // Auto-fill name, extension, type, and size if file is available
+                      if (file) {
+                        handleMediaItemImageUpload(index, val, file);
+                      }
+                    }}
+                    folderType="PRODUCT_MEDIA"
                   />
                 </div>
-                <div
-                  className={`${
-                    errors.media?.[index]?.name
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
-                >
-                  <Label>Name</Label>
+                {/* Hidden Name Input Field */}
+                <div className="hidden">
                   <InputField
                     label="Name"
-                    value={media.name}
+                    value={media.name || ""}
                     onChange={(e) =>
                       updateMediaItem(index, "name", e.target.value)
                     }
                     placeholder="Name"
                   />
                 </div>
-                <div
-                  className={`${
-                    errors.media?.[index]?.extension
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
-                >
-                  <Label>Extension</Label>
+                <div className="hidden">
                   <InputField
                     label="Extension"
-                    value={media.extension}
+                    value={media.extension || ""}
                     onChange={(e) =>
                       updateMediaItem(index, "extension", e.target.value)
                     }
                     placeholder="Extension"
                   />
                 </div>
+                <div className="hidden">
+                  <InputField
+                    label="Type"
+                    value={media.type || ""}
+                    onChange={(e) =>
+                      updateMediaItem(index, "type", e.target.value)
+                    }
+                    placeholder="Type"
+                  />
+                </div>
                 <div className="flex gap-2">
-                  <div className="flex-grow">
-                    <Label>Size (bytes)</Label>
+                  {/* Hidden Size Input Field */}
+                  <div className="flex-grow hidden">
                     <div
                       className={`${
                         errors.media?.[index]?.size
@@ -205,7 +305,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                       <InputField
                         label="Size (bytes)"
                         type="number"
-                        value={media.size}
+                        value={media.size || 0}
                         onChange={(e) =>
                           updateMediaItem(
                             index,
@@ -217,16 +317,33 @@ const MediaTab: React.FC<MediaTabProps> = ({
                       />
                     </div>
                   </div>
-                  <div className="flex items-end pb-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeMediaItem(index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`published-${index}`}
+                        checked={Boolean(media.isPublished)}
+                        onCheckedChange={(checked) =>
+                          updateMediaItem(index, "isPublished", checked)
+                        }
+                      />
+                      <Label
+                        htmlFor={`published-${index}`}
+                        className="text-sm font-normal"
+                      >
+                        Published
+                      </Label>
+                    </div>
+                    <div className="flex items-end pb-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeMediaItem(index)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

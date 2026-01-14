@@ -29,7 +29,6 @@ import TopUp from "./pages/admin/topUp/TopUp";
 import Resellers from "./pages/admin/reseller/Resellers";
 import Roles from "./pages/admin/role/Roles";
 import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
-import AdminTickets from "./pages/admin/tickets/Tickets";
 import AdminTicketEdit from "./pages/admin/tickets/edit/[id]/TicketEdit";
 import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 import Checkout from "./pages/web/cart/checkout/Checkout";

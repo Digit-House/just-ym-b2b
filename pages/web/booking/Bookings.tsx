@@ -113,7 +113,7 @@ const Bookings = () => {
           <Select
             label="Country"
             placeholder="Country"
-            options={COUNTRIES}
+            options={COUNTRIES.data}
             value={countries}
             onChange={setCountries}
             width="w-48"

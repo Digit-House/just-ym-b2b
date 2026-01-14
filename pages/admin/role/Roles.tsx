@@ -13,9 +13,10 @@ import { Edit2, Plus, Trash2 } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { RoleT } from "@/types/role.type";
 import RoleForm from "./_components/RoleForm";
-import { getRoles, postRole } from "@/graphql/role";
+import { getRoles, postRole, removeRole } from "@/graphql/role";
 import { RoleFormValues } from "@/types/schema/roleSchema";
 import { Button } from "@/components/ui/button";
+import DeleteModal from "@/components/DeleteModal";
 
 const Roles = () => {
   const [data, setData] = useState<RoleT[]>([]);
@@ -25,9 +26,10 @@ const Roles = () => {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [fetchAgain, setFetchAgain] = useState(false);
+  const [deletModal, setDeleteModal] = useState(false);
 
   const [modalState, setModalState] = useState<{
-    mode: "create" | "edit" | null;
+    mode: "create" | "edit" | "delete" | null;
     role?: RoleT | null;
   }>({
     mode: null,
@@ -93,6 +95,22 @@ const Roles = () => {
       setLoading(true);
       await postRole(value);
       toast.success("Successfully Created !");
+      closeModal();
+      setTimeout(() => {
+        setFetchAgain((prev) => !prev);
+      }, 2000);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRole = async (id: string) => {
+    try {
+      setLoading(true);
+      await removeRole(id);
+      toast.success("Successfully Deleted !");
       closeModal();
       setTimeout(() => {
         setFetchAgain((prev) => !prev);
@@ -195,7 +213,13 @@ const Roles = () => {
                           <Edit2 size={16} />
                         </button>
                         <button
-                          onClick={() => {}}
+                          onClick={() => {
+                            setModalState({
+                              mode: "delete",
+                              role: role,
+                            });
+                            setDeleteModal(true);
+                          }}
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
                         >
                           <Trash2 size={16} />
@@ -232,6 +256,20 @@ const Roles = () => {
             onSubmit={() => {}}
           />
         </ModalWrapper>
+      )}
+
+      {modalState.mode === "delete" && modalState.role && (
+        <DeleteModal
+          title="Delete Role?"
+          des={`Are you sure you want to delete ${modalState.role.name}? This action cannot be undone.`}
+          isOpen={deletModal}
+          onClose={() => {
+            setDeleteModal(false);
+          }}
+          onConfirm={() => {
+            handleDeleteRole(modalState.role.id);
+          }}
+        />
       )}
 
       <Pagination

@@ -1,148 +1,146 @@
 import { z } from "zod";
 
 export const ticketSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().min(1, "ID is required"),
+
   name: z.string().min(1, "Name is required"),
-  category: z.string().min(1, "Category is required"),
   description: z.string().min(1, "Description is required"),
   whatToExpect: z.string().min(1, "What to expect is required"),
+
   addressLine: z.string().min(1, "Address line is required"),
   location: z.string().min(1, "Location is required"),
-  postalCode: z.string().min(1, "Postal code is required"),
-  city: z.string().min(1, "City is required"),
-  cityId: z.number().int().min(1, "City ID is required"),
-  city_relation_id: z.string().min(1, "City relation ID is required"),
-  countryId: z.string().min(1, "Country ID is required"),
-  latitude: z.number().min(-90).max(90, "Latitude must be between -90 and 90"),
-  longitude: z.number().min(-180).max(180, "Longitude must be between -180 and 180"),
-  keywords: z.string().min(1, "Keywords are required"),
-  image: z.string().min(1, "Image is required"),
-  exclusions: z.array(z.string()),
-  highlights: z.array(z.string()),
-  howToUseList: z.array(z.string()),
-  inclusions: z.array(z.string()),
-  thingsToNote: z.array(z.string()),
-  isBestSeller: z.boolean(),
-  isCancellable: z.boolean(),
-  isGTRecommend: z.boolean(),
-  isInstantConfirmation: z.boolean(),
-  isOpenDated: z.boolean(),
-  originalPrice: z.number().min(0, "Original price must be greater than or equal to 0"),
-  timezoneOffset: z.number().int(),
-  blockedDate: z.array(
-    z.object({
-      date: z.string(),
-      title: z.string(),
-    })
-  ),
+  postalCode: z.string().min(1, "Postal code iso required"),
+
+  countryId: z.string().optional().nullable(),
+  city_relation_id: z.string().optional().nullable(),
+
+  latitude: z.number().min(-90).max(90, { message: "Latitude must be between -90 and 90" }),
+  longitude: z.number().min(-180).max(180, { message: "Longitude must be between -180 and 180" }),
+
+  keywords: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
+
+  exclusions: z.array(z.string()).optional().nullable(),
+  exclusions_mm: z.array(z.string()).optional().nullable(),
+
+  fromPrice: z.number().optional().nullable(),
+  fromReseller: z.boolean().optional().nullable(),
+  originalPrice: z.number().optional().nullable(),
+
+  highlights: z.array(z.string()).optional().nullable(),
+  highlights_mm: z.array(z.string()).optional().nullable(),
+
+  howToUseList: z.array(z.string()).optional().nullable(),
+  howToUseList_mm: z.array(z.string()).optional().nullable(),
+
+  inclusions: z.array(z.string()).optional().nullable(),
+  inclusions_mm: z.array(z.string()).optional().nullable(),
   media: z.array(
     z.object({
-      extension: z.string(),
-      name: z.string(),
-      path: z.string(),
-      size: z.number().int().min(0),
-      type: z.string(),
+      extension: z.string().optional().nullable(),
+      isPublished: z.boolean().optional().nullable(),
+      name: z.string().optional().nullable(),
+      path: z.string().optional().nullable(),
+      size: z.number().optional().nullable(),
+      type: z.string().optional().nullable(),
     })
-  ),
+  ).optional().nullable(),
+  isBestSeller: z.boolean().optional().nullable(),
+  isCancellable: z.boolean().optional().nullable(),
+  isGTRecommend: z.boolean().optional().nullable(),
+  isInstantConfirmation: z.boolean().optional().nullable(),
+  isOpenDated: z.boolean().optional().nullable(),
+  isOwnContracted: z.boolean().optional().nullable(),
+  isPublished: z.boolean().optional().nullable(),
+
+  timezoneOffset: z.number().optional().nullable(),
+
+  termsAndConditions: z.string().optional().nullable(),
+  termsAndConditions_mm: z.string().optional().nullable(),
+
+  thingsToNote: z.array(z.string()).optional().nullable(),
+  thingsToNote_mm: z.array(z.string()).optional().nullable(),
+
   operatingHours: z.object({
-    custom: z.string().nullable(),
-    isToursActivities: z.boolean().nullable(),
+    custom: z.string().optional().nullable(),
+    isToursActivities: z.boolean().optional().nullable(),
     fixedDays: z.array(
       z.object({
-        day: z.string(),
-        startHour: z.string(),
-        endHour: z.string(),
+        day: z.string().optional().nullable(),
+        startHour: z.string().optional().nullable(),
+        endHour: z.string().optional().nullable(),
       })
-    ),
-  }),
-  termsAndConditions: z.string().min(1, "Terms and conditions are required"),
+    ).optional().nullable(),
+  }).optional().nullable(),
+
   productOptions: z.array(
     z.object({
-      currency: z.string().optional(),
-      definedDuration: z.string().optional(),
-      demandType: z.string().optional(),
-      description: z.string().optional(),
-      inclusions: z.array(z.string()).optional(),
-      isDynamicPricing: z.boolean().optional(),
-      isTagged: z.boolean().optional(),
-      keywords: z.string().optional(),
-      name: z.string().optional(),
-      primaryTicket: z.string().optional(),
-      productId: z.string().optional(),
-      publishStart: z.date().optional(),
-      isCapacity: z.boolean().optional(),
-      redeemEnd: z.date().optional(),
-      redeemStart: z.date().optional(),
-      ticketFormat: z.string().optional(),
-      ticketType: z.array(
-        z.object({
-          id: z.string().optional(),
-          name: z.string(),
-          sku: z.string(),
-          globaltixId: z.number().int(),
-          issuanceLimit: z.number().int().nullable(),
-          maxPurchaseQty: z.number().int().nullable(),
-          minPurchaseQty: z.number().int().nullable(),
-          useBin: z.boolean(),
-          applyToAllQna: z.boolean(),
-          ageFrom: z.number().int().nullable(),
-          ageTo: z.number().int().nullable(),
-          nettPrice: z.number(),
-          dhNetPrice: z.number(),
-          dhSellingPrice: z.number(),
-          dhRecommendedSellingPrice: z.number(),
-          originalPrice: z.number(),
-          similarTicketId: z.number().int().nullable(),
-          createdAt: z.string(),
-          updatedAt: z.string(),
-          quantity: z.number().int(),
-        })
-      ),
-      ticketValidity: z.string().optional(),
-      timeSlot: z.array(z.string()).optional(),
-      tourInformation: z.array(z.string()).optional(),
-      type: z.string().optional(),
-      // updatedAt: z.date(),
-      // publishEnd: z.date().optional(),
-      questions: z.array(
-        z.object({
-          cartItemId: z.string(),
-          createdAt: z.date(),
-          globaltixId: z.string(),
-          id: z.string(),
-          isAnswerLater: z.boolean(),
-          optionCode: z.string(),
-          optional: z.boolean(),
-          optionList: z.array(
-            z.object({
-              key: z.string(),
-              value: z.string(),
-            })
-          ),
-          options: z.array(z.string()),
-          question: z.string(),
-          questionCode: z.string(),
-          type: z.string(),
-          updatedAt: z.date(),
-        })
-      ).optional(),
+      id: z.string().optional().nullable(),
+
+      name: z.string().optional().nullable(),
+      description: z.string().optional().nullable(),
+      image: z.string().optional().nullable(),
+      keywords: z.string().optional().nullable(),
+
+      inclusions: z.array(z.string()).optional().nullable(),
+      inclusions_mm: z.array(z.string()).optional().nullable(),
+      exclusions: z.array(z.string()).optional().nullable(),
+      exclusions_mm: z.array(z.string()).optional().nullable(),
+
+      howToUse: z.array(z.string()).optional().nullable(),
+      howToUse_mm: z.array(z.string()).optional().nullable(),
+
+      termsAndConditions: z.string().optional().nullable(),
+      termsAndConditions_mm: z.string().optional().nullable(),
+
+      cancellationNotes: z.array(z.string()).optional().nullable(),
+
+      cancellationPolicy: z.object({
+        percentReturn: z.number().optional().nullable(),
+        refundDuration: z.number().optional().nullable(),
+      }).optional().nullable(),
+
+      advanceBooking: z.object({
+        day: z.number().optional().nullable(),
+        dayMinute: z.number().optional().nullable(),
+        hour: z.number().optional().nullable(),
+        minute: z.number().optional().nullable(),
+        required: z.boolean().optional().nullable(),
+      }).optional().nullable(),
+
+      isCancellable: z.boolean().optional().nullable(),
+      isPublished: z.boolean().optional().nullable(),
+      isTagged: z.boolean().optional().nullable(),
+      primaryTicket: z.boolean().optional().nullable(),
+
+      publishStart: z.string().optional().nullable(),
+      publishEnd: z.string().optional().nullable(),
+      redeemStart: z.string().optional().nullable(),
+      redeemEnd: z.string().optional().nullable(),
+
+      sourceName: z.string().optional().nullable(),
+      sourceTitle: z.string().optional().nullable(),
+
+      tourInformation: z.array(z.string()).optional().nullable(),
+
       visitDate: z.object({
-        isOpenDated: z.boolean(),
-        request: z.boolean(),
-        required: z.boolean(),
-      }).optional(),
-      advanceBooking: z
-        .object({
-          day: z.number().int(),
-          dayMinute: z.number().int(),
-          hour: z.number().int(),
-          minute: z.number().int(),
-          required: z.boolean(),
+        isOpenDated: z.boolean().optional().nullable(),
+        request: z.boolean().optional().nullable(),
+        required: z.boolean().optional().nullable(),
+      }).optional().nullable(),
+
+      ticketTypes: z.array(
+        z.object({
+          dhNetMerchantPrice: z.number().optional().nullable(),
+          dhNetPrice: z.number().min(0.01, { message: "Net price must be greater than 0" }),
+           dhSellingPrice: z.number().min(0.01, { message: "Selling price must be greater than 0" }),
+          dhRecommendedSellingPrice: z.number().optional(),
+         
+          ticketTypeId: z.string(),
         })
-        .nullable().optional(),
-      availability: z.enum(["AVAILABLE", "NOT_AVAILABLE"]).nullable().optional(),
+      ).optional().nullable(),
     })
-  ),
+  ).optional().nullable(),
 });
 
 export type TicketFormValues = z.infer<typeof ticketSchema>;

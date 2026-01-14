@@ -7,11 +7,12 @@ import {
   getPaymentMethods,
   postPaymentMethod,
   putPaymentMethod,
+  removePaymentMethod,
 } from "@/graphql/paymentMethod";
 import { PaymentMethodT } from "@/types/paymentMethod.type";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
-import { FileEdit, Plus } from "lucide-react";
+import { FileEdit, Plus, Trash2 } from "lucide-react";
 import ModalWrapper from "@/components/ModalWrapper";
 import PaymentMethodForm from "./_components/PaymentMethodForm";
 import RoleCheckAction from "@/components/RoleCheckAction";
@@ -24,15 +25,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import DeleteModal from "@/components/DeleteModal";
 
 const PaymentMethods = () => {
   const [loading, setLoading] = useState(false);
   const [paymentData, setPaymentData] = useState<PaymentMethodT[]>([]);
   const [isActive, setIsActive] = useState<boolean | null>(null);
   const [fetchAgain, setFetchAgain] = useState(false);
+  const [deletModal, setDeleteModal] = useState(false);
 
   const [modalState, setModalState] = useState<{
-    mode: "create" | "edit" | null;
+    mode: "create" | "edit" | "delete" | null;
     paymentMethod?: PaymentMethodT | null;
   }>({
     mode: null,
@@ -80,6 +83,22 @@ const PaymentMethods = () => {
       setLoading(true);
       await putPaymentMethod(value);
       toast.success("Successfully Updated !");
+      closeModal();
+      setTimeout(() => {
+        setFetchAgain((prev) => !prev);
+      }, 2000);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRole = async (id: string) => {
+    try {
+      setLoading(true);
+      await removePaymentMethod(id);
+      toast.success("Successfully Deleted !");
       closeModal();
       setTimeout(() => {
         setFetchAgain((prev) => !prev);
@@ -216,6 +235,18 @@ const PaymentMethods = () => {
                       >
                         <FileEdit size={18} />
                       </button>
+                      <button
+                        onClick={() => {
+                          setModalState({
+                            mode: "delete",
+                            paymentMethod: item,
+                          });
+                          setDeleteModal(true);
+                        }}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -246,6 +277,20 @@ const PaymentMethods = () => {
             onSubmit={handleEditPaymentMethod}
           />
         </ModalWrapper>
+      )}
+
+      {modalState.mode === "delete" && modalState.paymentMethod && (
+        <DeleteModal
+          title="Delete Role?"
+          des={`Are you sure you want to delete ${modalState.paymentMethod}? This action cannot be undone.`}
+          isOpen={deletModal}
+          onClose={() => {
+            setDeleteModal(false);
+          }}
+          onConfirm={() => {
+            handleDeleteRole(modalState.paymentMethod.id);
+          }}
+        />
       )}
     </PageContainer>
   );

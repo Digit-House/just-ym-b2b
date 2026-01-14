@@ -1,7 +1,7 @@
 import React from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { ProductInfoT } from "@/types/product.type";
+import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { useCities } from "@/hooks/useCities";
+import { useCountries } from "@/hooks/useCountries";
+import { preFixImg } from "@/util/initData";
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -21,7 +23,7 @@ type BasicInfoTabProps = {
   watch: any;
   setValue: any;
   mode: "create" | "edit";
-  initialValues?: ProductInfoT;
+  initialValues?: UpdateProductPayloadT | ProductInfoT;
 };
 
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
@@ -34,8 +36,16 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 }) => {
   const isEdit = mode === "edit";
 
-  // Fetch categories and cities
+  // Fetch categories, countries and cities
   const { data: categories = [] } = useCategories({ limit: 50, page: 1 });
+  const { data: countriesResponse } = useCountries({
+    limit: 50,
+    page: 1,
+    orderBy: { dir: "asc" },
+    isPublished: true,
+    search: undefined,
+  });
+  const countries = countriesResponse?.data || [];
   const { data: citiesData } = useCities({
     countryId: watch("countryId") || "",
     limit: 50,
@@ -75,12 +85,18 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
         </p>
       </div>
 
+      <div className={`space-y-3 w-full h-[300px]`}>
+        <img
+          className="w-full h-[300px] object-contain"
+          src={preFixImg(watch("image")) || ""}
+          alt="Ticket"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div
           className={`space-y-3 ${
-            errors.name
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
+            errors.name ? "border border-red-300 rounded-lg p-3 bg-red-50" : ""
           }`}
         >
           <Controller
@@ -89,47 +105,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Ticket Name"
+                isRequired={true}
                 {...field}
                 errMsg={errors.name?.message}
                 placeholder="Enter ticket name"
               />
             )}
           />
-        </div>
-
-        <div
-          className={`space-y-3 ${
-            errors.category
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Label>Category</Label>
-          <Controller
-            name="category"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger
-                  className={`w-full ${errors.category ? "border-red-500" : ""}`}
-                >
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.category && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.category.message?.toString()}
-            </p>
-          )}
         </div>
 
         <div
@@ -145,6 +127,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Address Line"
+                isRequired={true}
                 {...field}
                 errMsg={errors.addressLine?.message}
                 placeholder="Enter address"
@@ -166,6 +149,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Location"
+                isRequired={true}
                 {...field}
                 errMsg={errors.location?.message}
                 placeholder="Enter location"
@@ -176,35 +160,42 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 
         <div
           className={`space-y-3 ${
-            errors.city
+            errors.countryId
               ? "border border-red-300 rounded-lg p-3 bg-red-50"
               : ""
           }`}
         >
-          <Label>City</Label>
+          <Label>Country</Label>
           <Controller
-            name="city"
+            name="countryId"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value?.toString() ?? ""}
+                onValueChange={(value) =>
+                  field.onChange(value === "" ? null : Number(value))
+                }
+              >
                 <SelectTrigger
-                  className={`w-full ${errors.city ? "border-red-500" : ""}`}
+                  className={`w-full ${
+                    errors.countryId ? "border-red-500" : ""
+                  }`}
                 >
-                  <SelectValue placeholder="Select a city" />
+                  <SelectValue placeholder="Select a country" />
                 </SelectTrigger>
                 <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city.id} value={city.name}>
-                      {city.name}
+                  {countries.map((country) => (
+                    <SelectItem key={country.id} value={country.id.toString()}>
+                      {country.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
           />
-          {errors.city && (
+          {errors.countryId && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.city.message?.toString()}
+              {errors.countryId.message?.toString()}
             </p>
           )}
         </div>
@@ -222,6 +213,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Postal Code"
+                isRequired={true}
                 {...field}
                 errMsg={errors.postalCode?.message}
                 placeholder="Enter postal code"
@@ -245,7 +237,12 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 label="Timezone Offset"
                 type="number"
                 {...field}
-                value={field.value || ""}
+                value={field.value ?? ""}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value === "" ? null : Number(e.target.value)
+                  )
+                }
                 errMsg={errors.timezoneOffset?.message}
                 placeholder="Enter timezone offset"
               />
@@ -268,7 +265,12 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 label="Original Price"
                 type="number"
                 {...field}
-                value={field.value || ""}
+                value={field.value ?? ""}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value === "" ? null : Number(e.target.value)
+                  )
+                }
                 errMsg={errors.originalPrice?.message}
                 placeholder="Enter original price"
               />
@@ -292,27 +294,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 {...field}
                 errMsg={errors.keywords?.message}
                 placeholder="Enter keywords separated by commas"
-              />
-            )}
-          />
-        </div>
-
-        <div
-          className={`space-y-3 ${
-            errors.image
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Controller
-            name="image"
-            control={control}
-            render={({ field }) => (
-              <InputField
-                label="Image URL"
-                {...field}
-                errMsg={errors.image?.message}
-                placeholder="Enter image URL"
               />
             )}
           />
@@ -401,9 +382,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               <Label htmlFor="isGTRecommend" className="font-medium">
                 GT Recommend
               </Label>
-              <p className="text-xs text-gray-500">
-                GlobalTix recommendation
-              </p>
+              <p className="text-xs text-gray-500">GlobalTix recommendation</p>
             </div>
           </div>
 
@@ -426,10 +405,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               )}
             />
             <div>
-              <Label
-                htmlFor="isInstantConfirmation"
-                className="font-medium"
-              >
+              <Label htmlFor="isInstantConfirmation" className="font-medium">
                 Instant Confirmation
               </Label>
               <p className="text-xs text-gray-500">
@@ -460,8 +436,34 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               <Label htmlFor="isOpenDated" className="font-medium">
                 Open Dated
               </Label>
+              <p className="text-xs text-gray-500">Allow flexible dates</p>
+            </div>
+          </div>
+
+          <div
+            className={`flex items-center space-x-3 p-3 rounded-lg ${
+              errors.isPublished
+                ? "bg-red-50 border border-red-300"
+                : "bg-gray-50"
+            }`}
+          >
+            <Controller
+              name="isPublished"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="isPublished"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <div>
+              <Label htmlFor="isPublished" className="font-medium">
+                Published
+              </Label>
               <p className="text-xs text-gray-500">
-                Allow flexible dates
+                Make ticket available to customers
               </p>
             </div>
           </div>

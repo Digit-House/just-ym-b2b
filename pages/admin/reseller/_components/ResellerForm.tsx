@@ -11,7 +11,9 @@ import {
   resellerSchema,
 } from "@/types/schema/resellerSchema";
 import InputField from "@/components/InputField";
-import { ImageUpload } from "@/components/ImageUpload";
+import { useRef } from "react";
+import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
+import { getSignedUrlAndImageDataUpload } from "@/util";
 
 type Mode = "create" | "edit";
 
@@ -32,34 +34,48 @@ export default function ResellerForm({
 }: Props) {
   const isEdit = mode === "edit";
 
-  const form = useForm<ResellerFormValues>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<ResellerFormValues>({
     resolver: zodResolver(resellerSchema),
     defaultValues: {
       name: initialValues?.name ?? "",
       active: initialValues?.active ?? true,
       currency: initialValues?.credit?.currency ?? "THB",
       balance: initialValues?.credit?.balance ?? 0,
-      relatedImages: initialValues?.credit?.relatedImages || [],
+      relatedImages: initialValues?.credit?.relatedImages ?? [],
     },
   });
 
-  const { register, handleSubmit, watch, setValue, formState } = form;
-  const { errors } = formState;
+  const relatedImagesRef = useRef<ImageUploadRef>(null);
 
   return (
     <form
-      onSubmit={handleSubmit((values) => {
+      onSubmit={handleSubmit(async (values) => {
+        // Handle deferred image uploads
+        let updatedValues = { ...values };
+        
+        // Upload related images if there's a file to upload
+        if (relatedImagesRef.current) {
+          const relatedImageFile = relatedImagesRef.current.getFileToUpload();
+          if (relatedImageFile) {
+            const result = await getSignedUrlAndImageDataUpload(relatedImageFile, "CREDIT_TOP_UP");
+            if (result.status === 200 && result.url) {
+              updatedValues = { ...updatedValues, relatedImages: [result.url] };
+            }
+          }
+        }
+        
         const payload =
           mode === "create"
-            ? {
-                ...values,
-                relatedImages: values.relatedImages || [],
-              }
+            ? updatedValues
             : {
                 id: initialValues!.id,
-                name: values.name,
-                active: values.active,
-                relatedImages: values.relatedImages || [],
+                ...updatedValues,
               };
 
         onSubmit(payload);
@@ -68,40 +84,34 @@ export default function ResellerForm({
     >
       {/* Basic info */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <InputField
-            label="Reseller Name"
-            isRequired
-            placeholder="Mg Mg"
-            {...register("name")}
-            errMsg={errors.name?.message}
-          />
-        </div>
+        <InputField
+          label="Reseller Name"
+          isRequired
+          placeholder="Mg Mg"
+          {...register("name")}
+          errMsg={errors.name?.message}
+        />
 
-        <div>
-          <InputField
-            label="Currency"
-            isRequired
-            {...register("currency")}
-            disabled={true}
-            errMsg={errors.currency?.message}
-          />
-        </div>
+        <InputField
+          label="Currency"
+          isRequired
+          {...register("currency")}
+          disabled
+          errMsg={errors.currency?.message}
+        />
       </div>
 
       {/* Credit */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <InputField
-            type="number"
-            label="Initial Balance"
-            isRequired
-            placeholder="1000"
-            {...register("balance", { valueAsNumber: true })}
-            disabled={isEdit}
-            errMsg={errors.balance?.message}
-          />
-        </div>
+        <InputField
+          type="number"
+          label="Initial Balance"
+          isRequired
+          placeholder="1000"
+          {...register("balance", { valueAsNumber: true })}
+          disabled={isEdit}
+          errMsg={errors.balance?.message}
+        />
 
         {isEdit && (
           <ReadOnly
@@ -112,16 +122,21 @@ export default function ResellerForm({
       </div>
 
       {/* Related Images */}
-      <div>
-        <ImageUpload
-          label="Related Images"
-          value={watch("relatedImages")?.[0] || ""}
-          onChange={(val) => setValue("relatedImages", val ? [val] : [])}
-          errMsg={errors.relatedImages?.message}
-          folderType="CREDIT_TOP_UP"
-        />
-      </div>
+      <ImageUpload
+        ref={relatedImagesRef}
+        label="Related Images"
+        isRequired
+        value={watch("relatedImages")?.[0] || ""}
+        onChange={(val) =>
+          setValue("relatedImages", val ? [val] : [], {
+            shouldValidate: true,
+          })
+        }
+        errMsg={errors.relatedImages?.message as string}
+        folderType="CREDIT_TOP_UP"
+      />
 
+      {/* Edit-only info */}
       {isEdit && (
         <div className="grid grid-cols-2 gap-4 text-sm">
           <ReadOnly
@@ -134,13 +149,15 @@ export default function ResellerForm({
           />
           <ReadOnly
             label="Last Updated"
-            value={new Date(initialValues!.credit.updatedAt).toLocaleString()}
+            value={new Date(
+              initialValues!.credit.updatedAt
+            ).toLocaleString()}
           />
         </div>
       )}
 
-      {/* Active switch */}
-      <div className="flex items-center justify-between border rounded-lg px-4 py-3">
+      {/* Active */}
+      <div className="flex items-center justify-between rounded-lg border px-4 py-3">
         <div>
           <p className="font-medium">Active</p>
           <p className="text-xs text-gray-500">
@@ -158,7 +175,6 @@ export default function ResellerForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-
         <Button type="submit" loading={loading}>
           {mode === "create" ? "Create Reseller" : "Save Changes"}
         </Button>

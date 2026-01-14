@@ -32,3 +32,12 @@ mutation UpdatePaymentMethod($input: PaymentMethodUpdateInput!) {
   }
 }
 `;
+
+export const DELETE_PAYMENT_METHOD = `
+mutation RemovePaymentMethod($removePaymentMethodId: String!) {
+  removePaymentMethod(id: $removePaymentMethodId) {
+    message
+    status
+  }
+}
+`;
