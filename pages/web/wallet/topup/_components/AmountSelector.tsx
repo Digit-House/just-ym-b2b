@@ -31,7 +31,7 @@ export const AmountSelector = ({ value, onChange }: Props) => {
       </div>
 
       <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">
-        Or Enter Custom Amount
+        Or Enter Custom Amount <span className="text-red-500 text-sm">*</span>
       </label>
 
       <input

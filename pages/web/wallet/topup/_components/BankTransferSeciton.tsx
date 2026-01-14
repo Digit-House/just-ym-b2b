@@ -1,6 +1,9 @@
-import { Upload, X } from "lucide-react";
+import { Upload, X, Eye } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { BankDetailRow } from "./BankDetailRow";
+import { toast } from "sonner";
+import { useImagePreview } from "@/hooks/useImagePreview";
+import ImagePreviewModal from "@/components/ImagePreviewModal";
 
 type Props = {
   control: any;
@@ -23,6 +26,23 @@ export const BankTransferSection = ({
   swiftCode,
   instructions,
 }: Props) => {
+  const { previewImage, previewFile, openPreview, closePreview } = useImagePreview();
+
+  const handlePreview = async (file: File) => {
+    const result = openPreview(file);
+    
+    if (result.error) {
+      toast.error(result.error);
+    }
+  };
+
+  const isValidImageType = (file: File): boolean => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    return validTypes.includes(file.type);
+  };
+
+  // Keep the existing validation in file input onChange for batch validation
+
   return (
     <div className="space-y-8">
       {/* Bank details */}
@@ -54,7 +74,7 @@ export const BankTransferSection = ({
       {/* Upload proof */}
       <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
         <h3 className="text-lg font-black mb-6">
-          Upload Payment Proof
+          Upload Payment Proof <span className="text-red-500 text-sm">*</span>
         </h3>
 
         <Controller
@@ -68,15 +88,34 @@ export const BankTransferSection = ({
                   type="file"
                   hidden
                   multiple
-                  accept="image/*,.pdf"
+                  accept=".jpeg,.jpg,.png"
                   onChange={(e) => {
                     const newFiles = Array.from(
                       e.target.files || []
                     );
-                    field.onChange([
-                      ...(field.value || []),
-                      ...newFiles,
-                    ]);
+                    
+                    // Validate each file before adding
+                    const validFiles = newFiles.filter(file => {
+                      if (!isValidImageType(file)) {
+                        toast.error(`${file.name}: Please upload only JPEG or PNG images`);
+                        return false;
+                      }
+                      
+                      const maxSize = 5 * 1024 * 1024;
+                      if (file.size > maxSize) {
+                        toast.error(`${file.name}: File size exceeds 5MB limit (${(file.size / (1024 * 1024)).toFixed(2)}MB)`);
+                        return false;
+                      }
+                      
+                      return true;
+                    });
+                    
+                    if (validFiles.length > 0) {
+                      field.onChange([
+                        ...(field.value || []),
+                        ...validFiles,
+                      ]);
+                    }
                   }}
                 />
 
@@ -89,30 +128,46 @@ export const BankTransferSection = ({
                 </p>
               </label>
 
-              {/* File list */}
+              {/* File list with preview */}
               {files.length > 0 && (
                 <div className="mt-6 space-y-3">
                   {files.map((file, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-4 bg-indigo-50 rounded-2xl"
+                      className="flex items-center justify-between p-4 bg-indigo-50 rounded-2xl group hover:bg-indigo-100 transition-colors"
                     >
-                      <div>
-                        <p className="text-sm font-black text-indigo-900">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black text-indigo-900 truncate">
                           {file.name}
                         </p>
                         <p className="text-[10px] text-indigo-400 font-bold">
                           {(file.size / 1024).toFixed(2)} KB
+                          <span className="ml-2 text-green-600">• Image</span>
                         </p>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => onRemoveFile(index)}
-                        className="p-2 rounded-lg hover:bg-red-100 text-red-500"
-                      >
-                        <X size={16} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {/* Preview button for images */}
+                        {file.type.startsWith('image/') && (
+                          <button
+                            type="button"
+                            onClick={() => handlePreview(file)}
+                            className="p-2 rounded-lg hover:bg-white text-indigo-600 transition-colors"
+                            title="Preview image"
+                          >
+                            <Eye size={16} />
+                          </button>
+                        )}
+                        
+                        <button
+                          type="button"
+                          onClick={() => onRemoveFile(index)}
+                          className="p-2 rounded-lg hover:bg-red-100 text-red-500 transition-colors"
+                          title="Remove file"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -121,6 +176,14 @@ export const BankTransferSection = ({
           )}
         />
       </div>
+
+      {/* Image Preview Modal */}
+      <ImagePreviewModal
+        imageUrl={previewImage}
+        fileName={previewFile?.name || ""}
+        fileSize={previewFile?.size || 0}
+        onClose={closePreview}
+      />
     </div>
   );
 };

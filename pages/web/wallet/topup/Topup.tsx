@@ -84,7 +84,7 @@ const Topup = () => {
       let relatedImages: string[] = [];
 
       // 🔹 Upload images only for bank transfer
-      if (data.paymentMethod === "BANK_TRANSFER" && data.proofFiles?.length) {
+      if (data.proofFiles?.length) {
         relatedImages = await uploadMultipleImages(
           data.proofFiles,
           "CREDIT_TOP_UP"
@@ -155,6 +155,13 @@ const Topup = () => {
             qrCodeUrl={selectedPaymentMethod.qrCodeUrl}
             bankName={selectedPaymentMethod.bankName}
             accountNumber={selectedPaymentMethod.accountNumber}
+            control={control}
+            files={proofFiles}
+            onRemoveFile={(index) => {
+              const updated = [...proofFiles];
+              updated.splice(index, 1);
+              setValue("proofFiles", updated);
+            }}
           />
         )}
 
@@ -169,9 +176,7 @@ const Topup = () => {
 
           <button
             type="submit"
-            disabled={
-              paymentMethod === "BANK_TRANSFER" && proofFiles.length === 0
-            }
+            disabled={proofFiles.length === 0}
             className="flex-[1.5] bg-indigo-600 text-white text-sm py-4 rounded-2xl font-black disabled:opacity-50"
           >
             {isSubmitting || loading
