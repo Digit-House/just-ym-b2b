@@ -31,6 +31,7 @@ import Roles from "./pages/admin/role/Roles";
 import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
 import AdminTicketEdit from "./pages/admin/tickets/edit/[id]/TicketEdit";
 import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
+import CurrencyRate from "./pages/admin/currencyRate/CurrencyRate";
 
 const App = () => {
   return (
@@ -70,6 +71,7 @@ const App = () => {
             <Route path="resellers" element={<Resellers />} />
             <Route path="roles" element={<Roles />} />
             <Route path="paymentMethods" element={<PaymentMethods />} />
+            <Route path="currencyRate" element={<CurrencyRate />} />
             <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
           </Route>
         </Route>

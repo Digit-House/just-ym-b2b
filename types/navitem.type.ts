@@ -4,6 +4,7 @@ import {
   Building2,
   ChartBarStacked,
   CreditCard,
+  Currency,
   DollarSign,
   FileText,
   HatGlasses,
@@ -83,6 +84,12 @@ export const NAV_CONFIG: NavItem[] = [
   //   icon: Ticket,
   //   types: ["OWNER"],
   // },
+  {
+    label: "Currency Rate",
+    path: "/currencyRate",
+    icon: Currency,
+    types: ["OWNER"],
+  },
   {
     label: "Topup",
     path: "/topup",

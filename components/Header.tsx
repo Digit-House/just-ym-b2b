@@ -29,7 +29,12 @@ const Header: React.FC = () => {
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+        <div
+          onClick={() => {
+            naviage("/settings/general");
+          }}
+          className="flex cursor-pointer items-center gap-3 pl-4 border-l border-gray-200"
+        >
           <img
             src="https://img.freepik.com/premium-vector/avatar-profil-picture-icon-vector-design-template_393879-5783.jpg?semt=ais_hybrid&w=740&q=80"
             alt="User"
