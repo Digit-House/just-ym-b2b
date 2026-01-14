@@ -42,6 +42,7 @@ const TicketEditForm: React.FC<Props> = ({
   onCancel,
   onSubmit,
 }) => {
+  
   const isEdit = mode === "edit";
 
   // Transform API data to form format
@@ -132,7 +133,7 @@ const TicketEditForm: React.FC<Props> = ({
       isInstantConfirmation: (initialValues as any)?.isInstantConfirmation ?? null,
       isOpenDated: (initialValues as any)?.isOpenDated ?? null,
       isOwnContracted: null,
-      isPublished: (initialValues as any)?.isPublished ?? null,
+      isPublished: (initialValues as any)?.isPublished ?? false,
       termsAndConditions: (initialValues as any)?.termsAndConditions ?? null,
       termsAndConditions_mm: (initialValues as any)?.termsAndConditions_mm ?? null,
       thingsToNote: initialValues?.thingsToNote ?? null,
@@ -376,65 +377,65 @@ const TicketEditForm: React.FC<Props> = ({
           }
         }
       }
-    }
+      }
 
     // Update values with proper defaults for nullable fields
-    const payload: any = {
-      ...values,
-      // Ensure array fields have proper defaults
-      exclusions: values.exclusions || null,
-      exclusions_mm: values.exclusions_mm || null,
-      highlights: values.highlights || null,
-      highlights_mm: values.highlights_mm || null,
-      howToUseList: values.howToUseList || null,
-      howToUseList_mm: values.howToUseList_mm || null,
-      inclusions: values.inclusions || null,
-      inclusions_mm: values.inclusions_mm || null,
-      termsAndConditions: values.termsAndConditions || null,
-      termsAndConditions_mm: values.termsAndConditions_mm || null,
-      thingsToNote: values.thingsToNote || null,
-      thingsToNote_mm: values.thingsToNote_mm || null,
+    // const payload: any = {
+    //   ...values,
+    //   // Ensure array fields have proper defaults
+    //   exclusions: values.exclusions || null,
+    //   exclusions_mm: values.exclusions_mm || null,
+    //   highlights: values.highlights || null,
+    //   highlights_mm: values.highlights_mm || null,
+    //   howToUseList: values.howToUseList || null,
+    //   howToUseList_mm: values.howToUseList_mm || null,
+    //   inclusions: values.inclusions || null,
+    //   inclusions_mm: values.inclusions_mm || null,
+    //   termsAndConditions: values.termsAndConditions || null,
+    //   termsAndConditions_mm: values.termsAndConditions_mm || null,
+    //   thingsToNote: values.thingsToNote || null,
+    //   thingsToNote_mm: values.thingsToNote_mm || null,
       
-      // Ensure numeric fields have proper defaults
-      fromPrice: values.fromPrice || null,
-      originalPrice: values.originalPrice || null,
-      timezoneOffset: values.timezoneOffset || null,
-      latitude: values.latitude || null,
-      longitude: values.longitude || null,
-      countryId: values.countryId || null,
-      city_relation_id: values.city_relation_id || null,
+    //   // Ensure numeric fields have proper defaults
+    //   fromPrice: values.fromPrice || null,
+    //   originalPrice: values.originalPrice || null,
+    //   timezoneOffset: values.timezoneOffset || null,
+    //   latitude: values.latitude || null,
+    //   longitude: values.longitude || null,
+    //   countryId: values.countryId || null,
+    //   city_relation_id: values.city_relation_id || null,
       
-      // Ensure boolean fields have proper defaults
-      isBestSeller: values.isBestSeller || null,
-      isCancellable: values.isCancellable || null,
-      isGTRecommend: values.isGTRecommend || null,
-      isInstantConfirmation: values.isInstantConfirmation || null,
-      isOpenDated: values.isOpenDated || null,
-      isOwnContracted: values.isOwnContracted || null,
-      isPublished: values.isPublished || null,
+    //   // Ensure boolean fields have proper defaults
+    //   isBestSeller: values.isBestSeller || null,
+    //   isCancellable: values.isCancellable || null,
+    //   isGTRecommend: values.isGTRecommend || null,
+    //   isInstantConfirmation: values.isInstantConfirmation || null,
+    //   isOpenDated: values.isOpenDated || null,
+    //   isOwnContracted: values.isOwnContracted || null,
+    //   isPublished: values.isPublished || null,
       
-      // Ensure string fields have proper defaults
-      name: values.name || null,
-      description: values.description || null,
-      whatToExpect: values.whatToExpect || null,
-      addressLine: values.addressLine || null,
-      location: values.location || null,
-      postalCode: values.postalCode || null,
-      keywords: values.keywords || null,
-      image: values.image || null,
-      fromReseller: values.fromReseller || null,
+    //   // Ensure string fields have proper defaults
+    //   name: values.name || null,
+    //   description: values.description || null,
+    //   whatToExpect: values.whatToExpect || null,
+    //   addressLine: values.addressLine || null,
+    //   location: values.location || null,
+    //   postalCode: values.postalCode || null,
+    //   keywords: values.keywords || null,
+    //   image: values.image || null,
+    //   fromReseller: values.fromReseller || null,
       
-      // Process media
-      media: processedMedia,
+    //   // Process media
+    //   media: processedMedia,
       
-      // Process operating hours
-      operatingHours: {
-        ...values.operatingHours,
-        fixedDays: values.operatingHours?.fixedDays || null,
-      },
-    };
+    //   // Process operating hours
+    //   operatingHours: {
+    //     ...values.operatingHours,
+    //     fixedDays: values.operatingHours?.fixedDays || null,
+    //   },
+    // };
 
-    onSubmit(payload);
+      onSubmit(values);
   };
 
   const TabButton = ({ id, label }: { id: string; label: string }) => (

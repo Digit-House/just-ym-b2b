@@ -53,7 +53,7 @@ const PaymentMethods = () => {
   const fetchPaymentMethods = async () => {
     try {
       setLoading(true);
-      const res: any = await getPaymentMethods(isActive);
+      const res: any = await getPaymentMethods(isActive,"BANK_TRANSFER");
       setPaymentData(res?.data?.paymentMethods || []);
     } catch (err) {
       toast.error(getErrMsg(err, "message"));

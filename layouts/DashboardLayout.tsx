@@ -6,6 +6,7 @@ import { getMe } from "@/graphql/user";
 import { useUser } from "@/provider/UserProvider";
 import { getCredictInfo } from "@/graphql/wallet";
 import { useWalletStore } from "@/store/useWalletStore";
+import { useSidebarStore } from "@/store/useSidebarStore";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { useCartStore } from "@/store/useCartStore";
@@ -15,6 +16,7 @@ const DashboardLayout = () => {
   const { setUser, fetchWallet } = useUser();
   const { setCreditInfo, creditInfo } = useWalletStore();
   const { setAddToCartCount } = useCartStore();
+  const { isCollapsed } = useSidebarStore();
   const [loading, setLoading] = React.useState(true);
 
   const fetchMe = async () => {
@@ -66,7 +68,7 @@ const DashboardLayout = () => {
     <div className="flex min-h-screen">
       <Sidebar />
       <Header />
-      <main className="flex-1 ml-64 transition-all duration-300 ease-in-out p-8 mt-10">
+      <main className={`flex-1 transition-all duration-300 ease-in-out p-8 mt-10 ${isCollapsed ? 'ml-20' : 'ml-58'}`}>
         <Outlet />
       </main>
     </div>

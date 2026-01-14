@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { TrendingUp, X } from 'lucide-react';
+import React from 'react';
+import { TrendingUp } from 'lucide-react';
 import dayjs from 'dayjs';
 import { TopUpHistoryT } from '@/types/wallet.type';
+import ImagePreview from '@/components/ImagePreview';
 
 interface TransactionListProps {
   topUpData: TopUpHistoryT[];
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({ topUpData }) => {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-
   return (
     <>
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
@@ -52,26 +51,14 @@ const TransactionList: React.FC<TransactionListProps> = ({ topUpData }) => {
                   </span>
                 </div>
 
-                {/* Related Images Thumbnails */}
+                {/* Related Images using ImagePreview component */}
                 {tx.relatedImages && tx.relatedImages.length > 0 && (
-                  <div className="mt-3 flex gap-2 justify-end">
-                    {tx.relatedImages.map((imgUrl, index) => (
-                      <div 
-                        key={index}
-                        className="relative group cursor-pointer"
-                        onClick={() => setPreviewImage(imgUrl)}
-                      >
-                        <img
-                          src={imgUrl}
-                          alt={`Transaction proof ${index + 1}`}
-                          className="w-10 h-10 rounded-lg object-cover border border-gray-200 group-hover:opacity-80 transition-opacity"
-                        />
-                        {/* Hover overlay to indicate clickability */}
-                        <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                           <span className="text-white text-[10px] font-bold">View</span>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="mt-3">
+                    <ImagePreview 
+                      images={tx.relatedImages}
+                      title={`Transaction Proof - ${tx.reseller?.name || 'Unknown'}`}
+                      className="flex justify-end"
+                    />
                   </div>
                 )}
               </div>
@@ -80,28 +67,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ topUpData }) => {
         </div>
       </div>
 
-      {/* Image Preview Modal / Popup */}
-      {previewImage && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-          onClick={() => setPreviewImage(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh] w-full">
-            <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors p-2"
-            >
-              <X size={32} />
-            </button>
-            <img
-              src={previewImage}
-              alt="Full size preview"
-              className="w-full h-full object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image itself
-            />
-          </div>
-        </div>
-      )}
+
     </>
   );
 };

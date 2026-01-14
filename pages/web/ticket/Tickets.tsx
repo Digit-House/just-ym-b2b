@@ -55,6 +55,8 @@ export default function Tickets() {
     initialPageParam: 1,
     queryKey: ["products", { categories, countries, sort, published }],
     queryFn: fetchProducts,
+    gcTime: 0,
+    staleTime: 0,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
   });
 

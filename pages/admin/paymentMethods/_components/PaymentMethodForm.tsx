@@ -18,8 +18,10 @@ import {
 } from "@/types/schema/paymentMethodSchema";
 import { Switch } from "@/components/ui/switch";
 import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
+import ImagePreview from "@/components/ImagePreview";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { useState, useRef } from "react";
+import { LockKeyhole } from "lucide-react";
 
 type Mode = "create" | "edit";
 
@@ -78,30 +80,38 @@ export default function PaymentMethodForm({
     try {
       // Handle deferred image uploads
       let updatedValues = { ...values };
-      
+
       // Upload logo if there's a file to upload
       if (logoImageUploadRef.current) {
         const logoFile = logoImageUploadRef.current.getFileToUpload();
         if (logoFile) {
-          const result = await getSignedUrlAndImageDataUpload(logoFile, "CREDIT_TOP_UP");
+          const result = await getSignedUrlAndImageDataUpload(
+            logoFile,
+            "CREDIT_TOP_UP"
+          );
           if (result.status === 200 && result.url) {
             updatedValues = { ...updatedValues, logo: result.url };
           }
         }
       }
-      
+
       // Upload QR code if there's a file to upload
       if (type === "QR_CODE" && qrCodeImageUploadRef.current) {
         const qrCodeFile = qrCodeImageUploadRef.current.getFileToUpload();
         if (qrCodeFile) {
-          const result = await getSignedUrlAndImageDataUpload(qrCodeFile, "CREDIT_TOP_UP");
+          const result = await getSignedUrlAndImageDataUpload(
+            qrCodeFile,
+            "CREDIT_TOP_UP"
+          );
           if (result.status === 200 && result.url) {
             updatedValues = { ...updatedValues, qrCodeUrl: result.url };
           }
         }
       }
-      
-      const payload = isEdit ? { ...updatedValues, id: initialValues?.id } : updatedValues;
+
+      const payload = isEdit
+        ? { ...updatedValues, id: initialValues?.id }
+        : updatedValues;
       await onSubmit(payload);
     } finally {
       setIsSubmitting(false);
@@ -111,9 +121,15 @@ export default function PaymentMethodForm({
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-6">
       <div className="space-y-1">
-        <label className="text-sm font-medium">
-          Type <span className="text-red-500">*</span>
+        <label className="text-sm flex items-center gap-2 font-medium">
+          Type{" "}
+          {mode === "edit" ? (
+            <LockKeyhole size={12} className="mb-[1px]" />
+          ) : (
+            <span className="text-red-500">*</span>
+          )}
         </label>
+
         <Select
           value={type}
           onValueChange={(val) =>
@@ -127,7 +143,6 @@ export default function PaymentMethodForm({
           <SelectContent>
             <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
             <SelectItem value="QR_CODE">QR Code</SelectItem>
-            {/* <SelectItem value="OTHER">Other</SelectItem> */}
           </SelectContent>
         </Select>
         {errors.type && (
@@ -173,25 +188,38 @@ export default function PaymentMethodForm({
         )}
       </>
       {type === "QR_CODE" && (
-        <ImageUpload
-          ref={qrCodeImageUploadRef}
-          label="QR Code Image"
-          isRequired
-          value={watch("qrCodeUrl")}
-          onChange={(val) => setValue("qrCodeUrl", val)}
-          errMsg={errors.qrCodeUrl?.message}
-          folderType="CREDIT_TOP_UP"
-        />
+        <>
+          <ImageUpload
+            ref={qrCodeImageUploadRef}
+            label="QR Code Image"
+            isRequired
+            value={watch("qrCodeUrl")}
+            onChange={(val) => setValue("qrCodeUrl", val)}
+            errMsg={errors.qrCodeUrl?.message}
+            folderType="CREDIT_TOP_UP"
+          />
+          
+          {/* QR Code Preview for Edit Mode */}
+          {isEdit && watch("qrCodeUrl") && (
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <ImagePreview 
+                images={[watch("qrCodeUrl")]}
+                title="Current QR Code Preview"
+                className="w-full"
+              />
+            </div>
+          )}
+        </>
       )}
 
-      <ImageUpload
+      {/* <ImageUpload
         ref={logoImageUploadRef}
         label="Logo Image"
         value={watch("logo")}
         onChange={(val) => setValue("logo", val)}
         errMsg={errors.logo?.message}
         folderType="CREDIT_TOP_UP"
-      />
+      /> */}
 
       <TextareaField
         label="Description"

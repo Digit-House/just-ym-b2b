@@ -159,7 +159,7 @@ export default function UserForm({
           <label className="flex items-center gap-1 text-sm font-medium">
             Reseller{" "}
             {mode === "edit" ? (
-              <LockKeyhole size={12} className="text-red-500 mb-[1px]" />
+              <LockKeyhole size={12} className="mb-[1px]" />
             ) : (
               <span className="text-red-500">*</span>
             )}
@@ -191,7 +191,7 @@ export default function UserForm({
         <label className="text-sm flex items-center gap-2 font-medium text-gray-700 mb-2">
           User Roles{" "}
           {mode === "edit" ? (
-            <LockKeyhole size={12} className="text-red-500 mb-[1px]" />
+            <LockKeyhole size={12} className="mb-[1px]" />
           ) : (
             <span className="text-red-500">*</span>
           )}

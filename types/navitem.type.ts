@@ -77,13 +77,6 @@ export const NAV_CONFIG: NavItem[] = [
     types: ["RESELLER"],
   },
 
-  // ADMIN ONLY
-  // {
-  //   label: "Tickets",
-  //   path: "/admin-tickets",
-  //   icon: Ticket,
-  //   types: ["OWNER"],
-  // },
   {
     label: "Currency Rate",
     path: "/currencyRate",
@@ -91,6 +84,12 @@ export const NAV_CONFIG: NavItem[] = [
     types: ["OWNER"],
   },
   {
+    label: "Resellers",
+    path: "/resellers",
+    icon: UserPlus,
+    types: ["OWNER"],
+  },
+   {
     label: "Topup",
     path: "/topup",
     icon: DollarSign,
@@ -106,12 +105,6 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Roles",
     path: "/roles",
     icon: UserRoundCog,
-    types: ["OWNER"],
-  },
-  {
-    label: "Resellers",
-    path: "/resellers",
-    icon: UserPlus,
     types: ["OWNER"],
   },
   {
@@ -132,11 +125,11 @@ export const NAV_CONFIG: NavItem[] = [
         path: "/settings/general",
         types: ["RESELLER"],
       },
-      {
-        label: "KYC Setting",
-        path: "/settings/kyc",
-        types: ["RESELLER"],
-      },
+      // {
+      //   label: "KYC Setting",
+      //   path: "/settings/kyc",
+      //   types: ["RESELLER"],
+      // },
     ],
   },
 ];

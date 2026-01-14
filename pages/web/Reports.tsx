@@ -83,7 +83,7 @@ const Reports = () => {
             <Select
               label="Countries"
               placeholder="Countries"
-              options={COUNTRIES.data}
+              options={COUNTRIES?.data}
               value={countries}
               onChange={setCountries}
               width="w-32"

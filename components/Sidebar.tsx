@@ -1,8 +1,9 @@
 import { useUser } from "@/provider/UserProvider";
 import useAuthStore from "@/store/useAuthStore";
+import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_CONFIG, NavItem } from "@/types/navitem.type";
 import { USER_TYPE } from "@/types/role.type";
-import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -11,6 +12,7 @@ const Sidebar = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const { setToken } = useAuthStore();
+  const { isCollapsed, toggleSidebar } = useSidebarStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const TYPE = user.type as USER_TYPE;
 
@@ -37,15 +39,27 @@ const Sidebar = () => {
     roles === "ALL" || roles.includes(TYPE);
 
   return (
-    <div className="w-58 h-screen bg-white border-r fixed flex flex-col z-50 shadow-[0px_8px_28px_0px_#01051133]">
+    <div className={`h-screen bg-white border-r fixed flex flex-col z-50  transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-58'}`}>
       {/* LOGO */}
-      <div className="p-6 flex justify-center">
+      <div className="p-6 flex justify-center relative">
         <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">
           <div className="text-center">
             <div className="text-[10px] font-bold">JUST</div>
             <div className="text-3xl font-bold text-orange-500">M</div>
           </div>
         </div>
+        
+        {/* Toggle Button */}
+        <button
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-8 w-6 h-6 bg-white rounded-full border shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+        >
+          {isCollapsed ? (
+            <Menu size={14} className="text-gray-600" />
+          ) : (
+            <X size={14} className="text-gray-600" />
+          )}
+        </button>
       </div>
 
       {/* NAV */}
@@ -59,20 +73,22 @@ const Sidebar = () => {
               <div key={item.label}>
                 <button
                   onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-all duration-200 ${isCollapsed ? 'justify-center px-2' : ''}`}
                 >
                   <div className="flex items-center gap-3">
                     <item.icon size={20} />
-                    <span>{item.label}</span>
+                    {!isCollapsed && <span>{item.label}</span>}
                   </div>
-                  {isSettingsOpen ? (
-                    <ChevronUp size={16} />
-                  ) : (
-                    <ChevronDown size={16} />
+                  {!isCollapsed && (
+                    isSettingsOpen ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )
                   )}
                 </button>
 
-                {isSettingsOpen &&
+                {!isCollapsed && isSettingsOpen &&
                   item.children.map(
                     (sub) =>
                       canShow(sub.types) && (
@@ -94,10 +110,10 @@ const Sidebar = () => {
             <NavLink
               key={item.path}
               to={item.path!}
-              className={navItemClass(item.path!)}
+              className={`${navItemClass(item.path!)} ${isCollapsed ? 'justify-center px-2' : ''}`}
             >
               <item.icon size={20} />
-              <span>{item.label}</span>
+              {!isCollapsed && <span>{item.label}</span>}
             </NavLink>
           );
         })}
@@ -110,10 +126,10 @@ const Sidebar = () => {
             setToken("");
             navigate("/login");
           }}
-          className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg"
+          className={`w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg transition-all duration-200 ${isCollapsed ? 'px-2' : ''}`}
         >
           <LogOut size={18} />
-          Log Out
+          {!isCollapsed && <span>Log Out</span>}
         </button>
       </div>
     </div>

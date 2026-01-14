@@ -6,12 +6,22 @@ type Props = {
   control: any;
   files?: File[];
   onRemoveFile: (index: number) => void;
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  swiftCode?: string;
+  instructions?: string;
 };
 
 export const BankTransferSection = ({
   control,
   files = [],
   onRemoveFile,
+  bankName,
+  accountName,
+  accountNumber,
+  swiftCode,
+  instructions,
 }: Props) => {
   return (
     <div className="space-y-8">
@@ -22,13 +32,22 @@ export const BankTransferSection = ({
         </h3>
 
         <div className="space-y-4">
-          <BankDetailRow label="Bank Name" value="KBZ Bank" />
-          <BankDetailRow label="Account Name" value="JustYm Services Ltd" />
+          <BankDetailRow label="Bank Name" value={bankName || "KBZ Bank"} />
+          <BankDetailRow label="Account Name" value={accountName || "JustYm Services Ltd"} />
           <BankDetailRow
             label="Account Number"
-            value="1234 5678 1928 19283"
+            value={accountNumber || "1234 5678 1928 19283"}
           />
-          <BankDetailRow label="SWIFT Code" value="JYSTUS33" />
+          {swiftCode && (
+            <BankDetailRow label="SWIFT Code" value={swiftCode} />
+          )}
+          
+          {instructions && (
+            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+              <h4 className="font-black text-blue-900 mb-2">Payment Instructions</h4>
+              <p className="text-sm text-blue-700">{instructions}</p>
+            </div>
+          )}
         </div>
       </div>
 

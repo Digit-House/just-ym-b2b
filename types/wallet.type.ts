@@ -59,4 +59,5 @@ export interface AddTopupPayloadT {
   resellerId: string;
   topUpBalance: number;
   relatedImages: string[];
+  paymentMethodId:string;
 }

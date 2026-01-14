@@ -7,12 +7,14 @@ import {
   UPDATE_PAYMENT_METHOD,
 } from "./type-query/paymentMethod";
 import { PaymentMethodFormValues } from "@/types/schema/paymentMethodSchema";
+import { PaymentMethodTypeT } from "@/types/paymentMethod.type";
 
-export const getPaymentMethods = async (activeOnly: boolean) => {
+export const getPaymentMethods = async (activeOnly: boolean,type:PaymentMethodTypeT) => {
   return client.query({
     query: warpGql(GET_PAYMENT_METHODS),
     variables: {
       activeOnly: activeOnly,
+      type:type
     },
     fetchPolicy: "no-cache",
   });

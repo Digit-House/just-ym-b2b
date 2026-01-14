@@ -30,7 +30,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               (disabled ? (
                 <LockKeyhole
                   size={12}
-                  className="text-red-500 mb-[1px]"
+                  className="mb-[1px]"
                 />
               ) : (
                 <span className="text-red-500">*</span>

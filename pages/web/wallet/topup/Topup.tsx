@@ -15,13 +15,19 @@ import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { addTopup } from "@/graphql/wallet";
 import { useUser } from "@/provider/UserProvider";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { uploadMultipleImages } from "@/util";
+import { getPaymentMethods } from "@/graphql/paymentMethod";
+import { PaymentMethodT } from "@/types/paymentMethod.type";
+import { QRCodeSection } from "./_components/QRCodeSection";
 
 const Topup = () => {
   const navigate = useNavigate();
   const { user, setFetchWallet } = useUser();
   const [loading, setLoading] = React.useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodT[]>([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<PaymentMethodT | null>(null);
   const { creditInfo } = useWalletStore();
 
   const {
@@ -34,9 +40,38 @@ const Topup = () => {
     resolver: zodResolver(topUpSchema),
     defaultValues: {
       amount: 1000,
-      paymentMethod: "card",
+      paymentMethod: "BANK_TRANSFER",
     },
   });
+
+  useEffect(() => {
+    fetchPaymentMethods();
+  }, []);
+
+  const fetchPaymentMethods = async () => {
+    try {
+      // Fetch both BANK_TRANSFER and QR_CODE payment methods
+      const [bankRes, qrRes]: any = await Promise.all([
+        getPaymentMethods(true, "BANK_TRANSFER"),
+        getPaymentMethods(true, "QR_CODE"),
+      ]);
+
+      const bankMethods = bankRes?.data?.paymentMethods || [];
+      const qrMethods = qrRes?.data?.paymentMethods || [];
+      
+      setPaymentMethods((prev) => {
+        const map = new Map();
+
+        [...bankMethods, ...qrMethods].forEach((item) => {
+          map.set(item.id, item);
+        });
+
+        return Array.from(map.values());
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const amount = watch("amount");
   const paymentMethod = watch("paymentMethod");
@@ -49,7 +84,7 @@ const Topup = () => {
       let relatedImages: string[] = [];
 
       // 🔹 Upload images only for bank transfer
-      if (data.paymentMethod === "bank" && data.proofFiles?.length) {
+      if (data.paymentMethod === "BANK_TRANSFER" && data.proofFiles?.length) {
         relatedImages = await uploadMultipleImages(
           data.proofFiles,
           "CREDIT_TOP_UP"
@@ -60,7 +95,8 @@ const Topup = () => {
         currency: "THB",
         resellerId: user?.id,
         topUpBalance: data.amount,
-        relatedImages, 
+        relatedImages,
+        paymentMethodId:selectedPaymentMethod.id
       });
 
       toast.success("Top up request submitted successfully");
@@ -87,17 +123,38 @@ const Topup = () => {
           onChange={(v) => setValue("amount", v)}
         />
 
-        <PaymentMethodSection control={control} />
+        <PaymentMethodSection
+          control={control}
+          paymentMethods={paymentMethods}
+          onPaymentMethodSelect={(method) => {
+            setSelectedPaymentMethod(method);
+            setValue("paymentMethodId", method.id);
+          }}
+          selectedMethod={selectedPaymentMethod}
+        />
 
-        {paymentMethod === "bank" && (
+        {/* Show bank transfer section with dynamic details */}
+        {paymentMethod === "BANK_TRANSFER" && selectedPaymentMethod && (
           <BankTransferSection
             control={control}
             files={proofFiles}
+            bankName={selectedPaymentMethod.bankName}
+            accountName={selectedPaymentMethod.accountName}
+            accountNumber={selectedPaymentMethod.accountNumber}
+            instructions={selectedPaymentMethod.instructions}
             onRemoveFile={(index) => {
               const updated = [...proofFiles];
               updated.splice(index, 1);
               setValue("proofFiles", updated);
             }}
+          />
+        )}
+
+        {paymentMethod === "QR_CODE" && selectedPaymentMethod && (
+          <QRCodeSection
+            qrCodeUrl={selectedPaymentMethod.qrCodeUrl}
+            bankName={selectedPaymentMethod.bankName}
+            accountNumber={selectedPaymentMethod.accountNumber}
           />
         )}
 
@@ -112,7 +169,9 @@ const Topup = () => {
 
           <button
             type="submit"
-            disabled={paymentMethod === "bank" && proofFiles.length === 0}
+            disabled={
+              paymentMethod === "BANK_TRANSFER" && proofFiles.length === 0
+            }
             className="flex-[1.5] bg-indigo-600 text-white text-sm py-4 rounded-2xl font-black disabled:opacity-50"
           >
             {isSubmitting || loading
