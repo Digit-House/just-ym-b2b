@@ -88,55 +88,11 @@ query GetProductInfo($productId: String!) {
     updatedAt
     whatToExpect
     productOptions {
-     advanceBooking {
+      advanceBooking {
         day
         dayMinute
         hour
         minute
-        required
-      }
-      availability
-      cancellationNotes
-      cancellationPolicy {
-        percentReturn
-        refundDuration
-      }
-      currency
-      id
-      demandType
-      description
-      exclusions
-      exclusions_mm
-      globaltixId
-      howToUse
-      howToUse_mm
-      image
-      inclusions
-      inclusions_mm
-      isCancellable
-      isCapacity
-      isDynamicPricing
-      isPublished
-      isTagged
-      keywords
-      name
-      primaryTicket
-      productId
-      publishEnd
-      publishStart
-      questionIds
-      redeemEnd
-      redeemStart
-      termsAndConditions
-      termsAndConditions_mm
-      ticketFormat
-      ticketValidity
-      timeSlot
-      tourInformation
-      type
-      visitDate {
-        isOpenDated
-        request
         required
       }
       ticketType {
@@ -322,6 +278,38 @@ export const ADD_TO_CART_MUTATION = `mutation Mutation($item: CartItemInput!) {
     success
   }
 }`;
+
+export const GET_ADD_TO_CART_COUNT_QUERY = `
+query Query {
+  myCart {
+    itemsCount
+  }
+}`;
+
+export const RESEND_EMAIL_MUTATION = `
+mutation Mutation($data: ResendBookingEmailInput!) {
+  resendBookingEmail(data: $data) {
+    message
+    status
+  }
+}`;
+
+export const ALL_CLEAR_CART_MUTATION = `
+mutation ClearCart {
+  clearCart {
+    itemsCount
+    success
+  }
+}`;
+
+export const CLEAR_CART_MUTATION = `
+mutation RemoveFromCart($cartItemId: String!) {
+  removeFromCart(cartItemId: $cartItemId) {
+    itemsCount
+    success
+  }
+}
+`;
 
 export const UPDATE_PRODUCT_MUTATION = `mutation UpdateProduct($data: ProductUpdateInput!) {
   updateProduct(data: $data) {

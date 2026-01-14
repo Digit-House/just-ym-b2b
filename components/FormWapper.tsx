@@ -86,7 +86,7 @@ const FormWapper = ({
               </div>
             )}
           </FormControl>
-          <FormMessage />
+          <FormMessage className="text-left" />
         </FormItem>
       )}
     />

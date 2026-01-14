@@ -17,14 +17,12 @@ const UserInfoPage = () => {
     currentOpen,
     setTimeInfoCheck,
     setUserInfoCheck,
-    setUser,
     setVariantCheck,
     userInfoCheck,
     variantCheck,
     timeInfoCheck,
     loading,
     setLoading,
-    user,
   } = useUserInfo();
   const { finalPackage } = useCartStore();
 
@@ -44,7 +42,6 @@ const UserInfoPage = () => {
         <PreviewUserInfoForm
           setCurrentOpen={setCurrentOpen}
           setUserInfoCheck={setUserInfoCheck}
-          setUser={setUser}
         />
         {finalPackage.isCapacity && (
           <PreviewTimeInfoForm
@@ -67,7 +64,6 @@ const UserInfoPage = () => {
             }
             loading={loading}
             setLoading={setLoading}
-            user={user}
           />
         }
       </div>

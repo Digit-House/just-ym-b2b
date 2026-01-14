@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BOOKINGS } from "../../../constants";
 import { FileText, Download } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
@@ -8,6 +8,10 @@ import SortSelect, { SortOption } from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { useNavigate } from "react-router-dom";
 import PageContainer from "@/components/PageContainer";
+import { BOOKING_STATUS_ENUM } from "@/types/booking.type";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { fetchMyBookingList } from "@/graphql/booking";
+import BookingCard from "./_component/BookingCard";
 
 const STATUS = [
   {
@@ -21,31 +25,52 @@ const STATUS = [
 ];
 
 const SORT_OPTION: SortOption[] = [
-  { label: "Newest", value: "newest" },
-  { label: "Oldest", value: "oldest" },
+  { label: "Newest", value: "desc" },
+  { label: "Oldest", value: "asc" },
+];
+
+const INIT_TAG_LIST: SortOption[] = [
+  {
+    label: "Paid",
+    value: BOOKING_STATUS_ENUM.PAID,
+  },
+  {
+    label: "Pending",
+    value: BOOKING_STATUS_ENUM.PENDING,
+  },
+  {
+    label: "Failed",
+    value: BOOKING_STATUS_ENUM.FAILED,
+  },
 ];
 
 const total = BOOKINGS.length;
 
 const Bookings = () => {
   const navigate = useNavigate();
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("desc");
+  const [status, setStatus] = useState<string>(BOOKING_STATUS_ENUM.PAID);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [countries, setCountries] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<string[]>([]);
 
-   const { data: COUNTRIES } = useCountries({
-      limit: 250,
-      page: 1,
-      orderBy: {
-        dir: "asc",
-      },
-      isPublished: true,
-      search: undefined,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isError,
+    error,
+  } = useInfiniteQuery({
+    initialPageParam: 1,
+    queryKey: ["bookings", { status, sort }],
+    queryFn: fetchMyBookingList,
+    getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
+  });
 
-    console.log(COUNTRIES);
+  const bookings = data?.pages.flatMap((p) => p.data) ?? [];
 
   const paginatedBookings = BOOKINGS.slice(
     (page - 1) * pageSize,
@@ -65,6 +90,18 @@ const Bookings = () => {
     }
   };
 
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!loaderRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+    observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage]);
+
   return (
     <PageContainer>
       <PageHeader
@@ -72,7 +109,7 @@ const Bookings = () => {
         des="Measure your advertising ROI and report website traffic."
       />
       <div className="flex items-center justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           <Select
             label="Country"
             placeholder="Country"
@@ -89,11 +126,17 @@ const Bookings = () => {
             onChange={setStatuses}
             width="w-48"
           />
-        </div>
+        </div> */}
+        <SortSelect
+          options={INIT_TAG_LIST}
+          value={status}
+          onChange={setStatus}
+          label="Status:"
+        />
         <SortSelect options={SORT_OPTION} value={sort} onChange={setSort} />
       </div>
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* Table */}
+
+      {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-900 uppercase bg-indigo-50">
@@ -177,8 +220,8 @@ const Bookings = () => {
             </tbody>
           </table>
         </div>
-      </div>
-      <Pagination
+      </div> */}
+      {/* <Pagination
         page={page}
         pageSize={pageSize}
         total={total}
@@ -187,7 +230,50 @@ const Bookings = () => {
           setPageSize(size);
           setPage(1);
         }}
-      />
+      /> */}
+
+      {isPending && (
+        <div className="flex flex-col gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              className="animate-pulse bg-white rounded-2xl shadow-sm border border-gray-100 h-20"
+              key={i}
+            ></div>
+          ))}
+        </div>
+      )}
+
+      {isError && (
+        <p className="text-center text-red-500 py-10">
+          {error instanceof Error ? error.message : "Something went wrong"}
+        </p>
+      )}
+
+      {!isPending && !!bookings.length && (
+        <div className="flex flex-col gap-6 w-full">
+          {bookings.map((data) => (
+            <BookingCard key={data.id} data={data} />
+          ))}
+        </div>
+      )}
+
+      <div ref={loaderRef} className="h-10"></div>
+
+      {hasNextPage && !isPending && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </button>
+        </div>
+      )}
+
+      {!bookings.length && !isPending && (
+        <p className="text-center text-gray-500 py-10">No products found.</p>
+      )}
     </PageContainer>
   );
 };

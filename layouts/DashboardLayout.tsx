@@ -8,10 +8,13 @@ import { getCredictInfo } from "@/graphql/wallet";
 import { useWalletStore } from "@/store/useWalletStore";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
+import { useCartStore } from "@/store/useCartStore";
+import { getAddToCartCount } from "@/graphql/product";
 
 const DashboardLayout = () => {
   const { setUser, fetchWallet } = useUser();
-  const { setCreditInfo } = useWalletStore();
+  const { setCreditInfo, creditInfo } = useWalletStore();
+  const { setAddToCartCount } = useCartStore();
   const [loading, setLoading] = React.useState(true);
 
   const fetchMe = async () => {
@@ -35,8 +38,20 @@ const DashboardLayout = () => {
     }
   };
 
+  const fetchAddToCartCount = async () => {
+    try {
+      const res: any = await getAddToCartCount();
+      if (res.data) {
+        setAddToCartCount(res.data.myCart.itemsCount);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     fetchMe();
+    fetchAddToCartCount();
   }, []);
 
   useEffect(() => {

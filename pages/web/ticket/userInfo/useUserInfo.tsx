@@ -13,7 +13,6 @@ export const useUserInfo = () => {
   const [variantCheck, setVariantCheck] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentOpen, setCurrentOpen] = useState(1);
-  const [user, setUser] = useState<ADD_TO_CART_USER_TYPE | null>(null);
   const { finalPackage, eventList, guestList } = useCartStore();
 
   useEffect(() => {
@@ -39,7 +38,5 @@ export const useUserInfo = () => {
     setLoading,
     currentOpen,
     setCurrentOpen,
-    user,
-    setUser,
   };
 };
