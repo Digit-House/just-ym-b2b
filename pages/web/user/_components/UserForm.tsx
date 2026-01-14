@@ -84,8 +84,6 @@ export default function UserForm({
 
   const roleIds = watch("roleIds") || [];
 
-  console.log(errors);
-
   const fetchResellers = async () => {
     try {
       const res: any = await getResellers({
@@ -117,6 +115,7 @@ export default function UserForm({
   };
 
   const toggleRoleSelection = (roleId: string) => {
+    if (mode === "edit") return;
     const isSelected = roleIds.includes(roleId);
     let newRoleIds: string[];
 
@@ -188,10 +187,14 @@ export default function UserForm({
         </div>
       )}
 
-      {/* User Roles Select (Updated to Multi-Select List) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          User Roles <span className="text-red-500">*</span>
+        <label className="text-sm flex items-center gap-2 font-medium text-gray-700 mb-2">
+          User Roles{" "}
+          {mode === "edit" ? (
+            <LockKeyhole size={12} className="text-red-500 mb-[1px]" />
+          ) : (
+            <span className="text-red-500">*</span>
+          )}
         </label>
 
         <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
@@ -246,6 +249,26 @@ export default function UserForm({
         )}
       </div>
 
+      <PhoneInput
+        id="contactNo"
+        label="Phone Number"
+        isRequired
+        isDisabled
+        disabled={mode === "edit"}
+        countryCallingCodeEditable={false}
+        className="items-center border border-gray-300 rounded-lg mt-1.5 bg-white"
+        defaultCountry="MM"
+        international={true}
+        onCountryChange={(country) => {
+          setValue("countryCode", country || "95");
+        }}
+        onChange={(value) => {
+          setValue("contactNo", value);
+        }}
+        value={initialValues?.contactNo || ""}
+        errMsg={errors?.contactNo?.message}
+      />
+
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
           Status <span className="text-red-500">*</span>
@@ -292,25 +315,6 @@ export default function UserForm({
           <p className="mt-1 text-sm text-red-500">{errors.active.message}</p>
         )}
       </div>
-
-      <PhoneInput
-        id="contactNo"
-        label="Phone Number"
-        isRequired
-        disabled={mode === "edit"}
-        countryCallingCodeEditable={false}
-        className="items-center border border-gray-300 rounded-lg mt-1.5 bg-white"
-        defaultCountry="MM"
-        international={true}
-        onCountryChange={(country) => {
-          setValue("countryCode", country || "95");
-        }}
-        onChange={(value) => {
-          setValue("contactNo", value);
-        }}
-        value={initialValues?.contactNo || ""}
-        errMsg={errors?.contactNo?.message}
-      />
 
       {mode === "create" && (
         <Fragment>

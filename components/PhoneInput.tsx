@@ -1,4 +1,4 @@
-import { CheckIcon, ChevronDown } from "lucide-react";
+import { CheckIcon, ChevronDown, LockKeyhole } from "lucide-react";
 
 import * as React from "react";
 
@@ -37,6 +37,7 @@ type PhoneInputProps = Omit<
     label: string;
     errMsg?: string;
     isRequired?: boolean;
+    isDisabled?:boolean;
   };
 
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
@@ -49,6 +50,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
         id,
         label,
         isRequired,
+        isDisabled,
         errMsg,
         ...props
       },
@@ -56,9 +58,22 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
     ) => {
       return (
         <div className="flex flex-col gap-2">
-          <label htmlFor={id} className="block text-sm font-medium">
-            {label} {isRequired && <span className="text-red-500">*</span>}
-          </label>
+          {label && (
+            <label
+              htmlFor={id}
+              className="flex items-center gap-1 text-sm font-medium"
+            >
+              {label}
+
+              {isRequired &&
+                (isDisabled ? (
+                  <LockKeyhole size={12} className="text-red-500 mb-[1px]" />
+                ) : (
+                  <span className="text-red-500">*</span>
+                ))}
+            </label>
+          )}
+
           <RPNInput.default
             ref={ref}
             className={cn("flex text-xs!", className)}
