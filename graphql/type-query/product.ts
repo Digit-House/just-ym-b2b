@@ -82,6 +82,13 @@ query GetProductInfo($productId: String!) {
     updatedAt
     whatToExpect
     productOptions {
+      advanceBooking {
+        day
+        dayMinute
+        hour
+        minute
+        required
+      }
       ticketType {
         ageFrom
         ageTo
@@ -265,3 +272,35 @@ export const ADD_TO_CART_MUTATION = `mutation Mutation($item: CartItemInput!) {
     success
   }
 }`;
+
+export const GET_ADD_TO_CART_COUNT_QUERY = `
+query Query {
+  myCart {
+    itemsCount
+  }
+}`;
+
+export const RESEND_EMAIL_MUTATION = `
+mutation Mutation($data: ResendBookingEmailInput!) {
+  resendBookingEmail(data: $data) {
+    message
+    status
+  }
+}`;
+
+export const ALL_CLEAR_CART_MUTATION = `
+mutation ClearCart {
+  clearCart {
+    itemsCount
+    success
+  }
+}`;
+
+export const CLEAR_CART_MUTATION = `
+mutation RemoveFromCart($cartItemId: String!) {
+  removeFromCart(cartItemId: $cartItemId) {
+    itemsCount
+    success
+  }
+}
+`;

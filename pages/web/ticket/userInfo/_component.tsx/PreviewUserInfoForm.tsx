@@ -15,11 +15,11 @@ import FormWapper from "@/components/FormWapper";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useCartStore } from "@/store/useCartStore";
 
 type Props = {
   setCurrentOpen: React.Dispatch<React.SetStateAction<number>>;
   setUserInfoCheck: React.Dispatch<React.SetStateAction<boolean>>;
-  setUser: React.Dispatch<React.SetStateAction<ADD_TO_CART_USER_TYPE | null>>;
 };
 
 const formSchema = z
@@ -54,23 +54,20 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>;
 
-const PreviewUserInfoForm = ({
-  setCurrentOpen,
-  setUserInfoCheck,
-  setUser,
-}: Props) => {
+const PreviewUserInfoForm = ({ setCurrentOpen, setUserInfoCheck }: Props) => {
   const [isEdit, setIsEdit] = useState(true);
+  const { user, setUser } = useCartStore();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      leaderName: "",
-      leaderEmail: "",
-      leaderPhone: "",
-      sameAsLeader: false,
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      phone: user?.phone ?? "",
+      leaderName: user?.leaderName ?? "",
+      leaderEmail: user?.leaderEmail ?? "",
+      leaderPhone: user?.leaderPhone ?? "",
+      sameAsLeader: user?.sameAsLeader ?? false,
     },
   });
 

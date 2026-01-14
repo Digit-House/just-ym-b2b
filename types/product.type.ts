@@ -1,3 +1,5 @@
+import { BOOKING_STATUS_ENUM } from "./booking.type";
+
 export enum AVAILABILITY_ENUM {
   AVAILABLE = "AVAILABLE",
   UNAVAILABLE = "NOT_AVAILABLE",
@@ -25,6 +27,15 @@ export type FilterProductListT = {
   page: number;
 };
 
+export type FilterBookingListT = {
+  limit: number;
+  orderBy: {
+    dir: string;
+  };
+  page: number;
+  status: BOOKING_STATUS_ENUM | string;
+};
+
 export type ProductT = {
   category: string;
   city: string;
@@ -50,6 +61,12 @@ export interface ProductOptionResponse {
     user_product: {
       productOptions: ProductOptionT[];
     };
+  };
+}
+
+export interface AddToCartResponse {
+  data: {
+    myCart: ADD_TO_CART_DATA_TYPE;
   };
 }
 
@@ -122,7 +139,6 @@ export interface FixedDayT {
   endHour: string;
 }
 
-
 export interface ProductOptionT {
   createdAt: Date;
   currency: string;
@@ -154,8 +170,6 @@ export interface ProductOptionT {
   advanceBooking: AdvanceBookingT | null;
   availability: AVAILABILITY_ENUM | null;
 }
-
-
 
 export interface TicketTypeT {
   id: string;
@@ -283,4 +297,28 @@ export type ADD_TO_CART_USER_TYPE = {
   leaderName: string;
   leaderEmail: string;
   leaderPhone: string;
+};
+
+export type ADD_TO_CART_ITEM_DATA_TYPE = {
+  currency: string;
+  eventId: number;
+  eventTime: string;
+  globaltixTicketTypeId: number;
+  id: string;
+  image: string;
+  price: number;
+  productId: string;
+  productName: string;
+  productOptionId: string;
+  productOptionName: string;
+  quantity: number;
+  questionIds: string[];
+  ticketTypeId: string;
+  ticketTypeName: string;
+  visitDate: string;
+};
+
+export type ADD_TO_CART_DATA_TYPE = {
+  id: string;
+  items: ADD_TO_CART_ITEM_DATA_TYPE[];
 };

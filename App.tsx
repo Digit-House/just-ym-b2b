@@ -32,6 +32,8 @@ import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
 import AdminTickets from "./pages/admin/tickets/Tickets";
 import AdminTicketEdit from "./pages/admin/tickets/edit/[id]/TicketEdit";
 import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
+import Checkout from "./pages/web/cart/checkout/Checkout";
+import Preview from "./pages/web/cart/preview/Preview";
 
 const App = () => {
   return (
@@ -54,6 +56,8 @@ const App = () => {
             <Route path="bookings/:id" element={<BookingDetail />} />
             <Route path="reports" element={<Reports />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="cart/checkout" element={<Checkout />} />
+            <Route path="cart/preview/:id" element={<Preview />} />
             <Route path="wallet" element={<Wallet />} />
             <Route path="wallet/topup" element={<Topup />} />
 
@@ -71,7 +75,10 @@ const App = () => {
             <Route path="resellers" element={<Resellers />} />
             <Route path="roles" element={<Roles />} />
             <Route path="paymentMethods" element={<PaymentMethods />} />
-            <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
+            <Route
+              path="admin-tickets/edit/:id"
+              element={<AdminTicketEdit />}
+            />
           </Route>
         </Route>
 
