@@ -1,5 +1,7 @@
 import { CartItemT } from "@/types/cart.type";
 import {
+  ADD_TO_CART_ITEM_DATA_TYPE,
+  ADD_TO_CART_USER_TYPE,
   AnswerT,
   EVENT_AVAILABLE_DATA_TYPE,
   GuestInfoT,
@@ -45,6 +47,12 @@ interface CartState {
 
   addToCartCount: number;
   setAddToCartCount: (item: number) => void;
+
+  selectedCartList: ADD_TO_CART_ITEM_DATA_TYPE[];
+  setSelectedCartList: (item: ADD_TO_CART_ITEM_DATA_TYPE[]) => void;
+
+  user: ADD_TO_CART_USER_TYPE;
+  setUser: (user: ADD_TO_CART_USER_TYPE) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -70,6 +78,21 @@ export const useCartStore = create<CartState>()(
 
       addToCartCount: 0,
       setAddToCartCount: (item) => set({ addToCartCount: item }),
+
+      selectedCartList: [],
+      setSelectedCartList: (item) => set({ selectedCartList: item }),
+
+      user: {
+        name: "",
+        email: "",
+        phone: "",
+        sameAsLeader: false,
+        leaderName: "",
+        leaderEmail: "",
+        leaderPhone: "",
+      },
+
+      setUser: (user: ADD_TO_CART_USER_TYPE) => set(() => ({ user })),
 
       items: [],
       selectedIds: [],
@@ -158,6 +181,9 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "cart-storage",
+      onRehydrateStorage: () => (state: any) => {
+        state._hasHydrated = true;
+      },
       partialize: (state) => ({
         items: state.items,
         selectedIds: state.selectedIds,
@@ -167,6 +193,8 @@ export const useCartStore = create<CartState>()(
         variantStep: state.variantStep,
         eventList: state.eventList,
         addToCartCount: state.addToCartCount,
+        selectedCartList: state.selectedCartList,
+        user: state.user,
       }),
     }
   )

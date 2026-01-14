@@ -37,7 +37,7 @@ const Sidebar = () => {
     roles === "ALL" || roles.includes(TYPE);
 
   return (
-    <div className="w-58 h-screen bg-white border-r fixed flex flex-col">
+    <div className="w-58 h-screen bg-white border-r fixed flex flex-col z-50 shadow-[0px_8px_28px_0px_#01051133]">
       {/* LOGO */}
       <div className="p-6 flex justify-center">
         <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">

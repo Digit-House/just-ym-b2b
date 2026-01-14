@@ -3,13 +3,23 @@ import { Bell, ShoppingBag } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/useCartStore";
+import { useWalletStore } from "@/store/useWalletStore";
 
 const Header: React.FC = () => {
   const { user } = useUser();
-  const { items } = useCartStore();
+  const { items, addToCartCount } = useCartStore();
+  const { creditInfo } = useWalletStore();
   const naviage = useNavigate();
   return (
-    <header className="flex absolute top-0 left-0 justify-end items-start w-full  p-3">
+    <header className="flex absolute bg-white top-0 right-0 justify-between items-center w-full max-w-[calc(100vw-232px)]  p-3 shadow-[0px_8px_12px_0px_#0000000D]">
+      <div>
+        <p className="text-xl font-bold">
+          <span className="text-gray-900">Your Balance : </span>
+          <span className="text-indigo-600">
+            {creditInfo.currency} {creditInfo?.balance}
+          </span>
+        </p>
+      </div>
       <div className="flex items-center gap-4">
         <button
           onClick={() => {
@@ -18,9 +28,9 @@ const Header: React.FC = () => {
           className="p-2 text-gray-500 hover:text-indigo-600 transition-colors relative"
         >
           <ShoppingBag size={20} />
-          {items.length > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {items.length}
+          {addToCartCount > 0 && (
+            <span className="absolute top-1 right-0 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {addToCartCount}
             </span>
           )}
         </button>

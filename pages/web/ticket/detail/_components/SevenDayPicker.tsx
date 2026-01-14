@@ -24,7 +24,29 @@ const SevenDayPicker = ({
     const days = Array.from({ length: 7 }, (_, i) => addDays(selectedDate, i));
     setDayList(days);
   }, [selectedDate]);
-  
+
+  useEffect(() => {
+    if (!product) return;
+    const normalized =
+      product.blockedDate?.map((item) => {
+        const d = new Date(item.date); // UTC date
+        // convert to local day (remove timezone)
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }) ?? [];
+
+    setBlockedDate(normalized);
+  }, [product]);
+
+  useEffect(() => {
+    if (!product) return;
+    const selectDay = addDays(
+      today,
+      product.productOptions[0]?.advanceBooking?.day + 1 || 1
+    );
+    setSelectedDate(selectDay);
+    setPickedDate(selectDay);
+  }, [product]);
+
   return (
     <div className="w-full ">
       <h5 className="mb-3">Select Date</h5>

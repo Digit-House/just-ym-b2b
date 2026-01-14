@@ -11,11 +11,10 @@ type Props = {
   disable: boolean;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  user: ADD_TO_CART_USER_TYPE | null;
 };
 
-const PreViewCheckOut = ({ disable, loading, setLoading, user }: Props) => {
-  const { answerList, setAddToCartCount } = useCartStore();
+const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
+  const { answerList, setAddToCartCount, user } = useCartStore();
   const navigate = useNavigate();
 
   const handleSubmit = async () => {

@@ -1,3 +1,4 @@
+import { BOOKING_STATUS_ENUM } from "./booking.type";
 import z from "zod";
 import { ticketSchema } from "./schema/ticketSchema";
 
@@ -29,6 +30,15 @@ export type FilterProductListT = {
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
 };
 
+export type FilterBookingListT = {
+  limit: number;
+  orderBy: {
+    dir: string;
+  };
+  page: number;
+  status: BOOKING_STATUS_ENUM | string;
+};
+
 export type ProductT = {
   category: string;
   city: string;
@@ -57,6 +67,12 @@ export interface ProductOptionResponse {
   };
 }
 
+export interface AddToCartResponse {
+  data: {
+    myCart: ADD_TO_CART_DATA_TYPE;
+  };
+}
+
 export interface TicketTypeEventAvailableResponse {
   data: {
     checkEventAvailability: EVENT_AVAILABLE_DATA_TYPE[];
@@ -64,48 +80,47 @@ export interface TicketTypeEventAvailableResponse {
 }
 
 export interface UpdateProductPayloadT {
-  id:string;
-  image:string;
-  addressLine:string;
-  description:string;
-  exclusions:string[];
-  exclusions_mm:string[];
-  fromPrice:number;
-  fromReseller:string;
-  highlights:string[];
-  highlights_mm:string[]
-  howToUseList:string[];
-  howToUseList_mm:string[];
-  inclusions:string[];
-  inclusions_mm:string[];
-  isBestSeller:boolean;
-  isCancellable:boolean;
-  isGTRecommend:boolean;
-  isInstantConfirmation:boolean;
-  isOpenDated:boolean;
-  isOwnContracted:boolean;
-  isPublished:boolean;
-  keywords:string;
-  latitude:number;
-  location:string;
-  longitude:number;
-  media:MediaFileT[];
-  name:string;
+  id: string;
+  image: string;
+  addressLine: string;
+  description: string;
+  exclusions: string[];
+  exclusions_mm: string[];
+  fromPrice: number;
+  fromReseller: string;
+  highlights: string[];
+  highlights_mm: string[];
+  howToUseList: string[];
+  howToUseList_mm: string[];
+  inclusions: string[];
+  inclusions_mm: string[];
+  isBestSeller: boolean;
+  isCancellable: boolean;
+  isGTRecommend: boolean;
+  isInstantConfirmation: boolean;
+  isOpenDated: boolean;
+  isOwnContracted: boolean;
+  isPublished: boolean;
+  keywords: string;
+  latitude: number;
+  location: string;
+  longitude: number;
+  media: MediaFileT[];
+  name: string;
   operatingHours: OperatingHoursT;
-  originalPrice:number;
-  postalCode:string;
+  originalPrice: number;
+  postalCode: string;
   productOptions: ProductOptionT[];
-  termsAndConditions:string;
-  termsAndConditions_mm:string;
+  termsAndConditions: string;
+  termsAndConditions_mm: string;
   thingsToNote: string[];
-  thingsToNote_mm:string[];
-  timezoneOffset:number;
-  whatToExpect:string;
+  thingsToNote_mm: string[];
+  timezoneOffset: number;
+  whatToExpect: string;
   blockedDate: BlockedDateT[];
 }
 
 // export type UpdateProductPayloadT = z.infer<typeof ticketSchema>;
-
 
 export interface ProductInfoT {
   id: string;
@@ -177,7 +192,6 @@ export interface FixedDayT {
   endHour: string;
 }
 
-
 export interface ProductOptionT {
   createdAt: Date;
   currency: string;
@@ -209,8 +223,6 @@ export interface ProductOptionT {
   advanceBooking: AdvanceBookingT | null;
   availability: AVAILABILITY_ENUM | null;
 }
-
-
 
 export interface TicketTypeT {
   id: string;
@@ -340,4 +352,26 @@ export type ADD_TO_CART_USER_TYPE = {
   leaderPhone: string;
 };
 
+export type ADD_TO_CART_ITEM_DATA_TYPE = {
+  currency: string;
+  eventId: number;
+  eventTime: string;
+  globaltixTicketTypeId: number;
+  id: string;
+  image: string;
+  price: number;
+  productId: string;
+  productName: string;
+  productOptionId: string;
+  productOptionName: string;
+  quantity: number;
+  questionIds: string[];
+  ticketTypeId: string;
+  ticketTypeName: string;
+  visitDate: string;
+};
 
+export type ADD_TO_CART_DATA_TYPE = {
+  id: string;
+  items: ADD_TO_CART_ITEM_DATA_TYPE[];
+};
