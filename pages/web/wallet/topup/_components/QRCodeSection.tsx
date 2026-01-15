@@ -1,30 +1,25 @@
-import { Upload, X, Eye } from "lucide-react";
+import { QrCode, Upload, X, Eye } from "lucide-react";
 import { Controller } from "react-hook-form";
-import { BankDetailRow } from "./BankDetailRow";
 import { toast } from "sonner";
 import { useImagePreview } from "@/hooks/useImagePreview";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
 
 type Props = {
+  qrCodeUrl: string;
+  bankName: string;
+  accountNumber: string;
   control: any;
   files?: File[];
   onRemoveFile: (index: number) => void;
-  bankName?: string;
-  accountName?: string;
-  accountNumber?: string;
-  swiftCode?: string;
-  instructions?: string;
 };
 
-export const BankTransferSection = ({
+export const QRCodeSection = ({ 
+  qrCodeUrl, 
+  bankName, 
+  accountNumber,
   control,
   files = [],
-  onRemoveFile,
-  bankName,
-  accountName,
-  accountNumber,
-  swiftCode,
-  instructions,
+  onRemoveFile
 }: Props) => {
   const { previewImage, previewFile, openPreview, closePreview } = useImagePreview();
 
@@ -45,38 +40,68 @@ export const BankTransferSection = ({
 
   return (
     <div className="space-y-8">
-      {/* Bank details */}
+      {/* QR Code Payment Section */}
       <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-        <h3 className="text-lg font-black mb-6">
-          Bank Transfer Details
-        </h3>
-
-        <div className="space-y-4">
-          <BankDetailRow label="Bank Name" value={bankName || "KBZ Bank"} />
-          <BankDetailRow label="Account Name" value={accountName || "JustYm Services Ltd"} />
-          <BankDetailRow
-            label="Account Number"
-            value={accountNumber || "1234 5678 1928 19283"}
-          />
-          {swiftCode && (
-            <BankDetailRow label="SWIFT Code" value={swiftCode} />
-          )}
-          
-          {instructions && (
-            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-              <h4 className="font-black text-blue-900 mb-2">Payment Instructions</h4>
-              <p className="text-sm text-blue-700">{instructions}</p>
+        <h3 className="text-lg font-black mb-6">QR Code Payment</h3>
+        
+        <div className="space-y-6">
+          {/* QR Code Display */}
+          <div className="flex flex-col items-center">
+            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-4">
+              {qrCodeUrl ? (
+                <img 
+                  src={qrCodeUrl} 
+                  alt="QR Code for payment" 
+                  className="w-48 h-48 object-contain"
+                />
+              ) : (
+                <div className="w-48 h-48 flex items-center justify-center bg-gray-100 rounded-xl">
+                  <QrCode size={48} className="text-gray-300" />
+                </div>
+              )}
             </div>
-          )}
+            <p className="text-sm text-gray-500 text-center">
+              Scan this QR code with your mobile banking app to make payment
+            </p>
+          </div>
+
+          {/* Bank Information */}
+          <div className="space-y-4">
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                Bank Name
+              </p>
+              <p className="text-sm font-black text-gray-900">{bankName || "N/A"}</p>
+            </div>
+            
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                Account Number
+              </p>
+              <p className="text-sm font-black text-gray-900">{accountNumber || "N/A"}</p>
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+            <h4 className="font-black text-blue-900 mb-2">Payment Instructions</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Open your mobile banking app</li>
+              <li>• Select "Scan QR" or similar option</li>
+              <li>• Scan the QR code above</li>
+              <li>• Enter the exact amount shown</li>
+              <li>• Confirm and complete the payment</li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      {/* Upload proof */}
+      {/* Upload Payment Proof */}
       <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
         <h3 className="text-lg font-black mb-6">
           Upload Payment Proof <span className="text-red-500 text-sm">*</span>
         </h3>
-
+        
         <Controller
           name="proofFiles"
           control={control}
@@ -118,7 +143,7 @@ export const BankTransferSection = ({
                     }
                   }}
                 />
-
+                
                 <Upload size={32} className="text-indigo-600 mb-4" />
                 <p className="font-black">
                   Click to upload payment receipts

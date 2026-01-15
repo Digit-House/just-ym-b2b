@@ -1,23 +1,31 @@
 import React from "react";
-import { Bell, ShoppingBag, Wallet } from "lucide-react";
+import { Bell, ChevronRight, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/useCartStore";
 import { useWalletStore } from "@/store/useWalletStore";
+import { useSidebarStore } from "@/store/useSidebarStore";
 
 const Header: React.FC = () => {
   const { user } = useUser();
   const { items, addToCartCount } = useCartStore();
   const { creditInfo } = useWalletStore();
-  const naviage = useNavigate();
+  const { isCollapsed } = useSidebarStore();
+  const navigate = useNavigate();
+
   return (
-    <header className="flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full max-w-[calc(100vw-232px)]  py-4 px-10 shadow-[0px_8px_12px_0px_#0000000D]">
+    <header
+      className={`flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full   py-4 px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
+        isCollapsed ? "max-w-[calc(100vw-80px)]" : "max-w-[calc(100vw-232px)]"
+      }`}
+    >
       <div className="p-3 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
         <Wallet className="w-4 h-4 text-white" />
         <div>
           <p className="text-xs text-white/80">Available Credits</p>
           <p className="text-sm font-bold text-white">
-            {creditInfo?.currency} {creditInfo?.balance.toFixed(2)}
+            {creditInfo?.currency}{" "}
+            {creditInfo?.balance?.toLocaleString("en-US") || "0"}
           </p>
         </div>
         {/* <p className="text-xl font-bold">
@@ -27,37 +35,87 @@ const Header: React.FC = () => {
           </span>
         </p> */}
       </div>
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => {
-            naviage("/cart");
-          }}
-          className="p-2 text-gray-500 hover:text-indigo-600 transition-colors relative"
-        >
-          <ShoppingBag size={20} />
-          {addToCartCount > 0 && (
-            <span className="absolute top-1 right-0 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {addToCartCount}
+      {/* <div className="flex items-center gap-4">
+        <div className="p-1  transition-all duration-300 cursor-default group">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
+              Total Balance
             </span>
-          )}
-        </button>
-        <button className="p-2 text-gray-500 hover:text-indigo-600 transition-colors relative">
-          <Bell size={20} />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-
-        <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-          <img
-            src="https://img.freepik.com/premium-vector/avatar-profil-picture-icon-vector-design-template_393879-5783.jpg?semt=ais_hybrid&w=740&q=80"
-            alt="User"
-            className="w-10 h-10 rounded-full object-cover border border-gray-200"
-          />
-          <div className="hidden md:block">
-            <p className="text-sm font-semibold text-gray-900">
-              {user?.username}
-            </p>
-            <p className="text-xs text-gray-500">Account settings</p>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs font-bold text-gray-800">
+                {creditInfo.currency}
+              </span>
+              <span className="text-xs font-extrabold text-black bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                {creditInfo?.balance?.toLocaleString("en-US") || "0"}
+              </span>
+            </div>
           </div>
+        </div>
+      </div> */}
+
+      {/* Right Section: Actions & Profile */}
+      <div className="flex items-center gap-2">
+        {/* Action Buttons Group */}
+        <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
+          {/* Cart */}
+          <button
+            onClick={() => navigate("/cart")}
+            className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
+            aria-label="Cart"
+          >
+            <ShoppingBag
+              size={20}
+              className="group-hover:text-indigo-600 transition-colors"
+            />
+            {addToCartCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 flex items-center justify-center bg-indigo-600 text-white text-[10px] font-bold rounded-full shadow-sm ring-2 ring-white">
+                {addToCartCount}
+              </span>
+            )}
+          </button>
+
+          <div className="w-px h-5 bg-gray-300 mx-1" />
+
+          {/* Notifications */}
+          <button
+            className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
+            aria-label="Notifications"
+          >
+            <Bell
+              size={20}
+              className="group-hover:text-indigo-600 transition-colors"
+            />
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#f3f4f6]"></span>
+          </button>
+        </div>
+
+        {/* User Profile */}
+        <div
+          onClick={() => navigate("/settings/general")}
+          className="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer group pr-2 py-1  hover:bg-gray-50 transition-colors"
+        >
+          <div className="text-right hidden md:block">
+            <p className="text-xs font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">
+              {user?.username || "User"}
+            </p>
+            <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+              {user?.type}
+            </p>
+          </div>
+          <div className="relative">
+            <div className="p-0.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-md">
+              <img
+                src="https://img.freepik.com/premium-vector/avatar-profil-picture-icon-vector-design-template_393879-5783.jpg?semt=ais_hybrid&w=740&q=80"
+                alt="User"
+                className="w-9 h-9 rounded-full object-cover border-2 border-white"
+              />
+            </div>
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+          </div>
+          <ChevronRight
+            size={14}
+            className="text-gray-400 group-hover:translate-x-0.5 transition-transform"
+          />
         </div>
       </div>
     </header>

@@ -122,19 +122,7 @@ export default function ResellerForm({
       </div>
 
       {/* Related Images */}
-      <ImageUpload
-        ref={relatedImagesRef}
-        label="Related Images"
-        isRequired
-        value={watch("relatedImages")?.[0] || ""}
-        onChange={(val) =>
-          setValue("relatedImages", val ? [val] : [], {
-            shouldValidate: true,
-          })
-        }
-        errMsg={errors.relatedImages?.message as string}
-        folderType="CREDIT_TOP_UP"
-      />
+      
 
       {/* Edit-only info */}
       {isEdit && (
@@ -156,10 +144,24 @@ export default function ResellerForm({
         </div>
       )}
 
+       <ImageUpload
+        ref={relatedImagesRef}
+        label="Related Images"
+        isRequired
+        value={watch("relatedImages")?.[0] || ""}
+        onChange={(val) =>
+          setValue("relatedImages", val ? [val] : [], {
+            shouldValidate: true,
+          })
+        }
+        errMsg={errors.relatedImages?.message as string}
+        folderType="CREDIT_TOP_UP"
+      />
+
       {/* Active */}
       <div className="flex items-center justify-between rounded-lg border px-4 py-3">
         <div>
-          <p className="font-medium">Active</p>
+          <p className="font-medium">Active <span className="text-red-500 text-sm">*</span></p>
           <p className="text-xs text-gray-500">
             Control reseller account access
           </p>

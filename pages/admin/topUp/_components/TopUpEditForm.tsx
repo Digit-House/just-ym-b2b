@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import ReadOnly from "@/components/ReadOnly";
 import InputField from "@/components/InputField";
+import ImagePreview from "@/components/ImagePreview";
 import {
   Select,
   SelectContent,
@@ -78,28 +79,11 @@ export default function TopUpEditForm({
         />
 
         <div className="col-span-2">
-          <p className="mb-2 text-sm font-medium text-gray-700">
-            Related Images
-          </p>
-
-          {initialValues.relatedImages?.length ? (
-            <div className="grid grid-cols-3 gap-3">
-              {initialValues.relatedImages.map((img, index) => (
-                <div
-                  key={index}
-                  className="relative aspect-square overflow-hidden rounded-lg border"
-                >
-                  <img
-                    src={img}
-                    alt={`Top-up image ${index + 1}`}
-                    className="h-full w-full object-cover transition-transform hover:scale-105"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-gray-400">No images available</p>
-          )}
+          <ImagePreview 
+            images={initialValues.relatedImages || []}
+            title="Top-up Related Images"
+            className="w-full"
+          />
         </div>
       </div>
 

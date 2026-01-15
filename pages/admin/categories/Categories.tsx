@@ -69,8 +69,8 @@ const Categories = () => {
         title="Categories"
         des="Manage available categories used across the system."
       />
-      <div className="flex items-center justify-between mb-5 gap-4 border border-[#21212124] py-2 px-4">
-        <RoleCheckAction>
+      <div className="flex items-center justify-end mb-5 gap-4 border border-[#21212124] py-2 px-4">
+        {/* <RoleCheckAction>
           <Button
             onClick={() => {
               setModalState({ mode: "create" });
@@ -82,7 +82,7 @@ const Categories = () => {
             <Plus size={18} />
             Add Category
           </Button>
-        </RoleCheckAction>
+        </RoleCheckAction> */}
         <SortSelect
           options={SORT_OPTION}
           value={sort}
