@@ -4124,6 +4124,7 @@ __metadata:
     graphql: "npm:16.9.0"
     lucide-react: "npm:^0.561.0"
     next-themes: "npm:^0.4.6"
+    pigeon-maps: "npm:^0.22.1"
     react: "npm:^19.2.3"
     react-day-picker: "npm:^9.13.0"
     react-dom: "npm:^19.2.3"
@@ -4916,6 +4917,15 @@ __metadata:
   version: 4.0.3
   resolution: "picomatch@npm:4.0.3"
   checksum: 10c0/9582c951e95eebee5434f59e426cddd228a7b97a0161a375aed4be244bd3fe8e3a31b846808ea14ef2c8a2527a6eeab7b3946a67d5979e81694654f939473ae2
+  languageName: node
+  linkType: hard
+
+"pigeon-maps@npm:^0.22.1":
+  version: 0.22.1
+  resolution: "pigeon-maps@npm:0.22.1"
+  peerDependencies:
+    react: "*"
+  checksum: 10c0/d7a7dc05986cf5c83ac653ab19134a7a41580b90621a4cbe5d158fa51e6873e48ea888733930611dbe757ef9bda014202822170e44f7a348ea47e733d986ca89
   languageName: node
   linkType: hard
 

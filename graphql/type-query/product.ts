@@ -28,8 +28,8 @@ query FindAllProducts($params: UserProductsInput!) {
 `;
 
 export const GET_PRODUCT_INFO = `
-query GetProductInfo($productId: String!) {
-  getProductInfo(productId: $productId) {
+query GetProductInfo($productId: String!, $date: DateTime) {
+  getProductInfo(productId: $productId, date: $date) {
     addressLine
     blockedDate {
       date
@@ -122,8 +122,8 @@ query GetProductInfo($productId: String!) {
 `;
 
 export const GET_PRODUCT_OPTIONS = `
-query Query($userProductId: String!, $date: DateTime) {
-  user_product(id: $userProductId, date: $date) {
+query GetProductInfo($productId: String!, $date: DateTime) {
+  getProductInfo(productId: $productId, date: $date) {
     productOptions {
       advanceBooking {
         day
@@ -158,6 +158,7 @@ query Query($userProductId: String!, $date: DateTime) {
         applyToAllQna
         createdAt
         dhSellingPrice
+        dhNetPrice
         id
         issuanceLimit
         maxPurchaseQty

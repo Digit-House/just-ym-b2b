@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, ShoppingBag } from "lucide-react";
+import { Bell, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/useCartStore";
@@ -11,14 +11,21 @@ const Header: React.FC = () => {
   const { creditInfo } = useWalletStore();
   const naviage = useNavigate();
   return (
-    <header className="flex absolute bg-white top-0 right-0 justify-between items-center w-full max-w-[calc(100vw-232px)]  p-3 shadow-[0px_8px_12px_0px_#0000000D]">
-      <div>
-        <p className="text-xl font-bold">
+    <header className="flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full max-w-[calc(100vw-232px)]  py-4 px-10 shadow-[0px_8px_12px_0px_#0000000D]">
+      <div className="p-3 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
+        <Wallet className="w-4 h-4 text-white" />
+        <div>
+          <p className="text-xs text-white/80">Available Credits</p>
+          <p className="text-sm font-bold text-white">
+            {creditInfo?.currency} {creditInfo?.balance.toFixed(2)}
+          </p>
+        </div>
+        {/* <p className="text-xl font-bold">
           <span className="text-gray-900">Your Balance : </span>
           <span className="text-indigo-600">
             {creditInfo.currency} {creditInfo?.balance}
           </span>
-        </p>
+        </p> */}
       </div>
       <div className="flex items-center gap-4">
         <button

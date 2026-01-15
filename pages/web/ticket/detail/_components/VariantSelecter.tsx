@@ -25,8 +25,8 @@ const VariantSelecter = ({
     const totalPrice =
       item.minPurchaseQty > 0 && item.quantity === item.minPurchaseQty
         ? selectedProductOption.totalPrice -
-          item.dhSellingPrice * item.minPurchaseQty
-        : selectedProductOption.totalPrice - item.dhSellingPrice;
+          item.dhNetPrice * item.minPurchaseQty
+        : selectedProductOption.totalPrice - item.dhNetPrice;
     const variants = selectedProductOption.ticketType.map((variant: any) => {
       if (variant.id === item.id) {
         return updatedVariants;
@@ -58,8 +58,8 @@ const VariantSelecter = ({
     const totalPrice =
       item.minPurchaseQty > 1 && item.quantity === 0
         ? selectedProductOption.totalPrice +
-          item.dhSellingPrice * item.minPurchaseQty
-        : selectedProductOption.totalPrice + item.dhSellingPrice;
+          item.dhNetPrice * item.minPurchaseQty
+        : selectedProductOption.totalPrice + item.dhNetPrice;
     const variants = selectedProductOption.ticketType.map((variant: any) => {
       if (variant.name === item.name) {
         return updatedVariants;
@@ -77,7 +77,10 @@ const VariantSelecter = ({
       <h5>Guest</h5>
       <div className="mt-4 border border-[#D9D9D9] rounded-2xl p-6 w-full flex flex-col lg:gap-10 md:gap-6 gap-2">
         {selectedProductOption.ticketType.map((item: TicketTypeT) => (
-          <div className="lg:gap-10 gap-5 grid grid-cols-4" key={item.id}>
+          <div
+            className="lg:gap-10 gap-5 grid grid-cols-4 items-center"
+            key={item.id}
+          >
             <div className="flex flex-col flex-1 gap-2 col-span-2">
               <p className="text-black text-xl font-bold">{item.name}</p>
               {item.ageFrom && item.ageTo && (
@@ -131,7 +134,7 @@ const VariantSelecter = ({
                   />
                 </button>
               </div>
-              {item.minPurchaseQty && item.minPurchaseQty > 0 ? (
+              {item.minPurchaseQty && item.minPurchaseQty > 0 && (
                 // <Typo
                 //   text={`Minimum ${item.minPurchaseQty} tickets required`}
                 //   size={isMobile ? "xs" : "sm"}
@@ -140,37 +143,35 @@ const VariantSelecter = ({
                 <p className="text-red-500 text-sm">
                   Minimum {item.minPurchaseQty} tickets required
                 </p>
-              ) : null}
+              )}
             </div>
-            <div className="flex gap-4 col-span-1 justify-end">
+            <div className="flex gap-4 col-span-1 justify-end items-center">
               <div
                 className={`flex flex-col gap-2 ${
-                  item.originalPrice < item.dhSellingPrice
+                  item.originalPrice < item.dhNetPrice
                     ? " justify-between"
                     : " justify-center"
                 }`}
               >
-                <p className="font-medium">
-                  ฿ {item.dhSellingPrice.toFixed(2)}
-                </p>
-                {item.originalPrice < item.dhSellingPrice && (
+                <p className="font-medium">฿ {item.dhNetPrice.toFixed(2)}</p>
+                {/* {item.originalPrice < item.dhNetPrice && (
                   <p className="line-through font-medium">
                     ฿ {item.originalPrice.toFixed(2)}
                   </p>
-                )}
+                )} */}
               </div>
-              {item.originalPrice < item.dhSellingPrice && (
+              {/* {item.originalPrice < item.dhNetPrice && (
                 <div>
                   <p className="md:px-2 md:py-1 px-1 py-0.5 rounded-full bg-[#c4e9c7]">
                     {(
-                      ((item.originalPrice - item.dhSellingPrice) /
+                      ((item.originalPrice - item.dhNetPrice) /
                         item.originalPrice) *
                       100
                     ).toFixed(2)}
                     % off
                   </p>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         ))}

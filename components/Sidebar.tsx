@@ -49,7 +49,7 @@ const Sidebar = () => {
       </div>
 
       {/* NAV */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-20">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-20 scrollbar-hide">
         {NAV_CONFIG.map((item) => {
           if (!canShow(item.types)) return null;
 
