@@ -74,7 +74,7 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Reports",
     path: "/reports",
     icon: BarChart3,
-    types: ["RESELLER"],
+    types: "ALL",
   },
 
   {

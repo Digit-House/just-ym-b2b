@@ -139,6 +139,7 @@ export default function TopUpEditForm({
 
       <InputField
         label="Top-up Balance"
+        isRequired
         type="number"
         {...register("topUpBalance", { valueAsNumber: true })}
         errMsg={errors.topUpBalance?.message}

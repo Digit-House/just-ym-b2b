@@ -10,7 +10,7 @@ export const generateReport = (payload: FilterReportT) => {
       data: {
         fromDate: payload.fromDate,
         selfSale: payload.selfSale,
-        sellerId: payload.selfSale,
+        sellerId: payload.sellerId,
         toDate: payload.toDate,
       },
     },
