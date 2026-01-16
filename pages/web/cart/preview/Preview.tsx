@@ -47,6 +47,8 @@ const Preview = () => {
     );
   }
 
+  console.log(bookingDetail);
+
   return (
     <PageContainer>
       <BackBtn route="/bookings" title="Back to My Bookings" />

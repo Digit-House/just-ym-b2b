@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, ShoppingBag, ChevronRight } from "lucide-react";
+import { Bell, ChevronRight, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/useCartStore";
@@ -14,25 +14,44 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <header 
-      className={`fixed top-0 right-0 z-40 h-15 transition-all duration-300 ease-in-out bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm flex gap-2 items-center justify-end px-6
-        ${isCollapsed ? 'left-[80px]' : 'left-[232px]'}`}
+    <header
+      className={`flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full   py-4 px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
+        isCollapsed ? "max-w-[calc(100vw-80px)]" : "max-w-[calc(100vw-232px)]"
+      }`}
     >
-      {/* Left Section: Balance Widget */}
-      <div className="flex items-center gap-4">
+      <div className="p-3 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
+        <Wallet className="w-4 h-4 text-white" />
+        <div>
+          <p className="text-xs text-white/80">Available Credits</p>
+          <p className="text-sm font-bold text-white">
+            {creditInfo?.currency}{" "}
+            {creditInfo?.balance?.toLocaleString("en-US") || "0"}
+          </p>
+        </div>
+        {/* <p className="text-xl font-bold">
+          <span className="text-gray-900">Your Balance : </span>
+          <span className="text-indigo-600">
+            {creditInfo.currency} {creditInfo?.balance}
+          </span>
+        </p> */}
+      </div>
+      {/* <div className="flex items-center gap-4">
         <div className="p-1  transition-all duration-300 cursor-default group">
-            
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Total Balance</span>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xs font-bold text-gray-800">{creditInfo.currency}</span>
-                <span className="text-xs font-extrabold text-black bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                  {creditInfo?.balance?.toLocaleString("en-US") || "0"}
-                </span>
-              </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
+              Total Balance
+            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs font-bold text-gray-800">
+                {creditInfo.currency}
+              </span>
+              <span className="text-xs font-extrabold text-black bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                {creditInfo?.balance?.toLocaleString("en-US") || "0"}
+              </span>
             </div>
           </div>
         </div>
+      </div> */}
 
       {/* Right Section: Actions & Profile */}
       <div className="flex items-center gap-2">
@@ -44,7 +63,10 @@ const Header: React.FC = () => {
             className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
             aria-label="Cart"
           >
-            <ShoppingBag size={20} className="group-hover:text-indigo-600 transition-colors" />
+            <ShoppingBag
+              size={20}
+              className="group-hover:text-indigo-600 transition-colors"
+            />
             {addToCartCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 flex items-center justify-center bg-indigo-600 text-white text-[10px] font-bold rounded-full shadow-sm ring-2 ring-white">
                 {addToCartCount}
@@ -55,8 +77,14 @@ const Header: React.FC = () => {
           <div className="w-px h-5 bg-gray-300 mx-1" />
 
           {/* Notifications */}
-          <button className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group" aria-label="Notifications">
-            <Bell size={20} className="group-hover:text-indigo-600 transition-colors" />
+          <button
+            className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
+            aria-label="Notifications"
+          >
+            <Bell
+              size={20}
+              className="group-hover:text-indigo-600 transition-colors"
+            />
             <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#f3f4f6]"></span>
           </button>
         </div>
@@ -70,7 +98,9 @@ const Header: React.FC = () => {
             <p className="text-xs font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">
               {user?.username || "User"}
             </p>
-            <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">{user?.type}</p>
+            <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+              {user?.type}
+            </p>
           </div>
           <div className="relative">
             <div className="p-0.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-md">
@@ -82,7 +112,10 @@ const Header: React.FC = () => {
             </div>
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
           </div>
-          <ChevronRight size={14} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight
+            size={14}
+            className="text-gray-400 group-hover:translate-x-0.5 transition-transform"
+          />
         </div>
       </div>
     </header>

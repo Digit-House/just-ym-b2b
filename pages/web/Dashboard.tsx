@@ -42,7 +42,7 @@ const StatCard = ({
 
 const Dashboard = () => {
   return (
-    <div className="w-full mx-auto">
+    <div className="w-full mx-auto pt-10">
       <PageHeader
         title="Welcome Back,John"
         des="Measure your advertising ROI and report website traffic."

@@ -39,16 +39,26 @@ const Sidebar = () => {
     roles === "ALL" || roles.includes(TYPE);
 
   return (
-    <div className={`h-screen bg-white border-r fixed flex flex-col z-50  transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-58'}`}>
+    <div
+      className={`h-screen bg-white border-r fixed flex flex-col z-50  transition-all duration-300 ease-in-out ${
+        isCollapsed ? "w-20" : "w-58"
+      }`}
+    >
       {/* LOGO */}
       <div className="p-6 flex justify-center relative">
         <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">
           <div className="text-center">
             <div className="text-[10px] font-bold">JUST</div>
-            <div className="text-3xl font-bold text-orange-500">M</div>
+            <div
+              className={` font-bold text-orange-500 ${
+                isCollapsed ? "text-xl" : "text-3xl"
+              }`}
+            >
+              M
+            </div>
           </div>
         </div>
-        
+
         {/* Toggle Button */}
         <button
           onClick={toggleSidebar}
@@ -63,7 +73,7 @@ const Sidebar = () => {
       </div>
 
       {/* NAV */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-20">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-20 scrollbar-hide">
         {NAV_CONFIG.map((item) => {
           if (!canShow(item.types)) return null;
 
@@ -73,22 +83,24 @@ const Sidebar = () => {
               <div key={item.label}>
                 <button
                   onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-all duration-200 ${isCollapsed ? 'justify-center px-2' : ''}`}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-all duration-200 ${
+                    isCollapsed ? "justify-center px-2" : ""
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <item.icon size={20} />
                     {!isCollapsed && <span>{item.label}</span>}
                   </div>
-                  {!isCollapsed && (
-                    isSettingsOpen ? (
+                  {!isCollapsed &&
+                    (isSettingsOpen ? (
                       <ChevronUp size={16} />
                     ) : (
                       <ChevronDown size={16} />
-                    )
-                  )}
+                    ))}
                 </button>
 
-                {!isCollapsed && isSettingsOpen &&
+                {!isCollapsed &&
+                  isSettingsOpen &&
                   item.children.map(
                     (sub) =>
                       canShow(sub.types) && (
@@ -110,7 +122,9 @@ const Sidebar = () => {
             <NavLink
               key={item.path}
               to={item.path!}
-              className={`${navItemClass(item.path!)} ${isCollapsed ? 'justify-center px-2' : ''}`}
+              className={`${navItemClass(item.path!)} ${
+                isCollapsed ? "justify-center px-2" : ""
+              }`}
             >
               <item.icon size={20} />
               {!isCollapsed && <span>{item.label}</span>}
@@ -126,7 +140,9 @@ const Sidebar = () => {
             setToken("");
             navigate("/login");
           }}
-          className={`w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg transition-all duration-200 ${isCollapsed ? 'px-2' : ''}`}
+          className={`w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg transition-all duration-200 ${
+            isCollapsed ? "px-2" : ""
+          }`}
         >
           <LogOut size={18} />
           {!isCollapsed && <span>Log Out</span>}

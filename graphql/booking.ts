@@ -67,7 +67,7 @@ export const fetchMyBookingList = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, { status, sort }] = queryKey;
   const filter = {
     page: pageParam,
-    limit: 2,
+    limit: 10,
     orderBy: { dir: sort },
     status: status,
   };

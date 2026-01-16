@@ -60,10 +60,10 @@ const ProductionOptionSelecter = ({
                 <p className="line-clamp-2">{item.name}</p>
               </div>
               <div>
-                {item.ticketType[0].originalPrice <
+                {/* {item.ticketType[0].originalPrice <
                   item.ticketType[0].dhSellingPrice && (
                   <p>฿ {item.ticketType[0].originalPrice.toFixed(2)}</p>
-                )}
+                )} */}
                 {/* <Typo
                   text={`฿${item.ticketType[0].originalPrice.toFixed(2)}`}
                   size="md"
@@ -76,8 +76,8 @@ const ProductionOptionSelecter = ({
                     size="md"
                     className="text-black"
                   /> */}
-                  <p>฿ ${item.ticketType[0].dhSellingPrice.toFixed(2)}</p>
-                  {item.ticketType[0].originalPrice <
+                  <p>฿ ${item.ticketType[0].dhNetPrice.toFixed(2)}</p>
+                  {/* {item.ticketType[0].originalPrice <
                     item.ticketType[0].dhSellingPrice && (
                     <p>
                       {(
@@ -88,7 +88,7 @@ const ProductionOptionSelecter = ({
                       ).toFixed(2)}
                       % off
                     </p>
-                  )}
+                  )} */}
                 </div>
                 <button
                   onClick={() => handleSelected(item)}
