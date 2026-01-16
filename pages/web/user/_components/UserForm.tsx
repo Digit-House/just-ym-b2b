@@ -77,7 +77,9 @@ export default function UserForm({
   });
 
   useEffect(() => {
-    fetchResellers();
+    if (user.type === "OWNER") {
+      fetchResellers();
+    }
   }, []);
 
   const [resellerData, setResellerData] = useState<ResellerT[]>([]);
