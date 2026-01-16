@@ -8,70 +8,180 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { addMonths, format } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { CalendarIcon } from "lucide-react";
+
 import { REVENUE_DATA } from "../../constants";
 import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
-import { useCategories } from "@/hooks/useCategories";
-import { useCountries } from "@/hooks/useCountries";
 import PageContainer from "@/components/PageContainer";
 
-const ReportCard = ({ title, value, subtext }: any) => (
+import { useCategories } from "@/hooks/useCategories";
+import { useCountries } from "@/hooks/useCountries";
+import { useUser } from "@/provider/UserProvider";
+
+import { toast } from "sonner";
+import { getErrMsg } from "@/util/initData";
+import { generateReport } from "@/graphql/report";
+
+import { FilterReportT, ReportResT } from "@/types/report.type";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+/* ----------------------------- Small Card ----------------------------- */
+const ReportCard = ({
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
     <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
-    <p className="text-sm text-gray-500 mb-0">{title}</p>
+    <p className="text-sm text-gray-500">{title}</p>
   </div>
 );
 
+/* ----------------------------- Main Page ------------------------------ */
 const Reports = () => {
+  const { user } = useUser();
+  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
 
-  const { data: CATEGORIES } = useCategories({
-    limit: 10,
-    page: 1,
+  /* -------- Default date = last 1 month -------- */
+  const today = new Date();
+  const oneMonthAgo = addMonths(today, -1);
+
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: oneMonthAgo,
+    to: today,
   });
 
+  const [filterExport, setFilterExport] = useState<FilterReportT>({
+    fromDate: oneMonthAgo,
+    toDate: today,
+    selfSale: user?.type !== "OWNER",
+    sellerId: user?.id ?? null,
+  });
+
+  /* ----------------------------- Data ----------------------------- */
+  const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
   const { data: COUNTRIES } = useCountries({
     limit: 250,
     page: 1,
     orderBy: { dir: "asc" },
     isPublished: true,
-    search: undefined,
+    search:undefined
   });
 
+  /* ----------------------------- Export CSV ----------------------------- */
+  const exportGenerateReport = async () => {
+    try {
+      setLoading(true);
+
+      const res:any = await generateReport({
+        ...filterExport,
+        fromDate: filterExport.fromDate
+          ? new Date(filterExport.fromDate).toISOString()
+          : null,
+        toDate: filterExport.toDate
+          ? new Date(filterExport.toDate).toISOString()
+          : null,
+      });
+
+      const resData:ReportResT = res.data.generateReport;
+      // base64 -> blob
+      const byteCharacters = atob(resData.data);
+      const byteNumbers = new Array(byteCharacters.length)
+        .fill(null)
+        .map((_, i) => byteCharacters.charCodeAt(i));
+
+      const blob = new Blob([new Uint8Array(byteNumbers)], {
+        type: resData.contentType || "text/csv",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `${resData.filename}.${resData.extension}`;
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Export CSV successful");
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ----------------------------- UI ----------------------------- */
   return (
     <PageContainer>
       <PageHeader
         title="Reports"
         des="Measure your advertising ROI and report website traffic."
       />
+
+      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-8 justify-between items-end">
         <div className="flex gap-4 w-full md:w-auto">
-          <div className="relative w-full md:w-64">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <svg
-                aria-hidden="true"
-                className="w-5 h-5 text-gray-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+          {/* Date Range */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[260px] justify-start text-left font-normal"
+                )}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <input
-              type="text"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2.5"
-              placeholder="01/09/2024 - 01/09/2025"
-              readOnly
-            />
-          </div>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange.from && dateRange.to ? (
+                  <>
+                    {format(dateRange.from, "dd/MM/yyyy")} -{" "}
+                    {format(dateRange.to, "dd/MM/yyyy")}
+                  </>
+                ) : (
+                  <span>Select date range</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                initialFocus
+                mode="range"
+                numberOfMonths={2}
+                defaultMonth={dateRange.from}
+                selected={dateRange}
+                onSelect={(range) => {
+                  if (!range?.from || !range?.to) return;
 
-          <div className="flex items-center justify-between border border-[#21212124] py-[0px] px-[5px]">
+                  setDateRange(range);
+                  setFilterExport((prev) => ({
+                    ...prev,
+                    fromDate: range.from,
+                    toDate: range.to,
+                  }));
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* Category & Country */}
+          <div className="flex items-center border border-gray-200 px-2">
             <Select
               label="Categories"
               placeholder="Categories"
@@ -90,57 +200,39 @@ const Reports = () => {
             />
           </div>
         </div>
-        <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
-          Export
-        </button>
+
+        {/* Export */}
+        <Button
+          onClick={exportGenerateReport}
+          disabled={loading}
+          className="bg-indigo-600 hover:bg-indigo-700"
+        >
+          {loading ? "Loading..." : "Export CSV"}
+        </Button>
       </div>
 
+      {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
         <ReportCard title="Tickets Purchased" value="1,025" />
         <ReportCard title="Tickets Issued" value="825" />
         <ReportCard title="Ticket Used" value="750" />
-        <ReportCard title="Revenue" value="$ 25,750" />
+        <ReportCard title="Revenue" value="$25,750" />
       </div>
 
+      {/* Chart */}
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <h3 className="text-lg font-bold text-gray-900 mb-6">Tickets Sold</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-6">
+          Tickets Sold
+        </h3>
+
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={REVENUE_DATA}
-              margin={{ top: 10, right: 0, left: -20, bottom: 0 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={true}
-                stroke="#f0f0f0"
-              />
-              <XAxis
-                dataKey="name"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "#9ca3af", fontSize: 12 }}
-                dy={10}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "#9ca3af", fontSize: 12 }}
-              />
-              <Tooltip
-                cursor={{ fill: "transparent" }}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "none",
-                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                }}
-              />
-              <Bar
-                dataKey="value1"
-                fill="#7C3AED"
-                radius={[4, 4, 0, 0]}
-                barSize={24}
-              />
+            <BarChart data={REVENUE_DATA}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value1" fill="#7C3AED" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
