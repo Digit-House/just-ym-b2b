@@ -143,8 +143,6 @@ const Preview = () => {
                         <img
                           alt="ticket image"
                           src={preFixImg(data.image)}
-                          // width={40}
-                          // height={40}
                           className="object-cover object-center w-10 h-10 rounded-xl"
                         />
                       )}

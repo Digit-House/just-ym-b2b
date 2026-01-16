@@ -11,7 +11,8 @@ import PageContainer from "@/components/PageContainer";
 import { BOOKING_STATUS_ENUM } from "@/types/booking.type";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchMyBookingList } from "@/graphql/booking";
-import BookingCard from "./_component/BookingCard";
+import BookingCard from './_component/BookingCard';
+import NotFoundComponent from '@/components/NotFoundComponent';
 
 const STATUS = [
   {
@@ -109,24 +110,6 @@ const Bookings = () => {
         des="Measure your advertising ROI and report website traffic."
       />
       <div className="flex items-center justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
-        {/* <div className="flex items-center">
-          <Select
-            label="Country"
-            placeholder="Country"
-            options={COUNTRIES.data}
-            value={countries}
-            onChange={setCountries}
-            width="w-48"
-          />
-          <Select
-            label="Status"
-            placeholder="Status"
-            options={STATUS}
-            value={statuses}
-            onChange={setStatuses}
-            width="w-48"
-          />
-        </div> */}
         <SortSelect
           options={INIT_TAG_LIST}
           value={status}
@@ -135,103 +118,6 @@ const Bookings = () => {
         />
         <SortSelect options={SORT_OPTION} value={sort} onChange={setSort} />
       </div>
-
-      {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-900 uppercase bg-indigo-50">
-              <tr>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Package
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Country
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Validity
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Sold Tickets
-                  <br />
-                  <span className="text-gray-400 normal-case">
-                    (Adult / Child)
-                  </span>
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Remaining
-                  <br />
-                  <span className="text-gray-400 normal-case">
-                    (Adult / Child)
-                  </span>
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedBookings.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="bg-white border-b hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {booking.package}
-                  </td>
-                  <td className="px-6 py-4">{booking.country}</td>
-                  <td className="px-6 py-4">
-                    {booking.validityStart} – {booking.validityEnd}
-                  </td>
-                  <td className="px-6 py-4">
-                    {booking.sold} / {booking.totalSold}
-                  </td>
-                  <td className="px-6 py-4">
-                    {booking.remaining} / {booking.totalRemaining}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(
-                        booking.status
-                      )}`}
-                    >
-                      {booking.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => {
-                          navigate(`/bookings/${booking.id}`);
-                        }}
-                        className="text-indigo-600 hover:text-indigo-800"
-                      >
-                        <FileText size={18} />
-                      </button>
-                      <button className="text-indigo-600 hover:text-indigo-800">
-                        <Download size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div> */}
-      {/* <Pagination
-        page={page}
-        pageSize={pageSize}
-        total={total}
-        onPageChange={setPage}
-        onPageSizeChange={(size) => {
-          setPageSize(size);
-          setPage(1);
-        }}
-      /> */}
-
       {isPending && (
         <div className="flex flex-col gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -272,7 +158,7 @@ const Bookings = () => {
       )}
 
       {!bookings.length && !isPending && (
-        <p className="text-center text-gray-500 py-10">No products found.</p>
+        <NotFoundComponent message="No bookings found" />
       )}
     </PageContainer>
   );

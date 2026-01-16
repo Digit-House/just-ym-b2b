@@ -4,7 +4,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
 
 export const topUpSchema = z.object({
-  amount: z.number().min(100, "Minimum top up amount is THB 100"),
+  amount: z.number().min(1000, "Minimum top up amount is THB 1000"),
   paymentMethod: z.enum(["BANK_TRANSFER", "QR_CODE"]),
   paymentMethodId: z.string().optional(),
   proofFiles: z

@@ -1,40 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import ModalWrapper from "@/components/ModalWrapper";
 import CurrencyRateForm from "./_components/CurrencyRateForm";
-import { CurrencyRateT } from "@/types/currencyRate.type";
-import { getCurrencyRate } from "@/graphql/currencyRate";
-import { toast } from "sonner";
-import { getErrMsg } from "@/util/initData";
+import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+
 
 const CurrencyRate = () => {
-  const [currencyRate, setCurrencyRate] = useState<CurrencyRateT | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
-
-  const fetchCurrencyRate = async () => {
-    try {
-      setLoading(true);
-      const response: any = await getCurrencyRate();
-      setCurrencyRate(response.data.currencyRate);
-    } catch (error) {
-      toast.error(getErrMsg(error, "message"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCurrencyRate();
-  }, []);
+  
+  const {
+    data: currencyRate,
+    isLoading,
+    isError,
+    error,
+    refetch: refetchCurrencyRate
+  } = useCurrencyRate(true); // Enable auto-refresh every minute
 
   const handleSave = () => {
     setShowEditModal(false);
-    fetchCurrencyRate(); // Refresh data after update
+    refetchCurrencyRate(); // Refresh data after update
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <PageContainer>
         <PageHeader
@@ -43,6 +31,20 @@ const CurrencyRate = () => {
         />
         <div className="flex justify-center items-center h-64">
           <p>Loading currency rate...</p>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageContainer>
+        <PageHeader
+          title="Currency Rate"
+          des="Manage THB to MMK exchange rate."
+        />
+        <div className="flex justify-center items-center h-64 text-red-500">
+          <p>Error loading currency rate: {error?.message || 'Unknown error'}</p>
         </div>
       </PageContainer>
     );
@@ -69,7 +71,7 @@ const CurrencyRate = () => {
                   {currencyRate?.mmk || "N/A"}
                 </p>
                 <p className="text-gray-600 mt-1">
-                  1 THB = {currencyRate?.mmk || "N/A"} MMK
+                  1THB = {currencyRate?.mmk || "N/A"} MMK
                 </p>
               </div>
               <div className="text-right">

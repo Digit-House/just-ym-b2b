@@ -95,6 +95,7 @@ export default function TopUpEditForm({
         <div className="flex gap-2">
           <Select
             value={status}
+            disabled={initialValues.status ==="CONFIRMED"}
             onValueChange={(value) => setValue("status", value)}
           >
             <SelectTrigger

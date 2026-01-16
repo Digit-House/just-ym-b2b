@@ -42,7 +42,7 @@ export default function CurrencyRateForm({
     <div className="space-y-6">
       <div className="space-y-4">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="mmkRate">THB to MMK Rate <span className="text-red-500">*</span></Label>
+          <Label htmlFor="mmkRate">MMK to THB Rate <span className="text-red-500">*</span></Label>
           <Input
             id="mmkRate"
             type="number"

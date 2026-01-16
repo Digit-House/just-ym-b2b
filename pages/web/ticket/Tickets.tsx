@@ -20,6 +20,7 @@ import SkeletonCard from "./_components/SkeletonCard";
 import { preFixImg } from "@/util/initData";
 import PageContainer from "@/components/PageContainer";
 import { useUser } from "@/provider/UserProvider";
+import NotFoundComponent from '@/components/NotFoundComponent';
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -217,7 +218,7 @@ export default function Tickets() {
       )}
 
       {!products.length && !isPending && (
-        <p className="text-center text-gray-500 py-10">No products found.</p>
+        <NotFoundComponent message="No products found" />
       )}
     </PageContainer>
   );

@@ -62,7 +62,7 @@ export const NAV_CONFIG: NavItem[] = [
     label: "My Bookings",
     path: "/bookings",
     icon: FileText,
-    types: ["RESELLER"],
+    types: "ALL",
   },
   {
     label: "Wallet",

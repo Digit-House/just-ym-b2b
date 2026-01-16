@@ -8,7 +8,7 @@ import { useSidebarStore } from "@/store/useSidebarStore";
 
 const Header: React.FC = () => {
   const { user } = useUser();
-  const { items, addToCartCount } = useCartStore();
+  const { addToCartCount } = useCartStore();
   const { creditInfo } = useWalletStore();
   const { isCollapsed } = useSidebarStore();
   const navigate = useNavigate();

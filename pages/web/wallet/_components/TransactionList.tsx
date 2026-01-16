@@ -56,7 +56,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ topUpData }) => {
                   <div className="mt-3">
                     <ImagePreview 
                       images={tx.relatedImages}
-                      title={`Transaction Proof - ${tx.reseller?.name || 'Unknown'}`}
+                      title={`Transaction Proof - ${tx.reseller?.id || 'Unknown'}`}
                       className="flex justify-end"
                     />
                   </div>

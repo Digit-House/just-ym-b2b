@@ -26,6 +26,7 @@ export const BankDetailRow = ({ label, value }: Props) => {
 
       <button
         onClick={handleCopy}
+        type="button"
         className="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
       >
         {copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}

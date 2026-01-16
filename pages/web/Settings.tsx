@@ -30,22 +30,16 @@ const Settings: React.FC = () => {
 
   return (
     <PageContainer className="space-y-8">
-      {/* Header Summary */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
           <p className="text-gray-500 text-sm">Manage your profile, roles, and security preferences.</p>
         </div>
-        {/* <button className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors">
-          <LogOut size={16} />
-          Sign Out
-        </button> */}
       </div>
 
-      {/* --- PROFILE INFORMATION SECTION --- */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-all hover:shadow-md">
         {/* Banner Area */}
-        <div className="h-32 bg-gradient-to-r from-indigo-600 to-violet-600 relative">
+        {/* <div className="h-32 bg-gradient-to-r from-indigo-600 to-violet-600 relative">
           <div className="absolute -bottom-12 left-8">
             <div className="h-28 w-28 overflow-hidden rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center shrink-0">
               {user.imageURI || user.profileData?.profilePicture ? (
@@ -61,9 +55,9 @@ const Settings: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
+        </div> */}
 
-        <div className="pt-16 pb-8 px-8">
+        <div className="pt-8 pb-8 px-8">
           <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-10">
             {/* Basic Info */}
             <div className="space-y-3">
@@ -107,11 +101,11 @@ const Settings: React.FC = () => {
             </div>
 
             {/* Actions for Profile */}
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <button className="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-all shadow-sm">
                 Edit Profile
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* Details Grid */}
@@ -157,12 +151,6 @@ const Settings: React.FC = () => {
               icon={<Clock size={18} className="text-indigo-500" />} 
               label="Last Updated" 
               value={user.updatedAt ? new Date(user.updatedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : "---"} 
-            />
-
-            <DetailItem 
-              icon={<Fingerprint size={18} className="text-indigo-500" />} 
-              label="User ID" 
-              value={<code className="text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-gray-200">{user.id}</code>} 
             />
           </div>
         </div>

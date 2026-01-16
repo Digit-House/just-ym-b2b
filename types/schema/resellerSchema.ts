@@ -11,9 +11,7 @@ export const resellerSchema = z.object({
     })
     .min(0, "Balance must be 0 or more"),
 
-  relatedImages: z
-    .array(z.string().min(1))
-    .min(1, "At least one image is required"),
+  relatedImages: z.array(z.string()).optional(),
 });
 
 export type ResellerFormValues = z.infer<typeof resellerSchema>;

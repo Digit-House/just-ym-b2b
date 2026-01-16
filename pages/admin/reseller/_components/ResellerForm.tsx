@@ -86,7 +86,8 @@ export default function ResellerForm({
       <div className="grid grid-cols-2 gap-4">
         <InputField
           label="Reseller Name"
-          isRequired
+          isRequired 
+          disabled={isEdit}
           placeholder="Mg Mg"
           {...register("name")}
           errMsg={errors.name?.message}
@@ -106,7 +107,6 @@ export default function ResellerForm({
         <InputField
           type="number"
           label="Initial Balance"
-          isRequired
           placeholder="1000"
           {...register("balance", { valueAsNumber: true })}
           disabled={isEdit}
@@ -147,7 +147,8 @@ export default function ResellerForm({
        <ImageUpload
         ref={relatedImagesRef}
         label="Related Images"
-        isRequired
+        disabled={isEdit}
+        
         value={watch("relatedImages")?.[0] || ""}
         onChange={(val) =>
           setValue("relatedImages", val ? [val] : [], {

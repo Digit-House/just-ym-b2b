@@ -13,4 +13,5 @@ export type PaymentMethodT = {
   type: "BANK_TRANSFER" | "QR_CODE";
   createdAt: string;
   updatedAt: string;
+  currency: "THB" | "MMK";
 };

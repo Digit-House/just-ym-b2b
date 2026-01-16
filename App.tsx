@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { UserProvider } from "./provider/UserProvider";
 
 import AuthLayout from "./layouts/AuthLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -37,57 +38,59 @@ import Preview from "./pages/web/cart/preview/Preview";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        {/* 🔓 Public */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-        </Route>
-
-        {/* 🔐 Protected */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="tickets" element={<UserTickets />} />
-            <Route path="tickets/:id" element={<TicketDetailPage />} />
-            <Route path="tickets/user-info" element={<UserInfoPage />} />
-            <Route path="bookings" element={<Bookings />} />
-            <Route path="users" element={<UsersManagement />} />
-            <Route path="bookings/:id" element={<BookingDetail />} />
-            <Route path="reports" element={<Reports />} />
-            <Route path="cart" element={<Cart />} />
-            <Route path="cart/checkout" element={<Checkout />} />
-            <Route path="cart/preview/:id" element={<Preview />} />
-            <Route path="wallet" element={<Wallet />} />
-            <Route path="wallet/topup" element={<Topup />} />
-
-            <Route path="settings">
-              <Route index element={<Navigate to="general" replace />} />
-              <Route path="general" element={<Settings />} />
-              <Route path="kyc" element={<KYCWizard />} />
-            </Route>
-
-            {/* ADMIN Routes */}
-            <Route path="countries" element={<Countries />} />
-            <Route path="cities" element={<Cities />} />
-            <Route path="categories" element={<Categories />} />
-            <Route path="topup" element={<TopUp />} />
-            <Route path="resellers" element={<Resellers />} />
-            <Route path="roles" element={<Roles />} />
-            <Route path="paymentMethods" element={<PaymentMethods />} />
-            <Route path="currencyRate" element={<CurrencyRate />} />
-            <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
-            <Route
-              path="admin-tickets/edit/:id"
-              element={<AdminTicketEdit />}
-            />
+    <UserProvider>
+      <Router>
+        <Routes>
+          {/* 🔓 Public */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
           </Route>
-        </Route>
 
-        {/* fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+          {/* 🔐 Protected */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="tickets" element={<UserTickets />} />
+              <Route path="tickets/:id" element={<TicketDetailPage />} />
+              <Route path="tickets/user-info" element={<UserInfoPage />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="users" element={<UsersManagement />} />
+              <Route path="bookings/:id" element={<BookingDetail />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="cart" element={<Cart />} />
+              <Route path="cart/checkout" element={<Checkout />} />
+              <Route path="cart/preview/:id" element={<Preview />} />
+              <Route path="wallet" element={<Wallet />} />
+              <Route path="wallet/topup" element={<Topup />} />
+
+              <Route path="settings">
+                <Route index element={<Navigate to="general" replace />} />
+                <Route path="general" element={<Settings />} />
+                <Route path="kyc" element={<KYCWizard />} />
+              </Route>
+
+              {/* ADMIN Routes */}
+              <Route path="countries" element={<Countries />} />
+              <Route path="cities" element={<Cities />} />
+              <Route path="categories" element={<Categories />} />
+              <Route path="topup" element={<TopUp />} />
+              <Route path="resellers" element={<Resellers />} />
+              <Route path="roles" element={<Roles />} />
+              <Route path="paymentMethods" element={<PaymentMethods />} />
+              <Route path="currencyRate" element={<CurrencyRate />} />
+              <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
+              <Route
+                path="admin-tickets/edit/:id"
+                element={<AdminTicketEdit />}
+              />
+            </Route>
+          </Route>
+
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
 };
 

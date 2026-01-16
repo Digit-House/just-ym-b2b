@@ -20,6 +20,9 @@ import { uploadMultipleImages } from "@/util";
 import { getPaymentMethods } from "@/graphql/paymentMethod";
 import { PaymentMethodT } from "@/types/paymentMethod.type";
 import { QRCodeSection } from "./_components/QRCodeSection";
+import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+import CurrencyConverter from "@/components/CurrencyConverter";
+import TotalAmountDisplay from "@/components/TotalAmountDisplay";
 
 const Topup = () => {
   const navigate = useNavigate();
@@ -29,6 +32,13 @@ const Topup = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethodT | null>(null);
   const { creditInfo } = useWalletStore();
+
+  const {
+    data: currencyRate,
+    isLoading,
+    isError,
+    error,
+  } = useCurrencyRate(true);
 
   const {
     watch,
@@ -58,7 +68,6 @@ const Topup = () => {
 
       const bankMethods = bankRes?.data?.paymentMethods || [];
       const qrMethods = qrRes?.data?.paymentMethods || [];
-      
       setPaymentMethods((prev) => {
         const map = new Map();
 
@@ -83,7 +92,6 @@ const Topup = () => {
 
       let relatedImages: string[] = [];
 
-      // 🔹 Upload images only for bank transfer
       if (data.proofFiles?.length) {
         relatedImages = await uploadMultipleImages(
           data.proofFiles,
@@ -96,7 +104,7 @@ const Topup = () => {
         resellerId: user?.id,
         topUpBalance: data.amount,
         relatedImages,
-        paymentMethodId:selectedPaymentMethod.id
+        paymentMethodId: selectedPaymentMethod.id,
       });
 
       toast.success("Top up request submitted successfully");
@@ -117,7 +125,11 @@ const Topup = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <BalancePreview balance={creditInfo?.balance} selectedAmount={amount} />
-
+        <CurrencyConverter
+          amount={amount}
+          fromCurrency="THB"
+          title="Amount Conversion"
+        />
         <AmountSelector
           value={amount}
           onChange={(v) => setValue("amount", v)}
@@ -127,7 +139,7 @@ const Topup = () => {
           control={control}
           paymentMethods={paymentMethods}
           onPaymentMethodSelect={(method) => {
-            setSelectedPaymentMethod(method);
+            setSelectedPaymentMethod({ ...method});
             setValue("paymentMethodId", method.id);
           }}
           selectedMethod={selectedPaymentMethod}
@@ -164,6 +176,12 @@ const Topup = () => {
             }}
           />
         )}
+
+        <TotalAmountDisplay
+          amount={amount}
+          selectedPaymentMethod={selectedPaymentMethod}
+          title="Total Payment Amount"
+        />
 
         <div className="flex gap-4 pt-8">
           <button
