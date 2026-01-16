@@ -1,8 +1,6 @@
 import { Calendar, Ticket, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
-import CartListItem from "./_components/CartListItem";
 import EmptyCart from "./_components/EmptyCart";
-import { useUser } from "@/provider/UserProvider";
 import PageHeader from "@/components/PageHeader";
 import BackBtn from "@/components/BackBtn";
 import PageContainer from "@/components/PageContainer";

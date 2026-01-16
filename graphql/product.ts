@@ -96,15 +96,15 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
 
 export const getProductOptions = async (productId: string, date: Date) => {
   try {
-    const res: ProductOptionResponse = await client.query({
+    const res: ProductInfoResponse = await client.query({
       query: warpGql(GET_PRODUCT_OPTIONS),
       variables: {
-        userProductId: productId,
+        productId: productId,
         date: date,
       },
       fetchPolicy: "no-cache",
     });
-    return res.data.user_product.productOptions as ProductOptionT[];
+    return res.data.getProductInfo as ProductInfoT;
   } catch (err) {
     throw err;
   }

@@ -51,7 +51,7 @@ export const useTicketDetail = (id?: string) => {
   const fetchProduct = async (productId: string) => {
     try {
       setLoading(true);
-      const res = await getProductInfo(productId);
+      const res: any = await getProductInfo(productId);
       setProduct(res);
 
       // reset quantities based on first package
@@ -72,7 +72,7 @@ export const useTicketDetail = (id?: string) => {
     setSelectedProductOption(null);
     try {
       const res = await getProductOptions(productId, pickedDate);
-      const result = res.filter((item: any) =>
+      const result = res.productOptions.filter((item: any) =>
         [AVAILABILITY_ENUM.AVAILABLE, null].includes(item.availability)
       );
       setProductOptions(result);

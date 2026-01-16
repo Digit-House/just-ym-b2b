@@ -4,7 +4,7 @@ import {
   MY_BOOKING_DATA_TYPE,
 } from "@/types/booking.type";
 import { format } from "date-fns";
-import { Calendar } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,10 +14,17 @@ type Props = {
 
 const BookingCard = ({ data }: Props) => {
   const navigate = useNavigate();
+
   return (
     <div className="w-full p-6 border border-[#D9D9D9] rounded-2xl flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
-        <div className="col-span-1 lg:col-span-2">
+        <div
+          className={`col-span-1 ${
+            data.status === BOOKING_STATUS_ENUM.PAID
+              ? "lg:col-span-3"
+              : "lg:col-span-2"
+          }`}
+        >
           <div className="flex items-center gap-2">
             <p> Order ID</p>
             <p className="text-indigo-700">{data.id}</p>
@@ -26,6 +33,11 @@ const BookingCard = ({ data }: Props) => {
             Purchased on {format(data.transactedTime, "dd MMMM yyyy")}
           </p>
         </div>
+        {/* {data.status === BOOKING_STATUS_ENUM.PAID && (
+          <div className="flex items-center">
+            <Clock className="text-indigo-700 w-5 h-5" />
+          </div>
+        )} */}
         <div
           className={`flex items-center justify-end gap-4 ${
             data.status === BOOKING_STATUS_ENUM.PENDING

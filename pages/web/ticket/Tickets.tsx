@@ -6,7 +6,13 @@ import { useCountries } from "@/hooks/useCountries";
 import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
 import SortSelect, { SortOption } from "@/components/SortSelect";
-import { Select as ShadcnSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select as ShadcnSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/graphql/product";
@@ -24,9 +30,11 @@ export default function Tickets() {
   const navigate = useNavigate();
 
   const [sort, setSort] = useState("desc");
-  const {user} = useUser();
-  
-  const [published, setPublished] = useState<"ALL" | "PUBLISHED" | "UNPUBLISHED">("PUBLISHED");
+  const { user } = useUser();
+
+  const [published, setPublished] = useState<
+    "ALL" | "PUBLISHED" | "UNPUBLISHED"
+  >("PUBLISHED");
   const [categories, setCategories] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
 
@@ -100,7 +108,12 @@ export default function Tickets() {
             width="w-48"
           />
           {user?.type === "OWNER" && (
-            <ShadcnSelect value={published} onValueChange={(value) => setPublished(value as "ALL" | "PUBLISHED" | "UNPUBLISHED")}>
+            <ShadcnSelect
+              value={published}
+              onValueChange={(value) =>
+                setPublished(value as "ALL" | "PUBLISHED" | "UNPUBLISHED")
+              }
+            >
               <SelectTrigger className="w-48">
                 <SelectValue />
               </SelectTrigger>
@@ -153,8 +166,9 @@ export default function Tickets() {
                 </p>
 
                 <button
-                 onClick={() => navigate(`/tickets/${p.id}`)}
-                className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors">
+                  onClick={() => navigate(`/tickets/${p.id}`)}
+                  className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"
+                >
                   Read More <ArrowRight size={16} className="ml-1" />
                 </button>
 
@@ -162,7 +176,7 @@ export default function Tickets() {
                   <div>
                     <p className="text-xs text-gray-500">Special Price</p>
                     <p className="text-lg font-bold text-gray-900">
-                      ${p.dhSellingPrice}
+                      ${p.price}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -173,7 +187,7 @@ export default function Tickets() {
                       >
                         Edit
                       </button>
-                    )} 
+                    )}
                     <button
                       onClick={() => navigate(`/tickets/${p.id}`)}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"

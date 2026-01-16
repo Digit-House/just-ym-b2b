@@ -10,7 +10,7 @@ const PageContainer = ({ className = "", children }: Props) => {
   return (
     <div
       className={cn(
-        "w-full  mx-auto animate-in fade-in duration-500 mt-5",
+        "w-full  mx-auto animate-in fade-in duration-500 pt-10",
         className
       )}
     >
