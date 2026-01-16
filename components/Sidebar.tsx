@@ -45,13 +45,13 @@ const Sidebar = () => {
       }`}
     >
       {/* LOGO */}
-      <div className="p-6 flex justify-center relative">
-        <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">
+      <div className="px-2 py-4 flex justify-center relative">
+        <div className="w-14 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">
           <div className="text-center">
             <div className="text-[10px] font-bold">JUST</div>
             <div
               className={` font-bold text-orange-500 ${
-                isCollapsed ? "text-xl" : "text-3xl"
+                isCollapsed ? "text-sm" : "text-3xl"
               }`}
             >
               M

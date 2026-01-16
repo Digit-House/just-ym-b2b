@@ -15,11 +15,11 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full   py-4 px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
+      className={`flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full  py-2 px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
         isCollapsed ? "max-w-[calc(100vw-80px)]" : "max-w-[calc(100vw-232px)]"
       }`}
     >
-      <div className="p-3 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
+      <div className="p-2 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
         <Wallet className="w-4 h-4 text-white" />
         <div>
           <p className="text-xs text-white/80">Available Credits</p>
@@ -28,31 +28,7 @@ const Header: React.FC = () => {
             {creditInfo?.balance?.toLocaleString("en-US") || "0"}
           </p>
         </div>
-        {/* <p className="text-xl font-bold">
-          <span className="text-gray-900">Your Balance : </span>
-          <span className="text-indigo-600">
-            {creditInfo.currency} {creditInfo?.balance}
-          </span>
-        </p> */}
       </div>
-      {/* <div className="flex items-center gap-4">
-        <div className="p-1  transition-all duration-300 cursor-default group">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
-              Total Balance
-            </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xs font-bold text-gray-800">
-                {creditInfo.currency}
-              </span>
-              <span className="text-xs font-extrabold text-black bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                {creditInfo?.balance?.toLocaleString("en-US") || "0"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       {/* Right Section: Actions & Profile */}
       <div className="flex items-center gap-2">
         {/* Action Buttons Group */}
@@ -74,10 +50,11 @@ const Header: React.FC = () => {
             )}
           </button>
 
-          <div className="w-px h-5 bg-gray-300 mx-1" />
+          
 
           {/* Notifications */}
-          <button
+          {/*<div className="w-px h-5 bg-gray-300 mx-1" />
+           <button
             className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
             aria-label="Notifications"
           >
@@ -86,7 +63,7 @@ const Header: React.FC = () => {
               className="group-hover:text-indigo-600 transition-colors"
             />
             <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#f3f4f6]"></span>
-          </button>
+          </button> */}
         </div>
 
         {/* User Profile */}
