@@ -52,7 +52,6 @@ const TopUp = () => {
     try {
       setLoading(true);
       const res: any = await getAdminTopupHistory(filterData);
-
       setTopUpData(res?.data?.findAllTopUpHistory?.data ?? []);
       setTotal(res?.data?.findAllTopUpHistory?.total ?? 0);
     } catch (err) {
@@ -130,6 +129,11 @@ const TopUp = () => {
                 <th className="px-6 py-4 font-semibold">Reseller</th>
                 <th className="px-6 py-4 font-semibold">Amount</th>
                 <th className="px-6 py-4 font-semibold">Currency</th>
+                <th className="px-6 py-4 font-semibold">Method Name</th>
+                <th className="px-6 py-4 font-semibold">Bank Name</th>
+                <th className="px-6 py-4 font-semibold">Account Number</th>
+                <th className="px-6 py-4 font-semibold">Account Name</th>
+                <th className="px-6 py-4 font-semibold">Payment Currency</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
                 <th className="px-6 py-4 font-semibold">Created At</th>
                 <th className="px-6 py-4 font-semibold">Action</th>
@@ -139,7 +143,7 @@ const TopUp = () => {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center">
+                  <td colSpan={11} className="px-6 py-8 text-center">
                     Loading top-up history...
                   </td>
                 </tr>
@@ -160,6 +164,23 @@ const TopUp = () => {
                     </td>
 
                     <td className="px-6 py-4">{item.currency}</td>
+
+                    {/* Payment Method Columns */}
+                    <td className="px-6 py-4">
+                      {item.paymentMethod ? item.paymentMethod.name : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.paymentMethod ? item.paymentMethod.bankName : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.paymentMethod ? item.paymentMethod.accountNumber : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.paymentMethod ? item.paymentMethod.accountName : "N/A"}
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.paymentMethod ? item.paymentMethod.currency : "N/A"}
+                    </td>
 
                     <td className="px-6 py-4">
                       <span
@@ -192,7 +213,7 @@ const TopUp = () => {
 
               {!loading && topUpData.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center">
+                  <td colSpan={11} className="px-6 py-8 text-center">
                     No Top up History found
                   </td>
                 </tr>

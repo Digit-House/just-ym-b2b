@@ -7,7 +7,7 @@ import ImagePreviewModal from "@/components/ImagePreviewModal";
 type Props = {
   qrCodeUrl: string;
   bankName: string;
-  accountNumber: string;
+  accountName: string;
   control: any;
   files?: File[];
   onRemoveFile: (index: number) => void;
@@ -16,7 +16,7 @@ type Props = {
 export const QRCodeSection = ({ 
   qrCodeUrl, 
   bankName, 
-  accountNumber,
+  accountName,
   control,
   files = [],
   onRemoveFile
@@ -76,9 +76,9 @@ export const QRCodeSection = ({
             
             <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                Account Number
+                Account Name
               </p>
-              <p className="text-sm font-black text-gray-900">{accountNumber || "N/A"}</p>
+              <p className="text-sm font-black text-gray-900">{accountName || "N/A"}</p>
             </div>
           </div>
 

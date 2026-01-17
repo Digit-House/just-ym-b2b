@@ -11,7 +11,7 @@ import { ResellerT } from "@/types/reseller.type";
 import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
 import ModalWrapper from "@/components/ModalWrapper";
-import { Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit2, Plus} from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { ResellerFormValues } from "@/types/schema/resellerSchema";
 import { Button } from "@/components/ui/button";
@@ -62,10 +62,19 @@ const Resellers = () => {
       setLoading(true);
       await createReseller({
         name: value.name,
+        active: value.active,
         credit: {
-          balance: value.balance,
-          currency: value.currency,
-          relatedImages: value.relatedImages || [],
+          balance: value.credit.balance,
+          currency: value.credit.currency,
+          relatedImages: value.credit.relatedImages || [],
+        },
+        user: {
+          contactNo: value.user.contactNo,
+          countryCode: value.user.countryCode,
+          email: value.user.email,
+          username: value.user.username,
+          password: value.user.password,
+          imageURI: value.user.imageURI || "",
         },
       });
       closeModal();
@@ -86,7 +95,7 @@ const Resellers = () => {
         name: value.name,
         active: value.active,
         credit: {
-          relatedImages: value.relatedImages || [],
+          relatedImages: value.credit.relatedImages || [],
         },
       });
       closeModal();

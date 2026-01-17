@@ -61,7 +61,6 @@ export type ErrMsg = {
 }
 
 export const getErrMsg = (error: ErrMsg, type: "code" | "message") => {
-
   if (error?.errors.length > 0) {
     const errorMessage = error?.errors[0];
     if (type === "code") {

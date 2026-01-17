@@ -26,10 +26,37 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
       status
       topUpBalance
       updatedAt
+      paymentMethod {
+        id
+        name
+        bankName
+        accountNumber
+        accountName
+        currency
+      }
+        createdBy {
+        id
+        email
+        contactNo
+        active
+        username
+      }
+      reseller {
+        id
+        active
+        email
+        name
+      } 
+         confirmBy {
+        id
+        email
+        contactNo
+        active
+        username
+      } 
     }
   }
-}
-`;
+}`;
 
 export const TOPUP_HISTORY = `
 query FindAllTopUpHistory($data: TopUpPagedParams!) {
@@ -61,10 +88,17 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
         contactNo
         username
       }
+      paymentMethod {
+        id
+        name
+        bankName
+        accountNumber
+        accountName
+        currency
+      }
     }
   }
-}
-`;
+}`;
 
 export const ADD_TOP_UP = `
 mutation TopUp($data: TopUpInput!) {

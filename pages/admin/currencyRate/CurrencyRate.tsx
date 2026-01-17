@@ -15,11 +15,11 @@ const CurrencyRate = () => {
     isError,
     error,
     refetch: refetchCurrencyRate
-  } = useCurrencyRate(true); // Enable auto-refresh every minute
+  } = useCurrencyRate(true); 
 
   const handleSave = () => {
     setShowEditModal(false);
-    refetchCurrencyRate(); // Refresh data after update
+    refetchCurrencyRate(); 
   };
 
   if (isLoading) {

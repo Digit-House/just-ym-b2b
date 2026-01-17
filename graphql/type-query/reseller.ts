@@ -4,22 +4,23 @@ query FindAllResellers($params: AbstractPagedParams!) {
     total
     data {
       active
+      contactNo
       createdAt
       credit {
         balance
         currency
-        id
-        totalUsage
-        updatedAt
         totalTopUp
-        otherBalance
+        totalUsage
+        id
+        createdAt
+        updatedAt
         lastMonthUsage
         hasOutstandingDebt
-        createdAt
       }
-      id
       name
-      updatedAt
+      id
+      email
+      username
     }
   }
 }

@@ -10,12 +10,12 @@ query CurrencyRate {
 `;
 
 export const UPDATE_CURRENCY_RATE = `
-mutation UpdateCurrencyRate($input: CurrencyRateCreateInput!) {
+mutation UpdateCurrencyRate($input: CurrencyRateCreateManyInput!) {
   updateCurrencyRate(input: $input) {
-    createdAt
     id
     mmk
     updatedAt
+    createdAt
   }
 }
 `;

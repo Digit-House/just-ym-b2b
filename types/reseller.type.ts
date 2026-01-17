@@ -18,19 +18,40 @@ export type ResellerCreditT = {
 };
 
 export type ResellerT = {
-  id: string;
-  name: string;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-  credit: ResellerCreditT;
+  active:boolean;
+  contactNo:string;
+  createdAt:string;
+  credit:{
+    balance:string;
+    currency:string;
+    totalTopUp:string;
+    totalUsage:string;
+    hasOutstandingDebt: boolean;
+    relatedImages?: string[];
+    createdAt:string;
+    updatedAt:string;
+  }
+  id:string;
+  name:string;
+  email:string;
 };
 
 export type CreateResellerPayloadT = {
   name: string;
+  active: boolean;
+
   credit: {
     balance: number;
     currency: string;
-    relatedImages: string[] | null;
+    relatedImages: string[];
+  };
+
+  user: {
+    contactNo: string;
+    countryCode: string;
+    email: string;
+    username: string;
+    password: string;
+    imageURI: string;
   };
 };

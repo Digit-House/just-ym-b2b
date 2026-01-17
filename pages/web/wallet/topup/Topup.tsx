@@ -20,7 +20,6 @@ import { uploadMultipleImages } from "@/util";
 import { getPaymentMethods } from "@/graphql/paymentMethod";
 import { PaymentMethodT } from "@/types/paymentMethod.type";
 import { QRCodeSection } from "./_components/QRCodeSection";
-import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 import CurrencyConverter from "@/components/CurrencyConverter";
 import TotalAmountDisplay from "@/components/TotalAmountDisplay";
 
@@ -33,12 +32,6 @@ const Topup = () => {
     useState<PaymentMethodT | null>(null);
   const { creditInfo } = useWalletStore();
 
-  const {
-    data: currencyRate,
-    isLoading,
-    isError,
-    error,
-  } = useCurrencyRate(true);
 
   const {
     watch,
@@ -166,7 +159,7 @@ const Topup = () => {
           <QRCodeSection
             qrCodeUrl={selectedPaymentMethod.qrCodeUrl}
             bankName={selectedPaymentMethod.bankName}
-            accountNumber={selectedPaymentMethod.accountNumber}
+            accountName={selectedPaymentMethod.accountName}
             control={control}
             files={proofFiles}
             onRemoveFile={(index) => {

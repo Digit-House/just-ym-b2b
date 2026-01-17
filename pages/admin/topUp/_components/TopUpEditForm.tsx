@@ -78,6 +78,19 @@ export default function TopUpEditForm({
           value={new Date(initialValues.updatedAt).toLocaleString()}
         />
 
+
+
+        {initialValues.paymentMethod && (
+          <div className="col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h4 className="font-bold text-gray-700 mb-2">Payment Method Details</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <ReadOnly label="Bank Name" value={initialValues.paymentMethod.bankName} />
+              <ReadOnly label="Account Number" value={initialValues.paymentMethod.accountNumber} />
+              <ReadOnly label="Account Name" value={initialValues.paymentMethod.accountName} />
+              <ReadOnly label="Currency" value={initialValues.paymentMethod.currency} />
+            </div>
+          </div>
+        )}
         <div className="col-span-2">
           <ImagePreview 
             images={initialValues.relatedImages || []}

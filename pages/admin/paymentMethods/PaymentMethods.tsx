@@ -53,7 +53,7 @@ const PaymentMethods = () => {
   const fetchPaymentMethods = async () => {
     try {
       setLoading(true);
-      const res: any = await getPaymentMethods(isActive,"BANK_TRANSFER");
+      const res: any = await getPaymentMethods(isActive, "BANK_TRANSFER");
       setPaymentData(res?.data?.paymentMethods || []);
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
@@ -162,6 +162,7 @@ const PaymentMethods = () => {
                 <th className="px-6 py-4 font-semibold">Type</th>
                 <th className="px-6 py-4 font-semibold">Bank</th>
                 <th className="px-6 py-4 font-semibold">Account</th>
+                <th className="px-6 py-4 font-semibold">Currency</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
                 <th className="px-6 py-4 font-semibold">Created At</th>
                 <th className="px-6 py-4 font-semibold">Action</th>
@@ -207,6 +208,8 @@ const PaymentMethods = () => {
                         </div>
                       )}
                     </td>
+
+                    <td className="px-6 py-4">{item.currency || "-"}</td>
 
                     <td className="px-6 py-4">
                       <span
@@ -281,7 +284,7 @@ const PaymentMethods = () => {
 
       {modalState.mode === "delete" && modalState.paymentMethod && (
         <DeleteModal
-          title="Delete Role?"
+          title="Delete Payment Method?"
           des={`Are you sure you want to delete ${modalState.paymentMethod}? This action cannot be undone.`}
           isOpen={deletModal}
           onClose={() => {

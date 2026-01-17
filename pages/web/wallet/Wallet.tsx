@@ -30,6 +30,7 @@ const Wallet = () => {
   const fetchTopUpHistory = async () => {
     try {
       const res:any = await getTopupHistory(filterData);
+      console.log("res", res?.data?.findAllTopUpHistory?.data)
       setTopUpData(res?.data?.findAllTopUpHistory?.data);
     } catch (err) {
       toast.error(getErrMsg(err, "message"));

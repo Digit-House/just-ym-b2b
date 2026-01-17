@@ -2,16 +2,17 @@ import { z } from "zod";
 
 export const paymentMethodSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().optional(),
   type: z.string().min(1, "Type is required"),
   bankName: z.string().min(1, "Bank Name is required"),
-  accountName: z.string().optional(),
+  accountName: z.string().min(1, "Account Name is required"),
   accountNumber: z.string().optional(),
   description: z.string().optional(),
   instructions: z.string().optional(),
   logo: z.string().optional(),
   qrCodeUrl: z.string().optional(),
   isActive: z.boolean(),
+  currency: z.string().min(1, "Currency is required"),
 }).superRefine((data, ctx) => {
   if (data.type === "BANK_TRANSFER") {
     if (!data.accountName || data.accountName.trim() === "") {

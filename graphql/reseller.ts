@@ -23,6 +23,9 @@ export const createReseller = async (payload: CreateResellerPayloadT) => {
         credit: {
           ...payload.credit,
         },
+        user: {
+          ...payload.user,
+        },
       },
     },
     fetchPolicy: "no-cache",
@@ -56,3 +59,14 @@ export const updateReseller = async (id: string, payload: UpdateResellerPayloadT
     fetchPolicy: "no-cache",
   });
 };
+
+
+
+ // id: string;
+  // name?: string;
+  // active?: boolean;
+  // credit?: {
+  //   balance?: number;
+  //   currency?: string;
+  //   relatedImages?: string[] | null;
+  // };

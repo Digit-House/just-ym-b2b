@@ -56,6 +56,7 @@ export default function PaymentMethodForm({
       logo: initialValues?.logo ?? "",
       qrCodeUrl: initialValues?.qrCodeUrl ?? "",
       isActive: initialValues?.isActive ?? true,
+      currency: initialValues?.currency ?? "MMK",
     },
   });
 
@@ -135,7 +136,6 @@ export default function PaymentMethodForm({
           onValueChange={(val) =>
             setValue("type", val as PaymentMethodFormValues["type"])
           }
-          disabled={isEdit}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select type" />
@@ -151,6 +151,15 @@ export default function PaymentMethodForm({
       </div>
 
       <>
+      
+        <InputField
+          label="Bank Name"
+          isRequired
+          placeholder="KBZ"
+          {...register("bankName")}
+          errMsg={errors.bankName?.message}
+        />
+
         <InputField
           label="Name"
           {...register("name")}
@@ -160,23 +169,15 @@ export default function PaymentMethodForm({
         />
 
         <InputField
-          label="Bank Name"
+          label="Account Name"
           isRequired
-          placeholder="KBZ"
-          {...register("bankName")}
-          errMsg={errors.bankName?.message}
+          placeholder="Mg Mg"
+          {...register("accountName")}
+          errMsg={errors.accountName?.message}
         />
 
         {type === "BANK_TRANSFER" && (
           <>
-            <InputField
-              label="Account Name"
-              isRequired
-              placeholder="Mg Mg"
-              {...register("accountName")}
-              errMsg={errors.accountName?.message}
-            />
-
             <InputField
               label="Account Number"
               isRequired
@@ -186,6 +187,27 @@ export default function PaymentMethodForm({
             />
           </>
         )}
+        <div className="space-y-1">
+          <label className="text-sm font-medium">
+            Currency <span className="text-red-500">*</span>
+          </label>
+          <Select
+            value={watch("currency")}
+            onValueChange={(val) => setValue("currency", val)}
+           
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="MMK">MMK (Myanmar Kyat)</SelectItem>
+              <SelectItem value="THB">THB (Thai Baht)</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.currency && (
+            <p className="text-xs text-red-500">{errors.currency.message}</p>
+          )}
+        </div>
       </>
       {type === "QR_CODE" && (
         <>
@@ -198,11 +220,11 @@ export default function PaymentMethodForm({
             errMsg={errors.qrCodeUrl?.message}
             folderType="CREDIT_TOP_UP"
           />
-          
+
           {/* QR Code Preview for Edit Mode */}
           {isEdit && watch("qrCodeUrl") && (
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <ImagePreview 
+              <ImagePreview
                 images={[watch("qrCodeUrl")]}
                 title="Current QR Code Preview"
                 className="w-full"

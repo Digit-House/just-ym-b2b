@@ -8,6 +8,7 @@ import {
 export const getCurrencyRate = async () => {
   return client.query({
     query: warpGql(GET_CURRENCY_RATE),
+    fetchPolicy:"no-cache"
   });
 };
 
@@ -19,5 +20,6 @@ export const updateCurrencyRate = async (mmk: number) => {
         mmk: mmk,
       },
     },
+    fetchPolicy:"no-cache"
   });
 };

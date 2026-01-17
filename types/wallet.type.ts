@@ -1,3 +1,4 @@
+import { PaymentMethodT } from "./paymentMethod.type";
 
 export interface WalletStateT {
   balance: number;
@@ -14,29 +15,23 @@ export interface TopUpHistoryFilterT {
   status: null | string;
 }
 
+export type UserT = {
+  id: string;
+  email?: string;
+  name: string;
+  contactNo?: string | null;
+  active: boolean;
+};
+
+
 export interface TopUpHistoryT {
   id: string;
   currency: string;
   relatedImages: string[];
-  createdBy: {
-    id: string;
-    email: string;
-    contactNo: string;
-    active: boolean;
-    username:string;
-  };
-  reseller: {
-    id: string;
-    active: boolean;
-    name: string;
-  };
-  confirmBy: {
-    id: string;
-    email: string;
-    contactNo: string;
-    active: boolean;
-    username:string;
-  };
+  paymentMethod: PaymentMethodT;
+  createdBy: UserT;
+  reseller: UserT
+  confirmBy: UserT;
   status: string;
   topUpBalance: number;
   createdAt: string;
