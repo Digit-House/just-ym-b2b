@@ -29,6 +29,12 @@ export interface TopUpHistoryT {
   currency: string;
   relatedImages: string[];
   paymentMethod: PaymentMethodT;
+  currencyRate:{
+    id:string;
+    mmk:string;
+    createdAt:string;
+    updatedAt:string;
+  }
   createdBy: UserT;
   reseller: UserT
   confirmBy: UserT;

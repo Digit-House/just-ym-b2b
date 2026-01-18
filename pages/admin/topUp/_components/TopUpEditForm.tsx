@@ -91,6 +91,17 @@ export default function TopUpEditForm({
             </div>
           </div>
         )}
+        {initialValues.paymentMethod && (
+          <div className="col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h4 className="font-bold text-gray-700 mb-2">Currency Rage</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <ReadOnly label="Mmk" value={initialValues.currencyRate.mmk} />
+              <ReadOnly label="Currency" value={initialValues.currencyRate.id} />
+              <ReadOnly label="Created At" value={initialValues.currencyRate.createdAt} />
+              <ReadOnly label="Update At" value={initialValues.currencyRate.updatedAt} />
+            </div>
+          </div>
+        )}
         <div className="col-span-2">
           <ImagePreview 
             images={initialValues.relatedImages || []}

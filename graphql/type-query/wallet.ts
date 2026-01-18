@@ -70,6 +70,12 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
         id
         name
       }
+      currencyRate {
+        createdAt
+        updatedAt
+        mmk
+        id
+      }
       status
       resellerId
       topUpBalance
