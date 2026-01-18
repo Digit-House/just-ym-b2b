@@ -9,11 +9,13 @@ import {
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, Upload, X } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef } from "react";
-import { getSignedUrlAndImageDataUpload } from "@/util";
+
+// Simple ID generator function
+const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 
 type MediaTabProps = {
   control: Control<TicketFormValues>;
@@ -42,35 +44,65 @@ const MediaTab: React.FC<MediaTabProps> = ({
     initialMediaItemsRef.current = (initialValues as UpdateProductPayloadT)?.media ?? [];
   }
   
-  // State for media items
-  const [mediaItems, setMediaItems] = useState<MediaFileT[]>(initialMediaItemsRef.current);
+  // State for media items with unique IDs
+  const [mediaItems, setMediaItems] = useState<(MediaFileT & { id: string })[]>(
+    initialMediaItemsRef.current.map(item => ({
+      ...item,
+      id: generateId()
+    }))
+  );
   
   // Initialize from form state on mount if available
   useEffect(() => {
     if (!hasInitializedFromFormRef.current) {
       const formMedia = watch('media');
       if (formMedia && Array.isArray(formMedia) && formMedia.length > 0) {
-        setMediaItems([...formMedia]);
+        setMediaItems(formMedia.map(item => ({
+          ...item,
+          id: generateId()
+        })));
       }
       hasInitializedFromFormRef.current = true;
     }
   }, [watch('media')]);
   
-  // Synchronize media items with form state
+  // Synchronize media items with form state (without the id field)
   useEffect(() => {
-    setValue('media', mediaItems);
+    const mediaWithoutIds = mediaItems.map(({ id, ...rest }) => rest);
+    setValue('media', mediaWithoutIds);
   }, [mediaItems, setValue]);
   
   // Watch for external changes to media in form state and update local state
-  // Only when the change comes from outside this component
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       if (name === 'media' && type === 'change') {
-        // Only update if the change came from outside this component
-        // We can differentiate by checking if our local state differs from form state
         const currentFormMedia = value.media;
-        if (currentFormMedia && JSON.stringify(currentFormMedia) !== JSON.stringify(mediaItems)) {
-          setMediaItems([...currentFormMedia]);
+        if (currentFormMedia && Array.isArray(currentFormMedia)) {
+          // Compare without considering ids
+          const formMediaWithoutIds = currentFormMedia.map(item => JSON.stringify({
+            type: item.type,
+            size: item.size,
+            path: item.path,
+            name: item.name,
+            isPublished: item.isPublished,
+            extension: item.extension
+          }));
+          
+          const localMediaWithoutIds = mediaItems.map(item => JSON.stringify({
+            type: item.type,
+            size: item.size,
+            path: item.path,
+            name: item.name,
+            isPublished: item.isPublished,
+            extension: item.extension
+          }));
+          
+          if (JSON.stringify(formMediaWithoutIds) !== JSON.stringify(localMediaWithoutIds)) {
+            setMediaItems(currentFormMedia.map(item => ({
+              ...item,
+              id: generateId()
+            })));
+          }
         }
       }
     });
@@ -101,6 +133,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
     setMediaItems((prev) => [
       ...prev,
       {
+        id: generateId(),
         type: null,
         size: null,
         path: null,
@@ -111,22 +144,22 @@ const MediaTab: React.FC<MediaTabProps> = ({
     ]);
   };
 
-  const removeMediaItem = (index: number) => {
-    setMediaItems((prev) => prev.filter((_, i) => i !== index));
+  const removeMediaItem = (itemId: string) => {
+    setMediaItems((prev) => prev.filter(item => item.id !== itemId));
   };
 
   const updateMediaItem = (
-    index: number,
+    itemId: string,
     field: keyof (typeof mediaItems)[0],
     value: string | number | boolean | null
   ) => {
     setMediaItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item))
     );
   };
 
   // This will be updated when we have file information
-  const handleMediaItemImageUpload = (index: number, imageUrl: string, file?: File) => {
+  const handleMediaItemImageUpload = (itemId: string, imageUrl: string, file?: File) => {
     // If we have the original file object, extract information from it
     let name = null;
     let extension = null;
@@ -162,11 +195,11 @@ const MediaTab: React.FC<MediaTabProps> = ({
       }
     }
     
-    updateMediaItem(index, 'path', imageUrl);
-    updateMediaItem(index, 'name', name);
-    updateMediaItem(index, 'extension', extension);
-    updateMediaItem(index, 'size', size);
-    updateMediaItem(index, 'type', type);
+    updateMediaItem(itemId, 'path', imageUrl);
+    updateMediaItem(itemId, 'name', name);
+    updateMediaItem(itemId, 'extension', extension);
+    updateMediaItem(itemId, 'size', size);
+    updateMediaItem(itemId, 'type', type);
   };
 
   return (
@@ -230,32 +263,32 @@ const MediaTab: React.FC<MediaTabProps> = ({
           </div>
 
           <div className="space-y-4">
-            {mediaItems?.map((media, index) => (
+            {mediaItems?.map((media) => (
               <div
-                key={index}
+                key={media.id}
                 className={`p-4 rounded-lg border grid grid-cols-1  gap-4 ${
-                  errors.media?.[index]
+                  errors.media?.[mediaItems.findIndex(item => item.id === media.id)]
                     ? "bg-red-50 border-red-300"
                     : "bg-gray-50"
                 }`}
               >
                 <div
                   className={`${
-                    errors.media?.[index]?.path
+                    errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.path
                       ? "border border-red-300 rounded-lg p-2 bg-red-50"
                       : ""
                   }`}
                 >
                   <ImageUpload
-                    ref={setImageUploadRef(index)}
+                    ref={setImageUploadRef(mediaItems.findIndex(item => item.id === media.id))}
                     label="Media Image"
                     value={media.path}
                     onChange={(val, file) => {
                       // Update the path with the preview URL for now
-                      updateMediaItem(index, 'path', val);
+                      updateMediaItem(media.id, 'path', val);
                       // Auto-fill name, extension, type, and size if file is available
                       if (file) {
-                        handleMediaItemImageUpload(index, val, file);
+                        handleMediaItemImageUpload(media.id, val, file);
                       }
                     }}
                     folderType="PRODUCT_MEDIA"
@@ -267,7 +300,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     label="Name"
                     value={media.name || ""}
                     onChange={(e) =>
-                      updateMediaItem(index, "name", e.target.value)
+                      updateMediaItem(media.id, "name", e.target.value)
                     }
                     placeholder="Name"
                   />
@@ -277,7 +310,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     label="Extension"
                     value={media.extension || ""}
                     onChange={(e) =>
-                      updateMediaItem(index, "extension", e.target.value)
+                      updateMediaItem(media.id, "extension", e.target.value)
                     }
                     placeholder="Extension"
                   />
@@ -287,7 +320,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     label="Type"
                     value={media.type || ""}
                     onChange={(e) =>
-                      updateMediaItem(index, "type", e.target.value)
+                      updateMediaItem(media.id, "type", e.target.value)
                     }
                     placeholder="Type"
                   />
@@ -297,7 +330,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                   <div className="flex-grow hidden">
                     <div
                       className={`${
-                        errors.media?.[index]?.size
+                        errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.size
                           ? "border border-red-300 rounded-lg p-2 bg-red-50"
                           : ""
                       }`}
@@ -308,7 +341,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                         value={media.size || 0}
                         onChange={(e) =>
                           updateMediaItem(
-                            index,
+                            media.id,
                             "size",
                             parseInt(e.target.value)
                           )
@@ -320,14 +353,14 @@ const MediaTab: React.FC<MediaTabProps> = ({
                   <div className="flex items-center gap-4">
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id={`published-${index}`}
+                        id={`published-${media.id}`}
                         checked={Boolean(media.isPublished)}
                         onCheckedChange={(checked) =>
-                          updateMediaItem(index, "isPublished", checked)
+                          updateMediaItem(media.id, "isPublished", checked)
                         }
                       />
                       <Label
-                        htmlFor={`published-${index}`}
+                        htmlFor={`published-${media.id}`}
                         className="text-sm font-normal"
                       >
                         Published
@@ -338,10 +371,10 @@ const MediaTab: React.FC<MediaTabProps> = ({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => removeMediaItem(index)}
+                        onClick={() => removeMediaItem(media.id)}
                         className="text-red-500 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Minus className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

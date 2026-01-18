@@ -55,4 +55,5 @@ export interface AddTopupPayloadT {
   topUpBalance: number;
   relatedImages: string[];
   paymentMethodId:string;
+  currencyRateId:string;
 }

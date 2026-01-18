@@ -64,6 +64,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     longitude
     media {
       extension
+      isPublished  
       name
       path
       size
@@ -88,6 +89,10 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     updatedAt
     whatToExpect
     productOptions {
+     id
+     name
+     description
+     isPublished
       advanceBooking {
         day
         dayMinute

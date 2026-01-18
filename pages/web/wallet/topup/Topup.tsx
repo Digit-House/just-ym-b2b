@@ -22,6 +22,7 @@ import { PaymentMethodT } from "@/types/paymentMethod.type";
 import { QRCodeSection } from "./_components/QRCodeSection";
 import CurrencyConverter from "@/components/CurrencyConverter";
 import TotalAmountDisplay from "@/components/TotalAmountDisplay";
+import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 
 const Topup = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const Topup = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethodT | null>(null);
   const { creditInfo } = useWalletStore();
+   const { data: currencyRate} = useCurrencyRate(false); 
 
 
   const {
@@ -97,6 +99,7 @@ const Topup = () => {
         resellerId: user?.id,
         topUpBalance: data.amount,
         relatedImages,
+        currencyRateId:currencyRate.id,
         paymentMethodId: selectedPaymentMethod.id,
       });
 

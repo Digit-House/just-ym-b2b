@@ -89,7 +89,7 @@ export const NAV_CONFIG: NavItem[] = [
     icon: UserPlus,
     types: ["OWNER"],
   },
-   {
+  {
     label: "Topup",
     path: "/topup",
     icon: DollarSign,
@@ -117,19 +117,20 @@ export const NAV_CONFIG: NavItem[] = [
   // SETTINGS (USER ONLY)
   {
     label: "Setting",
+    path: "/settings/general",
     icon: Settings,
     types: ["RESELLER"],
-    children: [
-      {
-        label: "General Setting",
-        path: "/settings/general",
-        types: ["RESELLER"],
-      },
-      // {
-      //   label: "KYC Setting",
-      //   path: "/settings/kyc",
-      //   types: ["RESELLER"],
-      // },
-    ],
+    // children: [
+    //   {
+    //     label: "General Setting",
+    //     path: "/settings/general",
+    //     types: ["RESELLER"],
+    //   },
+    //   {
+    //     label: "KYC Setting",
+    //     path: "/settings/kyc",
+    //     types: ["RESELLER"],
+    //   },
+    // ],
   },
 ];

@@ -44,6 +44,7 @@ const ChangePasswordForm = ({ onClose }: Props) => {
       <InputField
         label="Current Password"
         type="password"
+        placeholder="******"
         isRequired
         errMsg={errors.oldPassword?.message}
         {...register("oldPassword")}
@@ -53,6 +54,7 @@ const ChangePasswordForm = ({ onClose }: Props) => {
         label="New Password"
         type="password"
         isRequired
+        placeholder="******"
         errMsg={errors.newPassword?.message}
         {...register("newPassword")}
       />
@@ -61,6 +63,7 @@ const ChangePasswordForm = ({ onClose }: Props) => {
         label="Confirm New Password"
         type="password"
         isRequired
+        placeholder="******"
         errMsg={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />

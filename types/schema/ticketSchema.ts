@@ -77,8 +77,8 @@ export const ticketSchema = z.object({
     z.object({
       id: z.string().optional().nullable(),
 
-      name: z.string().optional().nullable(),
-      description: z.string().optional().nullable(),
+      name: z.string().min(1, "Name is required"),
+      description: z.string().min(1, "Description is required"),
       image: z.string().optional().nullable(),
       keywords: z.string().optional().nullable(),
 

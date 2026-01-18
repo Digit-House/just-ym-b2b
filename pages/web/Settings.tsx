@@ -109,7 +109,7 @@ const Settings: React.FC = () => {
           </div>
 
           {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 pt-8 border-t border-gray-100">
+          <div className="grid grid-cols-1 gap-8 pt-8 border-t border-gray-100">
             
             <DetailItem 
               icon={<Phone size={18} className="text-indigo-500" />} 
@@ -117,29 +117,29 @@ const Settings: React.FC = () => {
               value={`${user.countryCode ? `(${user.countryCode}) ` : ''}${user.contactNo || 'Not provided'}`} 
             />
             
-            <DetailItem 
+            {/* <DetailItem 
               icon={<User size={18} className="text-indigo-500" />} 
               label="Gender" 
               value={user.profileData?.gender || 'Not provided'} 
-            />
+            /> */}
 
-            <DetailItem 
+            {/* <DetailItem 
               icon={<Calendar size={18} className="text-indigo-500" />} 
               label="Date of Birth" 
               value={user.profileData?.dateOfBirth ? new Date(user.profileData.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'long' }) : 'Not provided'} 
-            />
+            /> */}
 
-            <DetailItem 
+            {/* <DetailItem 
               icon={<Globe size={18} className="text-indigo-500" />} 
               label="Nationality" 
               value={user.profileData?.nationality || 'Not provided'} 
-            />
+            /> */}
 
-            <DetailItem 
+            {/* <DetailItem 
               icon={<Clock size={18} className="text-indigo-500" />} 
               label="Member Since" 
               value={user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' }) : "---"} 
-            />
+            /> */}
 
             <DetailItem 
               icon={<Clock size={18} className="text-indigo-500" />} 

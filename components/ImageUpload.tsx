@@ -1,6 +1,7 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
-import { Upload, X, Image as ImageIcon, LockKeyhole } from "lucide-react";
-import { getSignedUrlAndImageDataUpload } from "@/util";
+import { Upload, X, LockKeyhole, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+
 
 type ImageUploadProps = {
   value?: string;
@@ -10,6 +11,8 @@ type ImageUploadProps = {
   isRequired?: boolean;
   disabled?:boolean;
   folderType: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE";
+  maxSizeMB?: number;
+  allowedTypes?: string[];
 };
 
 export type ImageUploadRef = {
@@ -17,14 +20,51 @@ export type ImageUploadRef = {
 };
 
 export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
-  ({ value, onChange, label, folderType, isRequired,disabled=false,errMsg }, ref) => {
+  ({ value, onChange, label, folderType, isRequired, disabled=false, errMsg, maxSizeMB = 5, allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'] }, ref) => {
     const [preview, setPreview] = useState<string | undefined>(value);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
+    const isValidImageType = (file: File): boolean => {
+      return allowedTypes.includes(file.type);
+    };
+
+    const isValidFileSize = (file: File): boolean => {
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+      return file.size <= maxSizeBytes;
+    };
+
+    const getFileSizeString = (bytes: number): string => {
+      if (bytes < 1024) return bytes + ' bytes';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    };
+
+    const getTypeDisplayName = (mimeType: string): string => {
+      const typeMap: Record<string, string> = {
+        'image/jpeg': 'JPEG',
+        'image/jpg': 'JPG',
+        'image/png': 'PNG'
+      };
+      return typeMap[mimeType] || mimeType;
+    };
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (disabled)return;
+      if (disabled) return;
       const file = e.target.files?.[0];
       if (file) {
+        // Validate file type
+        if (!isValidImageType(file)) {
+          const allowedExtensions = allowedTypes.map(type => getTypeDisplayName(type)).join(', ');
+          toast.error(`Invalid file type. Please upload only ${allowedExtensions} images.`);
+          return;
+        }
+
+        // Validate file size
+        if (!isValidFileSize(file)) {
+          toast.error(`File size exceeds ${maxSizeMB}MB limit. Current file is ${getFileSizeString(file.size)}.`);
+          return;
+        }
+
         // Store the file locally instead of immediately uploading
         setFileToUpload(file);
         // Create a preview URL for the selected file
@@ -32,6 +72,9 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         setPreview(previewUrl);
         // Pass the preview URL and file object to the parent component
         onChange(previewUrl, file);
+        
+        // Show success toast
+        toast.success(`File uploaded successfully: ${file.name}`);
       }
     };
 
@@ -64,6 +107,12 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         )}
 
         <div className="relative group w-full h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
+          {/* Validation Info */}
+          <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+            <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
+              {allowedTypes.map(type => getTypeDisplayName(type)).join('/')} • {maxSizeMB}MB
+            </span>
+          </div>
           <input
             type="file"
             accept="image/*"
@@ -91,6 +140,9 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             <div className="flex flex-col items-center text-muted-foreground">
               <Upload className="w-6 h-6 mb-1" />
               <span className="text-xs font-medium">Click to upload</span>
+              <span className="text-[10px] text-gray-400 mt-1">
+                {allowedTypes.map(type => getTypeDisplayName(type)).join(', ')} up to {maxSizeMB}MB
+              </span>
             </div>
           )}
         </div>

@@ -150,8 +150,40 @@ export default function PaymentMethodForm({
         )}
       </div>
 
+      {/* Logo Upload */}
+      <ImageUpload
+        ref={logoImageUploadRef}
+        label="Logo Image"
+        value={watch("logo")}
+        onChange={(val) => setValue("logo", val)}
+        errMsg={errors.logo?.message}
+        folderType="CREDIT_TOP_UP"
+        maxSizeMB={5}
+        allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
+      />
+
+      <div className="space-y-1">
+        <label className="text-sm font-medium">
+          Currency <span className="text-red-500">*</span>
+        </label>
+        <Select
+          value={watch("currency")}
+          onValueChange={(val) => setValue("currency", val)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select currency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="MMK">MMK (Myanmar Kyat)</SelectItem>
+            <SelectItem value="THB">THB (Thai Baht)</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.currency && (
+          <p className="text-xs text-red-500">{errors.currency.message}</p>
+        )}
+      </div>
+
       <>
-      
         <InputField
           label="Bank Name"
           isRequired
@@ -187,27 +219,6 @@ export default function PaymentMethodForm({
             />
           </>
         )}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">
-            Currency <span className="text-red-500">*</span>
-          </label>
-          <Select
-            value={watch("currency")}
-            onValueChange={(val) => setValue("currency", val)}
-           
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="MMK">MMK (Myanmar Kyat)</SelectItem>
-              <SelectItem value="THB">THB (Thai Baht)</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.currency && (
-            <p className="text-xs text-red-500">{errors.currency.message}</p>
-          )}
-        </div>
       </>
       {type === "QR_CODE" && (
         <>
@@ -219,6 +230,8 @@ export default function PaymentMethodForm({
             onChange={(val) => setValue("qrCodeUrl", val)}
             errMsg={errors.qrCodeUrl?.message}
             folderType="CREDIT_TOP_UP"
+            maxSizeMB={5}
+            allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
           />
 
           {/* QR Code Preview for Edit Mode */}
@@ -233,15 +246,6 @@ export default function PaymentMethodForm({
           )}
         </>
       )}
-
-      {/* <ImageUpload
-        ref={logoImageUploadRef}
-        label="Logo Image"
-        value={watch("logo")}
-        onChange={(val) => setValue("logo", val)}
-        errMsg={errors.logo?.message}
-        folderType="CREDIT_TOP_UP"
-      /> */}
 
       <TextareaField
         label="Description"

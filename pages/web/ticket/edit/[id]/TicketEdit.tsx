@@ -27,7 +27,6 @@ const TicketEdit = () => {
 
   const handleSave = async (formData: any) => {
     // TODO: Implement save functionality
-    console.log("Saving ticket:", formData);
     navigate("/user-tickets"); // Navigate back to tickets list
   };
 
