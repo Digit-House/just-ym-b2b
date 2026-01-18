@@ -74,7 +74,7 @@ export const getErrMsg = (error: ErrMsg, type: "code" | "message") => {
 
 
 export const preFixImg = (id:string) => {
-  return `https://api.justym.me/file/image/${id}`;
+  return id.includes(".com") ? id : `https://api.justym.me/file/image/${id}`;
 }
 
 export const bool = (value: boolean) => (value ? "Yes" : "No");

@@ -28,7 +28,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   return (
     <div className="w-full h-100 rounded-3xl overflow-hidden mb-8 shadow-lg relative group">
       <img
-        src={mediaList[currentIndex].path}
+        src={preFixImg(mediaList[currentIndex].path)}
         alt={productName}
         className="w-full h-full object-cover transition-all duration-500"
       />

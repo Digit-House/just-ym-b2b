@@ -283,6 +283,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     ref={setImageUploadRef(mediaItems.findIndex(item => item.id === media.id))}
                     label="Media Image"
                     value={media.path}
+                    disableRemove
                     onChange={(val, file) => {
                       // Update the path with the preview URL for now
                       updateMediaItem(media.id, 'path', val);

@@ -14,7 +14,7 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 
-type Mode = "create" | "edit";
+type Mode =  "edit";
 
 type Props = {
   mode: Mode;
@@ -32,7 +32,6 @@ const TicketEditForm: React.FC<Props> = ({
   onSubmit,
 }) => {
   const isEdit = mode === "edit";
-
   // Transform API data to form format
   const transformApiDataToForm = (apiData: any) => {
     if (!apiData || !apiData.productOptions) return apiData;
@@ -70,10 +69,8 @@ const TicketEditForm: React.FC<Props> = ({
           sourceTitle: option.sourceTitle || null,
           tourInformation: option.tourInformation || [],
           visitDate: option.visitDate || null,
-          // Transform ticketType (singular from API) to ticketTypes (plural for form) with field mapping
           ticketTypes: option.ticketType
             ? option.ticketType.map((ticket: any) => ({
-                // Map API fields to form fields
                 dhNetMerchantPrice:
                   ticket.nettPrice || ticket.originalPrice || null,
                 dhNetPrice: ticket.dhNetPrice || null,
@@ -363,6 +360,7 @@ const TicketEditForm: React.FC<Props> = ({
                   "PRODUCT_MEDIA"
                 );
                 if (result.status === 200 && result.url) {
+                  console.log(result.url);
                   // Update the media item with the new URL
                   processedMedia[i] = { ...mediaItem, path: result.url };
                 }
@@ -376,93 +374,93 @@ const TicketEditForm: React.FC<Props> = ({
     }
 
     // Update values with proper defaults for nullable fields
-    const payload: any = {
-      ...values,
-      // Ensure array fields have proper defaults
-      exclusions: values.exclusions || null,
-      exclusions_mm: values.exclusions_mm || null,
-      highlights: values.highlights || null,
-      highlights_mm: values.highlights_mm || null,
-      howToUseList: values.howToUseList || null,
-      howToUseList_mm: values.howToUseList_mm || null,
-      inclusions: values.inclusions || null,
-      inclusions_mm: values.inclusions_mm || null,
-      termsAndConditions: values.termsAndConditions || null,
-      termsAndConditions_mm: values.termsAndConditions_mm || null,
-      thingsToNote: values.thingsToNote || null,
-      thingsToNote_mm: values.thingsToNote_mm || null,
+    // const payload: any = {
+    //   ...values,
+    //   // Ensure array fields have proper defaults
+    //   exclusions: values.exclusions || null,
+    //   exclusions_mm: values.exclusions_mm || null,
+    //   highlights: values.highlights || null,
+    //   highlights_mm: values.highlights_mm || null,
+    //   howToUseList: values.howToUseList || null,
+    //   howToUseList_mm: values.howToUseList_mm || null,
+    //   inclusions: values.inclusions || null,
+    //   inclusions_mm: values.inclusions_mm || null,
+    //   termsAndConditions: values.termsAndConditions || null,
+    //   termsAndConditions_mm: values.termsAndConditions_mm || null,
+    //   thingsToNote: values.thingsToNote || null,
+    //   thingsToNote_mm: values.thingsToNote_mm || null,
 
-      // Ensure numeric fields have proper defaults
-      fromPrice: values.fromPrice || null,
-      originalPrice: values.originalPrice || null,
-      timezoneOffset: values.timezoneOffset || null,
-      latitude: values.latitude || null,
-      longitude: values.longitude || null,
-      countryId: values.countryId || null,
-      city_relation_id: values.city_relation_id || null,
+    //   // Ensure numeric fields have proper defaults
+    //   fromPrice: values.fromPrice || null,
+    //   originalPrice: values.originalPrice || null,
+    //   timezoneOffset: values.timezoneOffset || null,
+    //   latitude: values.latitude || null,
+    //   longitude: values.longitude || null,
+    //   countryId: values.countryId || null,
+    //   city_relation_id: values.city_relation_id || null,
 
-      // Ensure boolean fields have proper defaults
-      isBestSeller: values.isBestSeller || null,
-      isCancellable: values.isCancellable || null,
-      isGTRecommend: values.isGTRecommend || null,
-      isInstantConfirmation: values.isInstantConfirmation || null,
-      isOpenDated: values.isOpenDated || null,
-      isOwnContracted: values.isOwnContracted || null,
-      isPublished: values.isPublished || null,
+    //   // Ensure boolean fields have proper defaults
+    //   isBestSeller: values.isBestSeller || null,
+    //   isCancellable: values.isCancellable || null,
+    //   isGTRecommend: values.isGTRecommend || null,
+    //   isInstantConfirmation: values.isInstantConfirmation || null,
+    //   isOpenDated: values.isOpenDated || null,
+    //   isOwnContracted: values.isOwnContracted || null,
+    //   isPublished: values.isPublished || null,
 
-      // Ensure string fields have proper defaults
-      name: values.name || null,
-      description: values.description || null,
-      whatToExpect: values.whatToExpect || null,
-      addressLine: values.addressLine || null,
-      location: values.location || null,
-      postalCode: values.postalCode || null,
-      keywords: values.keywords || null,
-      image: values.image || null,
-      fromReseller: values.fromReseller || null,
+    //   // Ensure string fields have proper defaults
+    //   name: values.name || null,
+    //   description: values.description || null,
+    //   whatToExpect: values.whatToExpect || null,
+    //   addressLine: values.addressLine || null,
+    //   location: values.location || null,
+    //   postalCode: values.postalCode || null,
+    //   keywords: values.keywords || null,
+    //   image: values.image || null,
+    //   fromReseller: values.fromReseller || null,
 
-      // Process media
-      media: processedMedia,
+    //   // Process media
+    //   media: processedMedia,
 
-      // Process operating hours
-      operatingHours: {
-        ...values.operatingHours,
-        fixedDays: values.operatingHours?.fixedDays || null,
-      },
-    };
+    //   // Process operating hours
+    //   operatingHours: {
+    //     ...values.operatingHours,
+    //     fixedDays: values.operatingHours?.fixedDays || null,
+    //   },
+    // };
     
-    // Handle product options separately to ensure IDs are properly managed
-    if (values.productOptions) {
-      payload.productOptions = values.productOptions.map((option: any) => {
-        const processedOption: any = { ...option };
+    // // Handle product options separately to ensure IDs are properly managed
+    // if (values.productOptions) {
+    //   payload.productOptions = values.productOptions.map((option: any) => {
+    //     const processedOption: any = { ...option };
         
-        // Only include id in the payload if it exists and is not null
-        if (option.id) {
-          processedOption.id = option.id;
-        } else {
-          delete processedOption.id; // Remove id property if it's null/undefined
-        }
+    //     // Only include id in the payload if it exists and is not null
+    //     if (option.id) {
+    //       processedOption.id = option.id;
+    //     } else {
+    //       delete processedOption.id; // Remove id property if it's null/undefined
+    //     }
         
-        // Process ticket types similarly
-        if (option.ticketTypes) {
-          processedOption.ticketTypes = option.ticketTypes.map((ticketType: any) => {
-            const processedTicketType: any = { ...ticketType };
+    //     // Process ticket types similarly
+    //     if (option.ticketTypes) {
+    //       processedOption.ticketTypes = option.ticketTypes.map((ticketType: any) => {
+    //         const processedTicketType: any = { ...ticketType };
             
-            // Only include ticketTypeId if it exists and is not null
-            if (ticketType.ticketTypeId) {
-              processedTicketType.ticketTypeId = ticketType.ticketTypeId;
-            } else {
-              delete processedTicketType.ticketTypeId; // Remove if null/undefined
-            }
+    //         // Only include ticketTypeId if it exists and is not null
+    //         if (ticketType.ticketTypeId) {
+    //           processedTicketType.ticketTypeId = ticketType.ticketTypeId;
+    //         } else {
+    //           delete processedTicketType.ticketTypeId; // Remove if null/undefined
+    //         }
             
-            return processedTicketType;
-          });
-        }
+    //         return processedTicketType;
+    //       });
+    //     }
         
-        return processedOption;
-      });
-    }
-    onSubmit(payload);
+    //     return processedOption;
+    //   });
+    // }
+    onSubmit(values);
   };
 
   const TabButton = ({ id, label }: { id: string; label: string }) => (

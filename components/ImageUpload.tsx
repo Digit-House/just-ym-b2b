@@ -1,6 +1,7 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
 import { Upload, X, LockKeyhole, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { preFixImg } from "@/util/initData";
 
 
 type ImageUploadProps = {
@@ -13,6 +14,7 @@ type ImageUploadProps = {
   folderType: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE";
   maxSizeMB?: number;
   allowedTypes?: string[];
+  disableRemove?:boolean;
 };
 
 export type ImageUploadRef = {
@@ -20,7 +22,7 @@ export type ImageUploadRef = {
 };
 
 export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
-  ({ value, onChange, label, folderType, isRequired, disabled=false, errMsg, maxSizeMB = 5, allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'] }, ref) => {
+  ({ value, onChange, label, disableRemove=false,isRequired, disabled=false, errMsg, maxSizeMB = 5, allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'] }, ref) => {
     const [preview, setPreview] = useState<string | undefined>(value);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
@@ -124,17 +126,19 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           {preview ? (
             <div className="relative w-full h-full">
               <img
-                src={preview}
+                src={preFixImg(preview)}
                 alt="Preview"
                 className="w-full h-full object-contain p-2"
               />
-              <button
-                type="button"
-                onClick={handleRemove}
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-sm hover:bg-red-600"
-              >
-                <X className="w-3 h-3" />
-              </button>
+              {!disableRemove && (
+                <button
+                  type="button"
+                  onClick={handleRemove}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-sm hover:bg-red-600"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center text-muted-foreground">

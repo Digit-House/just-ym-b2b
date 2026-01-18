@@ -1,8 +1,6 @@
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProductInfo } from "@/graphql/product";
-import { ProductInfoT } from "@/types/product.type";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import TicketEditForm from "@/pages/admin/tickets/_components/TicketEditForm";
@@ -25,13 +23,12 @@ const TicketEdit = () => {
     return <div>Error loading ticket</div>;
   }
 
-  const handleSave = async (formData: any) => {
-    // TODO: Implement save functionality
-    navigate("/user-tickets"); // Navigate back to tickets list
+  const handleSave = async () => {
+    navigate("/user-tickets"); 
   };
 
   const handleCancel = () => {
-    navigate("/user-tickets"); // Navigate back to tickets list
+    navigate("/user-tickets"); 
   };
 
   return (
