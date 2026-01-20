@@ -139,7 +139,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
     };
 
     // Handle crop completion from ImageCrop component
-    const handleCropComplete = (croppedImageUrl: string, croppedFile: File) => {
+    const handleCropComplete = (croppedFile: File,croppedImageUrl: string) => {
       if (!isValidFileSize(croppedFile)) {
         toast.error(`Cropped image exceeds ${maxSizeMB}MB limit.`);
         return;
@@ -147,6 +147,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 
       setFileToUpload(croppedFile);
       setOriginalFile(null);
+      console.log(croppedImageUrl);
       // Ensure the preview is updated with the cropped image
       setPreview(croppedImageUrl);
       // Only call onChange when in create mode
@@ -198,7 +199,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           </label>
         )}
 
-        <div className="relative group w-full h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
+        <div className="relative group w-full min-h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
           <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
             <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
               {allowedTypes.map((type) => getTypeDisplayName(type)).join("/")} •{" "}
@@ -219,7 +220,9 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
               <img
                 src={preview}
                 alt="Preview"
-                className="w-full h-full object-contain p-2"
+                // className="w-full h-full object-contain p-2"
+                //  className="max-h-[200px] mx-auto"
+                 className="max-h-[200px] mx-auto border rounded"
                 onError={(e) => {
                   // Fallback if the image fails to load
                   console.warn("Preview image failed to load:", preview);
@@ -256,28 +259,14 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             onClose={handleCropCancel}
             imageSrc={imageSrc || ''}
             onCropComplete={handleCropComplete}
-            presetCropSetting={presetCropSetting}
-            cropSettings={cropSettings}
-            cropShape={cropShape}
+            // presetCropSetting={presetCropSetting}
+            // cropSettings={cropSettings}
+            // cropShape={cropShape}
             fileName={originalFile?.name || 'cropped_image.jpg'}
-            outputWidth={cropSettings?.maxWidth}
-            outputHeight={cropSettings?.maxHeight}
-          />
-        )}
-        {/* {enableCrop && (
-          <ImageCrop
-            isOpen={cropDialogOpen}
-            imageSrc={imageSrc}
-            cropShape="round"
-            fileName="avatar.jpg"
-            onClose={() => handleCropCancel}
-            onCropComplete={(url, file) => {
-              handleCropComplete(url, file);
-            }}
             // outputWidth={cropSettings?.maxWidth}
             // outputHeight={cropSettings?.maxHeight}
           />
-        )} */}
+        )}
 
         {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}
       </div>
