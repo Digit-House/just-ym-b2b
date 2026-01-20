@@ -68,7 +68,7 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Wallet",
     path: "/wallet",
     icon: Wallet,
-    types: ["RESELLER"],
+    types: "ALL",
   },
   {
     label: "Reports",
