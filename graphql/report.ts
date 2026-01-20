@@ -1,6 +1,6 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { GENERATE_REPORTS } from "./type-query/report";
+import { GENERATE_REPORTS, GET_REPORTS } from "./type-query/report";
 import { FilterReportT } from "@/types/report.type";
 
 export const generateReport = (payload: FilterReportT) => {
@@ -14,5 +14,21 @@ export const generateReport = (payload: FilterReportT) => {
         toDate: payload.toDate,
       },
     },
+    fetchPolicy: "no-cache",
+  });
+};
+
+export const getReports = (payload: FilterReportT) => {
+  return client.query({
+    query: warpGql(GET_REPORTS),
+    variables: {
+      data: {
+        fromDate: payload.fromDate,
+        selfSale: payload.selfSale,
+        sellerId: payload.sellerId,
+        toDate: payload.toDate,
+      },
+    },
+    fetchPolicy: "no-cache",
   });
 };

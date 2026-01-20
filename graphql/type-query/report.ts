@@ -8,3 +8,19 @@ query GenerateReport($data: ReportInput!) {
     }
   }
 `;
+
+export const GET_REPORTS = `
+query MonthlySalesReport($data: MonthlySaleReportInput!) {
+  monthlySalesReport(data: $data) {
+    allTimeTickets
+    allTimeSales
+    allTimeProfit
+    data {
+      month
+      profit
+      totalSaleAmount
+      totalTickets
+    }
+  }
+}
+`;

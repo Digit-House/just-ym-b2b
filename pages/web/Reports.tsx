@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -12,7 +14,6 @@ import { addMonths, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 
-import { REVENUE_DATA } from "../../constants";
 import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
 import PageContainer from "@/components/PageContainer";
@@ -23,9 +24,13 @@ import { useUser } from "@/provider/UserProvider";
 
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
-import { generateReport } from "@/graphql/report";
+import { generateReport, getReports } from "@/graphql/report";
 
-import { FilterReportT, ReportResT } from "@/types/report.type";
+import {
+  FilterReportT,
+  GenReportResT,
+  ReportMonthT,
+} from "@/types/report.type";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -36,28 +41,17 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-/* ----------------------------- Small Card ----------------------------- */
-const ReportCard = ({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) => (
+const ReportCard = ({ title, value }: { title: string; value: string }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
     <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
     <p className="text-sm text-gray-500">{title}</p>
   </div>
 );
 
-/* ----------------------------- Main Page ------------------------------ */
 const Reports = () => {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [countries, setCountries] = useState<string[]>([]);
 
-  /* -------- Default date = last 1 month -------- */
   const today = new Date();
   const oneMonthAgo = addMonths(today, -1);
 
@@ -73,7 +67,14 @@ const Reports = () => {
     sellerId: user?.id ?? null,
   });
 
-  /* ----------------------------- Data ----------------------------- */
+  const [reportStats, setReportStats] = useState({
+    allTimeProfit: 0,
+    allTimeSales: 0,
+    allTimeTickets: 0,
+  });
+
+  const [reportData, setReportData] = useState<ReportMonthT[]>([]);
+
   const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
   const { data: COUNTRIES } = useCountries({
     limit: 250,
@@ -83,12 +84,16 @@ const Reports = () => {
     search:undefined
   });
 
-  /* ----------------------------- Export CSV ----------------------------- */
-  const exportGenerateReport = async () => {
+
+  useEffect(() => {
+    fetchReports();
+  }, [filterExport.fromDate, filterExport.toDate]);
+
+  const fetchReports = async () => {
     try {
       setLoading(true);
 
-      const res:any = await generateReport({
+      const res = await getReports({
         ...filterExport,
         fromDate: filterExport.fromDate
           ? new Date(filterExport.fromDate).toISOString()
@@ -98,18 +103,48 @@ const Reports = () => {
           : null,
       });
 
-      const resData:ReportResT = res.data.generateReport;
-      // base64 -> blob
+      //@ts-ignore
+      const monthData = res?.data?.monthlySalesReport;
+
+      setReportData(monthData?.data ?? []);
+      setReportStats({
+        allTimeProfit: monthData?.allTimeProfit ?? 0,
+        allTimeSales: monthData?.allTimeSales ?? 0,
+        allTimeTickets: monthData?.allTimeTickets ?? 0,
+      });
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportGenerateReport = async () => {
+    try {
+      setLoading(true);
+
+      const res: any = await generateReport({
+        ...filterExport,
+        fromDate: filterExport.fromDate
+          ? new Date(filterExport.fromDate).toISOString()
+          : null,
+        toDate: filterExport.toDate
+          ? new Date(filterExport.toDate).toISOString()
+          : null,
+      });
+
+      const resData: GenReportResT = res.data.generateReport;
+
       const byteCharacters = atob(resData.data);
-      const byteNumbers = new Array(byteCharacters.length)
-        .fill(null)
-        .map((_, i) => byteCharacters.charCodeAt(i));
+      const byteNumbers = Array.from(byteCharacters, (c) =>
+        c.charCodeAt(0)
+      );
 
       const blob = new Blob([new Uint8Array(byteNumbers)], {
         type: resData.contentType || "text/csv",
       });
 
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
 
       link.href = url;
@@ -118,7 +153,7 @@ const Reports = () => {
       link.click();
 
       link.remove();
-      window.URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
 
       toast.success("Export CSV successful");
     } catch (err) {
@@ -128,7 +163,6 @@ const Reports = () => {
     }
   };
 
-  /* ----------------------------- UI ----------------------------- */
   return (
     <PageContainer>
       <PageHeader
@@ -144,9 +178,7 @@ const Reports = () => {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={cn(
-                  "w-[260px] justify-start text-left font-normal"
-                )}
+                className={cn("w-[260px] justify-start text-left font-normal")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {dateRange.from && dateRange.to ? (
@@ -159,6 +191,7 @@ const Reports = () => {
                 )}
               </Button>
             </PopoverTrigger>
+
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 initialFocus
@@ -181,21 +214,21 @@ const Reports = () => {
           </Popover>
 
           {/* Category & Country */}
-          <div className="flex items-center border border-gray-200 px-2">
+          <div className="flex items-center border border-gray-200 px-2 rounded-md">
             <Select
               label="Categories"
               placeholder="Categories"
               options={CATEGORIES}
-              value={categories}
-              onChange={setCategories}
+              value={[]}
+              onChange={() => {}}
               width="w-32"
             />
             <Select
               label="Countries"
               placeholder="Countries"
               options={COUNTRIES?.data}
-              value={countries}
-              onChange={setCountries}
+              value={[]}
+              onChange={() => {}}
               width="w-32"
             />
           </div>
@@ -212,27 +245,53 @@ const Reports = () => {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-        <ReportCard title="Tickets Purchased" value="1,025" />
-        <ReportCard title="Tickets Issued" value="825" />
-        <ReportCard title="Ticket Used" value="750" />
-        <ReportCard title="Revenue" value="$25,750" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <ReportCard
+          title="Tickets Sold"
+          value={reportStats.allTimeTickets.toLocaleString()}
+        />
+        <ReportCard
+          title="Total Sales"
+          value={`$${reportStats.allTimeSales.toLocaleString()}`}
+        />
+        <ReportCard
+          title="Total Profit"
+          value={`$${reportStats.allTimeProfit.toLocaleString()}`}
+        />
       </div>
 
       {/* Chart */}
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-6">
-          Tickets Sold
+          Monthly Sales Report
         </h3>
 
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={REVENUE_DATA}>
+            <BarChart data={reportData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value1" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+
+              <Bar
+                dataKey="totalTickets"
+                fill="#7C3AED"
+                radius={[4, 4, 0, 0]}
+                name="Tickets"
+              />
+              <Bar
+                dataKey="totalSaleAmount"
+                fill="#10B981"
+                radius={[4, 4, 0, 0]}
+                name="Sales"
+              />
+              <Bar
+                dataKey="profilt"
+                fill="#F59E0B"
+                radius={[4, 4, 0, 0]}
+                name="Profit"
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
