@@ -120,14 +120,14 @@ export interface UpdateProductPayloadT {
   blockedDate: BlockedDateT[];
 }
 
-// export type UpdateProductPayloadT = z.infer<typeof ticketSchema>;
-
 export interface ProductInfoT {
   id: string;
   name: string;
   category: string;
   description: string;
+  dscription_mm:string;
   whatToExpect: string;
+  whatToExpect_mm:string;
   addressLine: string;
   location: string;
   postalCode: string;
@@ -193,58 +193,63 @@ export interface FixedDayT {
 }
 
 export interface ProductOptionT {
-  createdAt: Date;
-  currency: string;
-  definedDuration: string;
-  demandType: string;
-  description: string;
   id: string;
-  inclusions: string[];
-  isDynamicPricing: boolean;
-  isTagged: boolean;
-  keywords: string;
-  name: string;
-  primaryTicket: string;
-  productId: string;
-  publishStart: Date;
-  isCapacity: boolean;
-  redeemEnd: Date;
-  redeemStart: Date;
-  ticketFormat: string;
+  name:string;
+  description:string;
+  isPublished:boolean;
   ticketType: TicketTypeT[];
-  ticketValidity: string;
-  timeSlot: string[];
-  tourInformation: string[];
-  type: string;
-  updatedAt: Date;
-  publishEnd: Date;
-  questions: ProductOptionQuestionT[];
-  visitDate: VisitDateT;
-  advanceBooking: AdvanceBookingT | null;
-  availability: AVAILABILITY_ENUM | null;
+  // createdAt: Date;
+  // currency: string;
+  // definedDuration: string;
+  // demandType: string;
+  // description: string;
+  // inclusions: string[];
+  // isDynamicPricing: boolean;
+  // isTagged: boolean;
+  // keywords: string;
+  // name: string;
+  // primaryTicket: string;
+  // productId: string;
+  // publishStart: Date;
+  // isCapacity: boolean;
+  // redeemEnd: Date;
+  // redeemStart: Date;
+  // ticketFormat: string;
+  // ticketValidity: string;
+  // timeSlot: string[];
+  // tourInformation: string[];
+  // type: string;
+  // updatedAt: Date;
+  // publishEnd: Date;
+  // questions: ProductOptionQuestionT[];
+  // visitDate: VisitDateT;
+  // advanceBooking: AdvanceBookingT | null;
+  // availability: AVAILABILITY_ENUM | null;
 }
 
 export interface TicketTypeT {
   id: string;
   name: string;
-  sku: string;
-  globaltixId: number;
-  issuanceLimit: number | null;
-  maxPurchaseQty: number | null;
-  minPurchaseQty: number | null;
-  useBin: boolean;
-  applyToAllQna: boolean;
-  ageFrom: number | null;
-  ageTo: number | null;
-  nettPrice: number;
   dhNetPrice: number;
-  dhSellingPrice: number;
   dhRecommendedSellingPrice: number;
+  dhSellingPrice: number;
+  nettPrice: number;
   originalPrice: number;
-  similarTicketId: number | null;
   createdAt: string;
   updatedAt: string;
-  quantity: number;
+
+
+  // sku: string;
+  // globaltixId: number;
+  // issuanceLimit: number | null;
+  // maxPurchaseQty: number | null;
+  // minPurchaseQty: number | null;
+  // useBin: boolean;
+  // applyToAllQna: boolean;
+  // ageFrom: number | null;
+  // ageTo: number | null;
+  // similarTicketId: number | null;
+ 
 }
 
 export interface AdvanceBookingT {

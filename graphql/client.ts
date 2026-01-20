@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ApolloClient,
   InMemoryCache,
@@ -11,12 +9,8 @@ import {
   CombinedProtocolErrors,
 } from "@apollo/client/errors";
 import { ErrorLink } from "@apollo/client/link/error";
-
 import { LSKeys, clearLSItem } from "../util/initData";
 
-/* -------------------------------------------------
- * Helpers
- * ------------------------------------------------- */
 const handleUnauthorized = () => {
   clearLSItem(LSKeys.callBack);
   clearLSItem(LSKeys.authStorage);
@@ -27,9 +21,6 @@ const handleUnauthorized = () => {
   }
 };
 
-/* -------------------------------------------------
- * Remove __typename from variables
- * ------------------------------------------------- */
 const removeTypename = (value: any): any => {
   if (Array.isArray(value)) {
     return value.map(removeTypename);
@@ -53,9 +44,6 @@ const removeTypenameLink = new ApolloLink((operation, forward) => {
   return forward ? forward(operation) : null;
 });
 
-/* -------------------------------------------------
- * Auth Link (no deprecated setContext)
- * ------------------------------------------------- */
 const authLink = new ApolloLink((operation, forward) => {
   let token: string | null = null;
 
@@ -81,11 +69,7 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward ? forward(operation) : null;
 });
 
-/* -------------------------------------------------
- * Error Link (Apollo Client v4)
- * ------------------------------------------------- */
 const errorLink = new ErrorLink(({ error }) => {
-  /* ---------- GraphQL Errors ---------- */
   if (CombinedGraphQLErrors.is(error)) {
     error.errors.forEach((err: any) => {
       const statusCode = err?.status;
@@ -93,38 +77,27 @@ const errorLink = new ErrorLink(({ error }) => {
         handleUnauthorized();
       }
 
-      console.error(
-        `[GraphQL error]: ${err.message}`,
-        err.locations,
-        err.path
-      );
+      console.error(`[GraphQL error]: ${err.message}`, err.locations, err.path);
     });
     return;
   }
 
-  /* ---------- Protocol Errors ---------- */
   if (CombinedProtocolErrors.is(error)) {
     error.errors.forEach((err: any) => {
       const status =
-        err?.extensions?.http?.status ??
-        err?.extensions?.response?.status;
+        err?.extensions?.http?.status ?? err?.extensions?.response?.status;
 
       if (status === 401) {
         handleUnauthorized();
       }
 
-      console.error(
-        `[Protocol error]: ${err.message}`,
-        err.extensions
-      );
+      console.error(`[Protocol error]: ${err.message}`, err.extensions);
     });
     return;
   }
 
-  /* ---------- Network Errors ---------- */
   const networkStatus =
-    (error as any)?.statusCode ??
-    (error as any)?.response?.status;
+    (error as any)?.statusCode ?? (error as any)?.response?.status;
 
   if (networkStatus === 401) {
     handleUnauthorized();
@@ -133,16 +106,11 @@ const errorLink = new ErrorLink(({ error }) => {
   console.error("[Network error]", error);
 });
 
-/* -------------------------------------------------
- * HTTP Link
- * ------------------------------------------------- */
+console.log(import.meta.env?.HELLO)
 const httpLink = new HttpLink({
-  uri: "https://api.justym.me/graphql",
+  uri: import.meta?.env?.VITE_PUBLIC_API_URL,
 });
 
-/* -------------------------------------------------
- * Link Chain (ORDER MATTERS)
- * ------------------------------------------------- */
 const link = ApolloLink.from([
   removeTypenameLink,
   errorLink,
@@ -150,9 +118,6 @@ const link = ApolloLink.from([
   httpLink,
 ]);
 
-/* -------------------------------------------------
- * Apollo Client
- * ------------------------------------------------- */
 export const client = new ApolloClient({
   link,
   cache: new InMemoryCache(),

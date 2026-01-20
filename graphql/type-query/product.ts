@@ -42,6 +42,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     countryId
     createdAt
     description
+    description_mm
     exclusions
     exclusions_mm
     highlights
@@ -88,6 +89,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     timezoneOffset
     updatedAt
     whatToExpect
+    whatToExpect_mm
     productOptions {
      id
      name
@@ -101,25 +103,16 @@ query GetProductInfo($productId: String!, $date: DateTime) {
         required
       }
       ticketType {
-        ageFrom
-        ageTo
-        applyToAllQna
-        createdAt
+        id
+        name
         dhNetPrice
         dhRecommendedSellingPrice
         dhSellingPrice
-        globaltixId
-        id
-        issuanceLimit
-        maxPurchaseQty
-        minPurchaseQty
-        name
         nettPrice
         originalPrice
-        similarTicketId
-        sku
+        createdAt
         updatedAt
-        useBin
+        
       }
     }
   }

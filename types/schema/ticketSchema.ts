@@ -5,7 +5,9 @@ export const ticketSchema = z.object({
 
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
+  description_mm:z.string().min(1,"Description MM is required"),
   whatToExpect: z.string().min(1, "What to expect is required"),
+  whatToExpect_mm:z.string().min(1,"What to expect mm is required"),
 
   addressLine: z.string().min(1, "Address line is required"),
   location: z.string().min(1, "Location is required"),
@@ -131,11 +133,11 @@ export const ticketSchema = z.object({
 
       ticketTypes: z.array(
         z.object({
+          originalPrice:z.number().optional().nullable(),
           dhNetMerchantPrice: z.number().optional().nullable(),
           dhNetPrice: z.number().min(0.01, { message: "Net price must be greater than 0" }),
            dhSellingPrice: z.number().min(0.01, { message: "Selling price must be greater than 0" }),
           dhRecommendedSellingPrice: z.number().optional(),
-         
           ticketTypeId: z.string(),
         })
       ).optional().nullable(),

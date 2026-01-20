@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { Control, FieldErrors, UseFormGetValues, UseFormSetValue, UseFormTrigger } from "react-hook-form";
+import {
+  Control,
+  FieldErrors,
+  UseFormGetValues,
+  UseFormSetValue,
+  UseFormTrigger,
+} from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
@@ -34,12 +40,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   // Trigger validation when product options change
   useEffect(() => {
     const timer = setTimeout(() => {
-      trigger('productOptions');
+      trigger("productOptions");
     }, 300); // Small delay to avoid excessive triggering
-    
+
     return () => clearTimeout(timer);
   }, [watchedProductOptions, trigger]);
-
 
   const updateTicketType = (
     optionIndex: number,
@@ -49,7 +54,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   ) => {
     // Convert empty strings to null for nullable fields
     const processedValue = value === "" ? null : value;
-    
+
     const currentOptions = getValues("productOptions") ?? [];
 
     if (!currentOptions[optionIndex]) return;
@@ -58,9 +63,12 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
       oi === optionIndex
         ? {
             ...option,
-            ticketTypes: option.ticketTypes?.map((ticket, ti) =>
-              ti === ticketIndex ? { ...ticket, [field]: processedValue } : ticket
-            ) ?? [],
+            ticketTypes:
+              option.ticketTypes?.map((ticket, ti) =>
+                ti === ticketIndex
+                  ? { ...ticket, [field]: processedValue }
+                  : ticket
+              ) ?? [],
           }
         : option
     );
@@ -68,9 +76,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
     });
-    
+
     // Trigger validation after the update
-    setTimeout(() => trigger('productOptions'), 0);
+    setTimeout(() => trigger("productOptions"), 0);
   };
 
   const updateProductOption = (
@@ -80,7 +88,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   ) => {
     // Convert empty strings to null for nullable fields
     const processedValue = value === "" ? null : value;
-    
+
     const currentOptions = getValues("productOptions") ?? [];
 
     if (!currentOptions[optionIndex]) return;
@@ -97,9 +105,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setValue("productOptions", updatedOptions, {
       shouldDirty: true,
     });
-    
+
     // Trigger validation after the update
-    setTimeout(() => trigger('productOptions'), 0);
+    setTimeout(() => trigger("productOptions"), 0);
   };
 
   return (
@@ -121,16 +129,18 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
         <div className="space-y-6">
           {watchedProductOptions?.map((option, optionIndex) => (
-            <div key={option.id ?? `option-${optionIndex}`} className="space-y-4 p-6 rounded-lg border bg-gray-50">
+            <div
+              key={option.id ?? `option-${optionIndex}`}
+              className="space-y-4 p-6 rounded-lg border bg-gray-50"
+            >
               {/* Product option header */}
               <div className="flex justify-between items-start mb-4">
                 <h4 className="text-lg font-semibold">
                   Package Option {optionIndex + 1}
                 </h4>
-                
+
                 <div className="flex gap-2">
                   {/* Hide add ticket type and delete buttons in edit mode */}
-
                 </div>
               </div>
 
@@ -140,16 +150,26 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                   label="Package Name"
                   value={option.name ?? ""}
                   isRequired={true}
-                  onChange={(e) => updateProductOption(optionIndex, "name", e.target.value)}
+                  onChange={(e) =>
+                    updateProductOption(optionIndex, "name", e.target.value)
+                  }
                   errMsg={errors.productOptions?.[optionIndex]?.name?.message}
                 />
-                
+
                 <TextareaField
                   label="Package Description"
                   isRequired={true}
                   value={option.description ?? ""}
-                  onChange={(e) => updateProductOption(optionIndex, "description", e.target.value)}
-                  errMsg={errors.productOptions?.[optionIndex]?.description?.message}
+                  onChange={(e) =>
+                    updateProductOption(
+                      optionIndex,
+                      "description",
+                      e.target.value
+                    )
+                  }
+                  errMsg={
+                    errors.productOptions?.[optionIndex]?.description?.message
+                  }
                 />
               </div>
 
@@ -158,11 +178,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                   <Checkbox
                     checked={!!option.isPublished}
                     onCheckedChange={(checked) =>
-                      updateProductOption(
-                        optionIndex,
-                        "isPublished",
-                        checked
-                      )
+                      updateProductOption(optionIndex, "isPublished", checked)
                     }
                   />
                   <Label>Is Published</Label>
@@ -174,7 +190,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 <div className="flex justify-between items-center mb-3">
                   <h5 className="font-medium">Ticket Types</h5>
                 </div>
-                
+
                 {option.ticketTypes?.map((ticketType, ticketIndex) => {
                   const ticketErrors =
                     errors.productOptions?.[optionIndex]?.ticketTypes?.[
@@ -185,23 +201,74 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                     <div
                       key={`${optionIndex}-${ticketIndex}`}
                       className={`p-4 rounded-lg border mb-3 ${
-                        ticketErrors
-                          ? "bg-red-50 border-red-300"
-                          : "bg-white"
+                        ticketErrors ? "bg-red-50 border-red-300" : "bg-white"
                       }`}
                     >
                       <div className="flex justify-between items-start mb-3">
-                        <h6 className="font-medium">Ticket Type {ticketIndex + 1}</h6>
-
+                        <h6 className="font-medium">
+                          Ticket Type {ticketIndex + 1}
+                        </h6>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <InputField
+                          label="Original Price"
+                          isRequired={true}
+                          type="number"
+                          value={ticketType.originalPrice ?? ""}
+                          disabled={true}
+                        />
+                        
+                        <InputField
+                          label="DH Net Price"
+                          isRequired={true}
+                          type="number"
+                          value={ticketType.dhNetPrice ?? ""}
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            updateTicketType(
+                              optionIndex,
+                              ticketIndex,
+                              "dhNetPrice",
+                              value
+                            );
+                          }}
+                          errMsg={ticketErrors?.dhNetPrice?.message}
+                        />
+                        <InputField
+                          label="DH Selling Price"
+                          isRequired={true}
+                          type="number"
+                          value={ticketType.dhSellingPrice ?? ""}
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            updateTicketType(
+                              optionIndex,
+                              ticketIndex,
+                              "dhSellingPrice",
+                              value
+                            );
+                          }}
+                          errMsg={ticketErrors?.dhSellingPrice?.message}
+                        />
+
+                       
+
                         <InputField
                           label="DH Net Merchant Price"
                           type="number"
                           value={ticketType.dhNetMerchantPrice ?? ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? null : Number(e.target.value);
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
                             updateTicketType(
                               optionIndex,
                               ticketIndex,
@@ -213,28 +280,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         />
 
                         <InputField
-                          label="DH Net Price"
-                          isRequired={true}
-                          type="number"
-                          value={ticketType.dhNetPrice ?? ""}
-                          onChange={(e) => {
-                            const value = e.target.value === "" ? null : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhNetPrice",
-                              value
-                            );
-                          }}
-                          errMsg={ticketErrors?.dhNetPrice?.message}
-                        />
-
-                        <InputField
                           label="DH Recommended Selling Price"
                           type="number"
                           value={ticketType.dhRecommendedSellingPrice ?? ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? null : Number(e.target.value);
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
                             updateTicketType(
                               optionIndex,
                               ticketIndex,
@@ -242,39 +295,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                               value
                             );
                           }}
-                          errMsg={ticketErrors?.dhRecommendedSellingPrice?.message}
-                        />
-
-                        <InputField
-                          label="DH Selling Price"
-                          isRequired={true}
-                          type="number"
-                          value={ticketType.dhSellingPrice ?? ""}
-                          onChange={(e) => {
-                            const value = e.target.value === "" ? null : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhSellingPrice",
-                              value
-                            );
-                          }}
-                          errMsg={ticketErrors?.dhSellingPrice?.message}
-                        />
-
-                        <InputField
-                          label="Ticket Type ID"
-                          value={ticketType.ticketTypeId ?? ""}
-                          disabled={true}
-                          onChange={(e) => {
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "ticketTypeId",
-                              e.target.value
-                            );
-                          }}
-                          errMsg={ticketErrors?.ticketTypeId?.message}
+                          errMsg={
+                            ticketErrors?.dhRecommendedSellingPrice?.message
+                          }
                         />
                       </div>
                     </div>
@@ -282,7 +305,9 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 })}
 
                 {(!option.ticketTypes || option.ticketTypes.length === 0) && (
-                  <p className="text-gray-500 text-sm mb-3">No ticket types added yet.</p>
+                  <p className="text-gray-500 text-sm mb-3">
+                    No ticket types added yet.
+                  </p>
                 )}
               </div>
             </div>

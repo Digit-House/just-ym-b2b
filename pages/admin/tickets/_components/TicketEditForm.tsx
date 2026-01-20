@@ -4,7 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Info, MapPinIcon, Tag, Locate } from "lucide-react";
 import { TicketFormValues, ticketSchema } from "@/types/schema/ticketSchema";
-import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
+import {
+  ProductInfoT,
+  ProductOptionT,
+  UpdateProductPayloadT,
+} from "@/types/product.type";
 import BasicInfoTab from "./BasicInfoTab";
 import LocationTab from "./LocationTab";
 import DetailsTab from "./DetailsTab";
@@ -14,7 +18,7 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 
-type Mode =  "edit";
+type Mode = "edit";
 
 type Props = {
   mode: Mode;
@@ -32,57 +36,31 @@ const TicketEditForm: React.FC<Props> = ({
   onSubmit,
 }) => {
   const isEdit = mode === "edit";
-  // Transform API data to form format
   const transformApiDataToForm = (apiData: any) => {
     if (!apiData || !apiData.productOptions) return apiData;
-    // Create transformed product options that match the form schema
-    const transformedProductOptions = apiData.productOptions.map(
-      (option: any) => {
+    const transformedProductOptions: ProductOptionT[] =
+      apiData.productOptions.map((option: ProductOptionT) => {
         return {
-          id: option.id || null,
-          name: option.name || null,
-          description: option.description || null,
-          image: option.image || null,
-          keywords: option.keywords || null,
-          inclusions: option.inclusions || [],
-          inclusions_mm: option.inclusions_mm || [],
-          exclusions: option.exclusions || [],
-          exclusions_mm: option.exclusions_mm || [],
-          howToUse: option.howToUse || null,
-          howToUse_mm: option.howToUse_mm || null,
-          termsAndConditions: option.termsAndConditions || null,
-          termsAndConditions_mm: option.termsAndConditions_mm || null,
-          cancellationNotes: option.cancellationNotes || null,
-          cancellationPolicy: option.cancellationPolicy || null,
-          advanceBooking: option.advanceBooking || null,
-          isCancellable: option.isCancellable || null,
-          isPublished: option.isPublished || null,
-          isTagged: option.isTagged || null,
-          primaryTicket: option.primaryTicket
-            ? Boolean(option.primaryTicket)
-            : null, // Convert string to boolean
-          publishStart: option.publishStart || null,
-          publishEnd: option.publishEnd || null,
-          redeemStart: option.redeemStart || null,
-          redeemEnd: option.redeemEnd || null,
-          sourceName: option.sourceName || null,
-          sourceTitle: option.sourceTitle || null,
-          tourInformation: option.tourInformation || [],
-          visitDate: option.visitDate || null,
+          id: option.id,
+          name: option.name,
+          description: option.description,
+          isPublished: option.isPublished,
           ticketTypes: option.ticketType
             ? option.ticketType.map((ticket: any) => ({
-                dhNetMerchantPrice:
-                  ticket.nettPrice || ticket.originalPrice || null,
-                dhNetPrice: ticket.dhNetPrice || null,
-                dhRecommendedSellingPrice:
-                  ticket.dhRecommendedSellingPrice || null,
+                ticketTypeId: ticket.id,
+                name: ticket.name,
+                quantity: ticket.quantity,
+                dhNetPrice: ticket.dhNetPrice,
+                dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice,
                 dhSellingPrice: ticket.dhSellingPrice || null,
-                ticketTypeId: ticket.id || ticket.ticketTypeId || null,
+                dhNetMerchantPrice: ticket.nettPrice,
+                originalPrice: ticket.originalPrice,
+                createdAt: ticket.createdAt,
+                updatedAt: ticket.updatedAt,
               }))
             : [],
         };
-      }
-    );
+      });
 
     return {
       ...apiData,
@@ -373,94 +351,24 @@ const TicketEditForm: React.FC<Props> = ({
       }
     }
 
-    // Update values with proper defaults for nullable fields
-    // const payload: any = {
-    //   ...values,
-    //   // Ensure array fields have proper defaults
-    //   exclusions: values.exclusions || null,
-    //   exclusions_mm: values.exclusions_mm || null,
-    //   highlights: values.highlights || null,
-    //   highlights_mm: values.highlights_mm || null,
-    //   howToUseList: values.howToUseList || null,
-    //   howToUseList_mm: values.howToUseList_mm || null,
-    //   inclusions: values.inclusions || null,
-    //   inclusions_mm: values.inclusions_mm || null,
-    //   termsAndConditions: values.termsAndConditions || null,
-    //   termsAndConditions_mm: values.termsAndConditions_mm || null,
-    //   thingsToNote: values.thingsToNote || null,
-    //   thingsToNote_mm: values.thingsToNote_mm || null,
-
-    //   // Ensure numeric fields have proper defaults
-    //   fromPrice: values.fromPrice || null,
-    //   originalPrice: values.originalPrice || null,
-    //   timezoneOffset: values.timezoneOffset || null,
-    //   latitude: values.latitude || null,
-    //   longitude: values.longitude || null,
-    //   countryId: values.countryId || null,
-    //   city_relation_id: values.city_relation_id || null,
-
-    //   // Ensure boolean fields have proper defaults
-    //   isBestSeller: values.isBestSeller || null,
-    //   isCancellable: values.isCancellable || null,
-    //   isGTRecommend: values.isGTRecommend || null,
-    //   isInstantConfirmation: values.isInstantConfirmation || null,
-    //   isOpenDated: values.isOpenDated || null,
-    //   isOwnContracted: values.isOwnContracted || null,
-    //   isPublished: values.isPublished || null,
-
-    //   // Ensure string fields have proper defaults
-    //   name: values.name || null,
-    //   description: values.description || null,
-    //   whatToExpect: values.whatToExpect || null,
-    //   addressLine: values.addressLine || null,
-    //   location: values.location || null,
-    //   postalCode: values.postalCode || null,
-    //   keywords: values.keywords || null,
-    //   image: values.image || null,
-    //   fromReseller: values.fromReseller || null,
-
-    //   // Process media
-    //   media: processedMedia,
-
-    //   // Process operating hours
-    //   operatingHours: {
-    //     ...values.operatingHours,
-    //     fixedDays: values.operatingHours?.fixedDays || null,
-    //   },
-    // };
-    
-    // // Handle product options separately to ensure IDs are properly managed
-    // if (values.productOptions) {
-    //   payload.productOptions = values.productOptions.map((option: any) => {
-    //     const processedOption: any = { ...option };
-        
-    //     // Only include id in the payload if it exists and is not null
-    //     if (option.id) {
-    //       processedOption.id = option.id;
-    //     } else {
-    //       delete processedOption.id; // Remove id property if it's null/undefined
-    //     }
-        
-    //     // Process ticket types similarly
-    //     if (option.ticketTypes) {
-    //       processedOption.ticketTypes = option.ticketTypes.map((ticketType: any) => {
-    //         const processedTicketType: any = { ...ticketType };
-            
-    //         // Only include ticketTypeId if it exists and is not null
-    //         if (ticketType.ticketTypeId) {
-    //           processedTicketType.ticketTypeId = ticketType.ticketTypeId;
-    //         } else {
-    //           delete processedTicketType.ticketTypeId; // Remove if null/undefined
-    //         }
-            
-    //         return processedTicketType;
-    //       });
-    //     }
-        
-    //     return processedOption;
-    //   });
-    // }
-    onSubmit(values);
+    const payload = {
+      ...values,
+      productOptions: values.productOptions.map((d) => {
+        return {
+          ...d,
+          ticketTypes: d.ticketTypes.map((t) => {
+            return {
+              dhNetMerchantPrice: t.dhNetMerchantPrice,
+              dhNetPrice: t.dhNetPrice,
+              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice,
+              dhSellingPrice: t.dhSellingPrice,
+              ticketTypeId: t.ticketTypeId,
+            };
+          }),
+        };
+      }),
+    };
+    onSubmit(payload);
   };
 
   const TabButton = ({ id, label }: { id: string; label: string }) => (

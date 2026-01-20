@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    console.log(env,"ENV");
     return {
       server: {
         port: 3000,

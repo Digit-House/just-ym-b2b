@@ -14,7 +14,7 @@ import { getAddToCartCount } from "@/graphql/product";
 
 const DashboardLayout = () => {
   const { setUser, fetchWallet } = useUser();
-  const { setCreditInfo, creditInfo } = useWalletStore();
+  const { setCreditInfo} = useWalletStore();
   const { setAddToCartCount } = useCartStore();
   const { isCollapsed } = useSidebarStore();
   const [loading, setLoading] = React.useState(true);

@@ -3,7 +3,6 @@ import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import TextareaField from "@/components/TextareaField";
-import InputField from "@/components/InputField";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, NotebookIcon, FileText, ListTodo } from "lucide-react";
 
@@ -19,7 +18,6 @@ type DetailsTabProps = {
 const DetailsTab: React.FC<DetailsTabProps> = ({
   control,
   errors,
-  watch,
   setValue,
   initialValues,
 }) => {
@@ -57,9 +55,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
   const [termsAndConditionsMm, setTermsAndConditionsMm] = useState<string>(
     (initialValues as UpdateProductPayloadT)?.termsAndConditions_mm ?? ""
   );
-  const [blockedDates, setBlockedDates] = useState<any[]>([]);
-
-  // Synchronize all array fields with form values
+ 
+ 
   useEffect(() => {
     setValue("exclusions", exclusions);
   }, [exclusions, setValue]);
@@ -127,24 +124,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
     setter((prev) => prev.map((item, i) => (i === index ? value : item)));
   };
 
-  const addBlockedDate = () => {
-    setBlockedDates((prev) => [...prev, { date: "", title: "" }]);
-  };
-
-  const removeBlockedDate = (index: number) => {
-    setBlockedDates((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateBlockedDate = (
-    index: number,
-    field: keyof (typeof blockedDates)[0],
-    value: string
-  ) => {
-    setBlockedDates((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
-    );
-  };
-
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -202,6 +181,29 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
 
         <div
           className={`space-y-3 ${
+            errors.description
+              ? "border border-red-300 rounded-lg p-4 bg-red-50"
+              : ""
+          }`}
+        >
+          <Controller
+            name="description_mm"
+            control={control}
+            render={({ field }) => (
+              <TextareaField
+                label="Description MM"
+                isRequired={true}
+                rows={5}
+                {...field}
+                errMsg={errors.description_mm?.message}
+                placeholder="Enter a detailed description of the ticket..."
+              />
+            )}
+          />
+        </div>
+
+        <div
+          className={`space-y-3 ${
             errors.whatToExpect
               ? "border border-red-300 rounded-lg p-4 bg-red-50"
               : ""
@@ -222,6 +224,30 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             )}
           />
         </div>
+
+        <div
+          className={`space-y-3 ${
+            errors.whatToExpect
+              ? "border border-red-300 rounded-lg p-4 bg-red-50"
+              : ""
+          }`}
+        >
+          <Controller
+            name="whatToExpect_mm"
+            control={control}
+            render={({ field }) => (
+              <TextareaField
+                label="What To Expect MM"
+                isRequired={true}
+                rows={5}
+                {...field}
+                errMsg={errors.whatToExpect_mm?.message}
+                placeholder="Describe what customers can expect from this ticket..."
+              />
+            )}
+          />
+        </div>
+
       </div>
 
       <hr className="border-gray-200" />

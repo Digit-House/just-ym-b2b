@@ -45,11 +45,13 @@ export interface TopUpHistoryT {
 }
 
 export interface CreditInfoT {
-  balance: number;
+  balance: number; //agent
   currency: string;
   hasOutstandingDebt: boolean;
   id: string;
   lastMonthUsage: number;
+  customerBalance:number;
+  gtBalance:number; //
   otherBalance: any;
   totalTopUp: number;
   totalUsage: number;
