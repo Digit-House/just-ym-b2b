@@ -7,6 +7,8 @@ import {
   UPDATE_USER,
   USER_ROLES,
   USERS,
+  FORGOT_PASSWORD,
+  RESET_PASSWORD,
 } from "./type-query/user";
 import { UserChangePasswordT, UserRolesFilterT } from "@/types/user.type";
 import { UserFormValues } from "@/types/schema/userSchema";
@@ -75,6 +77,31 @@ export const updatePassword = async (payload: UserChangePasswordT) => {
       input: {
         newPassword: payload.newPassword,
         oldPassword: payload.oldPassword,
+      },
+    },
+    fetchPolicy: "no-cache",
+  });
+};
+
+export const forgotPassword = async (email: string) => {
+  return client.mutate({
+    mutation: warpGql(FORGOT_PASSWORD),
+    variables: {
+      input: {
+        email,
+      },
+    },
+    fetchPolicy: "no-cache",
+  });
+};
+
+export const resetPassword = async (code: string, newPassword: string) => {
+  return client.mutate({
+    mutation: warpGql(RESET_PASSWORD),
+    variables: {
+      input: {
+        code,
+        newPassword,
       },
     },
     fetchPolicy: "no-cache",

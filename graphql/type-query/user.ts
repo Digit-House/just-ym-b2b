@@ -102,3 +102,15 @@ query FindAllUsers($params: UserPaginatedInput!) {
   }
 }
 `;
+
+export const FORGOT_PASSWORD = `
+mutation ForgotPassword($input: ForgotPasswordInput!) {
+  forgotPassword(input: $input)
+}
+`;
+
+export const RESET_PASSWORD = `
+mutation ResetPassword($input: ResetPasswordInput!) {
+  resetPassword(input: $input)
+}
+`;

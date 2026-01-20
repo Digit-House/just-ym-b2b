@@ -215,7 +215,7 @@ const Settings: React.FC = () => {
 
       {open && (
         <ModalWrapper
-          title="Change Password"
+          title="Account Security"
           onClose={() => setOpen(false)}
         >
           <ChangePasswordForm onClose={() => setOpen(false)} />
