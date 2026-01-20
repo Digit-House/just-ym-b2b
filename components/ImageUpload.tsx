@@ -1,8 +1,16 @@
-import { useState, forwardRef, useImperativeHandle } from "react";
-import { Upload, X, LockKeyhole, AlertCircle } from "lucide-react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
+import { Upload, X, LockKeyhole } from "lucide-react";
 import { toast } from "sonner";
-import { preFixImg } from "@/util/initData";
+import { type CropSettingType } from "@/lib/cropSettings";
+import  ImageCrop  from "./ImageCrop";
 
+interface CropSettings {
+  aspect?: number;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number; // Target width for the final output
+  maxHeight?: number; // Target height for the final output
+}
 
 type ImageUploadProps = {
   value?: string;
@@ -10,11 +18,16 @@ type ImageUploadProps = {
   label?: string;
   errMsg?: string;
   isRequired?: boolean;
-  disabled?:boolean;
+  disabled?: boolean;
   folderType: "CREDIT_TOP_UP" | "PRODUCT_MEDIA" | "USER_PROFILE";
   maxSizeMB?: number;
   allowedTypes?: string[];
-  disableRemove?:boolean;
+  disableRemove?: boolean;
+  enableCrop?: boolean;
+  cropSettings?: CropSettings;
+  cropShape?: "rect" | "round";
+  presetCropSetting?: CropSettingType;
+  mode?: "create" | "edit";
 };
 
 export type ImageUploadRef = {
@@ -22,86 +35,163 @@ export type ImageUploadRef = {
 };
 
 export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
-  ({ value, onChange, label, disableRemove=false,isRequired, disabled=false, errMsg, maxSizeMB = 5, allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'] }, ref) => {
+  (
+    {
+      value,
+      onChange,
+      label,
+      disableRemove = false,
+      isRequired,
+      disabled = false,
+      errMsg,
+      maxSizeMB = 5,
+      allowedTypes = ["image/jpeg", "image/jpg", "image/png"],
+      enableCrop = false,
+      cropSettings,
+      cropShape = "rect",
+      presetCropSetting,
+      mode = "create",
+    },
+    ref
+  ) => {
     const [preview, setPreview] = useState<string | undefined>(value);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+    const [originalFile, setOriginalFile] = useState<File | null>(null);
+    const [cropDialogOpen, setCropDialogOpen] = useState(false);
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
-    const isValidImageType = (file: File): boolean => {
-      return allowedTypes.includes(file.type);
-    };
+    React.useEffect(() => {
+      // Only update preview from value prop if it's different from current preview
+      if (value && value !== preview) {
+        setPreview(value);
+      }
+    }, [value, preview]);
 
-    const isValidFileSize = (file: File): boolean => {
-      const maxSizeBytes = maxSizeMB * 1024 * 1024;
-      return file.size <= maxSizeBytes;
-    };
-
-    const getFileSizeString = (bytes: number): string => {
-      if (bytes < 1024) return bytes + ' bytes';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-    };
+    const isValidImageType = (file: File): boolean =>
+      allowedTypes.includes(file.type);
+    const isValidFileSize = (file: File): boolean =>
+      file.size <= maxSizeMB * 1024 * 1024;
 
     const getTypeDisplayName = (mimeType: string): string => {
       const typeMap: Record<string, string> = {
-        'image/jpeg': 'JPEG',
-        'image/jpg': 'JPG',
-        'image/png': 'PNG'
+        "image/jpeg": "JPEG",
+        "image/jpg": "JPG",
+        "image/png": "PNG",
       };
       return typeMap[mimeType] || mimeType;
     };
 
+    const dataURLtoFile = (dataurl: string, filename: string): File => {
+      if (!dataurl || !dataurl.startsWith("data:"))
+        throw new Error("Invalid data URL format");
+      const arr = dataurl.split(",");
+      const mimeMatch = arr[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : "";
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, { type: mime });
+    };
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (disabled) return;
+      // if (disabled) return;
       const file = e.target.files?.[0];
       if (file) {
-        // Validate file type
         if (!isValidImageType(file)) {
-          const allowedExtensions = allowedTypes.map(type => getTypeDisplayName(type)).join(', ');
-          toast.error(`Invalid file type. Please upload only ${allowedExtensions} images.`);
+          toast.error(
+            `Invalid file type. Please upload only ${allowedTypes
+              .map((t) => getTypeDisplayName(t))
+              .join(", ")}.`
+          );
           return;
         }
-
-        // Validate file size
         if (!isValidFileSize(file)) {
-          toast.error(`File size exceeds ${maxSizeMB}MB limit. Current file is ${getFileSizeString(file.size)}.`);
+          toast.error(`File size exceeds ${maxSizeMB}MB limit.`);
           return;
         }
 
-        // Store the file locally instead of immediately uploading
-        setFileToUpload(file);
-        // Create a preview URL for the selected file
-        const previewUrl = URL.createObjectURL(file);
+        if (enableCrop) {
+          setOriginalFile(file);
+          const reader = new FileReader();
+          reader.onload = () => {
+            const imageDataUrl = reader.result as string;
+            if (imageDataUrl && imageDataUrl.startsWith("data:image")) {
+              setImageSrc(imageDataUrl);
+              setCropDialogOpen(true);
+            } else {
+              toast.error("Invalid image format.");
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          setFileToUpload(file);
+          const previewUrl = URL.createObjectURL(file);
+          setPreview(previewUrl);
+          // Only call onChange when in create mode
+          if (mode === "create") {
+            onChange(previewUrl, file);
+          }
+        }
+      }
+    };
+
+    // Handle crop completion from ImageCrop component
+    const handleCropComplete = (croppedImageUrl: string, croppedFile: File) => {
+      if (!isValidFileSize(croppedFile)) {
+        toast.error(`Cropped image exceeds ${maxSizeMB}MB limit.`);
+        return;
+      }
+
+      setFileToUpload(croppedFile);
+      setOriginalFile(null);
+      // Ensure the preview is updated with the cropped image
+      setPreview(croppedImageUrl);
+      // Only call onChange when in create mode
+      if (mode === "create") {
+        onChange(croppedImageUrl, croppedFile);
+      }
+
+      setCropDialogOpen(false);
+      setImageSrc(null);
+      toast.success("Image cropped and updated successfully!");
+    };
+
+    const handleCropCancel = () => {
+      setCropDialogOpen(false);
+      setImageSrc(null);
+      if (originalFile) {
+        const previewUrl = URL.createObjectURL(originalFile);
         setPreview(previewUrl);
-        // Pass the preview URL and file object to the parent component
-        onChange(previewUrl, file);
-        
-        // Show success toast
-        toast.success(`File uploaded successfully: ${file.name}`);
+        setFileToUpload(originalFile);
+        // Only call onChange when in create mode
+        if (mode === "create") {
+          onChange(previewUrl, originalFile);
+        }
+        setOriginalFile(null);
       }
     };
 
     const handleRemove = () => {
       setPreview(undefined);
       setFileToUpload(null);
-      onChange("");
+      setOriginalFile(null);
+      // Only call onChange when in create mode
+      if (mode === "create") {
+        onChange("");
+      }
     };
 
-    // Method to get the file that needs to be uploaded
-    const getFileToUpload = () => {
-      return fileToUpload;
-    };
+    const getFileToUpload = () => fileToUpload;
 
-    // Expose the method to get the file via ref
-    useImperativeHandle(ref, () => ({
-      getFileToUpload,
-    }));
+    useImperativeHandle(ref, () => ({ getFileToUpload }));
 
     return (
       <div className="space-y-1">
         {label && (
-          <label
-            className="flex items-center gap-1 text-sm font-medium"
-          >
+          <label className="flex items-center gap-1 text-sm font-medium">
             {label}
             {isRequired && !disabled && <span className="text-red-500">*</span>}
             {disabled && <LockKeyhole size={12} className="mb-[1px]" />}
@@ -109,10 +199,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         )}
 
         <div className="relative group w-full h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
-          {/* Validation Info */}
           <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
             <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
-              {allowedTypes.map(type => getTypeDisplayName(type)).join('/')} • {maxSizeMB}MB
+              {allowedTypes.map((type) => getTypeDisplayName(type)).join("/")} •{" "}
+              {maxSizeMB}MB
+              {enableCrop && <span className="ml-1">• Crop</span>}
             </span>
           </div>
           <input
@@ -126,9 +217,13 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           {preview ? (
             <div className="relative w-full h-full">
               <img
-                src={preFixImg(preview)}
+                src={preview}
                 alt="Preview"
                 className="w-full h-full object-contain p-2"
+                onError={(e) => {
+                  // Fallback if the image fails to load
+                  console.warn("Preview image failed to load:", preview);
+                }}
               />
               {!disableRemove && (
                 <button
@@ -145,11 +240,44 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
               <Upload className="w-6 h-6 mb-1" />
               <span className="text-xs font-medium">Click to upload</span>
               <span className="text-[10px] text-gray-400 mt-1">
-                {allowedTypes.map(type => getTypeDisplayName(type)).join(', ')} up to {maxSizeMB}MB
+                {allowedTypes
+                  .map((type) => getTypeDisplayName(type))
+                  .join(", ")}{" "}
+                up to {maxSizeMB}MB
               </span>
             </div>
           )}
         </div>
+
+        {/* Image Crop Dialog */}
+        {enableCrop && (
+          <ImageCrop
+            isOpen={cropDialogOpen}
+            onClose={handleCropCancel}
+            imageSrc={imageSrc || ''}
+            onCropComplete={handleCropComplete}
+            presetCropSetting={presetCropSetting}
+            cropSettings={cropSettings}
+            cropShape={cropShape}
+            fileName={originalFile?.name || 'cropped_image.jpg'}
+            outputWidth={cropSettings?.maxWidth}
+            outputHeight={cropSettings?.maxHeight}
+          />
+        )}
+        {/* {enableCrop && (
+          <ImageCrop
+            isOpen={cropDialogOpen}
+            imageSrc={imageSrc}
+            cropShape="round"
+            fileName="avatar.jpg"
+            onClose={() => handleCropCancel}
+            onCropComplete={(url, file) => {
+              handleCropComplete(url, file);
+            }}
+            // outputWidth={cropSettings?.maxWidth}
+            // outputHeight={cropSettings?.maxHeight}
+          />
+        )} */}
 
         {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}
       </div>

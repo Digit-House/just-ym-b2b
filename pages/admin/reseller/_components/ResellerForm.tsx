@@ -152,7 +152,7 @@ export default function ResellerForm({
 
   return (
     <form
-      onSubmit={handleSubmit(async (values) => {
+      onSubmit={handleSubmit(async (values: ResellerFormValues) => {
         const payload = await preparePayload(values);
         onSubmit(payload);
       })}
@@ -375,6 +375,7 @@ export default function ResellerForm({
                   <ReadOnly
                     label="Outstanding Debt"
                     value={initialValues?.credit.hasOutstandingDebt ? "Yes" : "No"}
+                    //inhere
                     valueClassName={initialValues?.credit.hasOutstandingDebt ? "text-red-600 font-medium" : ""}
                   />
                   <ReadOnly
