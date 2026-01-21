@@ -285,9 +285,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     label="Media Image"
                     value={media.path}
                     onChange={(val, file) => {
-                      // Update the path with the preview URL for now
                       updateMediaItem(media.id, 'path', val);
-                      // Auto-fill name, extension, type, and size if file is available
                       if (file) {
                         handleMediaItemImageUpload(media.id, val, file);
                       }

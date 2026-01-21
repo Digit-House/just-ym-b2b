@@ -235,6 +235,7 @@ export interface TicketTypeT {
   name: string;
   dhNetPrice: number;
   dhRecommendedSellingPrice: number;
+  minmumSellingPrice:number;
   dhSellingPrice: number;
   nettPrice: number;
   originalPrice: number;

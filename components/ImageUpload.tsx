@@ -257,20 +257,19 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           )}
         </div>
 
-        {/* Image Crop Dialog */}
-        {enableCrop && (
-          <ImageCrop
-            isOpen={cropDialogOpen}
-            onClose={handleCropCancel}
-            imageSrc={imageSrc || ''}
-            onCropComplete={handleCropComplete}
-            // presetCropSetting={presetCropSetting}
-            // cropSettings={cropSettings}
-            // cropShape={cropShape}
-            fileName={originalFile?.name || 'cropped_image.jpg'}
-            // outputWidth={cropSettings?.maxWidth}
-            // outputHeight={cropSettings?.maxHeight}
-          />
+        {/* Image Crop Dialog - Prevent closing on backdrop click */}
+        {enableCrop && cropDialogOpen && (
+          <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <ImageCrop
+              isOpen={cropDialogOpen}
+              onClose={handleCropCancel}
+              imageSrc={imageSrc || ''}
+              onCropComplete={handleCropComplete}
+              presetCropSetting={presetCropSetting}
+              cropSettings={cropSettings}
+              fileName={originalFile?.name || 'cropped_image.jpg'}
+            />
+          </div>
         )}
 
         {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}

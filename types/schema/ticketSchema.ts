@@ -137,7 +137,8 @@ export const ticketSchema = z.object({
           originalPrice:z.number().optional().nullable(),
           dhNetMerchantPrice: z.number().optional().nullable(),
           dhNetPrice: z.number().optional().nullable(),
-           dhSellingPrice: z.number().optional().nullable(),
+          minmumSellingPrice: z.number().optional().nullable(),
+          dhSellingPrice: z.number().optional().nullable(),
           dhRecommendedSellingPrice: z.number().optional(),
           ticketTypeId: z.string(),
         })

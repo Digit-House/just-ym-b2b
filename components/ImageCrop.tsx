@@ -1,6 +1,15 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState} from "react";
 import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { CROP_SETTINGS, CropSettingType } from "@/lib/cropSettings";
+
+interface CropSettings {
+  aspect?: number;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
+  maxHeight?: number;
+}
 
 interface ImageCropProps {
   isOpen: boolean;
@@ -8,6 +17,8 @@ interface ImageCropProps {
   onClose: () => void;
   onCropComplete: (file: File, previewUrl: string) => void;
   fileName: string;
+  cropSettings?: CropSettings;
+  presetCropSetting?: CropSettingType;
 }
 
 const ImageCrop: React.FC<ImageCropProps> = ({
@@ -16,16 +27,54 @@ const ImageCrop: React.FC<ImageCropProps> = ({
   onClose,
   onCropComplete,
   fileName,
+  cropSettings,
+  presetCropSetting,
 }) => {
   const imgRef = useRef<HTMLImageElement | null>(null);
 
+  // Process crop settings
+  const resolvedCropSettings = presetCropSetting 
+    ? CROP_SETTINGS[presetCropSetting]
+    : cropSettings;
+  
+  // Helper to safely extract crop properties
+  const getCropProps = () => {
+    const props: any = {};
+    if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
+      props.aspect = resolvedCropSettings.aspect;
+    }
+    if (resolvedCropSettings?.minWidth !== undefined) {
+      props.minWidth = resolvedCropSettings.minWidth;
+    }
+    if (resolvedCropSettings?.minHeight !== undefined) {
+      props.minHeight = resolvedCropSettings.minHeight;
+    }
+    return props;
+  };
+
   // ✅ YOUR REQUESTED DEFAULT CROP
-  const [crop, setCrop] = useState<Crop>({
-    unit: "%",
-    x: 25,
-    y: 25,
-    width: 50,
-    height: 50,
+  const [crop, setCrop] = useState<Crop>(() => {
+    const baseCrop = {
+      unit: "%" as const,
+      x: 25,
+      y: 25,
+      width: 50,
+      height: 50,
+    };
+
+    // Check if the resolved settings has an aspect property
+    if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
+      const aspect = resolvedCropSettings.aspect;
+      // Calculate height based on aspect ratio if width is set
+      const calculatedHeight = (baseCrop.width * 100) / aspect;
+      return {
+        ...baseCrop,
+        aspect,
+        height: Math.min(calculatedHeight, 50), // Ensure it doesn't exceed our default
+      };
+    }
+    
+    return baseCrop;
   });
 
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
@@ -42,7 +91,8 @@ const ImageCrop: React.FC<ImageCropProps> = ({
     const file = await getCroppedFile(
       imgRef.current,
       completedCrop,
-      fileName
+      fileName,
+      resolvedCropSettings
     );
 
     const previewUrl = URL.createObjectURL(file);
@@ -58,6 +108,7 @@ const ImageCrop: React.FC<ImageCropProps> = ({
           crop={crop}
           onChange={(c) => setCrop(c)}
           onComplete={(c) => setCompletedCrop(c)}
+          {...getCropProps()}
         >
           <img
             src={imageSrc}
@@ -98,14 +149,19 @@ export default ImageCrop;
 async function getCroppedFile(
   image: HTMLImageElement,
   crop: PixelCrop,
-  fileName: string
+  fileName: string,
+  cropSettings?: CropSettings
 ): Promise<File> {
   const canvas = document.createElement("canvas");
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
 
-  canvas.width = crop.width;
-  canvas.height = crop.height;
+  // Use target dimensions if specified in crop settings, otherwise use crop dimensions
+  const targetWidth = cropSettings?.maxWidth || crop.width;
+  const targetHeight = cropSettings?.maxHeight || crop.height;
+
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas error");
@@ -118,8 +174,8 @@ async function getCroppedFile(
     crop.height * scaleY,
     0,
     0,
-    crop.width,
-    crop.height
+    targetWidth,
+    targetHeight
   );
 
   return new Promise((resolve) => {

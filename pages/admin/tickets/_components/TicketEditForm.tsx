@@ -52,6 +52,7 @@ const TicketEditForm: React.FC<Props> = ({
                 quantity: ticket.quantity,
                 dhNetPrice: ticket.dhNetPrice,
                 dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice,
+                minmumSellingPrice: ticket.minmumSellingPrice,
                 dhSellingPrice: ticket.dhSellingPrice,
                 dhNetMerchantPrice: ticket.nettPrice,
                 originalPrice: ticket.originalPrice,
