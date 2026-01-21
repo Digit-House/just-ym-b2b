@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCategories } from "@/hooks/useCategories";
 import { useCities } from "@/hooks/useCities";
 import { useCountries } from "@/hooks/useCountries";
 import { preFixImg } from "@/util/initData";
@@ -30,14 +29,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
   control,
   errors,
   watch,
-  setValue,
-  mode,
-  initialValues,
 }) => {
-  const isEdit = mode === "edit";
 
   // Fetch categories, countries and cities
-  const { data: categories = [] } = useCategories({ limit: 50, page: 1 });
   const { data: countriesResponse } = useCountries({
     limit: 50,
     page: 1,

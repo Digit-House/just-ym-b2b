@@ -1,6 +1,6 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
+import { ArrowRight, RotateCcw } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import PageHeader from "@/components/PageHeader";
@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/graphql/product";
 import SkeletonCard from "./_components/SkeletonCard";
@@ -21,6 +21,7 @@ import { preFixImg } from "@/util/initData";
 import PageContainer from "@/components/PageContainer";
 import { useUser } from "@/provider/UserProvider";
 import NotFoundComponent from '@/components/NotFoundComponent';
+import ImageFallback from '@/components/ImageFallback';
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -29,15 +30,53 @@ const SORT_OPTION: SortOption[] = [
 
 export default function Tickets() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [sort, setSort] = useState("desc");
+  // Initialize state from URL query parameters
+  const initialSort = searchParams.get('sort') || 'desc';
+  const initialPublished = (searchParams.get('published') as "ALL" | "PUBLISHED" | "UNPUBLISHED") || "PUBLISHED";
+  
+  const [sort, setSort] = useState(initialSort);
   const { user } = useUser();
 
   const [published, setPublished] = useState<
     "ALL" | "PUBLISHED" | "UNPUBLISHED"
-  >("PUBLISHED");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [countries, setCountries] = useState<string[]>([]);
+  >(initialPublished);
+  
+  // Initialize categories and countries from URL params if needed
+  const [categories, setCategories] = useState<string[]>(
+    searchParams.get('categories')?.split(',') || []
+  );
+  const [countries, setCountries] = useState<string[]>(
+    searchParams.get('countries')?.split(',') || []
+  );
+
+  // Memoize the search params to avoid infinite loops
+  const urlParams = useMemo(() => {
+    const params: Record<string, string> = {};
+    if (sort !== 'desc') params.sort = sort;
+    if (published !== 'PUBLISHED') params.published = published;
+    if (categories.length > 0) params.categories = categories.join(',');
+    if (countries.length > 0) params.countries = countries.join(',');
+    return params;
+  }, [sort, published, categories, countries]);
+
+  // Update URL when state changes
+  useEffect(() => {
+    setSearchParams(urlParams, { replace: true });
+  }, [urlParams, setSearchParams]);
+
+  // Set default parameters when visiting tickets page without any parameters
+  useEffect(() => {
+    if ([...searchParams.keys()].length === 0) {
+      // If no parameters exist in the URL, set the defaults
+      const defaultParams: Record<string, string> = {
+        sort: 'desc',
+        published: 'PUBLISHED'
+      };
+      setSearchParams(defaultParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const { data: dataCountry } = useCountries({
     limit: 250,
@@ -126,7 +165,23 @@ export default function Tickets() {
             </ShadcnSelect>
           )}
         </div>
-        <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />
+        <div className="flex items-center gap-2">
+          <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />
+          {(sort !== 'desc' || published !== 'PUBLISHED' || categories.length > 0 || countries.length > 0) && (
+            <button
+              onClick={() => {
+                setSort('desc');
+                setPublished('PUBLISHED');
+                setCategories([]);
+                setCountries([]);
+              }}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              title="Reset filters"
+            >
+              <RotateCcw size={18} />
+            </button>
+          )}
+        </div>
       </div>
 
       {isPending && (
@@ -151,10 +206,10 @@ export default function Tickets() {
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="h-48 overflow-hidden relative">
-                <img
+                <ImageFallback
                   src={preFixImg(p.image)}
                   alt={p.name}
-                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-contain transform hover:scale-105 transition-transform duration-500"
                 />
               </div>
 
@@ -167,7 +222,10 @@ export default function Tickets() {
                 </p>
 
                 <button
-                  onClick={() => navigate(`/tickets/${p.id}`)}
+                  onClick={() => {
+                    const currentParams = new URLSearchParams(window.location.search);
+                    navigate(`/tickets/${p.id}${currentParams.toString() ? '?' + currentParams.toString() : ''}`);
+                  }}
                   className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"
                 >
                   Read More <ArrowRight size={16} className="ml-1" />
@@ -183,14 +241,20 @@ export default function Tickets() {
                   <div className="flex gap-2">
                     {user?.type === "OWNER" && (
                       <button
-                        onClick={() => navigate(`/admin-tickets/edit/${p.id}`)}
+                        onClick={() => {
+                          const currentParams = new URLSearchParams(window.location.search);
+                          navigate(`/admin-tickets/edit/${p.id}${currentParams.toString() ? '?' + currentParams.toString() : ''}`);
+                        }}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
                         Edit
                       </button>
                     )}
                     <button
-                      onClick={() => navigate(`/tickets/${p.id}`)}
+                      onClick={() => {
+                        const currentParams = new URLSearchParams(window.location.search);
+                        navigate(`/tickets/${p.id}${currentParams.toString() ? '?' + currentParams.toString() : ''}`);
+                      }}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
                       Book Now
