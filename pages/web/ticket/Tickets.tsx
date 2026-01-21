@@ -23,6 +23,7 @@ import PageContainer from "@/components/PageContainer";
 import { useUser } from "@/provider/UserProvider";
 import NotFoundComponent from '@/components/NotFoundComponent';
 import ImageFallback from '@/components/ImageFallback';
+import { truncateDescription } from "@/lib/utils";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -238,7 +239,7 @@ export default function Tickets() {
                   {p.name}
                 </h3>
                 <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                  {p.description}
+                  {truncateDescription(p.description)}
                 </p>
 
                 <button
@@ -255,12 +256,12 @@ export default function Tickets() {
                 </button>
 
                 <div className="mt-auto flex items-center justify-between">
-                  <div>
+                  {/* <div>
                     <p className="text-xs text-gray-500">Special Price</p>
                     <p className="text-lg font-bold text-gray-900">
-                      ${p?.price?.toFixed(2) || "0.00"}
+                      THB {p?.price?.toFixed(2) || "0.00"}
                     </p>
-                  </div>
+                  </div> */}
                   <div className="flex gap-2">
                     {user?.type === "OWNER" && (
                       <button
@@ -276,18 +277,15 @@ export default function Tickets() {
                         Edit
                       </button>
                     )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        
-                        // Simple direct navigation
-                        navigate(`/tickets/${p.id}`);
-                      }}
-                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Book Now
-                    </button>
+                    {user?.type !== "OWNER" && (
+                      <button
+                        onClick={(e) => {
+                        }}
+                        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

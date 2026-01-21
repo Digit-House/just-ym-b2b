@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, ChevronRight, ShoppingBag, Wallet } from "lucide-react";
+import { ChevronRight, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/useCartStore";
@@ -21,19 +21,42 @@ const Header: React.FC = () => {
     >
       <div className="p-2 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
         <Wallet className="w-4 h-4 text-white" />
-        <div>
+        <div className="text-white">
           <p className="text-xs text-white/80">Available Credits</p>
-          <p className="text-sm font-bold text-white">
+          <div className="flex flex-row gap-1">
+          <div>
+            <p className="text-sm font-bold text-white">
             {creditInfo?.currency}{" "}
             {creditInfo?.balance?.toLocaleString("en-US") || "0"}
           </p>
+          </div>
+           /
+          <div>
+            <p className="text-sm font-bold text-white">
+            GT Balance{" "}
+            {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
+          </p>
+          </div>
+          /
+          <div>
+            <p className="text-sm font-bold text-white">
+            GT Main Balance{" "}
+            {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
+          </p>
+          </div>
+          /
+          <div>
+            <p className="text-sm font-bold text-white">
+            Customer Balance{" "}
+            {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
+          </p>
+          </div>
+          </div>
         </div>
       </div>
-      {/* Right Section: Actions & Profile */}
+
       <div className="flex items-center gap-2">
-        {/* Action Buttons Group */}
         <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
-          {/* Cart */}
           <button
             onClick={() => navigate("/cart")}
             className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"

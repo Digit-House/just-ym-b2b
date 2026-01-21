@@ -84,6 +84,8 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(({
               label="Ticket Image"
               folderType="PRODUCT_MEDIA"
               isRequired={!watch('image')} // Always required
+              enableCrop={true}
+              presetCropSetting="TICKET_CARD"
             />
           )}
         />
