@@ -132,22 +132,7 @@ export default function Tickets() {
       />
 
       <div className="flex items-center justify-between my-10 gap-4 border border-[#21212124] py-[8px] px-[16px]">
-        <div className="flex items-center">
-          <div className="relative">
-            <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search tickets..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-64 text-sm"
-            />
-            {search && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
-                Searching...
-              </div>
-            )}
-          </div>
+        <div className="flex gap-5 items-center">
           <Select
             label="Categories"
             placeholder="Categories"
@@ -164,6 +149,21 @@ export default function Tickets() {
             onChange={setCountries}
             width="w-32"
           />
+          <div className="relative">
+            <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-48 text-sm"
+            />
+            {search && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                Searching...
+              </div>
+            )}
+          </div>
           {user?.type === "OWNER" && (
             <ShadcnSelect
               value={published}

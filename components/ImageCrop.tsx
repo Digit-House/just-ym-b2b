@@ -32,12 +32,10 @@ const ImageCrop: React.FC<ImageCropProps> = ({
 }) => {
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  // Process crop settings
   const resolvedCropSettings = presetCropSetting 
     ? CROP_SETTINGS[presetCropSetting]
     : cropSettings;
   
-  // Helper to safely extract crop properties
   const getCropProps = () => {
     const props: any = {};
     if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
@@ -52,7 +50,6 @@ const ImageCrop: React.FC<ImageCropProps> = ({
     return props;
   };
 
-  // ✅ YOUR REQUESTED DEFAULT CROP
   const [crop, setCrop] = useState<Crop>(() => {
     const baseCrop = {
       unit: "%" as const,
@@ -62,15 +59,13 @@ const ImageCrop: React.FC<ImageCropProps> = ({
       height: 50,
     };
 
-    // Check if the resolved settings has an aspect property
     if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
       const aspect = resolvedCropSettings.aspect;
-      // Calculate height based on aspect ratio if width is set
       const calculatedHeight = (baseCrop.width * 100) / aspect;
       return {
         ...baseCrop,
         aspect,
-        height: Math.min(calculatedHeight, 50), // Ensure it doesn't exceed our default
+        height: Math.min(calculatedHeight, 50), 
       };
     }
     
@@ -96,13 +91,11 @@ const ImageCrop: React.FC<ImageCropProps> = ({
     );
 
     const previewUrl = URL.createObjectURL(file);
-
-    // ✅ ORDER MATTERS (File FIRST)
     onCropComplete(file, previewUrl);
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+    <div className="fixed inset-0 z-52 bg-black/60 flex items-center justify-center">
       <div className="bg-white rounded-md p-4 w-[90vw] max-w-[500px]">
         <ReactCrop
           crop={crop}
@@ -141,10 +134,6 @@ const ImageCrop: React.FC<ImageCropProps> = ({
 };
 
 export default ImageCrop;
-
-/* ---------------------------------- */
-/* --------- helpers ----------------- */
-/* ---------------------------------- */
 
 async function getCroppedFile(
   image: HTMLImageElement,
