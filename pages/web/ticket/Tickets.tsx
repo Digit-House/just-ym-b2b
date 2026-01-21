@@ -1,11 +1,12 @@
 "use client";
 import { useRef, useEffect, useState} from "react";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { ArrowRight, RotateCcw, Search } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import PageHeader from "@/components/PageHeader";
 import Select from "@/components/Select";
 import SortSelect, { SortOption } from "@/components/SortSelect";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Select as ShadcnSelect,
   SelectContent,
@@ -58,7 +59,9 @@ export default function Tickets() {
     "ALL" | "PUBLISHED" | "UNPUBLISHED"
   >(initialPublished);
   
-  // Initialize categories and countries from localStorage
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 2000); // 2 second debounce
+  
   const [categories, setCategories] = useState<string[]>(
     storedFilters?.categories || []
   );
@@ -66,19 +69,16 @@ export default function Tickets() {
     storedFilters?.countries || []
   );
 
-  // Update localStorage when state changes
   useEffect(() => {
-    // Save to localStorage
     const filtersToStore = {
       sort,
       published,
       categories,
-      countries
+      countries,
+      search
     };
     localStorage.setItem('ticketFilters', JSON.stringify(filtersToStore));
-  }, [sort, published, categories, countries]);
-
-
+  }, [sort, published, categories, countries, search]);
 
   const { data: dataCountry } = useCountries({
     limit: 250,
@@ -103,7 +103,7 @@ export default function Tickets() {
     error,
   } = useInfiniteQuery({
     initialPageParam: 1,
-    queryKey: ["products", { categories, countries, sort, published }],
+    queryKey: ["products", { categories, countries, sort, published, search: debouncedSearch }],
     queryFn: fetchProducts,
     gcTime: 0,
     staleTime: 0,
@@ -133,13 +133,28 @@ export default function Tickets() {
 
       <div className="flex items-center justify-between my-10 gap-4 border border-[#21212124] py-[8px] px-[16px]">
         <div className="flex items-center">
+          <div className="relative">
+            <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-64 text-sm"
+            />
+            {search && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                Searching...
+              </div>
+            )}
+          </div>
           <Select
             label="Categories"
             placeholder="Categories"
             options={CATEGORIES}
             value={categories}
             onChange={setCategories}
-            width="w-48"
+            width="w-32"
           />
           <Select
             label="Countries"
@@ -147,7 +162,7 @@ export default function Tickets() {
             options={COUNTRIES}
             value={countries}
             onChange={setCountries}
-            width="w-48"
+            width="w-32"
           />
           {user?.type === "OWNER" && (
             <ShadcnSelect
@@ -176,6 +191,7 @@ export default function Tickets() {
                 setPublished('PUBLISHED');
                 setCategories([]);
                 setCountries([]);
+                setSearch('');
                 // Clear localStorage when resetting
                 localStorage.removeItem('ticketFilters');
               }}

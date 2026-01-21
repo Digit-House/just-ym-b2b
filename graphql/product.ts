@@ -73,7 +73,7 @@ export const updateProductInfo = async (data: UpdateProductPayloadT) => {
 };
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { categories, countries, sort, published }] = queryKey;
+  const [_key, { categories, countries, sort, published, search }] = queryKey;
 
   const filter = {
     category: categories[0] || "",
@@ -83,6 +83,8 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     page: pageParam,
     published: published,
     orderBy: { dir: sort, field: "updatedAt" as string },
+    name:search
+    // ...(search && { search }), // Add search parameter if it exists
   };
 
   const res = await getAllProducts(filter);
