@@ -46,17 +46,14 @@ const Sidebar = () => {
     >
       {/* LOGO */}
       <div className="px-2 py-4 flex justify-center relative">
-        <div className="w-14 h-16 bg-orange-100 rounded-lg flex items-center justify-center border-2 border-orange-400">
-          <div className="text-center">
-            <div className="text-[10px] font-bold">JUST</div>
-            <div
-              className={` font-bold text-orange-500 ${
-                isCollapsed ? "text-sm" : "text-3xl"
-              }`}
-            >
-              M
-            </div>
-          </div>
+        <div className="flex items-center justify-center">
+          <img 
+            src="/img/logo.png" 
+            alt="JustM Logo" 
+            className={`transition-all duration-300 ${
+              isCollapsed ? "w-10 h-10" : "w-14 h-14"
+            } object-contain`}
+          />
         </div>
 
         {/* Toggle Button */}
