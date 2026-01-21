@@ -106,6 +106,7 @@ const errorLink = new ErrorLink(({ error }) => {
   console.error("[Network error]", error);
 });
 
+console.log(import.meta.env.VITE_PUBLIC_API_URL,"109");
 const httpLink = new HttpLink({
   uri: import.meta?.env?.VITE_PUBLIC_API_URL || "https://stg-api.justym.me/graphql",
 });
