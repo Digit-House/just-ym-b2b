@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { ArrowRight, RotateCcw } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/graphql/product";
 import SkeletonCard from "./_components/SkeletonCard";
@@ -30,9 +30,8 @@ const SORT_OPTION: SortOption[] = [
 
 export default function Tickets() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize state from localStorage or URL query parameters
+  // Initialize state from localStorage only
   const getStoredFilters = () => {
     const stored = localStorage.getItem('ticketFilters');
     if (stored) {
@@ -47,10 +46,9 @@ export default function Tickets() {
 
   const storedFilters = getStoredFilters();
   
-  // Priority: URL params > localStorage > defaults
-  const initialSort = searchParams.get('sort') || storedFilters?.sort || 'desc';
-  const initialPublished = (searchParams.get('published') as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
-                          (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
+  // Use localStorage or defaults only
+  const initialSort = storedFilters?.sort || 'desc';
+  const initialPublished = (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
                           "PUBLISHED";
   
   const [sort, setSort] = useState(initialSort);
@@ -60,28 +58,16 @@ export default function Tickets() {
     "ALL" | "PUBLISHED" | "UNPUBLISHED"
   >(initialPublished);
   
-  // Initialize categories and countries from URL params if needed
+  // Initialize categories and countries from localStorage
   const [categories, setCategories] = useState<string[]>(
-    searchParams.get('categories')?.split(',') || []
+    storedFilters?.categories || []
   );
   const [countries, setCountries] = useState<string[]>(
-    searchParams.get('countries')?.split(',') || []
+    storedFilters?.countries || []
   );
 
-  // Memoize the search params to avoid infinite loops
-  const urlParams = useMemo(() => {
-    const params: Record<string, string> = {};
-    if (sort !== 'desc') params.sort = sort;
-    if (published !== 'PUBLISHED') params.published = published;
-    if (categories.length > 0) params.categories = categories.join(',');
-    if (countries.length > 0) params.countries = countries.join(',');
-    return params;
-  }, [sort, published, categories, countries]);
-
-  // Update URL and localStorage when state changes
+  // Update localStorage when state changes
   useEffect(() => {
-    setSearchParams(urlParams, { replace: true });
-    
     // Save to localStorage
     const filtersToStore = {
       sort,
@@ -90,19 +76,9 @@ export default function Tickets() {
       countries
     };
     localStorage.setItem('ticketFilters', JSON.stringify(filtersToStore));
-  }, [urlParams, setSearchParams, sort, published, categories, countries]);
+  }, [sort, published, categories, countries]);
 
-  // Set default parameters when visiting tickets page without any parameters
-  useEffect(() => {
-    if ([...searchParams.keys()].length === 0) {
-      // If no parameters exist in the URL, set the defaults
-      const defaultParams: Record<string, string> = {
-        sort: 'desc',
-        published: 'PUBLISHED'
-      };
-      setSearchParams(defaultParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
+
 
   const { data: dataCountry } = useCountries({
     limit: 250,
@@ -254,9 +230,8 @@ export default function Tickets() {
                     e.stopPropagation();
                     e.preventDefault();
                     
-                    const baseUrl = `/tickets/${p.id}`;
-                    console.log('Read More button clicked, navigating to:', baseUrl);
-                    navigate(baseUrl);
+                    // Simple direct navigation
+                    navigate(`/tickets/${p.id}`);
                   }}
                   className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"
                 >
@@ -277,9 +252,7 @@ export default function Tickets() {
                           e.stopPropagation();
                           e.preventDefault();
                           
-                          // Simple navigation test
-                          // const baseUrl = `/admin-tickets/edit/${p.id}`;
-                          // console.log('Attempting to navigate to:', baseUrl);
+                          // Simple direct navigation
                           navigate(`/admin-tickets/edit/${p.id}`);
                         }}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -292,9 +265,8 @@ export default function Tickets() {
                         e.stopPropagation();
                         e.preventDefault();
                         
-                        const baseUrl = `/tickets/${p.id}`;
-                        console.log('Book Now button clicked, navigating to:', baseUrl);
-                        navigate(baseUrl);
+                        // Simple direct navigation
+                        navigate(`/tickets/${p.id}`);
                       }}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
