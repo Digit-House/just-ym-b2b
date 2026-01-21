@@ -1,6 +1,6 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { useRef, useEffect, useState, useMemo } from "react";
+import { ArrowRight, RotateCcw } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import PageHeader from "@/components/PageHeader";
@@ -21,6 +21,7 @@ import { preFixImg } from "@/util/initData";
 import PageContainer from "@/components/PageContainer";
 import { useUser } from "@/provider/UserProvider";
 import NotFoundComponent from '@/components/NotFoundComponent';
+import ImageFallback from '@/components/ImageFallback';
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -30,14 +31,54 @@ const SORT_OPTION: SortOption[] = [
 export default function Tickets() {
   const navigate = useNavigate();
 
-  const [sort, setSort] = useState("desc");
+  // Initialize state from localStorage only
+  const getStoredFilters = () => {
+    const stored = localStorage.getItem('ticketFilters');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const storedFilters = getStoredFilters();
+  
+  // Use localStorage or defaults only
+  const initialSort = storedFilters?.sort || 'desc';
+  const initialPublished = (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
+                          "PUBLISHED";
+  
+  const [sort, setSort] = useState(initialSort);
   const { user } = useUser();
 
   const [published, setPublished] = useState<
     "ALL" | "PUBLISHED" | "UNPUBLISHED"
-  >("PUBLISHED");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [countries, setCountries] = useState<string[]>([]);
+  >(initialPublished);
+  
+  // Initialize categories and countries from localStorage
+  const [categories, setCategories] = useState<string[]>(
+    storedFilters?.categories || []
+  );
+  const [countries, setCountries] = useState<string[]>(
+    storedFilters?.countries || []
+  );
+
+  // Update localStorage when state changes
+  useEffect(() => {
+    // Save to localStorage
+    const filtersToStore = {
+      sort,
+      published,
+      categories,
+      countries
+    };
+    localStorage.setItem('ticketFilters', JSON.stringify(filtersToStore));
+  }, [sort, published, categories, countries]);
+
+
 
   const { data: dataCountry } = useCountries({
     limit: 250,
@@ -126,7 +167,25 @@ export default function Tickets() {
             </ShadcnSelect>
           )}
         </div>
-        <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />
+        <div className="flex items-center gap-2">
+          <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />
+          {(sort !== 'desc' || published !== 'PUBLISHED' || categories.length > 0 || countries.length > 0) && (
+            <button
+              onClick={() => {
+                setSort('desc');
+                setPublished('PUBLISHED');
+                setCategories([]);
+                setCountries([]);
+                // Clear localStorage when resetting
+                localStorage.removeItem('ticketFilters');
+              }}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              title="Reset filters"
+            >
+              <RotateCcw size={18} />
+            </button>
+          )}
+        </div>
       </div>
 
       {isPending && (
@@ -151,10 +210,10 @@ export default function Tickets() {
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="h-48 overflow-hidden relative">
-                <img
+                <ImageFallback
                   src={preFixImg(p.image)}
                   alt={p.name}
-                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-contain transform hover:scale-105 transition-transform duration-500"
                 />
               </div>
 
@@ -167,7 +226,13 @@ export default function Tickets() {
                 </p>
 
                 <button
-                  onClick={() => navigate(`/tickets/${p.id}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // Simple direct navigation
+                    navigate(`/tickets/${p.id}`);
+                  }}
                   className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"
                 >
                   Read More <ArrowRight size={16} className="ml-1" />
@@ -183,14 +248,26 @@ export default function Tickets() {
                   <div className="flex gap-2">
                     {user?.type === "OWNER" && (
                       <button
-                        onClick={() => navigate(`/admin-tickets/edit/${p.id}`)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          
+                          // Simple direct navigation
+                          navigate(`/admin-tickets/edit/${p.id}`);
+                        }}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
                         Edit
                       </button>
                     )}
                     <button
-                      onClick={() => navigate(`/tickets/${p.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        
+                        // Simple direct navigation
+                        navigate(`/tickets/${p.id}`);
+                      }}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
                       Book Now

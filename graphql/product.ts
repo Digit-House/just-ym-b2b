@@ -21,8 +21,6 @@ import {
   FindAllProductsT,
   ProductInfoResponse,
   ProductInfoT,
-  ProductOptionResponse,
-  ProductOptionT,
   TicketTypeEventAvailableResponse,
   UpdateProductPayloadT,
 } from "@/types/product.type";

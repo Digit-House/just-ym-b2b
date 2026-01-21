@@ -12,10 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCategories } from "@/hooks/useCategories";
-import { useCities } from "@/hooks/useCities";
 import { useCountries } from "@/hooks/useCountries";
-import { preFixImg } from "@/util/initData";
+import ImageUpload from "@/components/ImageUpload";
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -24,20 +22,17 @@ type BasicInfoTabProps = {
   setValue: any;
   mode: "create" | "edit";
   initialValues?: UpdateProductPayloadT | ProductInfoT;
+  imageRef?: React.Ref<any>;
 };
 
-const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
+const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(({
   control,
   errors,
   watch,
-  setValue,
-  mode,
-  initialValues,
-}) => {
-  const isEdit = mode === "edit";
+  imageRef,
+}, ref) => {
 
   // Fetch categories, countries and cities
-  const { data: categories = [] } = useCategories({ limit: 50, page: 1 });
   const { data: countriesResponse } = useCountries({
     limit: 50,
     page: 1,
@@ -46,17 +41,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     search: undefined,
   });
   const countries = countriesResponse?.data || [];
-  const { data: citiesData } = useCities({
-    countryId: watch("countryId") || "",
-    limit: 50,
-    page: 1,
-    orderBy: { dir: "asc" },
-    isPublished: true,
-    search: undefined,
-  });
-
-  // Extract cities from the response
-  const cities = citiesData?.data || [];
+  
 
   return (
     <div className="space-y-6">
@@ -86,10 +71,21 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
       </div>
 
       <div className={`space-y-3 w-full h-[300px]`}>
-        <img
-          className="w-full h-[300px] object-contain"
-          src={preFixImg(watch("image")) || ""}
-          alt="Ticket"
+        <Controller
+          name="image"
+          control={control}
+          render={({ field }) => (
+            <ImageUpload
+              ref={imageRef}
+              value={field.value}
+              onChange={(value, file) => {
+                field.onChange(value);
+              }}
+              label="Ticket Image"
+              folderType="PRODUCT_MEDIA"
+              isRequired={!watch('image')} // Always required
+            />
+          )}
         />
       </div>
 
@@ -105,7 +101,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Ticket Name"
-                isRequired={true}
                 {...field}
                 errMsg={errors.name?.message}
                 placeholder="Enter ticket name"
@@ -127,7 +122,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Address Line"
-                isRequired={true}
                 {...field}
                 errMsg={errors.addressLine?.message}
                 placeholder="Enter address"
@@ -149,7 +143,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Location"
-                isRequired={true}
                 {...field}
                 errMsg={errors.location?.message}
                 placeholder="Enter location"
@@ -213,7 +206,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Postal Code"
-                isRequired={true}
                 {...field}
                 errMsg={errors.postalCode?.message}
                 placeholder="Enter postal code"
@@ -471,6 +463,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default BasicInfoTab;
