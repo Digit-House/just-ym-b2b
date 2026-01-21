@@ -24,6 +24,7 @@ export type FilterProductListT = {
   countryId: string;
   limit: number;
   orderBy: {
+    field:"updatedAt"|string,
     dir: string;
   };
   page: number;
