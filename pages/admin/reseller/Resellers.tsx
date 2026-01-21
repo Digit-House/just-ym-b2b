@@ -7,7 +7,7 @@ import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
 import { createReseller, getResellers, updateReseller } from "@/graphql/reseller";
-import { ResellerT } from "@/types/reseller.type";
+import { ResellerFilterT, ResellerT } from "@/types/reseller.type";
 import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
 import ModalWrapper from "@/components/ModalWrapper";
@@ -15,6 +15,7 @@ import { Edit2, Plus} from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { ResellerFormValues } from "@/types/schema/resellerSchema";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Resellers = () => {
   const [data, setData] = useState<ResellerT[]>([]);
@@ -33,12 +34,14 @@ const Resellers = () => {
     setModalState({ mode: null, reseller: null });
   }, []);
 
-  const [filterData, setFilterData] = useState({
+  const [filterData, setFilterData] = useState<ResellerFilterT>({
+    active: null,
     limit: PAGE_SIZE,
     page: 1,
     orderBy: {
       dir: "desc" as "asc" | "desc",
     },
+    search: undefined,
   });
 
   useEffect(() => {
@@ -115,19 +118,43 @@ const Resellers = () => {
         des="Manage reseller accounts and credit balances."
       />
       <div className="flex items-center flex-row-reverse justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
-        <SortSelect
-          options={SORT_OPTION}
-          value={filterData.orderBy.dir === "desc" ? "newest" : "oldest"}
-          onChange={(value) =>
-            setFilterData((prev) => ({
-              ...prev,
-              page: 1,
-              orderBy: {
-                dir: value === "newest" ? "desc" : "asc",
-              },
-            }))
-          }
-        />
+        <div className="flex items-center gap-4">
+          <Select
+            value={filterData.active === true ? "active" : filterData.active === false ? "inactive" : "all"}
+            onValueChange={(value) => {
+              const activeValue = value === "active" ? true : value === "inactive" ? false : null;
+              setFilterData((prev) => ({
+                ...prev,
+                page: 1,
+                active: activeValue,
+              }));
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Resellers</SelectItem>
+              <SelectItem value="active">Active Only</SelectItem>
+              <SelectItem value="inactive">Inactive Only</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <SortSelect
+            options={SORT_OPTION}
+            value={filterData.orderBy.dir === "desc" ? "newest" : "oldest"}
+            onChange={(value) =>
+              setFilterData((prev) => ({
+                ...prev,
+                page: 1,
+                orderBy: {
+                  dir: value === "newest" ? "desc" : "asc",
+                  field:"name"
+                },
+              }))
+            }
+          />
+        </div>
 
         <RoleCheckAction>
           <Button

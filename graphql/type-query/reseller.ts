@@ -1,5 +1,5 @@
 export const GET_ALL_RESELLERS = `
-query FindAllResellers($params: AbstractPagedParams!) {
+query FindAllResellers($params: ResellerFindAllParam!) {
   findAllResellers(params: $params) {
     total
     data {

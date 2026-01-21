@@ -28,6 +28,7 @@ import { truncateDescription } from "@/lib/utils";
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
   { label: "Oldest", value: "asc" },
+   { label: "Alphabet", value: "alphabet" },
 ];
 
 export default function Tickets() {
@@ -49,7 +50,7 @@ export default function Tickets() {
   const storedFilters = getStoredFilters();
   
   // Use localStorage or defaults only
-  const initialSort = storedFilters?.sort || 'desc';
+  const initialSort = storedFilters?.sort || 'alphabet';
   const initialPublished = (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
                           "PUBLISHED";
   

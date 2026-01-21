@@ -74,7 +74,7 @@ export const updateProductInfo = async (data: UpdateProductPayloadT) => {
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, { categories, countries, sort, published, search }] = queryKey;
-
+  console.log(sort.toLowerCase(),"77")
   const filter = {
     category: categories[0] || "",
     cityId: "",
@@ -82,7 +82,7 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     limit: 10,
     page: pageParam,
     published: published,
-    orderBy: { dir: sort, field: "updatedAt" as string },
+    orderBy: { dir: sort?.toLowerCase() === "alphabet" ? "desc" : sort, field: sort?.toLowerCase() === 'alphabet' ? 'name' : 'updatedAt' as string },
     name:search
     // ...(search && { search }), // Add search parameter if it exists
   };

@@ -106,7 +106,8 @@ query GetProductInfo($productId: String!, $date: DateTime) {
         id
         name
         dhNetPrice
-        dhRecommendedSellingPrice
+        minimumSellingPrice
+        recommendedSellingPrice
         dhSellingPrice
         nettPrice
         originalPrice

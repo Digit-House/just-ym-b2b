@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { ChevronRight, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
@@ -24,33 +24,38 @@ const Header: React.FC = () => {
         <div className="text-white">
           <p className="text-xs text-white/80">Available Credits</p>
           <div className="flex flex-row gap-1">
-          <div>
-            <p className="text-sm font-bold text-white">
-            {creditInfo?.currency}{" "}
-            {creditInfo?.balance?.toLocaleString("en-US") || "0"}
-          </p>
-          </div>
-           /
-          <div>
-            <p className="text-sm font-bold text-white">
-            GT Balance{" "}
-            {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
-          </p>
-          </div>
-          /
-          <div>
-            <p className="text-sm font-bold text-white">
-            GT Main Balance{" "}
-            {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
-          </p>
-          </div>
-          /
-          <div>
-            <p className="text-sm font-bold text-white">
-            Customer Balance{" "}
-            {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
-          </p>
-          </div>
+            <div>
+              <p className="text-sm font-bold text-white">
+                {creditInfo?.currency}{" "}
+                {creditInfo?.balance?.toLocaleString("en-US") || "0"}
+              </p>
+            </div>
+            {user.type !== "OWNER" && (
+              <Fragment>
+                /
+                <div>
+                  <p className="text-sm font-bold text-white">
+                    GT Balance{" "}
+                    {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
+                  </p>
+                </div>
+                /
+                <div>
+                  <p className="text-sm font-bold text-white">
+                    GT Main Balance{" "}
+                    {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
+                  </p>
+                </div>
+                /
+                <div>
+                  <p className="text-sm font-bold text-white">
+                    Customer Balance{" "}
+                    {creditInfo?.customerBalance?.toLocaleString("en-US") ||
+                      "0"}
+                  </p>
+                </div>
+              </Fragment>
+            )}
           </div>
         </div>
       </div>
@@ -72,8 +77,6 @@ const Header: React.FC = () => {
               </span>
             )}
           </button>
-
-          
 
           {/* Notifications */}
           {/*<div className="w-px h-5 bg-gray-300 mx-1" />

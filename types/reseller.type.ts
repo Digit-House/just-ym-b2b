@@ -1,6 +1,18 @@
+
 export type ResellerResT = {
   total: number;
   data: ResellerCreditT[];
+};
+
+export type ResellerFilterT = {
+  active: boolean|null;
+  limit: number;
+  orderBy: {
+    dir: "asc" | "desc";
+    // field: "name"|string;
+  };
+  page: number;
+  search: string|undefined;
 };
 
 export type ResellerCreditT = {
@@ -18,22 +30,22 @@ export type ResellerCreditT = {
 };
 
 export type ResellerT = {
-  active:boolean;
-  contactNo:string;
-  createdAt:string;
-  credit:{
-    balance:string;
-    currency:string;
-    totalTopUp:string;
-    totalUsage:string;
+  active: boolean;
+  contactNo: string;
+  createdAt: string;
+  credit: {
+    balance: string;
+    currency: string;
+    totalTopUp: string;
+    totalUsage: string;
     hasOutstandingDebt: boolean;
     relatedImages?: string[];
-    createdAt:string;
-    updatedAt:string;
-  }
-  id:string;
-  name:string;
-  email:string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  id: string;
+  name: string;
+  email: string;
 };
 
 export type CreateResellerPayloadT = {

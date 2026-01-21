@@ -66,7 +66,7 @@ const Dashboard = () => {
         />
         <StatCard
           title="Total Earnings"
-          value="$12,450"
+          value="THB 12,450"
           subtext="Up from last month"
           icon={TrendingUp}
           iconBgClass="bg-yellow-50"
@@ -81,7 +81,7 @@ const Dashboard = () => {
               Revenue by customer type
             </p>
             <div className="flex items-center gap-3">
-              <h3 className="text-2xl font-bold text-gray-900">$240.8K</h3>
+              <h3 className="text-2xl font-bold text-gray-900">THB 240.8K</h3>
               <span className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md flex items-center">
                 14% <TrendingUp size={12} className="ml-1" />
               </span>

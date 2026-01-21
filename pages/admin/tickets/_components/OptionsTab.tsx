@@ -226,7 +226,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         <InputField
                           label="Minimum Selling Price"
                           type="number"
-                          value={ticketType.minmumSellingPrice ?? ""}
+                          value={ticketType.minimumSellingPrice ?? ""}
+                          disabled={true}
+                        />
+
+                         <InputField
+                          label="Recommended Selling Price"
+                          type="number"
+                          value={ticketType.recommendedSellingPrice ?? ""}
                           disabled={true}
                         />
 
