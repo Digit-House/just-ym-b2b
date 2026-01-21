@@ -125,7 +125,7 @@ const TicketEditForm: React.FC<Props> = ({
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     watch,
     setValue,
     getValues,
@@ -445,7 +445,7 @@ const TicketEditForm: React.FC<Props> = ({
           type="submit"
           loading={loading}
           className="flex items-center gap-2"
-          disabled={currentTab === "options" && Object.keys(errors).length > 0}
+          disabled={!isDirty || (currentTab === "options" && Object.keys(errors).length > 0)}
         >
           {isEdit ? <>Save Changes</> : <>Create Ticket</>}
         </Button>
