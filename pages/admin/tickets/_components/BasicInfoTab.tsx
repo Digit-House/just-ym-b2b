@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCities } from "@/hooks/useCities";
 import { useCountries } from "@/hooks/useCountries";
 import { preFixImg } from "@/util/initData";
 
@@ -40,17 +39,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     search: undefined,
   });
   const countries = countriesResponse?.data || [];
-  const { data: citiesData } = useCities({
-    countryId: watch("countryId") || "",
-    limit: 50,
-    page: 1,
-    orderBy: { dir: "asc" },
-    isPublished: true,
-    search: undefined,
-  });
-
-  // Extract cities from the response
-  const cities = citiesData?.data || [];
+  
 
   return (
     <div className="space-y-6">
