@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState} from "react";
 import { ArrowRight, RotateCcw } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
@@ -242,7 +242,7 @@ export default function Tickets() {
                   <div>
                     <p className="text-xs text-gray-500">Special Price</p>
                     <p className="text-lg font-bold text-gray-900">
-                      ${p.price}
+                      ${p?.dhSellingPrice?.toFixed(2) || "0.00"}
                     </p>
                   </div>
                   <div className="flex gap-2">

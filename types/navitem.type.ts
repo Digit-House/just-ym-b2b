@@ -113,24 +113,10 @@ export const NAV_CONFIG: NavItem[] = [
     icon: Users2,
     types: "ALL",
   },
-
-  // SETTINGS (USER ONLY)
   {
     label: "Setting",
     path: "/settings/general",
     icon: Settings,
-    types: ["RESELLER"],
-    // children: [
-    //   {
-    //     label: "General Setting",
-    //     path: "/settings/general",
-    //     types: ["RESELLER"],
-    //   },
-    //   {
-    //     label: "KYC Setting",
-    //     path: "/settings/kyc",
-    //     types: ["RESELLER"],
-    //   },
-    // ],
+    types: "ALL",
   },
 ];
