@@ -242,7 +242,7 @@ export default function Tickets() {
                   <div>
                     <p className="text-xs text-gray-500">Special Price</p>
                     <p className="text-lg font-bold text-gray-900">
-                      ${p?.dhSellingPrice?.toFixed(2) || "0.00"}
+                      ${p?.price?.toFixed(2) || "0.00"}
                     </p>
                   </div>
                   <div className="flex gap-2">

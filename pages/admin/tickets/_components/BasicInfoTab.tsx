@@ -242,7 +242,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(({
           />
         </div>
 
-        <div
+        {/* <div
           className={`space-y-3 ${
             errors.originalPrice
               ? "border border-red-300 rounded-lg p-3 bg-red-50"
@@ -268,7 +268,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(({
               />
             )}
           />
-        </div>
+        </div> */}
 
         <div
           className={`space-y-3 ${
