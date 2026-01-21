@@ -4,6 +4,7 @@ export const ticketSchema = z.object({
   id: z.string().optional().nullable(),
 
   name: z.string().optional().nullable(),
+   originalPrice: z.number().optional().nullable(),
   description: z.string().optional().nullable(),
   description_mm:z.string().optional().nullable(),
   whatToExpect: z.string().optional().nullable(),
@@ -27,7 +28,7 @@ export const ticketSchema = z.object({
 
   fromPrice: z.number().optional().nullable(),
   fromReseller: z.boolean().optional().nullable(),
-  originalPrice: z.number().optional().nullable(),
+ 
 
   highlights: z.array(z.string()).optional().nullable(),
   highlights_mm: z.array(z.string()).optional().nullable(),
