@@ -32,9 +32,26 @@ export default function Tickets() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize state from URL query parameters
-  const initialSort = searchParams.get('sort') || 'desc';
-  const initialPublished = (searchParams.get('published') as "ALL" | "PUBLISHED" | "UNPUBLISHED") || "PUBLISHED";
+  // Initialize state from localStorage or URL query parameters
+  const getStoredFilters = () => {
+    const stored = localStorage.getItem('ticketFilters');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const storedFilters = getStoredFilters();
+  
+  // Priority: URL params > localStorage > defaults
+  const initialSort = searchParams.get('sort') || storedFilters?.sort || 'desc';
+  const initialPublished = (searchParams.get('published') as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
+                          (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
+                          "PUBLISHED";
   
   const [sort, setSort] = useState(initialSort);
   const { user } = useUser();
@@ -61,10 +78,19 @@ export default function Tickets() {
     return params;
   }, [sort, published, categories, countries]);
 
-  // Update URL when state changes
+  // Update URL and localStorage when state changes
   useEffect(() => {
     setSearchParams(urlParams, { replace: true });
-  }, [urlParams, setSearchParams]);
+    
+    // Save to localStorage
+    const filtersToStore = {
+      sort,
+      published,
+      categories,
+      countries
+    };
+    localStorage.setItem('ticketFilters', JSON.stringify(filtersToStore));
+  }, [urlParams, setSearchParams, sort, published, categories, countries]);
 
   // Set default parameters when visiting tickets page without any parameters
   useEffect(() => {
@@ -174,6 +200,8 @@ export default function Tickets() {
                 setPublished('PUBLISHED');
                 setCategories([]);
                 setCountries([]);
+                // Clear localStorage when resetting
+                localStorage.removeItem('ticketFilters');
               }}
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
               title="Reset filters"
@@ -222,9 +250,13 @@ export default function Tickets() {
                 </p>
 
                 <button
-                  onClick={() => {
-                    const currentParams = new URLSearchParams(window.location.search);
-                    navigate(`/tickets/${p.id}${currentParams.toString() ? '?' + currentParams.toString() : ''}`);
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const baseUrl = `/tickets/${p.id}`;
+                    console.log('Read More button clicked, navigating to:', baseUrl);
+                    navigate(baseUrl);
                   }}
                   className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"
                 >
@@ -241,9 +273,14 @@ export default function Tickets() {
                   <div className="flex gap-2">
                     {user?.type === "OWNER" && (
                       <button
-                        onClick={() => {
-                          const currentParams = new URLSearchParams(window.location.search);
-                          navigate(`/admin-tickets/edit/${p.id}${currentParams.toString() ? '?' + currentParams.toString() : ''}`);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          
+                          // Simple navigation test
+                          // const baseUrl = `/admin-tickets/edit/${p.id}`;
+                          // console.log('Attempting to navigate to:', baseUrl);
+                          navigate(`/admin-tickets/edit/${p.id}`);
                         }}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
@@ -251,9 +288,13 @@ export default function Tickets() {
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        const currentParams = new URLSearchParams(window.location.search);
-                        navigate(`/tickets/${p.id}${currentParams.toString() ? '?' + currentParams.toString() : ''}`);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        
+                        const baseUrl = `/tickets/${p.id}`;
+                        console.log('Book Now button clicked, navigating to:', baseUrl);
+                        navigate(baseUrl);
                       }}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >

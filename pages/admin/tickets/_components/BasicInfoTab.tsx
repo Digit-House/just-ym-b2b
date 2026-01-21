@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCountries } from "@/hooks/useCountries";
-import { preFixImg } from "@/util/initData";
+import ImageUpload from "@/components/ImageUpload";
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -22,13 +22,15 @@ type BasicInfoTabProps = {
   setValue: any;
   mode: "create" | "edit";
   initialValues?: UpdateProductPayloadT | ProductInfoT;
+  imageRef?: React.Ref<any>;
 };
 
-const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
+const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(({
   control,
   errors,
   watch,
-}) => {
+  imageRef,
+}, ref) => {
 
   // Fetch categories, countries and cities
   const { data: countriesResponse } = useCountries({
@@ -69,10 +71,21 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
       </div>
 
       <div className={`space-y-3 w-full h-[300px]`}>
-        <img
-          className="w-full h-[300px] object-contain"
-          src={preFixImg(watch("image")) || ""}
-          alt="Ticket"
+        <Controller
+          name="image"
+          control={control}
+          render={({ field }) => (
+            <ImageUpload
+              ref={imageRef}
+              value={field.value}
+              onChange={(value, file) => {
+                field.onChange(value);
+              }}
+              label="Ticket Image"
+              folderType="PRODUCT_MEDIA"
+              isRequired={!watch('image')} // Always required
+            />
+          )}
         />
       </div>
 
@@ -450,6 +463,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default BasicInfoTab;

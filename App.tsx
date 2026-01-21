@@ -79,10 +79,6 @@ const App = () => {
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />
               <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
-              <Route
-                path="admin-tickets/edit/:id"
-                element={<AdminTicketEdit />}
-              />
             </Route>
           </Route>
 

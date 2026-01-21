@@ -136,6 +136,7 @@ const TicketEditForm: React.FC<Props> = ({
 
   // Refs for media items to handle deferred uploads
   const mediaItemRefs = useRef<Map<number, ImageUploadRef>>(new Map());
+  const mainImageRef = useRef<ImageUploadRef>(null);
 
   const setMediaItemRef = (index: number) => (ref: ImageUploadRef | null) => {
     if (ref) {
@@ -315,6 +316,29 @@ const TicketEditForm: React.FC<Props> = ({
       return;
     }
 
+    // Process main image upload if it's a local file
+    let processedImage = values.image;
+    if (processedImage && (processedImage.startsWith('blob:') || processedImage.startsWith('data:'))) {
+      // Get the file from the main image ref
+      if (mainImageRef.current) {
+        const fileToUpload = mainImageRef.current.getFileToUpload();
+        if (fileToUpload) {
+          try {
+            const result = await getSignedUrlAndImageDataUpload(
+              fileToUpload,
+              "PRODUCT_MEDIA"
+            );
+            if (result.status === 200 && result.url) {
+              // Update the image with the new URL
+              processedImage = result.url;
+            }
+          } catch (error) {
+            console.error('Error uploading main image:', error);
+          }
+        }
+      }
+    }
+
     // Process media uploads if media exists
     let processedMedia = values.media || [];
 
@@ -340,7 +364,6 @@ const TicketEditForm: React.FC<Props> = ({
                   "PRODUCT_MEDIA"
                 );
                 if (result.status === 200 && result.url) {
-                  console.log(result.url);
                   // Update the media item with the new URL
                   processedMedia[i] = { ...mediaItem, path: result.url };
                 }
@@ -352,9 +375,10 @@ const TicketEditForm: React.FC<Props> = ({
         }
       }
     }
-
     const payload = {
       ...values,
+      image: processedImage, // Use the processed image
+      media: processedMedia, // Use the processed media
       productOptions: values.productOptions.map((d) => {
         return {
           ...d,
@@ -455,6 +479,7 @@ const TicketEditForm: React.FC<Props> = ({
             setValue={setValue}
             mode={mode}
             initialValues={initialValues as UpdateProductPayloadT}
+            imageRef={mainImageRef}
           />
         </div>
 
