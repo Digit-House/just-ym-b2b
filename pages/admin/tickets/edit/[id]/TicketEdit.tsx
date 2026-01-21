@@ -26,8 +26,6 @@ const AdminTicketEdit = () => {
     refetchOnReconnect: false,
   });
   
-
-
   if (isLoading) {
     return <div>Loading ticket...</div>;
   }

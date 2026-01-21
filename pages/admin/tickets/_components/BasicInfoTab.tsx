@@ -105,7 +105,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Ticket Name"
-                isRequired={true}
                 {...field}
                 errMsg={errors.name?.message}
                 placeholder="Enter ticket name"
@@ -127,7 +126,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Address Line"
-                isRequired={true}
                 {...field}
                 errMsg={errors.addressLine?.message}
                 placeholder="Enter address"
@@ -149,7 +147,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Location"
-                isRequired={true}
                 {...field}
                 errMsg={errors.location?.message}
                 placeholder="Enter location"
@@ -213,7 +210,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             render={({ field }) => (
               <InputField
                 label="Postal Code"
-                isRequired={true}
                 {...field}
                 errMsg={errors.postalCode?.message}
                 placeholder="Enter postal code"
