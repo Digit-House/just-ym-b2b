@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
+import BackBtn from "@/components/BackBtn";
 
 
 const AdminTicketEdit = () => {
@@ -25,9 +26,7 @@ const AdminTicketEdit = () => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
-  //ee
-
-
+  
   if (isLoading) {
     return <div>Loading ticket...</div>;
   }
@@ -77,11 +76,12 @@ const AdminTicketEdit = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin-tickets");
+    navigate("/tickets");
   };
 
   return (
     <PageContainer>
+      <BackBtn route="/tickets" title="Back to Tickets" preserveParams={true} />
       <PageHeader title="Edit Ticket" des="Modify the ticket details below." />
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">

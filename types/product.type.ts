@@ -24,6 +24,7 @@ export type FilterProductListT = {
   countryId: string;
   limit: number;
   orderBy: {
+    field:"updatedAt"|string,
     dir: string;
   };
   page: number;
@@ -84,6 +85,7 @@ export interface UpdateProductPayloadT {
   image: string;
   addressLine: string;
   description: string;
+  description_mm:string;
   exclusions: string[];
   exclusions_mm: string[];
   fromPrice: number;
@@ -117,6 +119,7 @@ export interface UpdateProductPayloadT {
   thingsToNote_mm: string[];
   timezoneOffset: number;
   whatToExpect: string;
+  whatToExpect_mm:string;
   blockedDate: BlockedDateT[];
 }
 
@@ -125,7 +128,7 @@ export interface ProductInfoT {
   name: string;
   category: string;
   description: string;
-  dscription_mm:string;
+  description_mm:string;
   whatToExpect: string;
   whatToExpect_mm:string;
   addressLine: string;

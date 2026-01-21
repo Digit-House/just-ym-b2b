@@ -65,3 +65,8 @@ export interface AddTopupPayloadT {
   paymentMethodId:string;
   currencyRateId:string;
 }
+
+export interface AdminTopupPayloadT {
+  amount:number;
+  from:"CUSTOMER"|"MAIN"
+}

@@ -21,8 +21,6 @@ import {
   FindAllProductsT,
   ProductInfoResponse,
   ProductInfoT,
-  ProductOptionResponse,
-  ProductOptionT,
   TicketTypeEventAvailableResponse,
   UpdateProductPayloadT,
 } from "@/types/product.type";
@@ -84,7 +82,7 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     limit: 10,
     page: pageParam,
     published: published,
-    orderBy: { dir: sort },
+    orderBy: { dir: sort, field: "updatedAt" as string },
   };
 
   const res = await getAllProducts(filter);

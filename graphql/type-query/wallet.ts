@@ -58,6 +58,15 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
   }
 }`;
 
+export const ADMIN_TOPUP= `
+mutation TopUpGTBalance($data: TopupGTInput!) {
+  topUpGTBalance(data: $data) {
+    message
+    status
+  }
+}
+`;
+
 export const TOPUP_HISTORY = `
 query FindAllTopUpHistory($data: TopUpPagedParams!) {
   findAllTopUpHistory(data: $data) {

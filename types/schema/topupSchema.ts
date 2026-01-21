@@ -18,3 +18,11 @@ export const topUpSchema = z.object({
 });
 
 export type TopUpFormValues = z.infer<typeof topUpSchema>;
+
+// Admin Topup Schema
+export const adminTopupSchema = z.object({
+  amount: z.number().min(1, "Amount must be greater than 0"),
+  from: z.enum(["CUSTOMER", "MAIN"]),
+});
+
+export type AdminTopupValues = z.infer<typeof adminTopupSchema>;

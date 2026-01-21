@@ -7,13 +7,14 @@ import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import ModalWrapper from "@/components/ModalWrapper";
 import TopUpEditForm from "./_components/TopUpEditForm";
+import AdminTopUpForm from "./_components/AdminTopUpForm";
 
 import { TopUpHistoryT } from "@/types/wallet.type";
-import { confirmTopup, getAdminTopupHistory } from "@/graphql/wallet";
+import { confirmTopup, getAdminTopupHistory, getCredictInfo } from "@/graphql/wallet";
 import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 
 import { toast } from "sonner";
-import { FileEdit } from "lucide-react";
+import { FileEdit, Plus } from "lucide-react";
 
 import {
   Select,
@@ -22,6 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useWalletStore } from "@/store/useWalletStore";
 
 type TopUpStatus = "CONFIRMED" | "PENDING" | "REJECTED";
 
@@ -31,6 +34,15 @@ const TopUp = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [fetchAgain, setFetchAgain] = useState(false);
+  const { setCreditInfo} = useWalletStore();
+  
+  const [modalState, setModalState] = useState<{ mode: "create" | "edit" | null }>({
+    mode: null,
+  });
+
+  const closeModal = () => {
+    setModalState({ mode: null });
+  };
 
   const [filterData, setFilterData] = useState<{
     limit: number;
@@ -48,6 +60,19 @@ const TopUp = () => {
     fetchTopUpHistory();
   }, [filterData, fetchAgain]);
 
+  useEffect(() => {
+    fetchCreditInfo();
+  }, [fetchAgain]);
+
+  const fetchCreditInfo = async () => {
+      try {
+        const res: any = await getCredictInfo();
+        setCreditInfo(res.data.getCreditInfo);
+      } catch (err) {
+        toast.error(getErrMsg(err, "message"));
+      }
+    };
+
   const fetchTopUpHistory = async () => {
     try {
       setLoading(true);
@@ -61,12 +86,29 @@ const TopUp = () => {
     }
   };
 
-  const updateTopUp = async (id: string, topUpBalance: number, status: string) => {
+  const updateTopUp = async (
+    id: string,
+    topUpBalance: number,
+    status: string
+  ) => {
     try {
       setLoading(true);
       await confirmTopup(id, topUpBalance, status);
       setFetchAgain((prev) => !prev);
       setEditTopUp(null);
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdminTopUp = async () => {
+    try {
+      setLoading(true);
+      closeModal();
+      setFetchAgain((prev) => !prev);
+      toast.success("Admin top-up created successfully!");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
@@ -82,27 +124,40 @@ const TopUp = () => {
       />
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-5 border border-[#21212124] py-3 px-4 rounded-lg">
-        <Select
-          value={filterData.status ?? "all"}
-          onValueChange={(value) =>
-            setFilterData((prev) => ({
-              ...prev,
-              page: 1,
-              status: value === "all" ? null : (value as TopUpStatus),
-            }))
-          }
-        >
-          <SelectTrigger className="h-9 w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
+        <div className="flex gap-5 items-center ">
+          <Select
+            value={filterData.status ?? "all"}
+            onValueChange={(value) =>
+              setFilterData((prev) => ({
+                ...prev,
+                page: 1,
+                status: value === "all" ? null : (value as TopUpStatus),
+              }))
+            }
+          >
+            <SelectTrigger className="h-9 w-[160px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
 
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() => {
+              setModalState({ mode: "create" });
+            }}
+            size="lg"
+            type="button"
+            loading={loading}
+          >
+            <Plus size={18} />
+             Admin Top UP
+          </Button>
+        </div>
 
         {/* Sort */}
         <SortSelect
@@ -173,10 +228,14 @@ const TopUp = () => {
                       {item.paymentMethod ? item.paymentMethod.bankName : "N/A"}
                     </td>
                     <td className="px-6 py-4">
-                      {item.paymentMethod ? item.paymentMethod.accountNumber : "N/A"}
+                      {item.paymentMethod
+                        ? item.paymentMethod.accountNumber
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4">
-                      {item.paymentMethod ? item.paymentMethod.accountName : "N/A"}
+                      {item.paymentMethod
+                        ? item.paymentMethod.accountName
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4">
                       {item.paymentMethod ? item.paymentMethod.currency : "N/A"}
@@ -234,13 +293,21 @@ const TopUp = () => {
         </ModalWrapper>
       )}
 
+      {modalState.mode === "create" && (
+        <ModalWrapper title="Admin Top Up" onClose={closeModal}>
+          <AdminTopUpForm
+            loading={loading}
+            onCancel={closeModal}
+            onSubmit={handleAdminTopUp}
+          />
+        </ModalWrapper>
+      )}
+
       <Pagination
         page={filterData.page}
         pageSize={filterData.limit}
         total={total}
-        onPageChange={(page) =>
-          setFilterData((prev) => ({ ...prev, page }))
-        }
+        onPageChange={(page) => setFilterData((prev) => ({ ...prev, page }))}
         onPageSizeChange={(limit) =>
           setFilterData((prev) => ({
             ...prev,

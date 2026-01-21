@@ -1,8 +1,10 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { Upload, X, LockKeyhole } from "lucide-react";
 import { toast } from "sonner";
-import { type CropSettingType } from "@/lib/cropSettings";
-import  ImageCrop  from "./ImageCrop";
+import { preFixImg } from "@/util/initData";
+import ImageFallback from "./ImageFallback";
+import ImageCrop from "./ImageCrop";
+import { CropSettingType } from "@/lib/cropSettings";
 
 interface CropSettings {
   aspect?: number;
@@ -199,7 +201,8 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           </label>
         )}
 
-        <div className="relative group w-full min-h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
+        <div className="relative group w-full h-50 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
+          {/* Validation Info */}
           <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
             <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
               {allowedTypes.map((type) => getTypeDisplayName(type)).join("/")} •{" "}
@@ -217,17 +220,19 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 
           {preview ? (
             <div className="relative w-full h-full">
-              <img
-                src={preview}
-                alt="Preview"
-                // className="w-full h-full object-contain p-2"
-                //  className="max-h-[200px] mx-auto"
-                 className="max-h-[200px] mx-auto border rounded"
-                onError={(e) => {
-                  // Fallback if the image fails to load
-                  console.warn("Preview image failed to load:", preview);
-                }}
-              />
+              {preview.includes("blob:") ? (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-full object-contain p-2"
+                />
+              ) : (
+                <ImageFallback 
+                  src={preFixImg(preview)}
+                  alt="Preview"
+                  className="w-full h-full object-contain p-2"
+                />
+              )}
               {!disableRemove && (
                 <button
                   type="button"

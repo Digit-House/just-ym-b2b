@@ -41,7 +41,6 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
             <InputField
               label="Latitude"
               type="number"
-              isRequired={true}
               {...field}
               value={field.value ?? ""}
               onChange={(e) =>
@@ -61,7 +60,6 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
             <InputField
               label="Longitude"
               type="number"
-              isRequired={true}
               {...field}
               value={field.value ?? ""}
               onChange={(e) =>
