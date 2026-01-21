@@ -126,7 +126,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           {preview ? (
             <div className="relative w-full h-full">
               <img
-                src={preFixImg(preview)}
+                src={preview.includes("blob:") ? preview:preFixImg(preview)}
                 alt="Preview"
                 className="w-full h-full object-contain p-2"
               />

@@ -25,7 +25,7 @@ const AdminTicketEdit = () => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
-  //ee
+  
 
 
   if (isLoading) {
