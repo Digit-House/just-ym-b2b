@@ -317,3 +317,11 @@ export const UPDATE_PRODUCT_MUTATION = `mutation UpdateProduct($data: ProductUpd
   }
 }
 `;
+
+export const SEED_PRODUCT_MUTATION = `
+mutation Mutation($productId: String!) {
+  seedProduct(productId: $productId) {
+    message
+    status
+  }
+}`;

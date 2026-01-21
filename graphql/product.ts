@@ -11,6 +11,7 @@ import {
   GET_PRODUCT_INFO,
   GET_PRODUCT_OPTIONS,
   GET_TICKET_TYPE_EVENT_AVAILABLE,
+  SEED_PRODUCT_MUTATION,
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
   UPDATE_PRODUCT_MUTATION,
 } from "./type-query/product";
@@ -180,6 +181,20 @@ export const clearCart = async (cartItemId: string) => {
       mutation: warpGql(CLEAR_CART_MUTATION),
       variables: {
         cartItemId: cartItemId,
+      },
+    });
+    return res;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const seedProduct = async (productId: string) => {
+  try {
+    const res = await client.mutate({
+      mutation: warpGql(SEED_PRODUCT_MUTATION),
+      variables: {
+        productId: productId,
       },
     });
     return res;
