@@ -213,7 +213,7 @@ export default function Tickets() {
                 <ImageFallback
                   src={preFixImg(p.image)}
                   alt={p.name}
-                  className="w-full h-full object-contain transform hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
                 />
               </div>
 
