@@ -35,6 +35,9 @@ import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 import CurrencyRate from "./pages/admin/currencyRate/CurrencyRate";
 import Checkout from "./pages/web/cart/checkout/Checkout";
 import Preview from "./pages/web/cart/preview/Preview";
+import Vouchers from "./pages/admin/vouchers/Vouchers";
+import CreateVoucher from "./pages/admin/vouchers/create/CreateVoucher";
+import EditVoucher from "./pages/admin/vouchers/edit/EditPage";
 
 const App = () => {
   return (
@@ -78,7 +81,13 @@ const App = () => {
               <Route path="roles" element={<Roles />} />
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />
-              <Route path="admin-tickets/edit/:id" element={<AdminTicketEdit />} />
+              <Route
+                path="admin-tickets/edit/:id"
+                element={<AdminTicketEdit />}
+              />
+              <Route path="vouchers" element={<Vouchers />} />
+              <Route path="admin-vouchers/create" element={<CreateVoucher />} />
+              <Route path="admin-vouchers/:id" element={<EditVoucher />} />
               <Route
                 path="admin-tickets/edit/:id"
                 element={<AdminTicketEdit />}
