@@ -169,7 +169,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="Description"
-                isRequired={true}
                 rows={5}
                 {...field}
                 errMsg={errors.description?.message}
@@ -192,7 +191,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="Description MM"
-                isRequired={true}
                 rows={5}
                 {...field}
                 errMsg={errors.description_mm?.message}
@@ -214,8 +212,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             control={control}
             render={({ field }) => (
               <TextareaField
-                label="What To Expect"
-                isRequired={true}
+                label="What To Expect"               
                 rows={5}
                 {...field}
                 errMsg={errors.whatToExpect?.message}
@@ -238,7 +235,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="What To Expect MM"
-                isRequired={true}
                 rows={5}
                 {...field}
                 errMsg={errors.whatToExpect_mm?.message}

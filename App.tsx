@@ -92,6 +92,10 @@ const App = () => {
                 path="admin-tickets/edit/:id"
                 element={<AdminTicketEdit />}
               />
+              <Route
+                path="admin-tickets/edit/:id"
+                element={<AdminTicketEdit />}
+              />
             </Route>
           </Route>
 

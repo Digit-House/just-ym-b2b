@@ -2,12 +2,13 @@ import { warpGql } from "@/util";
 import client from "./client";
 import {
   ADD_TOP_UP,
+  ADMIN_TOPUP,
   CONFIRM_TOPUP,
   GET_CREDIT_INFO,
   TOP_UP_HISTORY,
   TOPUP_HISTORY,
 } from "./type-query/wallet";
-import { AddTopupPayloadT, TopUpHistoryFilterT } from "@/types/wallet.type";
+import { AddTopupPayloadT, AdminTopupPayloadT, TopUpHistoryFilterT } from "@/types/wallet.type";
 
 export const getCredictInfo = async () => {
   return client.query({
@@ -33,6 +34,15 @@ export const getAdminTopupHistory = async (payload: TopUpHistoryFilterT) => {
       data: { ...payload },
     },
     fetchPolicy: "no-cache",
+  });
+};
+
+export const adminTopup = async (payload: AdminTopupPayloadT) => {
+  return client.mutate({
+    mutation: warpGql(ADMIN_TOPUP),
+    variables: {
+      data: { ...payload },
+    },
   });
 };
 

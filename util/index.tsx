@@ -38,7 +38,7 @@ export const getSignedUrlAndImageDataUpload = async (
       if (response.ok) {
         return {
           status: 200,
-          url: `${url}${fields.key}`,
+          url: `${fields.key}`,
         };
       } else {
         return {

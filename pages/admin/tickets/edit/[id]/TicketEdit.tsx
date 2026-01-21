@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { Button } from "@/components/ui/button";
+import BackBtn from "@/components/BackBtn";
 
 const AdminTicketEdit = () => {
   const [loading, setLoading] = useState(false);
@@ -87,7 +88,7 @@ const AdminTicketEdit = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin-tickets");
+    navigate("/tickets");
   };
 
   const handleRefresh = async () => {
@@ -107,6 +108,7 @@ const AdminTicketEdit = () => {
 
   return (
     <PageContainer>
+      <BackBtn route="/tickets" title="Back to Tickets" preserveParams={true} />
       <PageHeader title="Edit Ticket" des="Modify the ticket details below." />
 
       <div className="w-full flex  mb-6">

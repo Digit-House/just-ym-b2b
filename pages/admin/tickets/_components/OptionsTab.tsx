@@ -149,7 +149,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 <InputField
                   label="Package Name"
                   value={option.name ?? ""}
-                  isRequired={true}
                   onChange={(e) =>
                     updateProductOption(optionIndex, "name", e.target.value)
                   }
@@ -158,7 +157,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                 <TextareaField
                   label="Package Description"
-                  isRequired={true}
                   value={option.description ?? ""}
                   onChange={(e) =>
                     updateProductOption(
@@ -213,7 +211,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <InputField
                           label="Original Price"
-                          isRequired={true}
                           type="number"
                           value={ticketType.originalPrice ?? ""}
                           disabled={true}
@@ -221,7 +218,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         
                         <InputField
                           label="DH Net Price"
-                          isRequired={true}
                           type="number"
                           value={ticketType.dhNetPrice ?? ""}
                           onChange={(e) => {
@@ -240,7 +236,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                         />
                         <InputField
                           label="DH Selling Price"
-                          isRequired={true}
                           type="number"
                           value={ticketType.dhSellingPrice ?? ""}
                           onChange={(e) => {
