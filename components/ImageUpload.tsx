@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useRef } from "react";
 import { Upload, X, LockKeyhole } from "lucide-react";
 import { toast } from "sonner";
 import { preFixImg } from "@/util/initData";
@@ -59,14 +59,20 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
     const [preview, setPreview] = useState<string | undefined>(value);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
     const [originalFile, setOriginalFile] = useState<File | null>(null);
+    const [originalValue, setOriginalValue] = useState<string | undefined>(
+      value
+    );
     const [cropDialogOpen, setCropDialogOpen] = useState(false);
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
       // Only update preview from value prop if it's different from current preview
       if (value && value !== preview) {
         setPreview(value);
       }
+      // Also update originalValue when value prop changes
+      setOriginalValue(value);
     }, [value, preview]);
 
     const isValidImageType = (file: File): boolean =>
@@ -117,6 +123,8 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 
         if (enableCrop) {
           setOriginalFile(file);
+          // Store the current value before starting crop process
+          setOriginalValue(preview);
           const reader = new FileReader();
           reader.onload = () => {
             const imageDataUrl = reader.result as string;
@@ -141,7 +149,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
     };
 
     // Handle crop completion from ImageCrop component
-    const handleCropComplete = (croppedFile: File,croppedImageUrl: string) => {
+    const handleCropComplete = (croppedFile: File, croppedImageUrl: string) => {
       if (!isValidFileSize(croppedFile)) {
         toast.error(`Cropped image exceeds ${maxSizeMB}MB limit.`);
         return;
@@ -151,6 +159,8 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       setOriginalFile(null);
       // Ensure the preview is updated with the cropped image
       setPreview(croppedImageUrl);
+      // Update originalValue to reflect the new cropped image
+      setOriginalValue(croppedImageUrl);
       // Only call onChange when in create mode
       if (mode === "create") {
         onChange(croppedImageUrl, croppedFile);
@@ -162,17 +172,16 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
     };
 
     const handleCropCancel = () => {
+      // Close crop dialog
       setCropDialogOpen(false);
       setImageSrc(null);
-      if (originalFile) {
-        const previewUrl = URL.createObjectURL(originalFile);
-        setPreview(previewUrl);
-        setFileToUpload(originalFile);
-        // Only call onChange when in create mode
-        if (mode === "create") {
-          onChange(previewUrl, originalFile);
-        }
-        setOriginalFile(null);
+      setOriginalFile(null);
+      setFileToUpload(null);
+      setPreview(originalValue);
+      
+      // Reset the file input to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     };
 
@@ -180,7 +189,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       setPreview(undefined);
       setFileToUpload(null);
       setOriginalFile(null);
-      // Only call onChange when in create mode
+      setOriginalValue(undefined);
       if (mode === "create") {
         onChange("");
       }
@@ -210,6 +219,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             </span>
           </div>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             disabled={disabled}
@@ -226,7 +236,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
                   className="w-full h-full object-contain p-2"
                 />
               ) : (
-                <ImageFallback 
+                <ImageFallback
                   src={preFixImg(preview)}
                   alt="Preview"
                   className="w-full h-full object-contain p-2"
@@ -258,15 +268,18 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 
         {/* Image Crop Dialog - Prevent closing on backdrop click */}
         {enableCrop && cropDialogOpen && (
-          <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             <ImageCrop
               isOpen={cropDialogOpen}
               onClose={handleCropCancel}
-              imageSrc={imageSrc || ''}
+              imageSrc={imageSrc || ""}
               onCropComplete={handleCropComplete}
               presetCropSetting={presetCropSetting}
               cropSettings={cropSettings}
-              fileName={originalFile?.name || 'cropped_image.jpg'}
+              fileName={originalFile?.name || `image_${Date.now()}.jpg`}
             />
           </div>
         )}
@@ -280,3 +293,24 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 ImageUpload.displayName = "ImageUpload";
 
 export default ImageUpload;
+
+
+
+
+ // const handleCropCancel = () => {
+    //   setCropDialogOpen(false);
+    //   setImageSrc(null);
+    //   // When canceling crop, we don't want to update the form state
+    //   // Just restore to original state without calling onChange
+    //   if (originalFile) {
+    //     // If there was an original file, revert to it
+    //     const previewUrl = URL.createObjectURL(originalFile);
+    //     setPreview(previewUrl);
+    //     setFileToUpload(originalFile);
+    //     setOriginalFile(null);
+    //   } else {
+    //     // If no original file, revert to the original value that was passed in
+    //     setPreview(originalValue);
+    //     setFileToUpload(null);
+    //   }
+    // };

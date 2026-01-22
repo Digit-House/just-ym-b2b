@@ -264,12 +264,6 @@ export default function Tickets() {
                 </button>
 
                 <div className="mt-auto flex items-center justify-between">
-                  {/* <div>
-                    <p className="text-xs text-gray-500">Special Price</p>
-                    <p className="text-lg font-bold text-gray-900">
-                      THB {p?.price?.toFixed(2) || "0.00"}
-                    </p>
-                  </div> */}
                   <div className="flex gap-2">
                     {user?.type === "OWNER" && (
                       <button

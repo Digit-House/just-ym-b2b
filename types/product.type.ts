@@ -201,12 +201,18 @@ export interface ProductOptionT {
   description:string;
   isPublished:boolean;
   ticketType: TicketTypeT[];
+  advanceBooking: AdvanceBookingT | null;
+  isCapacity: boolean;
+  questions: ProductOptionQuestionT[];
+  visitDate: VisitDateT;
+  inclusions: string[];
+  
   // createdAt: Date;
   // currency: string;
   // definedDuration: string;
   // demandType: string;
   // description: string;
-  // inclusions: string[];
+  
   // isDynamicPricing: boolean;
   // isTagged: boolean;
   // keywords: string;
@@ -214,7 +220,7 @@ export interface ProductOptionT {
   // primaryTicket: string;
   // productId: string;
   // publishStart: Date;
-  // isCapacity: boolean;
+  
   // redeemEnd: Date;
   // redeemStart: Date;
   // ticketFormat: string;
@@ -224,8 +230,6 @@ export interface ProductOptionT {
   // type: string;
   // updatedAt: Date;
   // publishEnd: Date;
-  // questions: ProductOptionQuestionT[];
-  // visitDate: VisitDateT;
   // advanceBooking: AdvanceBookingT | null;
   // availability: AVAILABILITY_ENUM | null;
 }
@@ -242,6 +246,7 @@ export interface TicketTypeT {
   originalPrice: number;
   createdAt: string;
   updatedAt: string;
+ globaltixId:string;
 
 
   // sku: string;

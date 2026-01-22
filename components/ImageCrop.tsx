@@ -95,7 +95,7 @@ const ImageCrop: React.FC<ImageCropProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-52 bg-black/60 flex items-center justify-center">
+    <div className="fixed inset-0 z-100 bg-black/60 flex items-center justify-center">
       <div className="bg-white rounded-md p-4 w-[90vw] max-w-[500px]">
         <ReactCrop
           crop={crop}

@@ -43,7 +43,8 @@ const TicketDetail = () => {
     eventLoading,
   } = useTicketDetail(id);
 
-  if (!product || !currentOption) {
+
+  if (!product) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-pulse text-indigo-600 font-bold">

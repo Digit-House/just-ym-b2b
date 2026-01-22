@@ -45,7 +45,7 @@ const Header: React.FC = () => {
                 GT Bal
               </span>
               <span className="text-xs font-bold">
-                {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
+                THB {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
               </span>
             </div>
 
@@ -54,7 +54,7 @@ const Header: React.FC = () => {
                 GT Main
               </span>
               <span className="text-xs font-bold">
-                {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
+               THB {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
               </span>
             </div>
 
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
                 Cust Bal
               </span>
               <span className="text-xs font-bold">
-                {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
+                THB {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
               </span>
             </div>
           </div>

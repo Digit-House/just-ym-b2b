@@ -95,11 +95,35 @@ query GetProductInfo($productId: String!, $date: DateTime) {
      name
      description
      isPublished
-      advanceBooking {
+     advanceBooking {
         day
         dayMinute
         hour
         minute
+        required
+      }
+      questions {
+        cartItemId
+        createdAt
+        globaltixId
+        id
+        isAnswerLater
+        optionCode
+        optionList {
+          key
+          value
+        }
+        optional
+        options
+        question
+        questionCode
+        type
+        updatedAt
+      }
+      isCapacity  
+      visitDate {
+        isOpenDated
+        request
         required
       }
       ticketType {
@@ -111,6 +135,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
         dhSellingPrice
         nettPrice
         originalPrice
+        globaltixId
         createdAt
         updatedAt
         
