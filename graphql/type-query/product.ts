@@ -1,4 +1,4 @@
-import { GuestInfoT, QusetionT } from "@/types/product.type";
+import {QusetionT } from "@/types/product.type";
 
 export const GET_ALL_PRODUCTS = `
 query FindAllProducts($params: UserProductsInput!) {
@@ -12,6 +12,7 @@ query FindAllProducts($params: UserProductsInput!) {
       id
       image
       isCancellable
+      isPublished
       media {
         extension
         name

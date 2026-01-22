@@ -66,7 +66,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   if (mediaList.length === 0) return null;
 
   return (
-    <div className="w-full h-[450px] rounded-3xl overflow-hidden relative group bg-gray-900 shadow-2xl">
+    <div className="w-full h-[450px] rounded-3xl overflow-hidden relative group shadow-md">
       
       {/* Embla Viewport (The Mask) */}
       <div className="overflow-hidden w-full h-full" ref={emblaRef}>
@@ -107,13 +107,13 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
       {/* Glassmorphism Navigation Buttons */}
       <button
         onClick={scrollPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
       >
         <ChevronLeft size={24} strokeWidth={2.5} />
       </button>
       <button
         onClick={scrollNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
       >
         <ChevronRight size={24} strokeWidth={2.5} />
       </button>

@@ -120,7 +120,6 @@ query Query($params: BookingTransactionsInput!) {
     total
     data {
       alternateEmail
-      booked
       bookingTickets {
         code
         eventId

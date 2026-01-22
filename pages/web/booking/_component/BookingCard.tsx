@@ -4,9 +4,9 @@ import {
   MY_BOOKING_DATA_TYPE,
 } from "@/types/booking.type";
 import { format } from "date-fns";
-import { Calendar, Clock } from "lucide-react";
-import React from "react";
+import { Calendar, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils"; // Assuming you have a utils file for cn(), if not, use clsx or standard classnames
 
 type Props = {
   data: MY_BOOKING_DATA_TYPE;
@@ -15,81 +15,86 @@ type Props = {
 const BookingCard = ({ data }: Props) => {
   const navigate = useNavigate();
 
+  // Helper to determine badge styles based on status
+  const getStatusStyles = (status: BOOKING_STATUS_ENUM) => {
+    switch (status) {
+      case BOOKING_STATUS_ENUM.PAID:
+        return "bg-indigo-50 text-indigo-700 border-indigo-100";
+      case BOOKING_STATUS_ENUM.PENDING:
+        return "bg-amber-50 text-amber-700 border-amber-100";
+      case BOOKING_STATUS_ENUM.FAILED: // Assuming you might have this based on your previous colors
+        return "bg-rose-50 text-rose-700 border-rose-100";
+      default:
+        return "bg-slate-100 text-slate-700 border-slate-200";
+    }
+  };
+
   return (
-    <div className="w-full p-6 border border-[#D9D9D9] rounded-2xl flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
-        <div
-          className={`col-span-1 ${
-            data.status === BOOKING_STATUS_ENUM.PAID
-              ? "lg:col-span-3"
-              : "lg:col-span-2"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <p> Order ID</p>
-            <p className="text-indigo-700">{data.id}</p>
-          </div>
-          <p className="mt-2">
-            Purchased on {format(data.transactedTime, "dd MMMM yyyy")}
-          </p>
+    <div className="group w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-indigo-200">
+      {/* Header: Order Meta Data */}
+      <div className="flex flex-col gap-1 border-b border-slate-100 bg-slate-50/50 px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-medium text-slate-500">Order ID:</span>
+          <span className="font-semibold text-slate-900">{data.id}</span>
         </div>
-        {/* {data.status === BOOKING_STATUS_ENUM.PAID && (
-          <div className="flex items-center">
-            <Clock className="text-indigo-700 w-5 h-5" />
-          </div>
-        )} */}
-        <div
-          className={`flex items-center justify-end gap-4 ${
-            data.status === BOOKING_STATUS_ENUM.PENDING
-              ? "col-span-2"
-              : "col-span-1"
-          }`}
-        >
-          {/* {data.status === BOOKING_STATUS_ENUM.PENDING && (
-            <Button>Pay Now</Button>
-          )} */}
-          <Button
-            onClick={() => {
-              navigate(`/cart/preview/${data.id}`);
-            }}
-          >
-            View Details
-          </Button>
+        <div className="text-xs text-slate-500">
+          Purchased on {format(data.transactedTime, "dd MMMM yyyy")}
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row justify-between items-center p-4 gap-2 bg-[#FAFCFB] border border-[#D9D9D9] rounded-[12px]">
-        <div className="flex flex-col flex-1 gap-2 lg:gap-3">
-          <div className="flex items-center gap-3">
-            <p className="text-lg max-w-54.25 line-clamp-1">
-              {data.bookingTickets[0].productName}
-            </p>
+      {/* Main Content */}
+      <div className="p-6">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+          
+          {/* Left Side: Product Info */}
+          <div className="flex min-w-0 flex-1 flex-col gap-3">
+            <div>
+              <h3 className="truncate text-lg font-semibold tracking-tight text-slate-900">
+                {data.bookingTickets[0].productName}
+              </h3>
+              <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
+                <Calendar className="h-4 w-4 text-indigo-500" />
+                <span className="font-medium">
+                  {format(data.bookingTickets[0].visitDate, "MMMM dd, yyyy")}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-indigo-700" />
-            <p className="text-indigo-700">
-              {format(data.bookingTickets[0].visitDate, "MMMM dd, yyyy")}
-            </p>
+
+          {/* Right Side: Actions & Meta */}
+          <div className="flex items-center justify-between gap-4 md:flex-col md:items-end border-t border-slate-100 pt-4 md:border-t-0 md:pt-0">
+            
+            {/* Quantity & Status */}
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                  Quantity
+                </span>
+                <span className="text-lg font-bold text-slate-900">
+                  {data.bookingTickets.length}
+                </span>
+              </div>
+              
+              <div
+                className={cn(
+                  "rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide",
+                  getStatusStyles(data.status)
+                )}
+              >
+                {data.status}
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <Button
+              onClick={() => navigate(`/cart/preview/${data.id}`)}
+              variant="outline"
+              className="h-9 w-full gap-1 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 md:w-auto"
+            >
+              View Details
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-        </div>
-        <div className="flex flex-row items-center justify-between w-full lg:w-auto lg:flex-col lg:items-end gap-1">
-          <div className="flex items-center gap-1">
-            <p className=" text-gray-300 text-lg">Qty:</p>
-            <p className=" text-indigo-700 text-lg">
-              {data.bookingTickets.length.toString()}
-            </p>
-          </div>
-          <p
-            className={`px-3 py-1 rounded-[8px] text-sm  ${
-              data.status === BOOKING_STATUS_ENUM.PENDING
-                ? "text-[#696418] bg-[#FDFAC2]"
-                : data.status === BOOKING_STATUS_ENUM.PAID
-                ? "bg-indigo-100 text-indigo-700"
-                : "bg-[#FBE8E9] text-red"
-            } `}
-          >
-            {data.status}
-          </p>
         </div>
       </div>
     </div>

@@ -69,13 +69,13 @@ const TicketEditForm: React.FC<Props> = ({
       productOptions: transformedProductOptions,
     };
   };
-  console.log("initialValues", initialValues);
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       id: initialValues?.id ?? null,
       name: initialValues?.name ?? null,
       description: initialValues?.description ?? null,
+      category: initialValues?.category ?? null,
       description_mm: initialValues?.description_mm ?? null,
       whatToExpect: initialValues?.whatToExpect ?? null,
       whatToExpect_mm: initialValues?.whatToExpect_mm ?? null,

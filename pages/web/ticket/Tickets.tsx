@@ -279,7 +279,7 @@ export default function Tickets() {
                         Edit
                       </button>
                     )}
-                    {user?.type !== "OWNER" && (
+                    {p.isPublished && (
                       <button
                         onClick={(e) => {
                           navigate(`/tickets/${p.id}`)

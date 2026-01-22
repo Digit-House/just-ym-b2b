@@ -24,21 +24,14 @@ export type FilterProductListT = {
   countryId: string;
   limit: number;
   orderBy: {
-    field: "updatedAt" | string;
+    field:string;
     dir: string;
   };
   page: number;
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
 };
 
-export type FilterBookingListT = {
-  limit: number;
-  orderBy: {
-    dir: string;
-  };
-  page: number;
-  status: BOOKING_STATUS_ENUM | string;
-};
+
 
 export type ProductT = {
   category: string;
@@ -47,6 +40,7 @@ export type ProductT = {
   dhSellingPrice: number;
   id: string;
   image: string;
+  isPublished: boolean;
   isCancellable: boolean;
   media: [];
   name: string;
@@ -84,6 +78,7 @@ export interface UpdateProductPayloadT {
   id: string;
   image: string;
   addressLine: string;
+  category:string;
   description: string;
   description_mm: string;
   exclusions: string[];
@@ -155,6 +150,7 @@ export interface ProductInfoT {
   isBestSeller: boolean;
   isCancellable: boolean;
   isGTRecommend: boolean;
+  isPublished: boolean;
   isInstantConfirmation: boolean;
   isOpenDated: boolean;
   originalPrice: number;
@@ -243,13 +239,13 @@ export interface TicketTypeT {
   minimumSellingPrice: number;
   dhSellingPrice: number;
   nettPrice: number;
-  // quantity: number;
+  quantity: number;
   originalPrice: number;
   maxPurchaseQty: number;
-  minPurchaseQty:number;
+  minPurchaseQty: number;
   createdAt: string;
   ageTo: number;
-  ageFrom:number;
+  ageFrom: number;
   updatedAt: string;
   globaltixId: string;
 

@@ -1,8 +1,21 @@
 export enum BOOKING_STATUS_ENUM {
   FAILED = "FAILED",
+  EXPIRED = "EXPIRED",
   PAID = "PAID",
   PENDING = "PENDING",
 }
+
+export type FilterBookingListT = {
+  limit: number;
+  orderBy: {
+    dir: "asc" | "desc";
+    field: string;
+  };
+  page: number;
+  search: string | null;
+  status: BOOKING_STATUS_ENUM;
+  reset?: boolean; // Flag to indicate filter reset
+};
 
 export type PAYMENT_DETAIL_TYPE = {
   brand: string;
@@ -46,7 +59,6 @@ export type MY_BOOKING_PRODUCT_DATA_TYPE = {
 
 export type MY_BOOKING_DATA_TYPE = {
   alternateEmail: string;
-  booked: boolean;
   customerName: string;
   eTicketUrl: string;
   email: string;
