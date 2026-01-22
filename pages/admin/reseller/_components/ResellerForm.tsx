@@ -72,8 +72,8 @@ export default function ResellerForm({
         contactNo: initialValues?.contactNo ?? "",
         email: initialValues?.email ?? "",
         username: initialValues?.name ?? "",
-        password: "",
-        confirmPassword: "",
+        password: mode === "edit" ? "12345678" : "",
+        confirmPassword: mode === "edit" ? "12345678" : "",
         countryCode: "95",
         active: true,
       },
@@ -198,9 +198,9 @@ export default function ResellerForm({
                     </label>
                     <input
                       value={watch("user.username") || ""}
-                      disabled={isEdit}
+                      disabled={true}
                       className={`w-full px-3 py-2 text-sm rounded-md border ${
-                        isEdit
+                        true
                           ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
                           : "bg-white border-gray-300 focus:ring-2 focus:ring-blue-500"
                       }`}
@@ -392,7 +392,7 @@ export default function ResellerForm({
             <ImageUpload
               ref={relatedImagesRef}
               label="Proof / Related Images"
-              disabled={false} // Original was true, assuming it should be uploadable
+              disabled={true} // Original was true, assuming it should be uploadable
               value={watch("credit.relatedImages")?.[0] || ""}
               onChange={(val) =>
                 setValue("credit.relatedImages", val ? [val] : [], {

@@ -47,21 +47,15 @@ export type UpdateResellerPayloadT = {
 };
 
 export const updateReseller = async (
-  id: string,
   payload: UpdateResellerPayloadT
 ) => {
   return client.mutate({
     mutation: warpGql(UPDATE_RESELLER),
     variables: {
-      id,
       data: {
+        id:payload.id,
         name: payload.name,
         active: payload.active,
-        credit: payload.credit
-          ? {
-              ...payload.credit,
-            }
-          : undefined,
       },
     },
     fetchPolicy: "no-cache",

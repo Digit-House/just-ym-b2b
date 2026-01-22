@@ -108,13 +108,10 @@ const Resellers = () => {
   const handleEditReseller = async (value: ResellerFormValues) => {
     try {
       setLoading(true);
-      await updateReseller(modalState.reseller!.id, {
+      await updateReseller({
         id: modalState.reseller!.id,
         name: value.name,
         active: value.active,
-        credit: {
-          relatedImages: value.credit.relatedImages || [],
-        },
       });
       closeModal();
       setFetchAgain((prev) => !prev);
