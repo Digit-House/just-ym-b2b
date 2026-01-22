@@ -74,7 +74,7 @@ export const updateProductInfo = async (data: UpdateProductPayloadT) => {
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, { categories, countries, sort, published, search }] = queryKey;
-  console.log(sort.toLowerCase(),"77")
+  
   const filter = {
     category: categories[0] || "",
     cityId: "",

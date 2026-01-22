@@ -149,7 +149,6 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 
       setFileToUpload(croppedFile);
       setOriginalFile(null);
-      console.log(croppedImageUrl);
       // Ensure the preview is updated with the cropped image
       setPreview(croppedImageUrl);
       // Only call onChange when in create mode

@@ -8,7 +8,6 @@ import {
 import { CreateResellerPayloadT, ResellerFilterT } from "@/types/reseller.type";
 
 export const getResellers = async (payload: ResellerFilterT) => {
-  console.log(payload,"11")
   return client.query({
     query: warpGql(GET_ALL_RESELLERS),
     variables: {

@@ -16,7 +16,6 @@ const ImageCropTest: React.FC = () => {
             value={imageUrl}
             onChange={(value, file) => {
               setImageUrl(value);
-              console.log("Image changed:", file?.name);
             }}
             label="Upload Image"
             folderType="USER_PROFILE"
@@ -35,7 +34,6 @@ const ImageCropTest: React.FC = () => {
             value={imageUrl}
             onChange={(value, file) => {
               setImageUrl(value);
-              console.log("Image changed:", file?.name);
             }}
             label="Upload Image with Preset"
             folderType="USER_PROFILE"
