@@ -149,7 +149,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             />
           </div>
 
-          {/* <div
+          <div
             className={`space-y-3 ${
               errors.category
                 ? "border border-red-300 rounded-lg p-3 bg-red-50"
@@ -159,7 +159,6 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             <Controller
               name="category"
               control={control}
-              disabled={true}
               render={({ field }) => (
                 <InputField
                   label="Category"
@@ -169,7 +168,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
-          </div> */}
+          </div>
 
           <div
             className={`space-y-3 ${
