@@ -282,7 +282,7 @@ export default function Tickets() {
                     {user?.type !== "OWNER" && (
                       <button
                         onClick={(e) => {
-                          navigate(`/ticket/${p.id}`)
+                          navigate(`/tickets/${p.id}`)
                         }}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
