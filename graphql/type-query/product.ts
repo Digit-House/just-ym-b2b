@@ -133,7 +133,6 @@ query GetProductInfo($productId: String!, $date: DateTime) {
         minimumSellingPrice
         recommendedSellingPrice
         dhSellingPrice
-        quantity
         maxPurchaseQty
         minPurchaseQty
         nettPrice

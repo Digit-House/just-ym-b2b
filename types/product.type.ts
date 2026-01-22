@@ -243,7 +243,7 @@ export interface TicketTypeT {
   minimumSellingPrice: number;
   dhSellingPrice: number;
   nettPrice: number;
-  quantity: number;
+  // quantity: number;
   originalPrice: number;
   maxPurchaseQty: number;
   minPurchaseQty:number;
