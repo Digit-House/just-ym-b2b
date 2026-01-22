@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useTicketDetail } from "./useTicketDetail";
 import MediaCarousel from "./_components/MediaCarousel";
@@ -19,6 +19,7 @@ const TicketDetail = () => {
 
   const {
     product,
+    loading,
     currentOption,
     selectedOptionIndex,
     setSelectedOptionIndex,
@@ -44,11 +45,33 @@ const TicketDetail = () => {
   } = useTicketDetail(id);
 
 
-  if (!product) {
+  if (loading && !product) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-indigo-600 font-bold">
-          Loading product details...
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-lg text-gray-600 font-medium">Loading ticket details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!loading && !product) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-md">
+          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Ticket Not Found</h3>
+            <p className="text-gray-600 mb-4">The ticket you're looking for doesn't exist or may have been removed.</p>
+          </div>
+          <Link to="/tickets" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+            Browse Tickets
+          </Link>
         </div>
       </div>
     );

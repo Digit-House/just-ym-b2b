@@ -134,8 +134,8 @@ query GetProductInfo($productId: String!, $date: DateTime) {
         recommendedSellingPrice
         dhSellingPrice
         quantity
-        maxPurchaseQty: number;
-        minPurchaseQty:number;
+        maxPurchaseQty
+        minPurchaseQty
         nettPrice
         ageFrom
         ageTo
@@ -143,7 +143,6 @@ query GetProductInfo($productId: String!, $date: DateTime) {
         globaltixId
         createdAt
         updatedAt
-        
       }
     }
   }

@@ -169,7 +169,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="Description"
-                rows={5}
+                minHeight={120}
+                maxHeight={300}
                 {...field}
                 errMsg={errors.description?.message}
                 placeholder="Enter a detailed description of the ticket..."
@@ -191,7 +192,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="Description MM"
-                rows={5}
+                minHeight={120}
+                maxHeight={300}
                 {...field}
                 errMsg={errors.description_mm?.message}
                 placeholder="Enter a detailed description of the ticket..."
@@ -213,7 +215,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="What To Expect"               
-                rows={5}
+                minHeight={120}
+                maxHeight={300}
                 {...field}
                 errMsg={errors.whatToExpect?.message}
                 placeholder="Describe what customers can expect from this ticket..."
@@ -235,7 +238,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             render={({ field }) => (
               <TextareaField
                 label="What To Expect MM"
-                rows={5}
+                minHeight={120}
+                maxHeight={300}
                 {...field}
                 errMsg={errors.whatToExpect_mm?.message}
                 placeholder="Describe what customers can expect from this ticket..."
@@ -268,7 +272,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               render={({ field }) => (
                 <TextareaField
                   label="Terms & Conditions (English)"
-                  rows={6}
+                  minHeight={140}
+                  maxHeight={400}
                   {...field}
                   errMsg={errors.termsAndConditions?.message}
                   placeholder="Enter terms and conditions..."
@@ -290,7 +295,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               render={({ field }) => (
                 <TextareaField
                   label="Terms & Conditions (Myanmar)"
-                  rows={6}
+                  minHeight={140}
+                  maxHeight={400}
                   {...field}
                   value={termsAndConditionsMm}
                   onChange={(e) => setTermsAndConditionsMm(e.target.value)}
@@ -326,7 +332,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setExclusions, index, e.target.value)}
                         placeholder="Enter exclusion"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                     />
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -364,7 +371,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setExclusionsMm, index, e.target.value)}
                         placeholder="Enter exclusion (MM)"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                     />
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -413,7 +421,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setHighlights, index, e.target.value)}
                         placeholder="Enter highlight"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -450,7 +459,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setHighlightsMm, index, e.target.value)}
                         placeholder="Enter highlight (MM)"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -499,7 +509,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setHowToUseList, index, e.target.value)}
                         placeholder="Enter instruction"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -536,7 +547,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setHowToUseListMm, index, e.target.value)}
                         placeholder="Enter instruction (MM)"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -585,7 +597,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setInclusions, index, e.target.value)}
                         placeholder="Enter inclusion"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -622,7 +635,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setInclusionsMm, index, e.target.value)}
                         placeholder="Enter inclusion (MM)"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -671,7 +685,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setThingsToNote, index, e.target.value)}
                         placeholder="Enter note"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
@@ -708,7 +723,8 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         value={item}
                         onChange={(e) => updateArrayValue(setThingsToNoteMm, index, e.target.value)}
                         placeholder="Enter note (MM)"
-                        rows={2}
+                        minHeight={60}
+                        maxHeight={150}
                         />
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
