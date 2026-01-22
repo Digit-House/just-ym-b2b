@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { REVENUE_DATA } from "../../constants";
 import PageHeader from "@/components/PageHeader";
+import { useUser } from "@/provider/UserProvider";
 
 const StatCard = ({
   title,
@@ -41,10 +42,11 @@ const StatCard = ({
 );
 
 const Dashboard = () => {
+  const {user} = useUser();
   return (
     <div className="w-full mx-auto pt-10">
       <PageHeader
-        title="Welcome Back,John"
+        title={`Welcome Back, ${user?.username}`}
         des="Measure your advertising ROI and report website traffic."
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
