@@ -10,7 +10,6 @@ import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import TextareaField from "@/components/TextareaField";
@@ -237,12 +236,12 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                           disabled={true}
                         />
 
-                        <InputField
+                        {/* <InputField
                           label="DH Net Merchant Price"
                           type="number"
                           value={ticketType.dhNetMerchantPrice ?? ""}
                           disabled={true}
-                        />
+                        /> */}
                         
                         <InputField
                           label="DH Selling Price"

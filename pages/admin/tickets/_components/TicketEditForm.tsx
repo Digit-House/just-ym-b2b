@@ -54,7 +54,7 @@ const TicketEditForm: React.FC<Props> = ({
                 dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice,
                 minimumSellingPrice: ticket.minimumSellingPrice,
                 dhSellingPrice: ticket.dhSellingPrice,
-                dhNetMerchantPrice: ticket.nettPrice,
+                // dhNetMerchantPrice: ticket.nettPrice,
                 recommendedSellingPrice: ticket.recommendedSellingPrice,
                 originalPrice: ticket.originalPrice,
                 createdAt: ticket.createdAt,
@@ -390,10 +390,10 @@ const TicketEditForm: React.FC<Props> = ({
           ticketTypes: d.ticketTypes.map((t) => {
             return {
               ticketTypeId: t.ticketTypeId,
-              dhSellingPrice: t.dhSellingPrice,
-              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice,
-              dhNetPrice: t.dhNetPrice,
-              dhMinimumSellingPrice: t.dhMinimumSellingPrice,
+              dhSellingPrice: t.dhSellingPrice || 0,
+              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice || 0,
+              dhNetPrice: t.dhNetPrice || 0,
+              dhMinimumSellingPrice: t.dhMinimumSellingPrice || 0,
             };
           }),
         };
