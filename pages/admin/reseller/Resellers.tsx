@@ -11,11 +11,13 @@ import { ResellerFilterT, ResellerT } from "@/types/reseller.type";
 import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
 import ModalWrapper from "@/components/ModalWrapper";
-import { Edit2, Plus} from "lucide-react";
+import { Edit2, Plus, Search, RotateCcw } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { ResellerFormValues } from "@/types/schema/resellerSchema";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useDebounce } from "@/hooks/useDebounce";
+import NotFoundComponent from "@/components/NotFoundComponent";
 
 const Resellers = () => {
   const [data, setData] = useState<ResellerT[]>([]);
@@ -34,6 +36,9 @@ const Resellers = () => {
     setModalState({ mode: null, reseller: null });
   }, []);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 2000);
+  
   const [filterData, setFilterData] = useState<ResellerFilterT>({
     active: null,
     limit: PAGE_SIZE,
@@ -43,6 +48,16 @@ const Resellers = () => {
     },
     search: undefined,
   });
+
+  // Update filterData when debouncedSearchTerm changes
+  useEffect(() => {
+    setFilterData(prev => ({
+      ...prev,
+      search: debouncedSearchTerm || undefined,
+      page: 1, // Reset to page 1 when search changes
+    }));
+  }, [debouncedSearchTerm]);
+
 
   useEffect(() => {
     fetchResellers();
@@ -119,6 +134,23 @@ const Resellers = () => {
       />
       <div className="flex items-center flex-row-reverse justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
         <div className="flex items-center gap-4">
+          <div className="relative">
+             <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search resellers..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-48 text-sm"
+            />
+            {searchTerm && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                Searching...
+              </div>
+            )}
+          </div>
           <Select
             value={filterData.active === true ? "active" : filterData.active === false ? "inactive" : "all"}
             onValueChange={(value) => {
@@ -154,6 +186,28 @@ const Resellers = () => {
               }))
             }
           />
+
+          {/* Reset button - appears when filters are active */}
+          {(searchTerm || filterData.active !== null || filterData.orderBy.dir !== "desc") && (
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setFilterData({
+                  active: null,
+                  limit: PAGE_SIZE,
+                  page: 1,
+                  orderBy: {
+                    dir: "desc" as "asc" | "desc",
+                  },
+                  search: undefined,
+                });
+              }}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              title="Reset filters"
+            >
+              <RotateCcw size={18} />
+            </button>
+          )}
         </div>
 
         <RoleCheckAction>
@@ -196,7 +250,7 @@ const Resellers = () => {
                 </tr>
               )}
 
-              {!loading &&
+              {!loading && data.length > 0 && 
                 data.map((reseller) => (
                   <tr
                     key={reseller.id}
@@ -250,17 +304,18 @@ const Resellers = () => {
                         >
                           <Edit2 size={16} />
                         </button>
-                        {/* //no delete */}
-                        {/* <button
-                          onClick={() => {}}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                        >
-                          <Trash2 size={16} />
-                        </button> */}
                       </div>
                     </td>
                   </tr>
                 ))}
+
+              {!loading && data.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-6 py-10">
+                    <NotFoundComponent message="No resellers found" />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

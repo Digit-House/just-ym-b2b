@@ -21,10 +21,10 @@ export default function CurrencyRateForm({
   onCancel,
   onSubmit,
 }: Props) {
-  const [mmkRate, setMmkRate] = useState(initialValues.mmk);
+  const [mmkRate, setMmkRate] = useState(initialValues?.mmk || 0);
 
   useEffect(() => {
-    setMmkRate(initialValues.mmk);
+    setMmkRate(initialValues?.mmk);
   }, [initialValues]);
 
   const handleSubmit = async () => {
@@ -47,12 +47,12 @@ export default function CurrencyRateForm({
             id="mmkRate"
             type="number"
             step="any"
-            value={mmkRate}
+            value={mmkRate ?? 0}
             onChange={(e) => setMmkRate(e.target.value)}
             placeholder="Enter THB to MMK exchange rate"
           />
           <p className="mt-1 text-xs text-gray-500">
-            Current rate: 1 THB = {mmkRate} MMK
+            Current rate: 1 THB = {mmkRate ?? 0} MMK
           </p>
         </div>
         

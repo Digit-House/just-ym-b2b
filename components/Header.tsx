@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { ChevronRight, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
@@ -19,45 +19,55 @@ const Header: React.FC = () => {
         isCollapsed ? "max-w-[calc(100vw-80px)]" : "max-w-[calc(100vw-232px)]"
       }`}
     >
-      <div className="p-2 rounded-[7px] flex items-center gap-1.5 bg-indigo-700">
-        <Wallet className="w-4 h-4 text-white" />
-        <div className="text-white">
-          <p className="text-xs text-white/80">Available Credits</p>
-          <div className="flex flex-row gap-1">
-            <div>
-              <p className="text-sm font-bold text-white">
-                {creditInfo?.currency}{" "}
-                {creditInfo?.balance?.toLocaleString("en-US") || "0"}
-              </p>
-            </div>
-            {user.type !== "OWNER" && (
-              <Fragment>
-                /
-                <div>
-                  <p className="text-sm font-bold text-white">
-                    GT Balance{" "}
-                    {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
-                  </p>
-                </div>
-                /
-                <div>
-                  <p className="text-sm font-bold text-white">
-                    GT Main Balance{" "}
-                    {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
-                  </p>
-                </div>
-                /
-                <div>
-                  <p className="text-sm font-bold text-white">
-                    Customer Balance{" "}
-                    {creditInfo?.customerBalance?.toLocaleString("en-US") ||
-                      "0"}
-                  </p>
-                </div>
-              </Fragment>
-            )}
+      {/* UPDATED WALLET UI */}
+      <div className="p-2 rounded-[8px] flex items-center gap-4 bg-indigo-700 text-white shadow-md shadow-indigo-700/20">
+        {/* Main Balance Section */}
+        <div className="flex items-center gap-3 pr-4 border-r border-indigo-500/50">
+          <div className="p-1.5 bg-white/10 rounded-md">
+            <Wallet className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <p className="text-[10px] font-medium text-indigo-200 uppercase tracking-wider">
+              Available Credits
+            </p>
+            <p className="text-sm font-bold leading-tight">
+              {creditInfo?.currency}{" "}
+              {creditInfo?.balance?.toLocaleString("en-US") || "0"}
+            </p>
           </div>
         </div>
+
+        {/* Owner Specific Section */}
+        {user.type == "OWNER" && (
+          <div className="flex items-center gap-5">
+            <div className="flex flex-col justify-center">
+              <span className="text-[10px] font-medium text-indigo-200 uppercase">
+                GT Bal
+              </span>
+              <span className="text-xs font-bold">
+                {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
+              </span>
+            </div>
+
+            <div className="flex flex-col justify-center">
+              <span className="text-[10px] font-medium text-indigo-200 uppercase">
+                GT Main
+              </span>
+              <span className="text-xs font-bold">
+                {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
+              </span>
+            </div>
+
+            <div className="flex flex-col justify-center">
+              <span className="text-[10px] font-medium text-indigo-200 uppercase">
+                Cust Bal
+              </span>
+              <span className="text-xs font-bold">
+                {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -78,21 +88,7 @@ const Header: React.FC = () => {
             )}
           </button>
 
-          {/* Notifications */}
-          {/*<div className="w-px h-5 bg-gray-300 mx-1" />
-           <button
-            className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
-            aria-label="Notifications"
-          >
-            <Bell
-              size={20}
-              className="group-hover:text-indigo-600 transition-colors"
-            />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#f3f4f6]"></span>
-          </button> */}
         </div>
-
-        {/* User Profile */}
         <div
           onClick={() => navigate("/settings/general")}
           className="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer group pr-2 py-1  hover:bg-gray-50 transition-colors"

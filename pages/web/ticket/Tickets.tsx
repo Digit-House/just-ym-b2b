@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState} from "react";
+import { useRef, useEffect, useState } from "react";
 import { ArrowRight, RotateCcw, Search } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
@@ -21,14 +21,14 @@ import SkeletonCard from "./_components/SkeletonCard";
 import { preFixImg } from "@/util/initData";
 import PageContainer from "@/components/PageContainer";
 import { useUser } from "@/provider/UserProvider";
-import NotFoundComponent from '@/components/NotFoundComponent';
-import ImageFallback from '@/components/ImageFallback';
+import NotFoundComponent from "@/components/NotFoundComponent";
+import ImageFallback from "@/components/ImageFallback";
 import { truncateDescription } from "@/lib/utils";
 
 const SORT_OPTION: SortOption[] = [
+  { label: "Alphabet", value: "alphabet" },
   { label: "Newest", value: "desc" },
   { label: "Oldest", value: "asc" },
-   { label: "Alphabet", value: "alphabet" },
 ];
 
 export default function Tickets() {
@@ -36,7 +36,7 @@ export default function Tickets() {
 
   // Initialize state from localStorage only
   const getStoredFilters = () => {
-    const stored = localStorage.getItem('ticketFilters');
+    const stored = localStorage.getItem("ticketFilters");
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -48,22 +48,23 @@ export default function Tickets() {
   };
 
   const storedFilters = getStoredFilters();
-  
+
   // Use localStorage or defaults only
-  const initialSort = storedFilters?.sort || 'alphabet';
-  const initialPublished = (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") || 
-                          "PUBLISHED";
-  
+  const initialSort = storedFilters?.sort || "alphabet";
+  const initialPublished =
+    (storedFilters?.published as "ALL" | "PUBLISHED" | "UNPUBLISHED") ||
+    "PUBLISHED";
+
   const [sort, setSort] = useState(initialSort);
   const { user } = useUser();
 
   const [published, setPublished] = useState<
     "ALL" | "PUBLISHED" | "UNPUBLISHED"
   >(initialPublished);
-  
+
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 2000); // 2 second debounce
-  
+
   const [categories, setCategories] = useState<string[]>(
     storedFilters?.categories || []
   );
@@ -77,9 +78,9 @@ export default function Tickets() {
       published,
       categories,
       countries,
-      search
+      search,
     };
-    localStorage.setItem('ticketFilters', JSON.stringify(filtersToStore));
+    localStorage.setItem("ticketFilters", JSON.stringify(filtersToStore));
   }, [sort, published, categories, countries, search]);
 
   const { data: dataCountry } = useCountries({
@@ -91,7 +92,7 @@ export default function Tickets() {
     isPublished: true,
     search: undefined,
   });
-
+  
   const COUNTRIES = dataCountry?.data;
   const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
 
@@ -105,7 +106,10 @@ export default function Tickets() {
     error,
   } = useInfiniteQuery({
     initialPageParam: 1,
-    queryKey: ["products", { categories, countries, sort, published, search: debouncedSearch }],
+    queryKey: [
+      "products",
+      { categories, countries, sort, published, search: debouncedSearch },
+    ],
     queryFn: fetchProducts,
     gcTime: 0,
     staleTime: 0,
@@ -186,16 +190,19 @@ export default function Tickets() {
         </div>
         <div className="flex items-center gap-2">
           <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />
-          {(sort !== 'desc' || published !== 'PUBLISHED' || categories.length > 0 || countries.length > 0) && (
+          {(sort !== "desc" ||
+            published !== "PUBLISHED" ||
+            categories.length > 0 ||
+            countries.length > 0) && (
             <button
               onClick={() => {
-                setSort('desc');
-                setPublished('PUBLISHED');
+                setSort("desc");
+                setPublished("PUBLISHED");
                 setCategories([]);
                 setCountries([]);
-                setSearch('');
+                setSearch("");
                 // Clear localStorage when resetting
-                localStorage.removeItem('ticketFilters');
+                localStorage.removeItem("ticketFilters");
               }}
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
               title="Reset filters"
@@ -247,7 +254,7 @@ export default function Tickets() {
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    
+
                     // Simple direct navigation
                     navigate(`/tickets/${p.id}`);
                   }}
@@ -269,7 +276,7 @@ export default function Tickets() {
                         onClick={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
-                          
+
                           // Simple direct navigation
                           navigate(`/admin-tickets/edit/${p.id}`);
                         }}
@@ -280,8 +287,7 @@ export default function Tickets() {
                     )}
                     {user?.type !== "OWNER" && (
                       <button
-                        onClick={(e) => {
-                        }}
+                        onClick={(e) => {}}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
                         Delete
