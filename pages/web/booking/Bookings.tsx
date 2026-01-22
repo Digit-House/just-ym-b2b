@@ -1,12 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BOOKINGS } from "../../../constants";
-import { FileText, Download } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import Select from "@/components/Select";
-import { useCountries } from "@/hooks/useCountries";
 import SortSelect, { SortOption } from "@/components/SortSelect";
-import Pagination from "@/components/Pagination";
-import { useNavigate } from "react-router-dom";
 import PageContainer from "@/components/PageContainer";
 import { BOOKING_STATUS_ENUM } from "@/types/booking.type";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -48,14 +43,11 @@ const INIT_TAG_LIST: SortOption[] = [
 const total = BOOKINGS.length;
 
 const Bookings = () => {
-  const navigate = useNavigate();
   const [sort, setSort] = useState("desc");
   const [status, setStatus] = useState<string>(BOOKING_STATUS_ENUM.PAID);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [countries, setCountries] = useState<string[]>([]);
-  const [statuses, setStatuses] = useState<string[]>([]);
-
+  
   const {
     data,
     fetchNextPage,

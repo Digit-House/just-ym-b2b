@@ -89,9 +89,14 @@ export default function UserForm({
   const fetchResellers = async () => {
     try {
       const res: any = await getResellers({
+        active: true,
         limit: 50,
         page: 1,
-        orderBy: { dir: "desc" },
+        orderBy: { 
+          dir: "desc", 
+          // field: "name" 
+        },
+        search:""
       });
       setResellerData(res?.data?.findAllResellers?.data || []);
     } catch (err) {

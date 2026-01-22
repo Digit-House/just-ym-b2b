@@ -90,6 +90,7 @@ export const useTicketDetail = (id?: string) => {
       const data: TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE = {
         dateFrom: pickedDate.toISOString(),
         dateTo: pickedDate.toISOString(),
+        //@ts-ignore
         globalTixTicketTypeID:
           selectedProductOption.ticketType[0].globaltixId || 0,
       };

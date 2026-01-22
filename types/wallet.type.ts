@@ -23,20 +23,19 @@ export type UserT = {
   active: boolean;
 };
 
-
 export interface TopUpHistoryT {
   id: string;
   currency: string;
   relatedImages: string[];
   paymentMethod: PaymentMethodT;
-  currencyRate:{
-    id:string;
-    mmk:string;
-    createdAt:string;
-    updatedAt:string;
-  }
+  currencyRate: {
+    id: string;
+    mmk: string;
+    createdAt: string;
+    updatedAt: string;
+  };
   createdBy: UserT;
-  reseller: UserT
+  reseller: UserT;
   confirmBy: UserT;
   status: string;
   topUpBalance: number;
@@ -45,13 +44,14 @@ export interface TopUpHistoryT {
 }
 
 export interface CreditInfoT {
-  balance: number; //agent
+  balance: number; 
   currency: string;
   hasOutstandingDebt: boolean;
   id: string;
   lastMonthUsage: number;
-  customerBalance:number;
-  gtBalance:number; //
+  customerBalance: number;
+  gtBalance: number; 
+  gtBalanceMain:number;
   otherBalance: any;
   totalTopUp: number;
   totalUsage: number;
@@ -62,11 +62,11 @@ export interface AddTopupPayloadT {
   resellerId: string;
   topUpBalance: number;
   relatedImages: string[];
-  paymentMethodId:string;
-  currencyRateId:string;
+  paymentMethodId: string;
+  currencyRateId: string;
 }
 
 export interface AdminTopupPayloadT {
-  amount:number;
-  from:"CUSTOMER"|"MAIN"
+  amount: number;
+  from: "CUSTOMER" | "MAIN";
 }

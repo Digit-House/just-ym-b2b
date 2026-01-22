@@ -60,3 +60,19 @@ export const formatCurrency = (amount: number, currency: "THB" | "MMK"): string 
 export const getOppositeCurrency = (currency: "THB" | "MMK"): "THB" | "MMK" => {
   return currency === "THB" ? "MMK" : "THB";
 };
+
+/**
+ * Truncates a description to a specified length
+ * @param text The text to truncate
+ * @param maxLength The maximum length of the text (default: 100)
+ * @returns The truncated text with "..." if it was shortened
+ */
+export const truncateDescription = (text: string | null | undefined, maxLength: number = 100): string => {
+  if (!text) return "";
+  
+  if (text.length <= maxLength) {
+    return text;
+  }
+  
+  return text.slice(0, maxLength) + "...";
+};

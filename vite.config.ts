@@ -4,8 +4,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ mode }) => {
-  // Log the current mode for debugging
-  console.log('Current mode:', mode);
   
   return {
     server: {

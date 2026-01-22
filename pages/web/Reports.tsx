@@ -252,11 +252,11 @@ const Reports = () => {
         />
         <ReportCard
           title="Total Sales"
-          value={`$${reportStats.allTimeSales.toLocaleString()}`}
+          value={`THB ${reportStats.allTimeSales.toLocaleString()}`}
         />
         <ReportCard
           title="Total Profit"
-          value={`$${reportStats.allTimeProfit.toLocaleString()}`}
+          value={`THB ${reportStats.allTimeProfit.toLocaleString()}`}
         />
       </div>
 

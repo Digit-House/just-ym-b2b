@@ -160,6 +160,8 @@ export default function PaymentMethodForm({
         folderType="CREDIT_TOP_UP"
         maxSizeMB={5}
         allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
+        enableCrop={true}
+        presetCropSetting="PAYMENT_LOGO_SQUARE"
       />
 
       <div className="space-y-1">
@@ -232,6 +234,8 @@ export default function PaymentMethodForm({
             folderType="CREDIT_TOP_UP"
             maxSizeMB={5}
             allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
+            enableCrop={true}
+            presetCropSetting="PAYMENT_LOGO_SQUARE"
           />
 
           {/* QR Code Preview for Edit Mode */}

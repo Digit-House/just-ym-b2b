@@ -1,10 +1,13 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { FilterT } from "@/types/index.type";
-import { CREATE_RESELLER, GET_ALL_RESELLERS, UPDATE_RESELLER } from "./type-query/reseller";
-import { CreateResellerPayloadT } from "@/types/reseller.type";
+import {
+  CREATE_RESELLER,
+  GET_ALL_RESELLERS,
+  UPDATE_RESELLER,
+} from "./type-query/reseller";
+import { CreateResellerPayloadT, ResellerFilterT } from "@/types/reseller.type";
 
-export const getResellers = async (payload: FilterT) => {
+export const getResellers = async (payload: ResellerFilterT) => {
   return client.query({
     query: warpGql(GET_ALL_RESELLERS),
     variables: {
@@ -43,7 +46,10 @@ export type UpdateResellerPayloadT = {
   };
 };
 
-export const updateReseller = async (id: string, payload: UpdateResellerPayloadT) => {
+export const updateReseller = async (
+  id: string,
+  payload: UpdateResellerPayloadT
+) => {
   return client.mutate({
     mutation: warpGql(UPDATE_RESELLER),
     variables: {
@@ -51,22 +57,22 @@ export const updateReseller = async (id: string, payload: UpdateResellerPayloadT
       data: {
         name: payload.name,
         active: payload.active,
-        credit: payload.credit ? {
-          ...payload.credit,
-        } : undefined,
+        credit: payload.credit
+          ? {
+              ...payload.credit,
+            }
+          : undefined,
       },
     },
     fetchPolicy: "no-cache",
   });
 };
 
-
-
- // id: string;
-  // name?: string;
-  // active?: boolean;
-  // credit?: {
-  //   balance?: number;
-  //   currency?: string;
-  //   relatedImages?: string[] | null;
-  // };
+// id: string;
+// name?: string;
+// active?: boolean;
+// credit?: {
+//   balance?: number;
+//   currency?: string;
+//   relatedImages?: string[] | null;
+// };

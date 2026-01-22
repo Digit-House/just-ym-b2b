@@ -31,7 +31,7 @@ export const useCountries = ({
               search,
             },
           },
-          //fetchPolicy: "no-cache",
+          fetchPolicy: "no-cache",
         });
         return data?.countries || [];
       } catch (err) {

@@ -74,7 +74,6 @@ export const getErrMsg = (error: ErrMsg, type: "code" | "message") => {
 
 
 export const preFixImg = (id:string) => {
-  console.log(import.meta.env.VITE_PUBLIC_IMG_URI)
   return id.includes(".com") ? id : `${import.meta.env.VITE_PUBLIC_IMG_URI}/file/image/${id}`;
 }
 

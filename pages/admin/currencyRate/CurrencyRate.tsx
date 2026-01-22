@@ -104,7 +104,7 @@ const CurrencyRate = () => {
         </div>
       </div>
 
-      {showEditModal && currencyRate && (
+      {showEditModal && (
         <ModalWrapper 
           title="Update Currency Rate" 
           onClose={() => setShowEditModal(false)}

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "@/components/Header";
+import Loading from "@/components/Loading";
 import { getMe } from "@/graphql/user";
 import { useUser } from "@/provider/UserProvider";
 import { getCredictInfo } from "@/graphql/wallet";
@@ -61,7 +62,7 @@ const DashboardLayout = () => {
   }, [fetchWallet]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   return (

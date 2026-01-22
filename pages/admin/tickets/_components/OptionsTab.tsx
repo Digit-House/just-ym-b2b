@@ -209,31 +209,34 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <InputField
+                        <InputField
                           label="Original Price"
                           type="number"
                           value={ticketType.originalPrice ?? ""}
                           disabled={true}
                         />
-                        
+
                         <InputField
-                          label="DH Net Price"
+                          label="Net Price"
                           type="number"
                           value={ticketType.dhNetPrice ?? ""}
-                          onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhNetPrice",
-                              value
-                            );
-                          }}
-                          errMsg={ticketErrors?.dhNetPrice?.message}
+                          disabled={true}
                         />
+
+                        <InputField
+                          label="Minimum Selling Price"
+                          type="number"
+                          value={ticketType.minimumSellingPrice ?? ""}
+                          disabled={true}
+                        />
+
+                         <InputField
+                          label="Recommended Selling Price"
+                          type="number"
+                          value={ticketType.recommendedSellingPrice ?? ""}
+                          disabled={true}
+                        />
+
                         <InputField
                           label="DH Selling Price"
                           type="number"
@@ -252,8 +255,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                           }}
                           errMsg={ticketErrors?.dhSellingPrice?.message}
                         />
-
-                       
 
                         <InputField
                           label="DH Net Merchant Price"

@@ -48,7 +48,7 @@ export const resellerSchema = z
         })
         .nullable(),
 
-      active: z.boolean().default(true),
+      active: z.boolean().default(true).optional(),
 
       email: z
         .string({
@@ -87,7 +87,7 @@ export const resellerSchema = z
         .nullable(),
     }),
 
-    active: z.boolean().default(true),
+    active: z.boolean().default(true).optional(),
   })
   .refine(
     (data) => {
