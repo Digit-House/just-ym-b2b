@@ -65,6 +65,12 @@ export const NAV_CONFIG: NavItem[] = [
     types: "ALL",
   },
   {
+    label: "Vouchers",
+    path: "/vouchers",
+    icon: Ticket,
+    types: ["OWNER"],
+  },
+  {
     label: "Wallet",
     path: "/wallet",
     icon: Wallet,
