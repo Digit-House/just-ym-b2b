@@ -274,17 +274,19 @@ export default function Tickets() {
                           // Simple direct navigation
                           navigate(`/admin-tickets/edit/${p.id}`);
                         }}
-                        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        className="bg-indigo-100  hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
                         Edit
                       </button>
                     )}
                     {user?.type !== "OWNER" && (
                       <button
-                        onClick={(e) => {}}
+                        onClick={(e) => {
+                          navigate(`/ticket/${p.id}`)
+                        }}
                         className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
-                        Delete
+                        Booking
                       </button>
                     )}
                   </div>
