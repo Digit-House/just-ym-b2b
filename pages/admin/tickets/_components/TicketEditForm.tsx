@@ -69,16 +69,16 @@ const TicketEditForm: React.FC<Props> = ({
       productOptions: transformedProductOptions,
     };
   };
-  console.log("initialValues", initialValues)
+  console.log("initialValues", initialValues);
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       id: initialValues?.id ?? null,
       name: initialValues?.name ?? null,
       description: initialValues?.description ?? null,
-      description_mm:initialValues?.description_mm ?? null,
+      description_mm: initialValues?.description_mm ?? null,
       whatToExpect: initialValues?.whatToExpect ?? null,
-      whatToExpect_mm:initialValues?.whatToExpect_mm??null,
+      whatToExpect_mm: initialValues?.whatToExpect_mm ?? null,
       addressLine: initialValues?.addressLine ?? null,
       location: initialValues?.location ?? null,
       postalCode: initialValues?.postalCode ?? null,
@@ -320,7 +320,10 @@ const TicketEditForm: React.FC<Props> = ({
 
     // Process main image upload if it's a local file
     let processedImage = values.image;
-    if (processedImage && (processedImage.startsWith('blob:') || processedImage.startsWith('data:'))) {
+    if (
+      processedImage &&
+      (processedImage.startsWith("blob:") || processedImage.startsWith("data:"))
+    ) {
       // Get the file from the main image ref
       if (mainImageRef.current) {
         const fileToUpload = mainImageRef.current.getFileToUpload();
@@ -335,7 +338,7 @@ const TicketEditForm: React.FC<Props> = ({
               processedImage = result.url;
             }
           } catch (error) {
-            console.error('Error uploading main image:', error);
+            console.error("Error uploading main image:", error);
           }
         }
       }
@@ -386,11 +389,11 @@ const TicketEditForm: React.FC<Props> = ({
           ...d,
           ticketTypes: d.ticketTypes.map((t) => {
             return {
-              dhNetMerchantPrice: t.dhNetMerchantPrice,
-              dhNetPrice: t.dhNetPrice,
-              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice,
-              dhSellingPrice: t.dhSellingPrice,
               ticketTypeId: t.ticketTypeId,
+              dhSellingPrice: t.dhSellingPrice,
+              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice,
+              dhNetPrice: t.dhNetPrice,
+              dhMinimumSellingPrice: t.dhMinimumSellingPrice,
             };
           }),
         };
