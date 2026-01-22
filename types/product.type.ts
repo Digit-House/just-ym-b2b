@@ -24,7 +24,7 @@ export type FilterProductListT = {
   countryId: string;
   limit: number;
   orderBy: {
-    field:"updatedAt"|string,
+    field: "updatedAt" | string;
     dir: string;
   };
   page: number;
@@ -85,7 +85,7 @@ export interface UpdateProductPayloadT {
   image: string;
   addressLine: string;
   description: string;
-  description_mm:string;
+  description_mm: string;
   exclusions: string[];
   exclusions_mm: string[];
   fromPrice: number;
@@ -119,7 +119,7 @@ export interface UpdateProductPayloadT {
   thingsToNote_mm: string[];
   timezoneOffset: number;
   whatToExpect: string;
-  whatToExpect_mm:string;
+  whatToExpect_mm: string;
   blockedDate: BlockedDateT[];
 }
 
@@ -128,9 +128,9 @@ export interface ProductInfoT {
   name: string;
   category: string;
   description: string;
-  description_mm:string;
+  description_mm: string;
   whatToExpect: string;
-  whatToExpect_mm:string;
+  whatToExpect_mm: string;
   addressLine: string;
   location: string;
   postalCode: string;
@@ -197,22 +197,22 @@ export interface FixedDayT {
 
 export interface ProductOptionT {
   id: string;
-  name:string;
-  description:string;
-  isPublished:boolean;
+  name: string;
+  description: string;
+  isPublished: boolean;
   ticketType: TicketTypeT[];
   advanceBooking: AdvanceBookingT | null;
   isCapacity: boolean;
   questions: ProductOptionQuestionT[];
   visitDate: VisitDateT;
   inclusions: string[];
-  
+
   // createdAt: Date;
   // currency: string;
   // definedDuration: string;
   // demandType: string;
   // description: string;
-  
+
   // isDynamicPricing: boolean;
   // isTagged: boolean;
   // keywords: string;
@@ -220,7 +220,7 @@ export interface ProductOptionT {
   // primaryTicket: string;
   // productId: string;
   // publishStart: Date;
-  
+
   // redeemEnd: Date;
   // redeemStart: Date;
   // ticketFormat: string;
@@ -239,15 +239,19 @@ export interface TicketTypeT {
   name: string;
   dhNetPrice: number;
   dhRecommendedSellingPrice: number;
-  recommendedSellingPrice:number;
-  minimumSellingPrice:number;
+  recommendedSellingPrice: number;
+  minimumSellingPrice: number;
   dhSellingPrice: number;
   nettPrice: number;
+  quantity: number;
   originalPrice: number;
+  maxPurchaseQty: number;
+  minPurchaseQty:number;
   createdAt: string;
+  ageTo: number;
+  ageFrom:number;
   updatedAt: string;
- globaltixId:string;
-
+  globaltixId: string;
 
   // sku: string;
   // globaltixId: number;
@@ -259,7 +263,6 @@ export interface TicketTypeT {
   // ageFrom: number | null;
   // ageTo: number | null;
   // similarTicketId: number | null;
- 
 }
 
 export interface AdvanceBookingT {

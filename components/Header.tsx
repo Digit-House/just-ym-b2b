@@ -54,7 +54,7 @@ const Header: React.FC = () => {
                 GT Main
               </span>
               <span className="text-xs font-bold">
-               THB {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
+                THB {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
               </span>
             </div>
 
@@ -63,7 +63,8 @@ const Header: React.FC = () => {
                 Cust Bal
               </span>
               <span className="text-xs font-bold">
-                THB {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
+                THB{" "}
+                {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
               </span>
             </div>
           </div>
@@ -71,24 +72,25 @@ const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
-          <button
-            onClick={() => navigate("/cart")}
-            className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
-            aria-label="Cart"
-          >
-            <ShoppingBag
-              size={20}
-              className="group-hover:text-indigo-600 transition-colors"
-            />
-            {addToCartCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 flex items-center justify-center bg-indigo-600 text-white text-[10px] font-bold rounded-full shadow-sm ring-2 ring-white">
-                {addToCartCount}
-              </span>
-            )}
-          </button>
-
-        </div>
+        {user.type !== "OWNER" && (
+          <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
+            <button
+              onClick={() => navigate("/cart")}
+              className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
+              aria-label="Cart"
+            >
+              <ShoppingBag
+                size={20}
+                className="group-hover:text-indigo-600 transition-colors"
+              />
+              {addToCartCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 flex items-center justify-center bg-indigo-600 text-white text-[10px] font-bold rounded-full shadow-sm ring-2 ring-white">
+                  {addToCartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
         <div
           onClick={() => navigate("/settings/general")}
           className="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer group pr-2 py-1  hover:bg-gray-50 transition-colors"

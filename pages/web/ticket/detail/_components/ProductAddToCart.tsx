@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/provider/UserProvider";
 
 type Props = {
   title: string;
@@ -30,6 +31,18 @@ const ProductAddToCart = ({
   } = useCartStore();
   const [variant, setVariant] = useState<TicketTypeT[]>([]);
   const navigate = useNavigate();
+  const { user } = useUser();
+
+  // Prevent OWNER users from accessing this component
+  if (user?.type && (user.type as string) === "OWNER") {
+    return (
+      <div className="w-full px-4 py-6 rounded-2xl border border-[#d9d9d9] bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500 text-center">
+          Owners cannot add products to cart. This functionality is only available for resellers and customers.
+        </p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (!selectedProductOption) return;
@@ -182,11 +195,11 @@ const ProductAddToCart = ({
         selectedProductOption.totalPrice > 0 && (
           <div className="flex flex-col gap-4">
             <Button
-              disabled={eventLoading}
+              disabled={eventLoading || (user?.type && (user.type as string) === "OWNER")}
               onClick={handleAdded}
               className="w-full py-3 font-normal disabled:cursor-not-allowed"
             >
-              Add to Cart
+              {(user?.type && (user.type as string) === "OWNER") ? "Owner Account - Access Denied" : "Add to Cart"}
             </Button>
             {/* <Button
             text="Add to Cart"
