@@ -58,7 +58,7 @@ export interface CreditInfoT {
 }
 
 export interface AddTopupPayloadT {
-  currency: "THB";
+  currency: "THB" | "MMK";
   resellerId: string;
   topUpBalance: number;
   relatedImages: string[];

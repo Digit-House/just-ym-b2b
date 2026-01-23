@@ -137,7 +137,7 @@ const TotalAmountDisplay = ({
           />
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600">
+        {/* <div className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600">
           <div className="flex justify-between">
             <span>Exchange Rate:</span>
             <span>
@@ -148,7 +148,7 @@ const TotalAmountDisplay = ({
             <span>Last Updated:</span>
             <span>{new Date(currencyRate.updatedAt).toLocaleString()}</span>
           </div>
-        </div>
+        </div> */}
       </WrapperCard>
     );
   }

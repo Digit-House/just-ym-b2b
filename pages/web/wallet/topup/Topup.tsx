@@ -23,6 +23,7 @@ import { QRCodeSection } from "./_components/QRCodeSection";
 import CurrencyConverter from "@/components/CurrencyConverter";
 import TotalAmountDisplay from "@/components/TotalAmountDisplay";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+import { convertCurrency, formatCurrency } from "@/lib/utils";
 
 const Topup = () => {
   const navigate = useNavigate();
@@ -195,7 +196,9 @@ const Topup = () => {
           >
             {isSubmitting || loading
               ? "Processing..."
-              : `Complete Top Up - THB ${amount.toLocaleString()}`}
+              : selectedPaymentMethod?.currency === "MMK"
+              ? `Complete Top Up - ${formatCurrency(currencyRate ? convertCurrency(amount, "THB", "MMK", Number(currencyRate.mmk)) : amount, "MMK")}`
+              : `Complete Top Up - ${formatCurrency(amount, "THB")}`}
           </button>
         </div>
       </form>
