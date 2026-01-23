@@ -48,7 +48,7 @@ export const resellerSchema = z
         })
         .nullable(),
 
-      active: z.boolean().default(true),
+      active: z.boolean().default(true).optional(),
 
       email: z
         .string({
@@ -70,13 +70,15 @@ export const resellerSchema = z
           message: "Password must be a string",
         })
         .min(6, "Password must be at least 6 characters")
-        .nullable(),
+        .optional()
+        .nullable(), // Make optional and nullable to handle edit mode
 
       confirmPassword: z
         .string({
           message: "Confirm password must be a string",
         })
-        .nullable(),
+        .optional()
+        .nullable(), // Make optional and nullable to handle edit mode
 
       imageURI: z
         .string({
@@ -87,11 +89,11 @@ export const resellerSchema = z
         .nullable(),
     }),
 
-    active: z.boolean().default(true),
+    active: z.boolean().default(true).optional(),
   })
   .refine(
     (data) => {
-      // Password confirmation validation
+      // Password confirmation validation - only apply if passwords are provided
       if (data.user.password && data.user.confirmPassword) {
         return data.user.password === data.user.confirmPassword;
       }

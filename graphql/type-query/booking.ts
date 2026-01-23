@@ -40,7 +40,6 @@ export const GET_BOOKING_DETAIL = `
 query GetTransactionDetailBy($data: FindBookingByInput!) {
   getTransactionDetailBy(data: $data) {
     alternateEmail
-    booked
     bookingTickets {
       code
       eventId
@@ -120,7 +119,6 @@ query Query($params: BookingTransactionsInput!) {
     total
     data {
       alternateEmail
-      booked
       bookingTickets {
         code
         eventId

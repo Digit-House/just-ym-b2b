@@ -26,7 +26,7 @@ const ProductionOptionSelecter = ({
       setSelectedProductOption(null);
       return;
     }
-    const selectedTicketType = item.ticketType.map((data: TicketTypeT) => {
+    const selectedTicketType = item?.ticketType?.map((data: TicketTypeT) => {
       return {
         ...data,
         quantity: 0,

@@ -14,6 +14,7 @@ type Props = {
   accountNumber?: string;
   swiftCode?: string;
   instructions?: string;
+  description?:string;
 };
 
 export const BankTransferSection = ({
@@ -25,6 +26,7 @@ export const BankTransferSection = ({
   accountNumber,
   swiftCode,
   instructions,
+  description,
 }: Props) => {
   const { previewImage, previewFile, openPreview, closePreview } = useImagePreview();
 
@@ -61,11 +63,18 @@ export const BankTransferSection = ({
           {swiftCode && (
             <BankDetailRow label="SWIFT Code" value={swiftCode} />
           )}
+
+          {description && (
+            <div className="bg-gray-50 p-4 rounded-2xl border ">
+              <h4 className="font-black text-black mb-2">Description</h4>
+              <p className="text-sm text-gray-800">{description}</p>
+            </div>
+          )}
           
           {instructions && (
-            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-              <h4 className="font-black text-blue-900 mb-2">Payment Instructions</h4>
-              <p className="text-sm text-blue-700">{instructions}</p>
+            <div className="bg-gray-50 p-4 rounded-2xl border ">
+              <h4 className="font-black text-black mb-2">Instructions</h4>
+              <p className="text-sm text-gray-800">{instructions}</p>
             </div>
           )}
         </div>

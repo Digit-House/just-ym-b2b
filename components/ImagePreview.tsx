@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, ZoomIn, Download } from 'lucide-react';
+import { preFixImg } from '@/util/initData';
 
 interface ImagePreviewProps {
   images: string[];
@@ -95,7 +96,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             >
               <div className="relative">
                 <img
-                  src={imgUrl}
+                  src={preFixImg(imgUrl)}
                   alt={`${title} ${index + 1}`}
                   className="w-16 h-16 rounded-lg object-cover border-2 border-gray-200 group-hover:border-indigo-300 transition-all"
                 />
@@ -151,7 +152,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             {/* Image Container */}
             <div className="flex-1 flex items-center justify-center relative">
               <img
-                src={previewImage}
+                src={preFixImg(previewImage)}
                 alt="Full size preview"
                 className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
@@ -206,7 +207,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
                     }`}
                   >
                     <img
-                      src={img}
+                      src={preFixImg(img)}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded-md"
                     />

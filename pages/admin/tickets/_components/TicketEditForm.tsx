@@ -22,7 +22,7 @@ type Mode = "edit";
 
 type Props = {
   mode: Mode;
-  initialValues?: UpdateProductPayloadT | ProductInfoT;
+  initialValues?:ProductInfoT;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: TicketFormValues) => void;
@@ -51,9 +51,11 @@ const TicketEditForm: React.FC<Props> = ({
                 name: ticket.name,
                 quantity: ticket.quantity,
                 dhNetPrice: ticket.dhNetPrice,
+                nettPrice:ticket.nettPrice,
                 dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice,
+                minimumSellingPrice: ticket.minimumSellingPrice,
                 dhSellingPrice: ticket.dhSellingPrice,
-                dhNetMerchantPrice: ticket.nettPrice,
+                recommendedSellingPrice: ticket.recommendedSellingPrice,
                 originalPrice: ticket.originalPrice,
                 createdAt: ticket.createdAt,
                 updatedAt: ticket.updatedAt,
@@ -67,16 +69,17 @@ const TicketEditForm: React.FC<Props> = ({
       productOptions: transformedProductOptions,
     };
   };
-  console.log("initialValues", initialValues)
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       id: initialValues?.id ?? null,
       name: initialValues?.name ?? null,
       description: initialValues?.description ?? null,
-      description_mm:initialValues?.description_mm ?? null,
+      category_relation: initialValues?.category_relation ?? null,
+      category: initialValues?.category ?? null,
+      description_mm: initialValues?.description_mm ?? null,
       whatToExpect: initialValues?.whatToExpect ?? null,
-      whatToExpect_mm:initialValues?.whatToExpect_mm??null,
+      whatToExpect_mm: initialValues?.whatToExpect_mm ?? null,
       addressLine: initialValues?.addressLine ?? null,
       location: initialValues?.location ?? null,
       postalCode: initialValues?.postalCode ?? null,
@@ -318,7 +321,10 @@ const TicketEditForm: React.FC<Props> = ({
 
     // Process main image upload if it's a local file
     let processedImage = values.image;
-    if (processedImage && (processedImage.startsWith('blob:') || processedImage.startsWith('data:'))) {
+    if (
+      processedImage &&
+      (processedImage.startsWith("blob:") || processedImage.startsWith("data:"))
+    ) {
       // Get the file from the main image ref
       if (mainImageRef.current) {
         const fileToUpload = mainImageRef.current.getFileToUpload();
@@ -333,7 +339,7 @@ const TicketEditForm: React.FC<Props> = ({
               processedImage = result.url;
             }
           } catch (error) {
-            console.error('Error uploading main image:', error);
+            console.error("Error uploading main image:", error);
           }
         }
       }
@@ -375,20 +381,27 @@ const TicketEditForm: React.FC<Props> = ({
         }
       }
     }
+    // Extract category ID from category_relation for the payload
+    const categoryValue = values.category_relation?.id
+
+    // Destructure to exclude the category field if it exists
+    const { category: _, category_relation: __, ...restOfValues } = values;
+    
     const payload = {
-      ...values,
-      image: processedImage, // Use the processed image
-      media: processedMedia, // Use the processed media
+      ...restOfValues,
+      category_relation_id: categoryValue, 
+      image: processedImage, 
+      media: processedMedia, 
       productOptions: values.productOptions.map((d) => {
         return {
           ...d,
           ticketTypes: d.ticketTypes.map((t) => {
             return {
-              dhNetMerchantPrice: t.dhNetMerchantPrice,
-              dhNetPrice: t.dhNetPrice,
-              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice,
-              dhSellingPrice: t.dhSellingPrice,
               ticketTypeId: t.ticketTypeId,
+              dhSellingPrice: t.dhSellingPrice || 0,
+              dhRecommendedSellingPrice: t.dhRecommendedSellingPrice || 0,
+              dhNetPrice: t.dhNetPrice || 0,
+              dhMinimumSellingPrice: t.dhMinimumSellingPrice || 0,
             };
           }),
         };
@@ -478,7 +491,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
             imageRef={mainImageRef}
           />
         </div>
@@ -489,7 +502,7 @@ const TicketEditForm: React.FC<Props> = ({
             errors={errors}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
 
@@ -500,7 +513,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
 
@@ -512,7 +525,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
             setMediaItemRef={setMediaItemRef}
           />
         </div>
@@ -529,7 +542,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
 
@@ -543,7 +556,7 @@ const TicketEditForm: React.FC<Props> = ({
             setValue={setValue}
             trigger={trigger}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
       </div>

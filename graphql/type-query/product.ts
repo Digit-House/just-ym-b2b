@@ -1,4 +1,4 @@
-import { GuestInfoT, QusetionT } from "@/types/product.type";
+import { QusetionT } from "@/types/product.type";
 
 export const GET_ALL_PRODUCTS = `
 query FindAllProducts($params: UserProductsInput!) {
@@ -12,6 +12,7 @@ query FindAllProducts($params: UserProductsInput!) {
       id
       image
       isCancellable
+      isPublished
       media {
         extension
         name
@@ -36,6 +37,10 @@ query GetProductInfo($productId: String!, $date: DateTime) {
       title
     }
     category
+    category_relation{
+    id
+    name
+  }
     city
     cityId
     city_relation_id
@@ -95,24 +100,53 @@ query GetProductInfo($productId: String!, $date: DateTime) {
      name
      description
      isPublished
-      advanceBooking {
+     advanceBooking {
         day
         dayMinute
         hour
         minute
         required
       }
+      questions {
+        cartItemId
+        createdAt
+        globaltixId
+        id
+        isAnswerLater
+        optionCode
+        optionList {
+          key
+          value
+        }
+        optional
+        options
+        question
+        questionCode
+        type
+        updatedAt
+      }
+      isCapacity  
+      visitDate {
+        isOpenDated
+        request
+        required
+      }
       ticketType {
         id
         name
         dhNetPrice
-        dhRecommendedSellingPrice
+        minimumSellingPrice
+        recommendedSellingPrice
         dhSellingPrice
+        maxPurchaseQty
+        minPurchaseQty
         nettPrice
+        ageFrom
+        ageTo
         originalPrice
+        globaltixId
         createdAt
         updatedAt
-        
       }
     }
   }
@@ -317,3 +351,11 @@ export const UPDATE_PRODUCT_MUTATION = `mutation UpdateProduct($data: ProductUpd
   }
 }
 `;
+
+export const SEED_PRODUCT_MUTATION = `
+mutation Mutation($productId: String!) {
+  seedProduct(productId: $productId) {
+    message
+    status
+  }
+}`;

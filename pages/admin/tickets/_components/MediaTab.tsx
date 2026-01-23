@@ -32,6 +32,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
   errors,
   watch,
   setValue,
+  mode,
   initialValues,
   setMediaItemRef,
 }) => {
@@ -284,14 +285,14 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     label="Media Image"
                     value={media.path}
                     onChange={(val, file) => {
-                      // Update the path with the preview URL for now
                       updateMediaItem(media.id, 'path', val);
-                      // Auto-fill name, extension, type, and size if file is available
                       if (file) {
                         handleMediaItemImageUpload(media.id, val, file);
                       }
                     }}
                     folderType="PRODUCT_MEDIA"
+                    enableCrop={true}
+                    presetCropSetting="TICKET_CARD"
                   />
                 </div>
                 {/* Hidden Name Input Field */}

@@ -21,7 +21,12 @@ import {
   topUpEditSchema,
   TopUpEditValues,
 } from "@/types/schema/topUpEditSchema";
-
+import {
+  BASE_CURRENCY,
+  convertCurrency,
+  currencyFormat,
+  formatCurrency,
+} from "@/lib/utils";
 
 const STATUS_STYLE: Record<string, string> = {
   CONFIRMED: "bg-green-50 text-green-700",
@@ -78,16 +83,28 @@ export default function TopUpEditForm({
           value={new Date(initialValues.updatedAt).toLocaleString()}
         />
 
-
-
         {initialValues.paymentMethod && (
           <div className="col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h4 className="font-bold text-gray-700 mb-2">Payment Method Details</h4>
+            <h4 className="font-bold text-gray-700 mb-2">
+              Payment Method Details
+            </h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <ReadOnly label="Bank Name" value={initialValues.paymentMethod.bankName} />
-              <ReadOnly label="Account Number" value={initialValues.paymentMethod.accountNumber} />
-              <ReadOnly label="Account Name" value={initialValues.paymentMethod.accountName} />
-              <ReadOnly label="Currency" value={initialValues.paymentMethod.currency} />
+              <ReadOnly
+                label="Bank Name"
+                value={initialValues.paymentMethod.bankName}
+              />
+              <ReadOnly
+                label="Account Number"
+                value={initialValues.paymentMethod.accountNumber}
+              />
+              <ReadOnly
+                label="Account Name"
+                value={initialValues.paymentMethod.accountName}
+              />
+              <ReadOnly
+                label="Currency"
+                value={initialValues.paymentMethod.currency}
+              />
             </div>
           </div>
         )}
@@ -95,15 +112,35 @@ export default function TopUpEditForm({
           <div className="col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h4 className="font-bold text-gray-700 mb-2">Currency Rage</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <ReadOnly label="Mmk" value={initialValues?.currencyRate?.mmk || "N/A"} />
-              <ReadOnly label="Currency" value={initialValues?.currencyRate?.id || "N/A"} />
-              <ReadOnly label="Created At" value={initialValues?.currencyRate?.createdAt || "N/A"} />
-              <ReadOnly label="Update At" value={initialValues?.currencyRate?.updatedAt || "N/A"} />
+              <ReadOnly
+                label="Currency Rate"
+                value={
+                  initialValues?.currencyRate?.mmk
+                    ? currencyFormat(
+                        +initialValues.currencyRate?.mmk,
+                        "THB",
+                        "en-MM"
+                      )
+                    : "N/A"
+                }
+              />
+              <ReadOnly
+                label="Currency Id"
+                value={initialValues?.currencyRate?.id || "N/A"}
+              />
+              <ReadOnly
+                label="Created At"
+                value={initialValues?.currencyRate?.createdAt || "N/A"}
+              />
+              <ReadOnly
+                label="Update At"
+                value={initialValues?.currencyRate?.updatedAt || "N/A"}
+              />
             </div>
           </div>
         )}
         <div className="col-span-2">
-          <ImagePreview 
+          <ImagePreview
             images={initialValues.relatedImages || []}
             title="Top-up Related Images"
             className="w-full"
@@ -111,15 +148,32 @@ export default function TopUpEditForm({
         </div>
       </div>
 
+      {initialValues.paymentMethod?.currency === "MMK" &&
+        initialValues.currencyRate?.mmk && (
+          <ReadOnly
+            label="Top-up Balance (MMK)"
+            value={formatCurrency(
+              convertCurrency(
+                initialValues.topUpBalance,
+                "THB",
+                "MMK",
+                Number(initialValues.currencyRate.mmk)
+              ),
+              "MMK",
+              "en-MM"
+            )}
+          />
+        )}
+
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
-          Status  <span className="text-red-500">*</span>
+          Status <span className="text-red-500">*</span>
         </label>
 
         <div className="flex gap-2">
           <Select
             value={status}
-            disabled={initialValues.status ==="CONFIRMED"}
+            disabled={initialValues.status === "CONFIRMED"}
             onValueChange={(value) => setValue("status", value)}
           >
             <SelectTrigger
@@ -156,14 +210,12 @@ export default function TopUpEditForm({
         </div>
 
         {errors.status && (
-          <p className="mt-1 text-sm text-red-500">
-            {errors.status.message}
-          </p>
+          <p className="mt-1 text-sm text-red-500">{errors.status.message}</p>
         )}
       </div>
 
       <InputField
-        label="Top-up Balance"
+        label="Top-up Balance (THB)"
         isRequired
         type="number"
         {...register("topUpBalance", { valueAsNumber: true })}

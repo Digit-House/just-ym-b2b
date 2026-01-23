@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/provider/UserProvider";
 
 type Props = {
   title: string;
@@ -188,18 +189,6 @@ const ProductAddToCart = ({
             >
               Add to Cart
             </Button>
-            {/* <Button
-            text="Add to Cart"
-            className="w-full !font-normal disabled:cursor-not-allowed py-3"
-            disable={!selectedPackage || selectedPackage?.totalPrice <= 0}
-          /> */}
-
-            {/* <Button
-            variant="secondary"
-            text="Add to Cart"
-            className="w-full !font-normal disabled:cursor-not-allowed py-3  !text-primary"
-            disable={!selectedPackage || selectedPackage?.totalPrice <= 0}
-          /> */}
           </div>
         )}
     </div>

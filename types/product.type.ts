@@ -24,20 +24,11 @@ export type FilterProductListT = {
   countryId: string;
   limit: number;
   orderBy: {
-    field:"updatedAt"|string,
+    field: string;
     dir: string;
   };
   page: number;
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
-};
-
-export type FilterBookingListT = {
-  limit: number;
-  orderBy: {
-    dir: string;
-  };
-  page: number;
-  status: BOOKING_STATUS_ENUM | string;
 };
 
 export type ProductT = {
@@ -47,6 +38,7 @@ export type ProductT = {
   dhSellingPrice: number;
   id: string;
   image: string;
+  isPublished: boolean;
   isCancellable: boolean;
   media: [];
   name: string;
@@ -84,8 +76,9 @@ export interface UpdateProductPayloadT {
   id: string;
   image: string;
   addressLine: string;
+  category_relation_id:string;
   description: string;
-  description_mm:string;
+  description_mm: string;
   exclusions: string[];
   exclusions_mm: string[];
   fromPrice: number;
@@ -119,18 +112,22 @@ export interface UpdateProductPayloadT {
   thingsToNote_mm: string[];
   timezoneOffset: number;
   whatToExpect: string;
-  whatToExpect_mm:string;
+  whatToExpect_mm: string;
   blockedDate: BlockedDateT[];
 }
 
 export interface ProductInfoT {
   id: string;
   name: string;
-  category: string;
+  category_relation: {
+    id:string;
+    name:string;
+  };
+  category:string;
   description: string;
-  description_mm:string;
+  description_mm: string;
   whatToExpect: string;
-  whatToExpect_mm:string;
+  whatToExpect_mm: string;
   addressLine: string;
   location: string;
   postalCode: string;
@@ -155,6 +152,7 @@ export interface ProductInfoT {
   isBestSeller: boolean;
   isCancellable: boolean;
   isGTRecommend: boolean;
+  isPublished: boolean;
   isInstantConfirmation: boolean;
   isOpenDated: boolean;
   originalPrice: number;
@@ -197,16 +195,22 @@ export interface FixedDayT {
 
 export interface ProductOptionT {
   id: string;
-  name:string;
-  description:string;
-  isPublished:boolean;
+  name: string;
+  description: string;
+  isPublished: boolean;
   ticketType: TicketTypeT[];
+  advanceBooking: AdvanceBookingT | null;
+  isCapacity: boolean;
+  questions: ProductOptionQuestionT[];
+  visitDate: VisitDateT;
+  inclusions: string[];
+
   // createdAt: Date;
   // currency: string;
   // definedDuration: string;
   // demandType: string;
   // description: string;
-  // inclusions: string[];
+
   // isDynamicPricing: boolean;
   // isTagged: boolean;
   // keywords: string;
@@ -214,7 +218,7 @@ export interface ProductOptionT {
   // primaryTicket: string;
   // productId: string;
   // publishStart: Date;
-  // isCapacity: boolean;
+
   // redeemEnd: Date;
   // redeemStart: Date;
   // ticketFormat: string;
@@ -224,8 +228,6 @@ export interface ProductOptionT {
   // type: string;
   // updatedAt: Date;
   // publishEnd: Date;
-  // questions: ProductOptionQuestionT[];
-  // visitDate: VisitDateT;
   // advanceBooking: AdvanceBookingT | null;
   // availability: AVAILABILITY_ENUM | null;
 }
@@ -235,12 +237,19 @@ export interface TicketTypeT {
   name: string;
   dhNetPrice: number;
   dhRecommendedSellingPrice: number;
+  recommendedSellingPrice: number;
+  minimumSellingPrice: number;
   dhSellingPrice: number;
   nettPrice: number;
+  quantity: number;
   originalPrice: number;
+  maxPurchaseQty: number;
+  minPurchaseQty: number;
   createdAt: string;
+  ageTo: number;
+  ageFrom: number;
   updatedAt: string;
-
+  globaltixId: string;
 
   // sku: string;
   // globaltixId: number;
@@ -252,7 +261,6 @@ export interface TicketTypeT {
   // ageFrom: number | null;
   // ageTo: number | null;
   // similarTicketId: number | null;
- 
 }
 
 export interface AdvanceBookingT {

@@ -8,8 +8,7 @@ import {
   GET_MY_BOOKING_QUERY_DATA_TYPE,
 } from "./type-query/booking";
 import { RESEND_EMAIL_MUTATION } from "./type-query/product";
-import { FilterBookingListT } from "@/types/product.type";
-import { FindAllTransactionsT } from "@/types/booking.type";
+import { FilterBookingListT, FindAllTransactionsT } from "@/types/booking.type";
 
 export const createBookingWithCart = async (
   data: BOOKING_CREATE_MUTATION_DATA_TYPE
@@ -64,12 +63,13 @@ export const getMyBookingList = async (data: FilterBookingListT) => {
 };
 
 export const fetchMyBookingList = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { status, sort }] = queryKey;
-  const filter = {
+  const [_key, { status, sort, search }] = queryKey;
+  const filter: FilterBookingListT = {
     page: pageParam,
     limit: 10,
-    orderBy: { dir: sort },
+    orderBy: { dir: sort,field:"email"},
     status: status,
+    search: search ?? null
   };
   const res = await getMyBookingList(filter);
   return {

@@ -51,7 +51,7 @@ const DatePicker = ({
     if (!ticketDetail) return;
     const date = addDays(
       today,
-      ticketDetail.productOptions[0].advanceBooking?.day || 1
+      ticketDetail?.productOptions[0]?.advanceBooking?.day || 1
     );
     setStartDate2(date);
   }, [ticketDetail]);

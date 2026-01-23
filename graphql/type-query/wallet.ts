@@ -5,6 +5,9 @@ query GetCreditInfo {
     currency
     hasOutstandingDebt
     id
+    gtBalance
+    gtBalanceMain
+    customerBalance
     lastMonthUsage
     otherBalance
     totalTopUp
@@ -34,6 +37,12 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
         accountName
         currency
       }
+      currencyRate {
+        createdAt
+        updatedAt
+        mmk
+        id
+      }
         createdBy {
         id
         email
@@ -47,7 +56,7 @@ query FindAllTopUpHistory($data: TopUpPagedParams!) {
         email
         name
       } 
-         confirmBy {
+      confirmBy {
         id
         email
         contactNo

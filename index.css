@@ -143,3 +143,20 @@
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Custom animations for loading component */
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out infinite;
+}
+
+/* Ensure smooth transitions for logo scaling */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}

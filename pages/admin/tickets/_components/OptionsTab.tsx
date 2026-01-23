@@ -10,7 +10,6 @@ import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import TextareaField from "@/components/TextareaField";
@@ -209,31 +208,41 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <InputField
+                        <InputField
                           label="Original Price"
                           type="number"
                           value={ticketType.originalPrice ?? ""}
                           disabled={true}
                         />
-                        
+
                         <InputField
-                          label="DH Net Price"
+                          label="Net Price"
                           type="number"
-                          value={ticketType.dhNetPrice ?? ""}
-                          onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhNetPrice",
-                              value
-                            );
-                          }}
-                          errMsg={ticketErrors?.dhNetPrice?.message}
+                          value={ticketType.nettPrice ?? ""}
+                          disabled={true}
                         />
+
+                        <InputField
+                          label="Minimum Selling Price"
+                          type="number"
+                          value={ticketType.minimumSellingPrice ?? ""}
+                          disabled={true}
+                        />
+
+                         <InputField
+                          label="Recommended Selling Price"
+                          type="number"
+                          value={ticketType.recommendedSellingPrice ?? ""}
+                          disabled={true}
+                        />
+
+                        {/* <InputField
+                          label="DH Net Merchant Price"
+                          type="number"
+                          value={ticketType.dhNetMerchantPrice ?? ""}
+                          disabled={true}
+                        /> */}
+                        
                         <InputField
                           label="DH Selling Price"
                           type="number"
@@ -253,12 +262,10 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                           errMsg={ticketErrors?.dhSellingPrice?.message}
                         />
 
-                       
-
-                        <InputField
-                          label="DH Net Merchant Price"
+                         <InputField
+                          label="DH Net Price"
                           type="number"
-                          value={ticketType.dhNetMerchantPrice ?? ""}
+                          value={ticketType.dhNetPrice ?? ""}
                           onChange={(e) => {
                             const value =
                               e.target.value === ""
@@ -267,12 +274,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                             updateTicketType(
                               optionIndex,
                               ticketIndex,
-                              "dhNetMerchantPrice",
+                              "dhNetPrice",
                               value
                             );
                           }}
-                          errMsg={ticketErrors?.dhNetMerchantPrice?.message}
+                          errMsg={ticketErrors?.dhNetPrice?.message}
                         />
+
+                       
 
                         <InputField
                           label="DH Recommended Selling Price"
@@ -287,6 +296,27 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                               optionIndex,
                               ticketIndex,
                               "dhRecommendedSellingPrice",
+                              value
+                            );
+                          }}
+                          errMsg={
+                            ticketErrors?.dhRecommendedSellingPrice?.message
+                          }
+                        />
+
+                        <InputField
+                          label="DH Minimum Selling Price"
+                          type="number"
+                          value={ticketType.dhMinimumSellingPrice ?? ""}
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            updateTicketType(
+                              optionIndex,
+                              ticketIndex,
+                              "dhMinimumSellingPrice",
                               value
                             );
                           }}

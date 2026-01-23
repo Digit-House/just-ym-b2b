@@ -11,6 +11,7 @@ import {
   GET_PRODUCT_INFO,
   GET_PRODUCT_OPTIONS,
   GET_TICKET_TYPE_EVENT_AVAILABLE,
+  SEED_PRODUCT_MUTATION,
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
   UPDATE_PRODUCT_MUTATION,
 } from "./type-query/product";
@@ -73,8 +74,8 @@ export const updateProductInfo = async (data: UpdateProductPayloadT) => {
 };
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { categories, countries, sort, published }] = queryKey;
-
+  const [_key, { categories, countries, sort, published, search }] = queryKey;
+  
   const filter = {
     category: categories[0] || "",
     cityId: "",
@@ -82,7 +83,9 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     limit: 10,
     page: pageParam,
     published: published,
-    orderBy: { dir: sort, field: "updatedAt" as string },
+    orderBy: { dir: sort?.toLowerCase() === "alphabet" ? "asc" : sort, field: sort?.toLowerCase() === 'alphabet' ? 'name' : 'updatedAt' as string },
+    name:search
+    // ...(search && { search }), // Add search parameter if it exists
   };
 
   const res = await getAllProducts(filter);
@@ -180,6 +183,20 @@ export const clearCart = async (cartItemId: string) => {
       mutation: warpGql(CLEAR_CART_MUTATION),
       variables: {
         cartItemId: cartItemId,
+      },
+    });
+    return res;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const seedProduct = async (productId: string) => {
+  try {
+    const res = await client.mutate({
+      mutation: warpGql(SEED_PRODUCT_MUTATION),
+      variables: {
+        productId: productId,
       },
     });
     return res;

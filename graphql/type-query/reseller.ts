@@ -1,5 +1,5 @@
 export const GET_ALL_RESELLERS = `
-query FindAllResellers($params: AbstractPagedParams!) {
+query FindAllResellers($params: ResellerFindAllParam!) {
   findAllResellers(params: $params) {
     total
     data {
@@ -35,8 +35,8 @@ mutation CreateReseller($data: ResellerCreateInputDTO!) {
 `;
 
 export const UPDATE_RESELLER = `
-mutation UpdateReseller($id: String!, $data: ResellerUpdateInputDTO!) {
-  updateReseller(id: $id, data: $data) {
+mutation UpdateReseller($data: ResellerUpdateInputDTO!) {
+  updateReseller(data: $data) {
     id
   }
 }
