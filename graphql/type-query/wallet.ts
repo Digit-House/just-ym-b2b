@@ -5,6 +5,9 @@ query GetCreditInfo {
     currency
     hasOutstandingDebt
     id
+    gtBalance
+    gtBalanceMain
+    customerBalance
     lastMonthUsage
     otherBalance
     totalTopUp

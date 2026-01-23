@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import ImageUpload from "@/components/ImageUpload";
 
@@ -28,6 +29,13 @@ type BasicInfoTabProps = {
 const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
   ({ control, errors, watch, imageRef }, ref) => {
     // Fetch categories, countries and cities
+    const { data: categoriesResponse } = useCategories({
+      limit: 50,
+      page: 1,
+      orderBy: { dir: "asc" },
+    });
+    const categories = categoriesResponse || [];
+
     const { data: countriesResponse } = useCountries({
       limit: 50,
       page: 1,
@@ -151,7 +159,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
 
           <div
             className={`space-y-3 ${
-              errors.category
+              errors.location
                 ? "border border-red-300 rounded-lg p-3 bg-red-50"
                 : ""
             }`}
@@ -159,15 +167,71 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             <Controller
               name="category"
               control={control}
+              disabled={true}
               render={({ field }) => (
                 <InputField
-                  label="Category"
+                  label="Original Category"
                   {...field}
                   errMsg={errors.category?.message}
-                  placeholder="Category"
+                  placeholder="Enter Category"
                 />
               )}
             />
+          </div>
+
+          <div
+            className={`space-y-3 ${
+              errors.category_relation
+                ? "border border-red-300 rounded-lg p-3 bg-red-50"
+                : ""
+            }`}
+          >
+            <Label>Category</Label>
+            <Controller
+              name="category_relation"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value?.id || ""}
+                  onValueChange={(selectedId) => {
+                    const selectedCategory = categories.find(
+                      (cat) => cat.id === selectedId
+                    );
+                    if (selectedCategory) {
+                      field.onChange({
+                        id: selectedCategory.id,
+                        name: selectedCategory.name,
+                      });
+                    } else {
+                      field.onChange(null);
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    className={`w-full ${
+                      errors.category_relation ? "border-red-500" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id}
+                      >
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.category_relation && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.category_relation.message?.toString()}
+              </p>
+            )}
           </div>
 
           <div

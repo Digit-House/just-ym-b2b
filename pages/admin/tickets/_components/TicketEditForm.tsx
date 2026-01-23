@@ -22,7 +22,7 @@ type Mode = "edit";
 
 type Props = {
   mode: Mode;
-  initialValues?: UpdateProductPayloadT | ProductInfoT;
+  initialValues?:ProductInfoT;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: TicketFormValues) => void;
@@ -75,6 +75,7 @@ const TicketEditForm: React.FC<Props> = ({
       id: initialValues?.id ?? null,
       name: initialValues?.name ?? null,
       description: initialValues?.description ?? null,
+      category_relation: initialValues?.category_relation ?? null,
       category: initialValues?.category ?? null,
       description_mm: initialValues?.description_mm ?? null,
       whatToExpect: initialValues?.whatToExpect ?? null,
@@ -380,10 +381,17 @@ const TicketEditForm: React.FC<Props> = ({
         }
       }
     }
+    // Extract category ID from category_relation for the payload
+    const categoryValue = values.category_relation?.id
+
+    // Destructure to exclude the category field if it exists
+    const { category: _, category_relation: __, ...restOfValues } = values;
+    
     const payload = {
-      ...values,
-      image: processedImage, // Use the processed image
-      media: processedMedia, // Use the processed media
+      ...restOfValues,
+      category_relation_id: categoryValue, 
+      image: processedImage, 
+      media: processedMedia, 
       productOptions: values.productOptions.map((d) => {
         return {
           ...d,
@@ -483,7 +491,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
             imageRef={mainImageRef}
           />
         </div>
@@ -494,7 +502,7 @@ const TicketEditForm: React.FC<Props> = ({
             errors={errors}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
 
@@ -505,7 +513,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
 
@@ -517,7 +525,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
             setMediaItemRef={setMediaItemRef}
           />
         </div>
@@ -534,7 +542,7 @@ const TicketEditForm: React.FC<Props> = ({
             watch={watch}
             setValue={setValue}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
 
@@ -548,7 +556,7 @@ const TicketEditForm: React.FC<Props> = ({
             setValue={setValue}
             trigger={trigger}
             mode={mode}
-            initialValues={initialValues as UpdateProductPayloadT}
+            initialValues={initialValues as ProductInfoT}
           />
         </div>
       </div>

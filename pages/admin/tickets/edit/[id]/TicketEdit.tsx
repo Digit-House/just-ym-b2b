@@ -8,7 +8,7 @@ import {
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import TicketEditForm from "@/pages/admin/tickets/_components/TicketEditForm";
-import { UpdateProductPayloadT } from "@/types/product.type";
+import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
@@ -31,7 +31,6 @@ const AdminTicketEdit = () => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
-  //ee
 
   if (isLoading) {
     return (
@@ -147,7 +146,7 @@ const AdminTicketEdit = () => {
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
         <TicketEditForm
           mode="edit"
-          initialValues={data as UpdateProductPayloadT}
+          initialValues={data as ProductInfoT}
           onSubmit={handleSave}
           onCancel={handleCancel}
         />

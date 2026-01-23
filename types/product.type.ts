@@ -24,14 +24,12 @@ export type FilterProductListT = {
   countryId: string;
   limit: number;
   orderBy: {
-    field:string;
+    field: string;
     dir: string;
   };
   page: number;
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
 };
-
-
 
 export type ProductT = {
   category: string;
@@ -78,7 +76,7 @@ export interface UpdateProductPayloadT {
   id: string;
   image: string;
   addressLine: string;
-  category:string;
+  category_relation_id:string;
   description: string;
   description_mm: string;
   exclusions: string[];
@@ -121,7 +119,11 @@ export interface UpdateProductPayloadT {
 export interface ProductInfoT {
   id: string;
   name: string;
-  category: string;
+  category_relation: {
+    id:string;
+    name:string;
+  };
+  category:string;
   description: string;
   description_mm: string;
   whatToExpect: string;

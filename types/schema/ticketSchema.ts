@@ -14,6 +14,13 @@ export const ticketSchema = z.object({
   location: z.string().optional().nullable(),
   postalCode: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
+  category_relation: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+    })
+    .optional()
+    .nullable(),
 
   countryId: z.string().optional().nullable(),
   city_relation_id: z.string().optional().nullable(),

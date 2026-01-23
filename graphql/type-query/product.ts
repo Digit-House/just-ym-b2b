@@ -1,4 +1,4 @@
-import {QusetionT } from "@/types/product.type";
+import { QusetionT } from "@/types/product.type";
 
 export const GET_ALL_PRODUCTS = `
 query FindAllProducts($params: UserProductsInput!) {
@@ -37,6 +37,10 @@ query GetProductInfo($productId: String!, $date: DateTime) {
       title
     }
     category
+    category_relation{
+    id
+    name
+  }
     city
     cityId
     city_relation_id
