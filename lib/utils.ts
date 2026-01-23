@@ -1,10 +1,13 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { CurrencyRateT } from "@/types/currencyRate.type";
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+
+export const BASE_CURRENCY = 100_000
 
 /**
  * Converts an amount from one currency to another based on the exchange rate

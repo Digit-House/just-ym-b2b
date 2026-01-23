@@ -61,7 +61,7 @@ const CurrencyConverter = ({
               Original Amount
             </div>
             <div className="text-2xl font-bold text-blue-900 mt-1">
-              {formatCurrency(amount, fromCurrency)}
+              {amount?.toLocaleString("en-US")} THB
             </div>
             <div className="text-xs text-blue-600 mt-1">
               {fromCurrency === "THB" 
@@ -94,7 +94,7 @@ const CurrencyConverter = ({
         </div>
         
         <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-          <span className="font-medium">Exchange Rate:</span> 1 {fromCurrency} = {currencyRate.mmk} {toCurrency}
+          <span className="font-medium">Exchange Rate:</span> 100,000 {fromCurrency} = {currencyRate.mmk} {toCurrency}
           <br />
           <span className="text-xs text-gray-500">Last updated: {new Date(currencyRate.updatedAt).toLocaleString()}</span>
         </div>

@@ -123,7 +123,7 @@ const Topup = () => {
         <BalancePreview balance={creditInfo?.balance} selectedAmount={amount} />
         <CurrencyConverter
           amount={amount}
-          fromCurrency="THB"
+          fromCurrency="MMK"
           title="Amount Conversion"
         />
         <AmountSelector

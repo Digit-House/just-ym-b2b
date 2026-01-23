@@ -71,7 +71,7 @@ const CurrencyRate = () => {
                   {currencyRate?.mmk || "N/A"}
                 </p>
                 <p className="text-gray-600 mt-1">
-                  1THB = {currencyRate?.mmk || "N/A"} MMK
+                  100,000 MMK = {currencyRate?.mmk || "N/A"} THB
                 </p>
               </div>
               <div className="text-right">
