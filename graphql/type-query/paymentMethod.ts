@@ -6,6 +6,7 @@ query PaymentMethods($activeOnly: Boolean) {
     bankName
     id
     instructions
+    description
     currency
     isActive
     logo

@@ -14,7 +14,7 @@ export const BASE_CURRENCY = 100_000
  * @param amount The amount to convert
  * @param fromCurrency The source currency
  * @param toCurrency The target currency
- * @param exchangeRate The exchange rate (how many MMK per 1 THB)
+ * @param exchangeRate The exchange rate (how many THB you get for BASE_CURRENCY MMK)
  * @returns The converted amount
  */
 export const convertCurrency = (
@@ -28,14 +28,14 @@ export const convertCurrency = (
     return amount;
   }
 
-  // If converting from MMK to THB, divide by the exchange rate
+  // If converting from MMK to THB, use the formula: amount * (exchangeRate / BASE_CURRENCY)
   if (fromCurrency === "MMK" && toCurrency === "THB" && exchangeRate) {
-    return amount / exchangeRate;
+    return amount * (Number(exchangeRate) / BASE_CURRENCY);
   }
 
-  // If converting from THB to MMK, multiply by the exchange rate
+  // If converting from THB to MMK, use the formula: amount * (BASE_CURRENCY / exchangeRate)
   if (fromCurrency === "THB" && toCurrency === "MMK" && exchangeRate) {
-    return amount * exchangeRate;
+    return amount * (BASE_CURRENCY / Number(exchangeRate));
   }
 
   // If exchange rate is not available or currencies are unsupported, return original amount
@@ -50,8 +50,8 @@ export const convertCurrency = (
  */
 export const formatCurrency = (amount: number, currency: "THB" | "MMK"): string => {
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount) + ` ${currency}`;
 };
 

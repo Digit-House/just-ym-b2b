@@ -123,7 +123,6 @@ const Topup = () => {
         <BalancePreview balance={creditInfo?.balance} selectedAmount={amount} />
         <CurrencyConverter
           amount={amount}
-          fromCurrency="MMK"
           title="Amount Conversion"
         />
         <AmountSelector
@@ -150,6 +149,7 @@ const Topup = () => {
             accountName={selectedPaymentMethod.accountName}
             accountNumber={selectedPaymentMethod.accountNumber}
             instructions={selectedPaymentMethod.instructions}
+            description={selectedPaymentMethod.description}
             onRemoveFile={(index) => {
               const updated = [...proofFiles];
               updated.splice(index, 1);

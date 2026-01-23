@@ -6,6 +6,7 @@ export type PaymentMethodT = {
   bankName: string;
   id: string;
   instructions: string;
+  description:string;
   isActive: boolean;
   logo: string;
   name: string;
