@@ -1,13 +1,32 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
+export const BASE_CURRENCY = 100_000;
 
-export const BASE_CURRENCY = 100_000
+export const formatCurrency = (
+  amount: number,
+  currency: "THB" | "MMK",
+  format: "en-MM" | "en-US"
+): string => {
+  return (
+    new Intl.NumberFormat(format, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount) + ` ${currency}`
+  );
+};
+
+export const currencyFormat = (
+  amount: number,
+  currency: "THB" | "MMK",
+  format: "en-MM" | "en-US"
+) => {
+  return amount.toLocaleString(format) + " " + currency;
+};
 
 /**
  * Converts an amount from one currency to another based on the exchange rate
@@ -48,12 +67,6 @@ export const convertCurrency = (
  * @param currency The currency code
  * @returns Formatted currency string
  */
-export const formatCurrency = (amount: number, currency: "THB" | "MMK"): string => {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount) + ` ${currency}`;
-};
 
 /**
  * Gets the opposite currency
@@ -70,12 +83,15 @@ export const getOppositeCurrency = (currency: "THB" | "MMK"): "THB" | "MMK" => {
  * @param maxLength The maximum length of the text (default: 100)
  * @returns The truncated text with "..." if it was shortened
  */
-export const truncateDescription = (text: string | null | undefined, maxLength: number = 100): string => {
+export const truncateDescription = (
+  text: string | null | undefined,
+  maxLength: number = 100
+): string => {
   if (!text) return "";
-  
+
   if (text.length <= maxLength) {
     return text;
   }
-  
+
   return text.slice(0, maxLength) + "...";
 };

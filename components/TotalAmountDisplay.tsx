@@ -80,7 +80,7 @@ const TotalAmountDisplay = ({
           flag="🇹🇭"
           title="Base Amount"
           subtitle="Thai Baht"
-          amount={formatCurrency(amount, "THB")}
+          amount={formatCurrency(amount, "THB","en-US")}
           color="blue"
         />
       </WrapperCard>
@@ -120,7 +120,7 @@ const TotalAmountDisplay = ({
             flag="🇹🇭"
             title="Base Amount"
             subtitle="Thai Baht"
-            amount={formatCurrency(amount, "THB")}
+            amount={formatCurrency(amount, "THB","en-US")}
             color="blue"
           />
 
@@ -132,7 +132,7 @@ const TotalAmountDisplay = ({
             flag="🇲🇲"
             title="Total Amount"
             subtitle="Myanmar Kyat"
-            amount={formatCurrency(totalAmountMMK, "MMK")}
+            amount={formatCurrency(totalAmountMMK, "MMK","en-US")}
             color="green"
           />
         </div>

@@ -42,12 +42,12 @@ const StatCards: React.FC<StatCardsProps> = ({
           {totalSpent}
         </h3>
         <div className="flex items-center gap-2 text-xs text-orange-500 font-bold">
-          <TrendingDown size={14} />
+           <TrendingUp size={20} />
           <span>On bookings</span>
         </div>
       </div>
       <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <TrendingDown size={20} />
+         <TrendingUp size={20} />
       </div>
     </div>
   </div>

@@ -197,8 +197,8 @@ const Topup = () => {
             {isSubmitting || loading
               ? "Processing..."
               : selectedPaymentMethod?.currency === "MMK"
-              ? `Complete Top Up - ${formatCurrency(currencyRate ? convertCurrency(amount, "THB", "MMK", Number(currencyRate.mmk)) : amount, "MMK")}`
-              : `Complete Top Up - ${formatCurrency(amount, "THB")}`}
+              ? `Complete Top Up - ${formatCurrency(currencyRate ? convertCurrency(amount, "THB", "MMK", Number(currencyRate.mmk)) : amount, "MMK", "en-MM")}`
+              : `Complete Top Up - ${formatCurrency(amount, "THB", "en-US")}`}
           </button>
         </div>
       </form>

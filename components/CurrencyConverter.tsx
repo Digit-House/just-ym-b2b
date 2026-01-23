@@ -90,7 +90,7 @@ const CurrencyConverter = ({
               Converted Amount
             </div>
             <div className="text-2xl font-bold text-green-900 mt-1">
-              {formatCurrency(convertedAmount, "MMK")}
+              {formatCurrency(convertedAmount, "MMK", "en-US")}
             </div>
             <div className="text-xs text-green-600 mt-1">
               Myanmar Kyat (MMK)
