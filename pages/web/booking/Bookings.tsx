@@ -7,10 +7,10 @@ import PageContainer from "@/components/PageContainer";
 import { BOOKING_STATUS_ENUM } from "@/types/booking.type";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchMyBookingList } from "@/graphql/booking";
-import BookingCard from './_component/BookingCard';
-import NotFoundComponent from '@/components/NotFoundComponent';
+import BookingCard from "./_component/BookingCard";
+import NotFoundComponent from "@/components/NotFoundComponent";
 import { useDebounce } from "@/hooks/useDebounce";
-
+import { useUser } from "@/provider/UserProvider";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -55,6 +55,8 @@ export default function Bookings() {
   const [sort, setSort] = useState(initialSort);
   const [status, setStatus] = useState<string>(initialStatus);
   const [search, setSearch] = useState(storedFilters?.search || "");
+  const [requireManualConfirm, setRequireManualConfirm] = useState(false);
+  const { user } = useUser();
 
   const debouncedSearch = useDebounce(search, 2000); // 2 second debounce
 
@@ -77,7 +79,16 @@ export default function Bookings() {
     error,
   } = useInfiniteQuery({
     initialPageParam: 1,
-    queryKey: ["bookings", { status, sort, search: debouncedSearch }],
+    queryKey: [
+      "bookings",
+      {
+        status,
+        sort,
+        search: debouncedSearch,
+        requireManualConfirm:
+          user.type === "OWNER" ? requireManualConfirm : null,
+      },
+    ],
     queryFn: fetchMyBookingList,
     gcTime: 0,
     staleTime: 0,
@@ -108,7 +119,11 @@ export default function Bookings() {
   };
 
   // Check if filters have been modified from initial state
-  const filtersChanged = sort !== "desc" || status !== "ALL" || search !== "";
+  const filtersChanged =
+    sort !== "desc" ||
+    status !== "ALL" ||
+    search !== "" ||
+    requireManualConfirm !== false;
 
   return (
     <PageContainer>
@@ -125,6 +140,17 @@ export default function Bookings() {
             onChange={setStatus}
             label="Status:"
           />
+          {user?.type === "OWNER" && status === BOOKING_STATUS_ENUM.PAID && (
+            <SortSelect
+              label="Manual Confirm:"
+              value={requireManualConfirm ? "YES" : "NO"}
+              options={[
+                { label: "Required", value: "YES" },
+                { label: "Not Required", value: "NO" },
+              ]}
+              onChange={(val) => setRequireManualConfirm(val === "YES")}
+            />
+          )}
           <div className="relative">
             <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input

@@ -8,6 +8,7 @@ export const usePreview = (id?: string) => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [resendLoading, setResendLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const fetchBookingDetail = async (id: string) => {
     setLoading(true);
@@ -46,5 +47,7 @@ export const usePreview = (id?: string) => {
     setLoading,
     resendLoading,
     setResendLoading,
+    confirmLoading,
+    setConfirmLoading,
   };
 };
