@@ -15,6 +15,10 @@ import {
 import { preFixImg } from "@/util/initData";
 import { Download, Mail } from "lucide-react";
 import ResendModel from "./_component/ResendModal";
+import { useUser } from "@/provider/UserProvider";
+import { Button } from "@/components/ui/button";
+import { confirmBooking } from "@/graphql/booking";
+import { toast } from "sonner";
 
 const Preview = () => {
   const { id } = useParams();
@@ -26,7 +30,10 @@ const Preview = () => {
     loading,
     resendLoading,
     setResendLoading,
+    confirmLoading,
+    setConfirmLoading,
   } = usePreview(id);
+  const { user } = useUser();
 
   const downloadTicket = (ticketUrl: string) => {
     const link = document.createElement("a");
@@ -35,7 +42,21 @@ const Preview = () => {
     link.click();
   };
 
-  const submitResendEmail = async () => {};
+  const handleConfirm = async () => {
+    if (!id) return;
+    setConfirmLoading(true);
+    try {
+      const res = await confirmBooking(id);
+      if (res.data) {
+        setConfirmLoading(false);
+        toast.success("Booking Confirmed Successfully");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
 
   if (loading || !bookingDetail) {
     return (
@@ -46,6 +67,11 @@ const Preview = () => {
       </div>
     );
   }
+
+  console.log(
+    bookingDetail.requiresManualConfirm,
+    bookingDetail.isTicketConfirmed
+  );
 
   return (
     <PageContainer>
@@ -225,36 +251,49 @@ const Preview = () => {
         </div>
 
         {/* Footer */}
-        <div className="w-full flex items-center justify-end gap-4">
-          <button
-            onClick={() => {
-              setResendLoading(true);
-            }}
-            disabled={resendLoading}
-            className="flex items-center gap-2 bg-[#155DFC] text-white rounded-[4px] shadow-[0px_1px_3px_0px_#0000001A] px-4 py-2 cursor-pointer hover:bg-[#155DFC]/80 transition-all duration-300 disabled:cursor-not-allowed"
-          >
-            {resendLoading ? (
-              <span className="text-gray-300 loading loading-bars loading-md">
-                Loading...
-              </span>
-            ) : (
-              <div className="flex items-center w-full gap-2">
-                <Mail className="w-4 h-4" />
-                <span>Resend Email to Customer</span>
-              </div>
-            )}
-          </button>
-          <button
-            disabled={resendLoading}
-            onClick={() => {
-              downloadTicket(bookingDetail.eTicketUrl);
-            }}
-            className="flex items-center gap-2 bg-indigo-700 text-white rounded-[4px] shadow-[0px_1px_3px_0px_#0000001A] px-4 py-2 cursor-pointer hover:bg-primary/80 transition-all duration-300"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download E-Ticket</span>
-          </button>
-        </div>
+        {(!bookingDetail.requiresManualConfirm ||
+          bookingDetail.isTicketConfirmed) && (
+          <div className="w-full flex items-center justify-end gap-4">
+            <button
+              onClick={() => {
+                setResendLoading(true);
+              }}
+              disabled={resendLoading}
+              className="flex items-center gap-2 bg-[#155DFC] text-white rounded-[4px] shadow-[0px_1px_3px_0px_#0000001A] px-4 py-2 cursor-pointer hover:bg-[#155DFC]/80 transition-all duration-300 disabled:cursor-not-allowed"
+            >
+              {resendLoading ? (
+                <span className="text-gray-300 loading loading-bars loading-md">
+                  Loading...
+                </span>
+              ) : (
+                <div className="flex items-center w-full gap-2">
+                  <Mail className="w-4 h-4" />
+                  <span>Resend Email to Customer</span>
+                </div>
+              )}
+            </button>
+            <button
+              disabled={resendLoading}
+              onClick={() => {
+                downloadTicket(bookingDetail.eTicketUrl);
+              }}
+              className="flex items-center gap-2 bg-indigo-700 text-white rounded-[4px] shadow-[0px_1px_3px_0px_#0000001A] px-4 py-2 cursor-pointer hover:bg-primary/80 transition-all duration-300"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download E-Ticket</span>
+            </button>
+          </div>
+        )}
+
+        {user.type === "OWNER" &&
+          bookingDetail.requiresManualConfirm &&
+          !bookingDetail.isTicketConfirmed && (
+            <div className="w-full flex items-center justify-end gap-4">
+              <Button disabled={confirmLoading} onClick={handleConfirm}>
+                {confirmLoading ? "Loading..." : "Confirm Booking"}
+              </Button>
+            </div>
+          )}
       </div>
       <ResendModel
         open={resendLoading}
