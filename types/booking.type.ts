@@ -15,6 +15,7 @@ export type FilterBookingListT = {
   search: string | null;
   status: BOOKING_STATUS_ENUM;
   reset?: boolean; // Flag to indicate filter reset
+  requireManualConfirm: boolean | null; // Flag to indicate require manual confirm
 };
 
 export type PAYMENT_DETAIL_TYPE = {
@@ -59,6 +60,8 @@ export type MY_BOOKING_PRODUCT_DATA_TYPE = {
 
 export type MY_BOOKING_DATA_TYPE = {
   alternateEmail: string;
+  requiresManualConfirm: boolean;
+  isTicketConfirmed: boolean;
   customerName: string;
   eTicketUrl: string;
   email: string;
