@@ -258,7 +258,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           <FileText className="h-4 w-4 text-gray-600" />
           Terms & Conditions
         </h4>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1  gap-6">
           <div
             className={`space-y-3 ${
               errors.termsAndConditions
