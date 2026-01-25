@@ -1,60 +1,142 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useCallback, useEffect } from "react";
 
-interface AutoResizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface AutoResizeTextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   minHeight?: number;
   maxHeight?: number;
 }
 
-const AutoResizeTextarea = React.forwardRef<HTMLTextAreaElement, AutoResizeTextareaProps>(
-  ({ minHeight = 40, maxHeight = 200, value, onChange, className = '', style, ...props }, ref) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [textareaHeight, setTextareaHeight] = useState(minHeight);
+const AutoResizeTextarea = React.forwardRef<
+  HTMLTextAreaElement,
+  AutoResizeTextareaProps
+>(
+  (
+    {
+      minHeight = 40,
+      maxHeight = 200,
+      value,
+      className = "",
+      style,
+      ...props
+    },
+    forwardedRef
+  ) => {
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    const syncHeight = () => {
-      if (!textareaRef.current) return;
-      
-      const textarea = textareaRef.current;
-      // Reset height to auto to calculate the correct scrollHeight
-      textarea.style.height = 'auto';
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight || Infinity);
-      setTextareaHeight(newHeight);
-    };
-
-    useEffect(() => {
-      syncHeight();
-    }, [value]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (onChange) {
-        onChange(e);
+    const setRefs = (el: HTMLTextAreaElement | null) => {
+      textareaRef.current = el;
+      if (typeof forwardedRef === "function") {
+        forwardedRef(el);
+      } else if (forwardedRef) {
+        forwardedRef.current = el;
       }
     };
 
-    const combinedClassName = `resize-none overflow-hidden ${className}`;
+    const resize = useCallback(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+
+      // Reset height to auto to get the correct scrollHeight
+      el.style.height = "auto";
+      el.style.overflow = "hidden";
+
+      const height = Math.min(
+        Math.max(el.scrollHeight, minHeight),
+        maxHeight
+      );
+
+      el.style.height = `${height}px`;
+      el.style.overflow = "auto";
+    }, [minHeight, maxHeight]);
+
+    // Handle all resize scenarios
+    useLayoutEffect(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+
+      // Immediate resize
+      resize();
+
+      // Set up observers and listeners
+      const observers: MutationObserver[] = [];
+      
+      // Observe the textarea itself for value changes
+      const textareaObserver = new MutationObserver(resize);
+      textareaObserver.observe(el, {
+        attributes: true,
+        attributeFilter: ['value']
+      });
+      observers.push(textareaObserver);
+
+      // If textarea is in a form, observe the form
+      if (el.form) {
+        const formObserver = new MutationObserver(resize);
+        formObserver.observe(el.form, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['value']
+        });
+        observers.push(formObserver);
+      }
+
+      // Event listeners
+      const handleInput = () => resize();
+      const handleFocus = () => setTimeout(resize, 0);
+      const handleBlur = () => setTimeout(resize, 0);
+      
+      el.addEventListener('input', handleInput);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+
+      // Window events
+      const handleResize = () => resize();
+      const handlePageShow = () => setTimeout(resize, 100);
+      
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('pageshow', handlePageShow);
+
+      // Additional resize attempts to catch delayed content
+      const timer1 = setTimeout(resize, 10);
+      const timer2 = setTimeout(resize, 100);
+      const timer3 = setTimeout(resize, 500);
+
+      return () => {
+        // Cleanup
+        observers.forEach(observer => observer.disconnect());
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('pageshow', handlePageShow);
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
+    }, [resize]);
+
+    // Handle prop value changes
+    useLayoutEffect(() => {
+      resize();
+    }, [value, resize]);
 
     return (
       <textarea
-        ref={ref ? (instance) => {
-          if (typeof ref === 'function') {
-            ref(instance);
-          } else if (ref) {
-            ref.current = instance;
-          }
-          // Also assign to our internal ref
-          if (textareaRef && instance) {
-            textareaRef.current = instance;
-          }
-        } : textareaRef}
+        ref={setRefs}
         value={value}
-        onChange={handleChange}
-        style={{ ...style, height: `${textareaHeight}px` }}
-        className={combinedClassName}
+        className={`${className}`}
+        style={{ 
+          ...style, 
+          minHeight, 
+          maxHeight,
+          overflow: "auto",
+          resize: "vertical"
+        }}
         {...props}
       />
     );
   }
 );
 
-AutoResizeTextarea.displayName = 'AutoResizeTextarea';
-
+AutoResizeTextarea.displayName = "AutoResizeTextarea";
 export default AutoResizeTextarea;

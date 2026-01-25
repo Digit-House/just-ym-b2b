@@ -31,16 +31,14 @@ query FindAllProducts($params: UserProductsInput!) {
 export const GET_PRODUCT_INFO = `
 query GetProductInfo($productId: String!, $date: DateTime) {
   getProductInfo(productId: $productId, date: $date) {
+    id
+    name
     addressLine
-    blockedDate {
-      date
-      title
-    }
     category
     category_relation{
     id
     name
-  }
+    }
     city
     cityId
     city_relation_id
@@ -54,7 +52,6 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     highlights_mm
     howToUseList
     howToUseList_mm
-    id
     image
     inclusions
     inclusions_mm
@@ -76,7 +73,6 @@ query GetProductInfo($productId: String!, $date: DateTime) {
       size
       type
     }
-    name
     operatingHours {
       custom
       fixedDays {
@@ -100,38 +96,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
      name
      description
      isPublished
-     advanceBooking {
-        day
-        dayMinute
-        hour
-        minute
-        required
-      }
-      questions {
-        cartItemId
-        createdAt
-        globaltixId
-        id
-        isAnswerLater
-        optionCode
-        optionList {
-          key
-          value
-        }
-        optional
-        options
-        question
-        questionCode
-        type
-        updatedAt
-      }
-      isCapacity  
-      visitDate {
-        isOpenDated
-        request
-        required
-      }
-      ticketType {
+     ticketType {
         id
         name
         dhNetPrice

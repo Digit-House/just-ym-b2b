@@ -12,12 +12,10 @@ import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
-import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { Button } from "@/components/ui/button";
 import BackBtn from "@/components/BackBtn";
 
 const AdminTicketEdit = () => {
-  const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -68,10 +66,9 @@ const AdminTicketEdit = () => {
   }
 
   const handleSave = async (
-    formData: UpdateProductPayloadT | TicketFormValues
+    formData: UpdateProductPayloadT
   ) => {
     try {
-      setLoading(true);
 
       // Process media uploads if there are any
       let updatedFormData = { ...(formData as UpdateProductPayloadT) };
@@ -109,7 +106,6 @@ const AdminTicketEdit = () => {
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
-      setLoading(false);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState} from "react";
+import React, { useRef, useState } from "react";
 import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { CROP_SETTINGS, CropSettingType } from "@/lib/cropSettings";
@@ -21,6 +21,14 @@ interface ImageCropProps {
   presetCropSetting?: CropSettingType;
 }
 
+
+// const ASPECT_RATIOS = [
+//   { label: "Free", value: undefined },
+//    { label: "1:1", value: 1 },
+//    { label: "4:3", value: 4 / 3 },
+//    { label: "16:9", value: 16 / 9 },
+// ];
+
 const ImageCrop: React.FC<ImageCropProps> = ({
   isOpen,
   imageSrc,
@@ -32,52 +40,52 @@ const ImageCrop: React.FC<ImageCropProps> = ({
 }) => {
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const resolvedCropSettings = presetCropSetting 
+  const resolvedCropSettings = presetCropSetting
     ? CROP_SETTINGS[presetCropSetting]
     : cropSettings;
-  
-  const getCropProps = () => {
-    const props: any = {};
-    if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
-      props.aspect = resolvedCropSettings.aspect;
-    }
-    if (resolvedCropSettings?.minWidth !== undefined) {
-      props.minWidth = resolvedCropSettings.minWidth;
-    }
-    if (resolvedCropSettings?.minHeight !== undefined) {
-      props.minHeight = resolvedCropSettings.minHeight;
-    }
-    return props;
-  };
 
-  const [crop, setCrop] = useState<Crop>(() => {
-    const baseCrop = {
-      unit: "%" as const,
-      x: 25,
-      y: 25,
-      width: 50,
-      height: 50,
-    };
+  const [aspect, setAspect] = useState<number | undefined>(undefined);
 
-    if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
-      const aspect = resolvedCropSettings.aspect;
-      const calculatedHeight = (baseCrop.width * 100) / aspect;
-      return {
-        ...baseCrop,
-        aspect,
-        height: Math.min(calculatedHeight, 50), 
-      };
-    }
-    
-    return baseCrop;
+  const [crop, setCrop] = useState<Crop>({
+    unit: "%",
+    x: 10,
+    y: 10,
+    width: 80,
+    height: 80,
   });
 
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
 
   if (!isOpen) return null;
 
+
+  const getCropProps = () => {
+    const props: any = {};
+
+    if (aspect !== undefined) props.aspect = aspect;
+    if (resolvedCropSettings?.minWidth !== undefined)
+      props.minWidth = resolvedCropSettings.minWidth;
+    if (resolvedCropSettings?.minHeight !== undefined)
+      props.minHeight = resolvedCropSettings.minHeight;
+
+    return props;
+  };
+
   const onImageLoaded = (img: HTMLImageElement) => {
     imgRef.current = img;
+  };
+
+  const handleAspectChange = (newAspect?: number) => {
+    setAspect(newAspect);
+
+    setCrop({
+      unit: "%",
+      x: 10,
+      y: 10,
+      width: 80,
+      height: newAspect ? 80 / newAspect : 80,
+      // aspect: newAspect ?? undefined,
+    });
   };
 
   const applyCrop = async () => {
@@ -97,6 +105,26 @@ const ImageCrop: React.FC<ImageCropProps> = ({
   return (
     <div className="fixed inset-0 z-100 bg-black/60 flex items-center justify-center">
       <div className="bg-white rounded-md p-4 w-[90vw] max-w-[500px]">
+
+        {/* Aspect ratio buttons */}
+        {/* <div className="flex gap-2 mb-3 flex-wrap">
+          {ASPECT_RATIOS.map((r) => (
+            <button
+              key={r.label}
+              type="button"
+              onClick={() => handleAspectChange(r.value)}
+              className={`px-3 py-1 rounded border text-sm
+                ${
+                  aspect === r.value
+                    ? "bg-indigo-600 text-white border-indigo-600"
+                    : "bg-white border-gray-300"
+                }`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div> */}
+
         <ReactCrop
           crop={crop}
           onChange={(c) => setCrop(c)}
@@ -119,9 +147,12 @@ const ImageCrop: React.FC<ImageCropProps> = ({
           >
             Cancel
           </button>
+
           <button
             type="button"
-            className={`px-3 py-1 ${completedCrop ? "bg-indigo-600" : "bg-gray-300"} text-white rounded`}
+            className={`px-3 py-1 ${
+              completedCrop ? "bg-indigo-600" : "bg-gray-300"
+            } text-white rounded`}
             onClick={applyCrop}
             disabled={!completedCrop}
           >
@@ -135,6 +166,8 @@ const ImageCrop: React.FC<ImageCropProps> = ({
 
 export default ImageCrop;
 
+/* -------------------- CANVAS UTILITY -------------------- */
+
 async function getCroppedFile(
   image: HTMLImageElement,
   crop: PixelCrop,
@@ -145,7 +178,6 @@ async function getCroppedFile(
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
 
-  // Use target dimensions if specified in crop settings, otherwise use crop dimensions
   const targetWidth = cropSettings?.maxWidth || crop.width;
   const targetHeight = cropSettings?.maxHeight || crop.height;
 

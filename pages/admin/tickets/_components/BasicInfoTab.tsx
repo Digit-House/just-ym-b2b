@@ -172,7 +172,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 <InputField
                   label="Original Category"
                   {...field}
-                  errMsg={errors.category?.message}
+                  errMsg={errors.category_relation_id?.message}
                   placeholder="Enter Category"
                 />
               )}
@@ -181,27 +181,25 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
 
           <div
             className={`space-y-3 ${
-              errors.category_relation
+              errors.category_relation_id
                 ? "border border-red-300 rounded-lg p-3 bg-red-50"
                 : ""
             }`}
           >
-            <Label>Category</Label>
+            <Label>Category <span className="text-red-500">*</span></Label>
             <Controller
-              name="category_relation"
+              name="category_relation_id"
               control={control}
+              
               render={({ field }) => (
                 <Select
-                  value={field.value?.id || ""}
+                  value={field.value || ""}
                   onValueChange={(selectedId) => {
                     const selectedCategory = categories.find(
                       (cat) => cat.id === selectedId
                     );
                     if (selectedCategory) {
-                      field.onChange({
-                        id: selectedCategory.id,
-                        name: selectedCategory.name,
-                      });
+                      field.onChange(selectedCategory.id);
                     } else {
                       field.onChange(null);
                     }
@@ -209,7 +207,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 >
                   <SelectTrigger
                     className={`w-full ${
-                      errors.category_relation ? "border-red-500" : ""
+                      errors.category_relation_id ? "border-red-500" : ""
                     }`}
                   >
                     <SelectValue placeholder="Select a category" />
@@ -227,9 +225,9 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 </Select>
               )}
             />
-            {errors.category_relation && (
+            {errors.category_relation_id && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.category_relation.message?.toString()}
+                {errors.category_relation_id.message?.toString()}
               </p>
             )}
           </div>
