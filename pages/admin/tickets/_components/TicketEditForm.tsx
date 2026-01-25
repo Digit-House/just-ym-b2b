@@ -25,7 +25,7 @@ type Props = {
   initialValues?:ProductInfoT;
   loading?: boolean;
   onCancel: () => void;
-  onSubmit: (payload: TicketFormValues) => void;
+  onSubmit: (payload: UpdateProductPayloadT) => void;
 };
 
 const TicketEditForm: React.FC<Props> = ({
@@ -36,6 +36,7 @@ const TicketEditForm: React.FC<Props> = ({
   onSubmit,
 }) => {
   const isEdit = mode === "edit";
+
   const transformApiDataToForm = (apiData: any) => {
     if (!apiData || !apiData.productOptions) return apiData;
     const transformedProductOptions: ProductOptionT[] =
@@ -69,13 +70,15 @@ const TicketEditForm: React.FC<Props> = ({
       productOptions: transformedProductOptions,
     };
   };
+  
+
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       id: initialValues?.id ?? null,
       name: initialValues?.name ?? null,
       description: initialValues?.description ?? null,
-      category_relation: initialValues?.category_relation ?? null,
+      category_relation_id: initialValues?.category_relation?.id ?? null,
       category: initialValues?.category ?? null,
       description_mm: initialValues?.description_mm ?? null,
       whatToExpect: initialValues?.whatToExpect ?? null,
@@ -83,17 +86,15 @@ const TicketEditForm: React.FC<Props> = ({
       addressLine: initialValues?.addressLine ?? null,
       location: initialValues?.location ?? null,
       postalCode: initialValues?.postalCode ?? null,
-      countryId: (initialValues as any)?.countryId ?? null,
-      city_relation_id: (initialValues as any)?.city_relation_id ?? null,
+      countryId: initialValues?.countryId ?? null,
+      city_relation_id: initialValues?.city_relation_id ?? null,
       latitude: initialValues?.latitude ?? null,
       longitude: initialValues?.longitude ?? null,
       keywords: initialValues?.keywords ?? null,
       image: initialValues?.image ?? null,
-      media: (initialValues as any)?.media ?? null,
-      exclusions: (initialValues as any)?.exclusions ?? null,
-      exclusions_mm: (initialValues as any)?.exclusions_mm ?? null,
-      fromPrice: null,
-      fromReseller: null,
+      media: initialValues?.media || [],
+      exclusions: initialValues?.exclusions ?? null,
+      exclusions_mm: initialValues?.exclusions_mm ?? null,
       originalPrice: (initialValues as any)?.originalPrice ?? null,
       timezoneOffset: (initialValues as any)?.timezoneOffset ?? null,
       highlights: (initialValues as any)?.highlights ?? null,
@@ -102,13 +103,12 @@ const TicketEditForm: React.FC<Props> = ({
       howToUseList_mm: (initialValues as any)?.howToUseList_mm ?? null,
       inclusions: (initialValues as any)?.inclusions ?? null,
       inclusions_mm: (initialValues as any)?.inclusions_mm ?? null,
-      isBestSeller: (initialValues as any)?.isBestSeller ?? null,
-      isCancellable: (initialValues as any)?.isCancellable ?? null,
-      isGTRecommend: (initialValues as any)?.isGTRecommend ?? null,
+      isBestSeller: (initialValues as any)?.isBestSeller ?? false,
+      isCancellable: (initialValues as any)?.isCancellable ?? false,
+      isGTRecommend: (initialValues as any)?.isGTRecommend ?? false,
       isInstantConfirmation:
         (initialValues as any)?.isInstantConfirmation ?? null,
-      isOpenDated: (initialValues as any)?.isOpenDated ?? null,
-      isOwnContracted: null,
+      isOpenDated: (initialValues as any)?.isOpenDated ?? false,
       isPublished: (initialValues as any)?.isPublished ?? false,
       termsAndConditions: (initialValues as any)?.termsAndConditions ?? null,
       termsAndConditions_mm:
@@ -121,14 +121,16 @@ const TicketEditForm: React.FC<Props> = ({
         fixedDays: [],
       },
       productOptions:
-        transformApiDataToForm(initialValues as any)?.productOptions ?? null,
+        transformApiDataToForm(initialValues as any)?.productOptions,
     },
   });
+
+  
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors},
     watch,
     setValue,
     getValues,
@@ -319,7 +321,6 @@ const TicketEditForm: React.FC<Props> = ({
       return;
     }
 
-    // Process main image upload if it's a local file
     let processedImage = values.image;
     if (
       processedImage &&
@@ -381,15 +382,11 @@ const TicketEditForm: React.FC<Props> = ({
         }
       }
     }
-    // Extract category ID from category_relation for the payload
-    const categoryValue = values.category_relation?.id
-
-    // Destructure to exclude the category field if it exists
-    const { category: _, category_relation: __, ...restOfValues } = values;
+  
+    const { category: _,...restOfValues } = values;
     
     const payload = {
       ...restOfValues,
-      category_relation_id: categoryValue, 
       image: processedImage, 
       media: processedMedia, 
       productOptions: values.productOptions.map((d) => {
@@ -407,6 +404,7 @@ const TicketEditForm: React.FC<Props> = ({
         };
       }),
     };
+    //@ts-ignore
     onSubmit(payload);
   };
 
@@ -458,7 +456,6 @@ const TicketEditForm: React.FC<Props> = ({
           type="submit"
           loading={loading}
           className="flex items-center gap-2"
-          // disabled={!isDirty || (currentTab === "options" && Object.keys(errors).length > 0)}
         >
           {isEdit ? <>Save Changes</> : <>Create Ticket</>}
         </Button>
@@ -496,16 +493,6 @@ const TicketEditForm: React.FC<Props> = ({
           />
         </div>
 
-        <div style={{ display: currentTab === "location" ? "block" : "none" }}>
-          <LocationTab
-            control={control}
-            errors={errors}
-            setValue={setValue}
-            mode={mode}
-            initialValues={initialValues as ProductInfoT}
-          />
-        </div>
-
         <div style={{ display: currentTab === "details" ? "block" : "none" }}>
           <DetailsTab
             control={control}
@@ -517,7 +504,17 @@ const TicketEditForm: React.FC<Props> = ({
           />
         </div>
 
-        {/* Media Tab */}
+
+        <div style={{ display: currentTab === "location" ? "block" : "none" }}>
+          <LocationTab
+            control={control}
+            errors={errors}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues as ProductInfoT}
+          />
+        </div>
+
         <div style={{ display: currentTab === "media" ? "block" : "none" }}>
           <MediaTab
             control={control}

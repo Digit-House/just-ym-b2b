@@ -81,8 +81,6 @@ export interface UpdateProductPayloadT {
   description_mm: string;
   exclusions: string[];
   exclusions_mm: string[];
-  fromPrice: number;
-  fromReseller: string;
   highlights: string[];
   highlights_mm: string[];
   howToUseList: string[];
@@ -94,7 +92,6 @@ export interface UpdateProductPayloadT {
   isGTRecommend: boolean;
   isInstantConfirmation: boolean;
   isOpenDated: boolean;
-  isOwnContracted: boolean;
   isPublished: boolean;
   keywords: string;
   latitude: number;
@@ -113,7 +110,7 @@ export interface UpdateProductPayloadT {
   timezoneOffset: number;
   whatToExpect: string;
   whatToExpect_mm: string;
-  blockedDate: BlockedDateT[];
+  // blockedDate: BlockedDateT[];
 }
 
 export interface ProductInfoT {
@@ -159,7 +156,7 @@ export interface ProductInfoT {
   timezoneOffset: number;
   createdAt: string;
   updatedAt: string;
-  blockedDate: BlockedDateT[];
+  // blockedDate: BlockedDateT[];
   media: MediaFileT[];
   operatingHours: OperatingHoursT;
   termsAndConditions: string;

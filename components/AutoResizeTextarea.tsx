@@ -1,60 +1,67 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef } from "react";
 
-interface AutoResizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface AutoResizeTextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   minHeight?: number;
   maxHeight?: number;
 }
 
-const AutoResizeTextarea = React.forwardRef<HTMLTextAreaElement, AutoResizeTextareaProps>(
-  ({ minHeight = 40, maxHeight = 200, value, onChange, className = '', style, ...props }, ref) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [textareaHeight, setTextareaHeight] = useState(minHeight);
+const AutoResizeTextarea = React.forwardRef<
+  HTMLTextAreaElement,
+  AutoResizeTextareaProps
+>(
+  (
+    {
+      minHeight = 40,
+      maxHeight = 200,
+      value,
+      className = "",
+      style,
+      ...props
+    },
+    forwardedRef
+  ) => {
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    const syncHeight = () => {
-      if (!textareaRef.current) return;
-      
-      const textarea = textareaRef.current;
-      // Reset height to auto to calculate the correct scrollHeight
-      textarea.style.height = 'auto';
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight || Infinity);
-      setTextareaHeight(newHeight);
-    };
-
-    useEffect(() => {
-      syncHeight();
-    }, [value]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (onChange) {
-        onChange(e);
+    const setRefs = (el: HTMLTextAreaElement | null) => {
+      textareaRef.current = el;
+      if (typeof forwardedRef === "function") {
+        forwardedRef(el);
+      } else if (forwardedRef) {
+        forwardedRef.current = el;
       }
     };
 
-    const combinedClassName = `resize-none overflow-hidden ${className}`;
+    const resize = () => {
+      const el = textareaRef.current;
+      if (!el) return;
+
+      el.style.height = "auto";
+
+      const height = Math.min(
+        Math.max(el.scrollHeight, minHeight),
+        maxHeight
+      );
+
+      el.style.height = `${height}px`;
+    };
+
+    // ✅ FIX: runs after DOM layout, before paint
+    useLayoutEffect(() => {
+      resize();
+    }, [value]);
 
     return (
       <textarea
-        ref={ref ? (instance) => {
-          if (typeof ref === 'function') {
-            ref(instance);
-          } else if (ref) {
-            ref.current = instance;
-          }
-          // Also assign to our internal ref
-          if (textareaRef && instance) {
-            textareaRef.current = instance;
-          }
-        } : textareaRef}
+        ref={setRefs}
         value={value}
-        onChange={handleChange}
-        style={{ ...style, height: `${textareaHeight}px` }}
-        className={combinedClassName}
+        className={`overflow-y-scroll ${className}`}
+        style={{ ...style, minHeight, maxHeight }}
         {...props}
       />
     );
   }
 );
 
-AutoResizeTextarea.displayName = 'AutoResizeTextarea';
-
+AutoResizeTextarea.displayName = "AutoResizeTextarea";
 export default AutoResizeTextarea;
