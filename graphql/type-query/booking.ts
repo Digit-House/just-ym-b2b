@@ -40,6 +40,9 @@ export const GET_BOOKING_DETAIL = `
 query GetTransactionDetailBy($data: FindBookingByInput!) {
   getTransactionDetailBy(data: $data) {
     alternateEmail
+    requiresManualConfirm
+    isTicketConfirmed
+    isTicketReady
     bookingTickets {
       code
       eventId
@@ -119,6 +122,9 @@ query Query($params: BookingTransactionsInput!) {
     total
     data {
       alternateEmail
+      requiresManualConfirm
+      isTicketConfirmed
+      isTicketReady
       bookingTickets {
         code
         eventId
@@ -178,5 +184,13 @@ query Query($params: BookingTransactionsInput!) {
       email
       globaltixTransactionId
     }
+  }
+}`;
+
+export const CONFIRM_BOOKING_MUTATION = `
+mutation Mutation($data: ConfirmBookingInput!) {
+  confirmBooking(data: $data) {
+    message
+    status
   }
 }`;

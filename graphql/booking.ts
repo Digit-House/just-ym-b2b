@@ -3,6 +3,7 @@ import client from "./client";
 import {
   BOOKING_CREATE_MUTATION,
   BOOKING_CREATE_MUTATION_DATA_TYPE,
+  CONFIRM_BOOKING_MUTATION,
   GET_BOOKING_DETAIL,
   GET_MY_BOOKING_QUERY,
   GET_MY_BOOKING_QUERY_DATA_TYPE,
@@ -63,17 +64,30 @@ export const getMyBookingList = async (data: FilterBookingListT) => {
 };
 
 export const fetchMyBookingList = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { status, sort, search }] = queryKey;
+  const [_key, { status, sort, search, requireManualConfirm = null }] =
+    queryKey;
   const filter: FilterBookingListT = {
     page: pageParam,
     limit: 10,
-    orderBy: { dir: sort,field:"email"},
+    orderBy: { dir: sort, field: "email" },
     status: status,
-    search: search ?? null
+    search: search ?? null,
+    requireManualConfirm: requireManualConfirm,
   };
   const res = await getMyBookingList(filter);
   return {
     data: res?.data,
     nextPage: res?.data?.length ? pageParam + 1 : null,
   };
+};
+
+export const confirmBooking = async (id: string) => {
+  return client.mutate({
+    mutation: warpGql(CONFIRM_BOOKING_MUTATION),
+    variables: {
+      data: {
+        transactionId: id,
+      },
+    },
+  });
 };
