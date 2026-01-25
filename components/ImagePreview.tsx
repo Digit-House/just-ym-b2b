@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, ZoomIn, Download } from 'lucide-react';
-import { preFixImg } from '@/util/initData';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { X, ZoomIn, Download } from "lucide-react";
+import { preFixImg } from "@/util/initData";
 
 interface ImagePreviewProps {
   images: string[];
@@ -8,207 +8,177 @@ interface ImagePreviewProps {
   className?: string;
 }
 
-const ImagePreview: React.FC<ImagePreviewProps> = ({ 
-  images, 
+const ImagePreview: React.FC<ImagePreviewProps> = ({
+  images,
   title = "Image Preview",
-  className = ""
+  className = "",
 }) => {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
-  const openPreview = (imageUrl: string, index: number) => {
-    setPreviewImage(imageUrl);
+  const isOpen = currentIndex !== null;
+  const previewImage = useMemo(
+    () => (currentIndex !== null ? images[currentIndex] : null),
+    [currentIndex, images]
+  );
+
+  /* -------------------- ACTIONS -------------------- */
+
+  const openPreview = useCallback((index: number) => {
     setCurrentIndex(index);
-  };
+  }, []);
 
-  const closePreview = () => {
-    setPreviewImage(null);
-    setCurrentIndex(0);
-  };
+  const closePreview = useCallback(() => {
+    setCurrentIndex(null);
+  }, []);
 
-  const goToNext = () => {
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setPreviewImage(images[currentIndex + 1]);
-    }
-  };
+  const goNext = useCallback(() => {
+    setCurrentIndex((i) =>
+      i !== null && i < images.length - 1 ? i + 1 : i
+    );
+  }, [images.length]);
 
-  const goToPrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setPreviewImage(images[currentIndex - 1]);
-    }
-  };
+  const goPrev = useCallback(() => {
+    setCurrentIndex((i) => (i !== null && i > 0 ? i - 1 : i));
+  }, []);
 
-  const downloadImage = () => {
-    if (previewImage) {
-      const link = document.createElement('a');
-      link.href = previewImage;
-      link.download = `image-${currentIndex + 1}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+  const downloadImage = useCallback(() => {
+    if (!previewImage || currentIndex === null) return;
 
-  // Handle keyboard navigation
-  React.useEffect(() => {
+    const link = document.createElement("a");
+    link.href = previewImage;
+    link.download = `image-${currentIndex + 1}.jpg`;
+    link.click();
+  }, [previewImage, currentIndex]);
+
+  /* -------------------- KEYBOARD -------------------- */
+
+  useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!previewImage) return;
-      
-      switch (e.key) {
-        case 'Escape':
-          closePreview();
-          break;
-        case 'ArrowRight':
-          goToNext();
-          break;
-        case 'ArrowLeft':
-          goToPrevious();
-          break;
-      }
+      if (e.key === "Escape") closePreview();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [previewImage, currentIndex, images.length]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, closePreview, goNext, goPrev]);
 
-  if (!images || images.length === 0) {
-    return null;
-  }
+  if (!images.length) return null;
+
+  /* -------------------- RENDER -------------------- */
 
   return (
     <>
-      {/* Thumbnail Gallery */}
+      {/* Thumbnails */}
       <div className={`space-y-3 ${className}`}>
         {title && (
           <h4 className="text-sm font-black text-gray-700 uppercase tracking-wide">
             {title}
           </h4>
         )}
-        
+
         <div className="flex flex-wrap gap-2">
-          {images.map((imgUrl, index) => (
-            <div 
+          {images.map((img, index) => (
+            <button
               key={index}
-              className="relative group cursor-pointer transition-transform hover:scale-105"
-              onClick={() => openPreview(imgUrl, index)}
+              onClick={() => openPreview(index)}
+              className="relative group transition-transform hover:scale-105"
             >
-              <div className="relative">
-                <img
-                  src={preFixImg(imgUrl)}
-                  alt={`${title} ${index + 1}`}
-                  className="w-16 h-16 rounded-lg object-cover border-2 border-gray-200 group-hover:border-indigo-300 transition-all"
-                />
-                <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <ZoomIn size={16} className="text-white" />
-                </div>
+              <img
+                src={preFixImg(img)}
+                alt={`${title} ${index + 1}`}
+                className="w-16 h-16 rounded-lg object-cover border-2 border-gray-200 group-hover:border-indigo-300"
+              />
+
+              <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center">
+                <ZoomIn size={16} className="text-white" />
               </div>
-              
-              {/* Image counter badge */}
-              <div className="absolute -top-2 -right-2 bg-indigo-500 text-white text-[8px] font-black rounded-full w-5 h-5 flex items-center justify-center">
+
+              <span className="absolute -top-2 -right-2 bg-indigo-500 text-white text-[8px] font-black rounded-full w-5 h-5 flex items-center justify-center">
                 {index + 1}
-              </div>
-            </div>
+              </span>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Full Screen Preview Modal */}
-      {previewImage && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+      {/* Modal */}
+      {isOpen && previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4"
           onClick={closePreview}
         >
-          <div className="relative max-w-6xl max-h-[90vh] w-full h-full flex flex-col">
+          <div className="relative h-full max-w-6xl mx-auto flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4 px-2">
-              <h3 className="text-white text-lg font-black">
-                {title} ({currentIndex + 1}/{images.length})
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-white font-black">
+                {title} ({currentIndex! + 1}/{images.length})
               </h3>
-              <div className="flex items-center gap-3">
+
+              <div className="flex gap-2">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     downloadImage();
                   }}
-                  className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white flex items-center gap-2"
                 >
                   <Download size={16} />
-                  <span className="text-sm">Download</span>
+                  Download
                 </button>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     closePreview();
                   }}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white"
                 >
-                  <X size={24} />
+                  <X size={22} />
                 </button>
               </div>
             </div>
 
-            {/* Image Container */}
+            {/* Image */}
             <div className="flex-1 flex items-center justify-center relative">
               <img
                 src={preFixImg(previewImage)}
-                alt="Full size preview"
-                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                className="max-h-full max-w-full rounded-lg shadow-2xl object-contain"
                 onClick={(e) => e.stopPropagation()}
               />
 
-              {/* Navigation Arrows */}
               {images.length > 1 && (
                 <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToPrevious();
-                    }}
+                  <NavButton
                     disabled={currentIndex === 0}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                  </button>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToNext();
-                    }}
+                    onClick={goPrev}
+                    left
+                  />
+                  <NavButton
                     disabled={currentIndex === images.length - 1}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                  </button>
+                    onClick={goNext}
+                  />
                 </>
               )}
             </div>
 
-            {/* Footer with thumbnails */}
+            {/* Footer thumbnails */}
             {images.length > 1 && (
-              <div className="mt-4 flex justify-center gap-2 overflow-x-auto pb-2">
+              <div className="flex gap-2 mt-4 justify-center overflow-x-auto">
                 {images.map((img, index) => (
                   <button
                     key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openPreview(img, index);
-                    }}
-                    className={`flex-shrink-0 w-12 h-12 rounded-lg border-2 transition-all ${
-                      index === currentIndex 
-                        ? 'border-white scale-110' 
-                        : 'border-gray-600 hover:border-gray-400'
+                    onClick={() => openPreview(index)}
+                    className={`w-12 h-12 rounded-lg border-2 ${
+                      index === currentIndex
+                        ? "border-white scale-110"
+                        : "border-gray-600"
                     }`}
                   >
                     <img
                       src={preFixImg(img)}
-                      alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded-md"
                     />
                   </button>
@@ -221,5 +191,38 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
     </>
   );
 };
+
+/* -------------------- SMALL COMPONENT -------------------- */
+
+const NavButton = ({
+  onClick,
+  disabled,
+  left,
+}: {
+  onClick: () => void;
+  disabled: boolean;
+  left?: boolean;
+}) => (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick();
+    }}
+    disabled={disabled}
+    className={`absolute ${
+      left ? "left-4" : "right-4"
+    } top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white disabled:opacity-30`}
+  >
+    <svg
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <polyline points={left ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
+    </svg>
+  </button>
+);
 
 export default ImagePreview;
