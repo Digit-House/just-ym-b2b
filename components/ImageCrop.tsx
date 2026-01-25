@@ -55,8 +55,8 @@ const ImageCrop: React.FC<ImageCropProps> = ({
       unit: "%" as const,
       x: 25,
       y: 25,
-      width: 50,
-      height: 50,
+      width: 80,
+      height: 80,
     };
 
     if (resolvedCropSettings && 'aspect' in resolvedCropSettings && resolvedCropSettings.aspect !== undefined) {
@@ -107,7 +107,7 @@ const ImageCrop: React.FC<ImageCropProps> = ({
             src={imageSrc}
             onLoad={(e) => onImageLoaded(e.currentTarget)}
             alt="Crop"
-            className="max-h-[60vh] mx-auto"
+            className="max-h-[10vh] mx-auto"
           />
         </ReactCrop>
 
