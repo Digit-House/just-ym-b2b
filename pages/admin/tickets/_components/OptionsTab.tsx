@@ -203,7 +203,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                     >
                       <div className="flex justify-between items-start mb-3">
                         <h6 className="font-medium">
-                          Ticket Type {ticketIndex + 1}
+                          {ticketType.name}
                         </h6>
                       </div>
 

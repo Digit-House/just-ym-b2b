@@ -1,4 +1,9 @@
-import React, { useState, forwardRef, useImperativeHandle, useRef } from "react";
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { Upload, X, LockKeyhole } from "lucide-react";
 import { toast } from "sonner";
 import { preFixImg } from "@/util/initData";
@@ -6,12 +11,14 @@ import ImageFallback from "./ImageFallback";
 import ImageCrop from "./ImageCrop";
 import { CropSettingType } from "@/lib/cropSettings";
 
+/* -------------------- TYPES -------------------- */
+
 interface CropSettings {
   aspect?: number;
   minWidth?: number;
   minHeight?: number;
-  maxWidth?: number; // Target width for the final output
-  maxHeight?: number; // Target height for the final output
+  maxWidth?: number;
+  maxHeight?: number;
 }
 
 type ImageUploadProps = {
@@ -64,19 +71,22 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
     );
     const [cropDialogOpen, setCropDialogOpen] = useState(false);
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+    /* 🔥 PREVIEW DIALOG STATE */
+    const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
-      // Only update preview from value prop if it's different from current preview
       if (value && value !== preview) {
         setPreview(value);
       }
-      // Also update originalValue when value prop changes
       setOriginalValue(value);
     }, [value, preview]);
 
     const isValidImageType = (file: File): boolean =>
       allowedTypes.includes(file.type);
+
     const isValidFileSize = (file: File): boolean =>
       file.size <= maxSizeMB * 1024 * 1024;
 
@@ -89,66 +99,46 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       return typeMap[mimeType] || mimeType;
     };
 
-    const dataURLtoFile = (dataurl: string, filename: string): File => {
-      if (!dataurl || !dataurl.startsWith("data:"))
-        throw new Error("Invalid data URL format");
-      const arr = dataurl.split(",");
-      const mimeMatch = arr[0].match(/:(.*?);/);
-      const mime = mimeMatch ? mimeMatch[1] : "";
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      return new File([u8arr], filename, { type: mime });
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      // if (disabled) return;
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) {
-        if (!isValidImageType(file)) {
-          toast.error(
-            `Invalid file type. Please upload only ${allowedTypes
-              .map((t) => getTypeDisplayName(t))
-              .join(", ")}.`
-          );
-          return;
-        }
-        if (!isValidFileSize(file)) {
-          toast.error(`File size exceeds ${maxSizeMB}MB limit.`);
-          return;
-        }
+      if (!file) return;
 
-        if (enableCrop) {
-          setOriginalFile(file);
-          // Store the current value before starting crop process
-          setOriginalValue(preview);
-          const reader = new FileReader();
-          reader.onload = () => {
-            const imageDataUrl = reader.result as string;
-            if (imageDataUrl && imageDataUrl.startsWith("data:image")) {
-              setImageSrc(imageDataUrl);
-              setCropDialogOpen(true);
-            } else {
-              toast.error("Invalid image format.");
-            }
-          };
-          reader.readAsDataURL(file);
-        } else {
-          setFileToUpload(file);
-          const previewUrl = URL.createObjectURL(file);
-          setPreview(previewUrl);
-          // Only call onChange when in create mode
-          if (mode === "create") {
-            onChange(previewUrl, file);
-          }
+      if (!isValidImageType(file)) {
+        toast.error(
+          `Invalid file type. Please upload only ${allowedTypes
+            .map(getTypeDisplayName)
+            .join(", ")}.`
+        );
+        return;
+      }
+
+      if (!isValidFileSize(file)) {
+        toast.error(`File size exceeds ${maxSizeMB}MB limit.`);
+        return;
+      }
+
+      if (enableCrop) {
+        setOriginalFile(file);
+        setOriginalValue(preview);
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const imageDataUrl = reader.result as string;
+          setImageSrc(imageDataUrl);
+          setCropDialogOpen(true);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const previewUrl = URL.createObjectURL(file);
+        setPreview(previewUrl);
+        setFileToUpload(file);
+
+        if (mode === "create") {
+          onChange(previewUrl, file);
         }
       }
     };
 
-    // Handle crop completion from ImageCrop component
     const handleCropComplete = (croppedFile: File, croppedImageUrl: string) => {
       if (!isValidFileSize(croppedFile)) {
         toast.error(`Cropped image exceeds ${maxSizeMB}MB limit.`);
@@ -156,32 +146,27 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       }
 
       setFileToUpload(croppedFile);
-      setOriginalFile(null);
-      // Ensure the preview is updated with the cropped image
       setPreview(croppedImageUrl);
-      // Update originalValue to reflect the new cropped image
       setOriginalValue(croppedImageUrl);
-      // Only call onChange when in create mode
+      setCropDialogOpen(false);
+      setImageSrc(null);
+
       if (mode === "create") {
         onChange(croppedImageUrl, croppedFile);
       }
 
-      setCropDialogOpen(false);
-      setImageSrc(null);
-      toast.success("Image cropped and updated successfully!");
+      toast.success("Image cropped successfully!");
     };
 
     const handleCropCancel = () => {
-      // Close crop dialog
       setCropDialogOpen(false);
       setImageSrc(null);
       setOriginalFile(null);
       setFileToUpload(null);
       setPreview(originalValue);
-      
-      // Reset the file input to allow selecting the same file again
+
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     };
 
@@ -190,13 +175,23 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       setFileToUpload(null);
       setOriginalFile(null);
       setOriginalValue(undefined);
+
       if (mode === "create") {
         onChange("");
       }
     };
 
-    const getFileToUpload = () => fileToUpload;
+    /* 🔥 PREVIEW DIALOG HANDLERS */
+    const handlePreviewOpen = () => {
+      if (!preview) return;
+      setPreviewDialogOpen(true);
+    };
 
+    const handlePreviewClose = () => {
+      setPreviewDialogOpen(false);
+    };
+
+    const getFileToUpload = () => fileToUpload;
     useImperativeHandle(ref, () => ({ getFileToUpload }));
 
     return (
@@ -204,27 +199,21 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         {label && (
           <label className="flex items-center gap-1 text-sm font-medium">
             {label}
-            {isRequired && !disabled && <span className="text-red-500">*</span>}
-            {disabled && <LockKeyhole size={12} className="mb-[1px]" />}
+            {isRequired && !disabled && (
+              <span className="text-red-500">*</span>
+            )}
+            {disabled && <LockKeyhole size={12} />}
           </label>
         )}
 
-        <div className="relative group w-full h-50 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors bg-secondary/20">
-          {/* Validation Info */}
-          <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
-            <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
-              {allowedTypes.map((type) => getTypeDisplayName(type)).join("/")} •{" "}
-              {maxSizeMB}MB
-              {enableCrop && <span className="ml-1">• Crop</span>}
-            </span>
-          </div>
+        <div className="relative group w-full h-50 border-2 border-dashed rounded-md flex items-center justify-center bg-secondary/20 hover:bg-secondary/50 transition">
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             disabled={disabled}
             onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            className="absolute inset-0 opacity-0 cursor-pointer"
           />
 
           {preview ? (
@@ -233,20 +222,23 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-full h-full object-contain p-2"
+                  onClick={handlePreviewOpen}
+                  className="w-full h-full object-contain p-2 cursor-zoom-in"
                 />
               ) : (
                 <ImageFallback
                   src={preFixImg(preview)}
                   alt="Preview"
-                  className="w-full h-full object-contain p-2"
+                  onClick={handlePreviewOpen}
+                  className="w-full h-full object-contain p-2 cursor-zoom-in"
                 />
               )}
+
               {!disableRemove && (
                 <button
                   type="button"
                   onClick={handleRemove}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-sm hover:bg-red-600"
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -256,22 +248,47 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             <div className="flex flex-col items-center text-muted-foreground">
               <Upload className="w-6 h-6 mb-1" />
               <span className="text-xs font-medium">Click to upload</span>
-              <span className="text-[10px] text-gray-400 mt-1">
-                {allowedTypes
-                  .map((type) => getTypeDisplayName(type))
-                  .join(", ")}{" "}
-                up to {maxSizeMB}MB
-              </span>
             </div>
           )}
         </div>
 
-        {/* Image Crop Dialog - Prevent closing on backdrop click */}
-        {enableCrop && cropDialogOpen && (
+        {/* 🔥 IMAGE PREVIEW DIALOG */}
+        {previewDialogOpen && preview && (
           <div
-            className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+            onClick={handlePreviewClose}
           >
+            <div
+              className="relative max-w-4xl max-h-[90vh] w-full px-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={handlePreviewClose}
+                className="absolute -top-10 right-0 text-white hover:text-red-400"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              {preview.includes("blob:") ? (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-full object-contain rounded-md"
+                />
+              ) : (
+                <ImageFallback
+                  src={preFixImg(preview)}
+                  alt="Preview"
+                  className="w-full h-full object-contain rounded-md"
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* CROP DIALOG */}
+        {enableCrop && cropDialogOpen && (
+          <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center">
             <ImageCrop
               isOpen={cropDialogOpen}
               onClose={handleCropCancel}
@@ -291,26 +308,4 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 );
 
 ImageUpload.displayName = "ImageUpload";
-
 export default ImageUpload;
-
-
-
-
- // const handleCropCancel = () => {
-    //   setCropDialogOpen(false);
-    //   setImageSrc(null);
-    //   // When canceling crop, we don't want to update the form state
-    //   // Just restore to original state without calling onChange
-    //   if (originalFile) {
-    //     // If there was an original file, revert to it
-    //     const previewUrl = URL.createObjectURL(originalFile);
-    //     setPreview(previewUrl);
-    //     setFileToUpload(originalFile);
-    //     setOriginalFile(null);
-    //   } else {
-    //     // If no original file, revert to the original value that was passed in
-    //     setPreview(originalValue);
-    //     setFileToUpload(null);
-    //   }
-    // };
