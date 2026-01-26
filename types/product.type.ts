@@ -29,6 +29,7 @@ export type FilterProductListT = {
   };
   page: number;
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
+  isRecommended?: boolean | null;
 };
 
 export type ProductT = {
@@ -40,6 +41,7 @@ export type ProductT = {
   image: string;
   isPublished: boolean;
   isCancellable: boolean;
+  isRecommended: boolean;
   media: [];
   name: string;
   originalPrice: number;

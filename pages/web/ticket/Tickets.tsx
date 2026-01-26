@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { ArrowRight, RotateCcw, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -30,7 +30,6 @@ import { preFixImg } from "@/util/initData";
 import { truncateDescription } from "@/lib/utils";
 import { useTicketFilters } from "@/hooks/useTicketFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-
 
 const SORT_OPTION: SortOption[] = [
   { label: "Alphabet", value: "alphabet" },
@@ -73,6 +72,7 @@ export default function Tickets() {
         sort: filters.sort,
         published: filters.published,
         search: debouncedSearch,
+        isRecommended: filters.isRecommended,
       },
     ],
     queryFn: fetchProducts,
@@ -95,9 +95,16 @@ export default function Tickets() {
   const showReset =
     filters.sort !== "desc" ||
     filters.published !== "PUBLISHED" ||
+    filters.isRecommended !== null ||
     filters.categories.length ||
     filters.countries.length ||
     filters.search;
+
+  const handleNavigate = (e: React.MouseEvent, path: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(path);
+  };
 
   return (
     <PageContainer>
@@ -128,7 +135,7 @@ export default function Tickets() {
           />
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-[26px] -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               value={filters.search}
               onChange={(e) =>
@@ -140,21 +147,50 @@ export default function Tickets() {
           </div>
 
           {user?.type === "OWNER" && (
-            <ShadcnSelect
-              value={filters.published}
-              onValueChange={(v) =>
-                setFilters((f) => ({ ...f, published: v as any }))
-              }
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All</SelectItem>
-                <SelectItem value="PUBLISHED">Published</SelectItem>
-                <SelectItem value="UNPUBLISHED">Unpublished</SelectItem>
-              </SelectContent>
-            </ShadcnSelect>
+            <Fragment>
+              <ShadcnSelect
+                value={filters.published}
+                onValueChange={(v) =>
+                  setFilters((f) => ({ ...f, published: v as any }))
+                }
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All</SelectItem>
+                  <SelectItem value="PUBLISHED">Published</SelectItem>
+                  <SelectItem value="UNPUBLISHED">Unpublished</SelectItem>
+                </SelectContent>
+              </ShadcnSelect>
+              <ShadcnSelect
+                value={
+                  filters.isRecommended === null
+                    ? "ALL"
+                    : filters.isRecommended
+                    ? "RECOMMENDED"
+                    : "NOT_RECOMMENDED"
+                }
+                onValueChange={(v) =>
+                  setFilters((f) => ({
+                    ...f,
+                    isRecommended:
+                      v === "ALL" ? null : v === "RECOMMENDED" ? true : false,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All</SelectItem>
+                  <SelectItem value="RECOMMENDED">Recommended</SelectItem>
+                  <SelectItem value="NOT_RECOMMENDED">
+                    Not Recommended
+                  </SelectItem>
+                </SelectContent>
+              </ShadcnSelect>
+            </Fragment>
           )}
         </div>
 
@@ -210,11 +246,32 @@ export default function Tickets() {
                 </p>
 
                 <button
-                  onClick={() => navigate(`/tickets/${p.id}`)}
-                  className="text-indigo-600 text-sm flex items-center gap-1"
+                  onClick={(e) => handleNavigate(e, `/tickets/${p.id}`)}
+                  className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"
                 >
-                  Read More <ArrowRight size={16} />
+                  Read More <ArrowRight size={16} className="ml-1" />
                 </button>
+
+                <div className="mt-auto flex items-center gap-2">
+                  {user?.type === "OWNER" && 
+                   <button
+                      onClick={(e) =>
+                        handleNavigate(e, `/admin-tickets/edit/${p.id}`)
+                      }
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Edit
+                    </button>
+                  }
+                   {p.isPublished && 
+                    <button
+                      onClick={(e) => handleNavigate(e, `/tickets/${p.id}`)}
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Booking
+                    </button>
+                  }
+                </div>
               </div>
             </div>
           ))}
