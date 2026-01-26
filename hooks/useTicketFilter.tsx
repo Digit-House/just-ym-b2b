@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 
-export type PublishedFilter = "ALL" | "PUBLISHED" | "UNPUBLISHED";
+export type PublishedFilter = "ALL" | "PUBLISHED" | "UNPUBLISHED" | string;
 
-interface TicketFilters {
+export type TicketFilters ={
   sort: string;
   published: PublishedFilter;
   categories: string[];
