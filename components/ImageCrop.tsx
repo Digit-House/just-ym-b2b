@@ -196,7 +196,6 @@ async function getCroppedFile(
   });
 }
 
-
 // async function getCroppedFile(
 //   image: HTMLImageElement,
 //   crop: PixelCrop,
@@ -239,9 +238,6 @@ async function getCroppedFile(
 //     );
 //   });
 // }
-
-
-
 
  {/* Aspect ratio buttons */}
         {/* <div className="flex gap-2 mb-3 flex-wrap">
