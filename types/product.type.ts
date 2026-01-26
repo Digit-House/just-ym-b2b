@@ -1,7 +1,3 @@
-import { BOOKING_STATUS_ENUM } from "./booking.type";
-import z from "zod";
-import { ticketSchema } from "./schema/ticketSchema";
-
 export enum AVAILABILITY_ENUM {
   AVAILABLE = "AVAILABLE",
   UNAVAILABLE = "NOT_AVAILABLE",
@@ -31,6 +27,11 @@ export type FilterProductListT = {
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
   isRecommended?: boolean | null;
 };
+
+export type ProductPositionT = {
+  position:number;
+  productId:string;
+}
 
 export type ProductT = {
   category: string;

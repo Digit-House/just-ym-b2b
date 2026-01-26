@@ -8,7 +8,7 @@ interface TicketFilters {
   published: PublishedFilter;
   categories: string[];
   countries: string[];
-  isRecommended:null|boolean;
+  isRecommended:boolean;
   search: string;
 }
 
@@ -19,7 +19,7 @@ const DEFAULT_FILTERS: TicketFilters = {
   published: "PUBLISHED",
   categories: [],
   countries: [],
-  isRecommended:null,
+  isRecommended:false,
   search: "",
 };
 

@@ -14,6 +14,7 @@ import {
   SEED_PRODUCT_MUTATION,
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
   UPDATE_PRODUCT_MUTATION,
+  UPDATE_PRODUCT_POSITION,
 } from "./type-query/product";
 import {
   AddToCartResponse,
@@ -22,6 +23,7 @@ import {
   FindAllProductsT,
   ProductInfoResponse,
   ProductInfoT,
+  ProductPositionT,
   TicketTypeEventAvailableResponse,
   UpdateProductPayloadT,
 } from "@/types/product.type";
@@ -72,6 +74,21 @@ export const updateProductInfo = async (data: UpdateProductPayloadT) => {
     throw err;
   }
 };
+
+
+export const updateProductPosition = async (data:ProductPositionT[]) => {
+  try{
+    const res = await client.mutate({
+      mutation:warpGql(UPDATE_PRODUCT_POSITION),
+      variables:{
+        products:data
+      }
+    })
+    return res;
+  }catch(err){
+    throw err;
+  }
+}
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, { categories, countries, sort, published, search, isRecommended }] = queryKey;

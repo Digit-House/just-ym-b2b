@@ -165,28 +165,22 @@ export default function Tickets() {
               </ShadcnSelect>
               <ShadcnSelect
                 value={
-                  filters.isRecommended === null
-                    ? "ALL"
-                    : filters.isRecommended
-                    ? "RECOMMENDED"
-                    : "NOT_RECOMMENDED"
+                  filters.isRecommended ? "RECOMMENDED" : "NOT_RECOMMENDED"
                 }
                 onValueChange={(v) =>
                   setFilters((f) => ({
                     ...f,
-                    isRecommended:
-                      v === "ALL" ? null : v === "RECOMMENDED" ? true : false,
+                    isRecommended: v === "RECOMMENDED" ? true : false,
                   }))
                 }
               >
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-55">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All</SelectItem>
                   <SelectItem value="RECOMMENDED">Recommended</SelectItem>
                   <SelectItem value="NOT_RECOMMENDED">
-                    Not Recommended
+                    Not Recommended (ALL)
                   </SelectItem>
                 </SelectContent>
               </ShadcnSelect>
@@ -229,7 +223,7 @@ export default function Tickets() {
           {products.map((p) => (
             <div
               key={p.id}
-              className="bg-white rounded-2xl border hover:shadow-md transition"
+              className="bg-white rounded-2xl border overflow-hidden"
             >
               <div className="h-48 overflow-hidden">
                 <ImageFallback
@@ -253,8 +247,8 @@ export default function Tickets() {
                 </button>
 
                 <div className="mt-auto flex items-center gap-2">
-                  {user?.type === "OWNER" && 
-                   <button
+                  {user?.type === "OWNER" && (
+                    <button
                       onClick={(e) =>
                         handleNavigate(e, `/admin-tickets/edit/${p.id}`)
                       }
@@ -262,15 +256,15 @@ export default function Tickets() {
                     >
                       Edit
                     </button>
-                  }
-                   {p.isPublished && 
+                  )}
+                  {p.isPublished && (
                     <button
                       onClick={(e) => handleNavigate(e, `/tickets/${p.id}`)}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
                       Booking
                     </button>
-                  }
+                  )}
                 </div>
               </div>
             </div>
