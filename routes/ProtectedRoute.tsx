@@ -1,10 +1,8 @@
 import useAuthStore from "@/store/useAuthStore";
-import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { NAV_CONFIG } from "@/types/navitem.type";
 import { useUser } from "@/provider/UserProvider";
 
-// Main ProtectedRoute component
 const ProtectedRoute = () => {
   const { token } = useAuthStore();
 
@@ -19,6 +17,10 @@ const ProtectedRoute = () => {
 const RouteGuard = () => {
   const location = useLocation();
   const { user } = useUser();
+
+  if(user?.type !== "OWNER" && location.pathname.includes("admin-tickets")){
+    return <Navigate to="/" replace />; 
+  }
 
   // Check if the current path is allowed for the user's role
   if (user && location.pathname) {

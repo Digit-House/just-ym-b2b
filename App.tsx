@@ -81,17 +81,10 @@ const App = () => {
               <Route path="roles" element={<Roles />} />
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />
-              <Route
-                path="admin-tickets/edit/:id"
-                element={<AdminTicketEdit />}
-              />
+             
               <Route path="vouchers" element={<Vouchers />} />
               <Route path="admin-vouchers/create" element={<CreateVoucher />} />
               <Route path="admin-vouchers/:id" element={<EditVoucher />} />
-              <Route
-                path="admin-tickets/edit/:id"
-                element={<AdminTicketEdit />}
-              />
               <Route
                 path="admin-tickets/edit/:id"
                 element={<AdminTicketEdit />}

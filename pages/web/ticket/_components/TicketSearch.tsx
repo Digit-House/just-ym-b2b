@@ -9,7 +9,7 @@ interface SearchUIProps {
 
 const TicketSearch: React.FC<SearchUIProps> = ({ filters, setFilters }) => {
   return (
-    <div className="w-full  mt-0 relative z-10 bg-gray-300 p-4">
+    <div className="w-full  mt-0 relative z-10 bg-gray-200 p-4">
         <div className="relative m-auto w-[50%]">
           <Search className="absolute left-4 top-[33px] -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
           <input

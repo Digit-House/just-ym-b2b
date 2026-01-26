@@ -42,7 +42,7 @@ export default function Tickets() {
   const { user } = useUser();
 
   const { filters, setFilters, resetFilters } = useTicketFilters();
-  const debouncedSearch = useDebounce(filters.search, 2000);
+  const debouncedSearch = useDebounce(filters.search, 500);
 
   const [sortDialogOpen, setSortDialogOpen] = useState(false);
 
