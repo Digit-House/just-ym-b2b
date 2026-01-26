@@ -58,6 +58,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     isBestSeller
     isCancellable
     isGTRecommend
+    isRecommended
     isPublished
     isInstantConfirmation
     isOpenDated
@@ -96,6 +97,11 @@ query GetProductInfo($productId: String!, $date: DateTime) {
      name
      description
      isPublished
+     visitDate{
+      isOpenDated
+     }
+     ticketValidity
+     definedDuration 
      ticketType {
         id
         name

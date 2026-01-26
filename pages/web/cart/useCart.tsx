@@ -4,7 +4,7 @@ import {
   ADD_TO_CART_DATA_TYPE,
   ADD_TO_CART_ITEM_DATA_TYPE,
 } from "@/types/product.type";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const useCart = () => {
   const [loading, setLoading] = useState(false);

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import TextareaField from "@/components/TextareaField";
+import ReadOnly from "@/components/ReadOnly";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -132,18 +133,12 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
               key={option.id ?? `option-${optionIndex}`}
               className="space-y-4 p-6 rounded-lg border bg-gray-50"
             >
-              {/* Product option header */}
               <div className="flex justify-between items-start mb-4">
                 <h4 className="text-lg font-semibold">
-                  Package Option {optionIndex + 1}
+                  Package {optionIndex + 1}
                 </h4>
-
-                <div className="flex gap-2">
-                  {/* Hide add ticket type and delete buttons in edit mode */}
-                </div>
               </div>
 
-              {/* Package details */}
               <div className="grid grid-cols-1 gap-4 mb-6">
                 <InputField
                   label="Package Name"
@@ -169,6 +164,12 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                   }
                 />
               </div>
+
+              <ReadOnly label="Ticket Validity" value={option.ticketValidity} />
+
+              <ReadOnly label="Defined Duration" value={option.definedDuration} />
+
+              <ReadOnly label="Visit Date" value={option.visitDate.isOpenDated ? "True" : "False"} />
 
               <div className="mb-4">
                 <div className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
@@ -202,9 +203,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                       }`}
                     >
                       <div className="flex justify-between items-start mb-3">
-                        <h6 className="font-medium">
-                          {ticketType.name}
-                        </h6>
+                        <h6 className="font-medium">{ticketType.name}</h6>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -229,13 +228,13 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                           disabled={true}
                         />
 
-                         <InputField
+                        <InputField
                           label="Recommended Selling Price"
                           type="number"
                           value={ticketType.recommendedSellingPrice ?? ""}
                           disabled={true}
                         />
-                        
+
                         <InputField
                           label="DH Selling Price"
                           type="number"
@@ -255,7 +254,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                           errMsg={ticketErrors?.dhSellingPrice?.message}
                         />
 
-                         <InputField
+                        <InputField
                           label="DH Net Price"
                           type="number"
                           value={ticketType.dhNetPrice ?? ""}
@@ -294,8 +293,8 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                             ticketErrors?.dhRecommendedSellingPrice?.message
                           }
                         />
-                        
-                         <InputField
+
+                        <InputField
                           label="DH Recommended Selling Price"
                           type="number"
                           value={ticketType.dhRecommendedSellingPrice ?? ""}

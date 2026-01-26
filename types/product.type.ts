@@ -195,6 +195,8 @@ export interface ProductOptionT {
   name: string;
   description: string;
   isPublished: boolean;
+  ticketValidity:string;
+  definedDuration:number;
   ticketType: TicketTypeT[];
   advanceBooking: AdvanceBookingT | null;
   isCapacity: boolean;
@@ -286,8 +288,8 @@ export interface ProductOptionQuestionT {
 
 export interface VisitDateT {
   isOpenDated: boolean;
-  request: boolean;
-  required: boolean;
+  // request: boolean;
+  // required: boolean;
 }
 
 export interface OptionT {
