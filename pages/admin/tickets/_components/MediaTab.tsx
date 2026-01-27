@@ -9,10 +9,11 @@ import {
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, GripVertical } from "lucide-react";
 import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef } from "react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 // Simple ID generator function
 const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
@@ -43,8 +44,9 @@ const MediaTab: React.FC<MediaTabProps> = ({
   
   // State for media items with unique IDs
   const [mediaItems, setMediaItems] = useState<(MediaFileT & { id: string })[]>(
-    initialMediaItemsRef.current.map(item => ({
+    initialMediaItemsRef.current.map((item, index) => ({
       ...item,
+      position: item.position ?? index, // Use existing position or default to index
       id: generateId()
     }))
   );
@@ -54,8 +56,9 @@ const MediaTab: React.FC<MediaTabProps> = ({
     if (!hasInitializedFromFormRef.current) {
       const formMedia = watch('media');
       if (formMedia && Array.isArray(formMedia) && formMedia.length > 0) {
-        setMediaItems(formMedia.map(item => ({
+        setMediaItems(formMedia.map((item, index) => ({
           ...item,
+          position: item.position ?? index, // Use existing position or default to index
           id: generateId()
         })));
       }
@@ -95,8 +98,9 @@ const MediaTab: React.FC<MediaTabProps> = ({
           }));
           
           if (JSON.stringify(formMediaWithoutIds) !== JSON.stringify(localMediaWithoutIds)) {
-            setMediaItems(currentFormMedia.map(item => ({
+            setMediaItems(currentFormMedia.map((item, index) => ({
               ...item,
+              position: item.position ?? index, // Use existing position or default to index
               id: generateId()
             })));
           }
@@ -134,7 +138,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
         type: null,
         size: null,
         path: null,
-        position:null,
+        position: prev.length, // Set position to the end of the list
         name: null,
         isPublished: null,
         extension: null,
@@ -200,6 +204,29 @@ const MediaTab: React.FC<MediaTabProps> = ({
     updateMediaItem(itemId, 'type', type);
   };
 
+  // Handle drag end event to reorder media items
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return; // dropped outside the list
+    }
+
+    if (result.destination.index === result.source.index) {
+      return; // item didn't move
+    }
+
+    const items = Array.from(mediaItems);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update positions based on new order
+    const itemsWithUpdatedPositions = items.map((item, index) => ({
+      ...item,
+      position: index
+    }));
+
+    setMediaItems(itemsWithUpdatedPositions);
+  };
+
   return (
     <div className="space-y-6">
       <div className="border-b pb-4">
@@ -228,7 +255,6 @@ const MediaTab: React.FC<MediaTabProps> = ({
       </div>
 
       <div className="space-y-6">
-
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -260,127 +286,158 @@ const MediaTab: React.FC<MediaTabProps> = ({
             </Button>
           </div>
 
-          <div className="space-y-4">
-            {mediaItems?.map((media) => (
-              <div
-                key={media.id}
-                className={`p-4 rounded-lg border grid grid-cols-1  gap-4 ${
-                  errors.media?.[mediaItems.findIndex(item => item.id === media.id)]
-                    ? "bg-red-50 border-red-300"
-                    : "bg-gray-50"
-                }`}
-              >
-                <div
-                  className={`${
-                    errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.path
-                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                      : ""
-                  }`}
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="media-items">
+              {(provided) => (
+                <div 
+                  {...provided.droppableProps} 
+                  ref={provided.innerRef}
+                  className="space-y-4"
                 >
-                  <ImageUpload
-                    ref={setImageUploadRef(mediaItems.findIndex(item => item.id === media.id))}
-                    label="Media Image"
-                    value={media.path}
-                    onChange={(val, file) => {
-                      updateMediaItem(media.id, 'path', val);
-                      if (file) {
-                        handleMediaItemImageUpload(media.id, val, file);
-                      }
-                    }}
-                    folderType="PRODUCT_MEDIA"
-                    enableCrop={true}
-                    presetCropSetting="LANDING_HERO"
-                    cropLibrary="react-easy-crop"
-                  />
+                  {mediaItems?.map((media, index) => (
+                    <Draggable key={media.id} draggableId={media.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`p-4 rounded-lg border grid grid-cols-[auto_1fr_auto] gap-4 ${
+                            errors.media?.[mediaItems.findIndex(item => item.id === media.id)]
+                              ? "bg-red-50 border-red-300"
+                              : "bg-gray-50"
+                          } ${snapshot.isDragging ? 'shadow-md z-10' : ''}`}
+                        >
+                          {/* Drag Handle */}
+                          <div 
+                            {...provided.dragHandleProps}
+                            className="flex items-center justify-center cursor-move text-gray-400 hover:text-gray-600 self-start pt-2"
+                          >
+                            <GripVertical className="h-5 w-5" />
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-4">
+                            <div
+                              className={`${
+                                errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.path
+                                  ? "border border-red-300 rounded-lg p-2 bg-red-50"
+                                  : ""
+                              }`}
+                            >
+                              <ImageUpload
+                                ref={setImageUploadRef(mediaItems.findIndex(item => item.id === media.id))}
+                                label="Media Image"
+                                value={media.path}
+                                onChange={(val, file) => {
+                                  updateMediaItem(media.id, 'path', val);
+                                  if (file) {
+                                    handleMediaItemImageUpload(media.id, val, file);
+                                  }
+                                }}
+                                folderType="PRODUCT_MEDIA"
+                                enableCrop={true}
+                                presetCropSetting="LANDING_HERO"
+                                cropLibrary="react-easy-crop"
+                              />
+                            </div>
+                            
+                            {/* Hidden Name Input Field */}
+                            <div className="hidden">
+                              <InputField
+                                label="Name"
+                                value={media.name || ""}
+                                onChange={(e) =>
+                                  updateMediaItem(media.id, "name", e.target.value)
+                                }
+                                placeholder="Name"
+                              />
+                            </div>
+                            <div className="hidden">
+                              <InputField
+                                label="Extension"
+                                value={media.extension || ""}
+                                onChange={(e) =>
+                                  updateMediaItem(media.id, "extension", e.target.value)
+                                }
+                                placeholder="Extension"
+                              />
+                            </div>
+                            <div className="hidden">
+                              <InputField
+                                label="Type"
+                                value={media.type || ""}
+                                onChange={(e) =>
+                                  updateMediaItem(media.id, "type", e.target.value)
+                                }
+                                placeholder="Type"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              {/* Hidden Size Input Field */}
+                              <div className="flex-grow hidden">
+                                <div
+                                  className={`${
+                                    errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.size
+                                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
+                                      : ""
+                                  }`}
+                                >
+                                  <InputField
+                                    label="Size (bytes)"
+                                    type="number"
+                                    value={media.size || 0}
+                                    onChange={(e) =>
+                                      updateMediaItem(
+                                        media.id,
+                                        "size",
+                                        parseInt(e.target.value)
+                                      )
+                                    }
+                                    placeholder="Size"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-1">
+                              #{index + 1}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`published-${media.id}`}
+                                checked={Boolean(media.isPublished)}
+                                onCheckedChange={(checked) =>
+                                  updateMediaItem(media.id, "isPublished", checked)
+                                }
+                              />
+                              <Label
+                                htmlFor={`published-${media.id}`}
+                                className="text-sm font-normal"
+                              >
+                                Published
+                              </Label>
+                            </div>
+                            <div className="flex items-end pb-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeMediaItem(media.id)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
-                {/* Hidden Name Input Field */}
-                <div className="hidden">
-                  <InputField
-                    label="Name"
-                    value={media.name || ""}
-                    onChange={(e) =>
-                      updateMediaItem(media.id, "name", e.target.value)
-                    }
-                    placeholder="Name"
-                  />
-                </div>
-                <div className="hidden">
-                  <InputField
-                    label="Extension"
-                    value={media.extension || ""}
-                    onChange={(e) =>
-                      updateMediaItem(media.id, "extension", e.target.value)
-                    }
-                    placeholder="Extension"
-                  />
-                </div>
-                <div className="hidden">
-                  <InputField
-                    label="Type"
-                    value={media.type || ""}
-                    onChange={(e) =>
-                      updateMediaItem(media.id, "type", e.target.value)
-                    }
-                    placeholder="Type"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  {/* Hidden Size Input Field */}
-                  <div className="flex-grow hidden">
-                    <div
-                      className={`${
-                        errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.size
-                          ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                          : ""
-                      }`}
-                    >
-                      <InputField
-                        label="Size (bytes)"
-                        type="number"
-                        value={media.size || 0}
-                        onChange={(e) =>
-                          updateMediaItem(
-                            media.id,
-                            "size",
-                            parseInt(e.target.value)
-                          )
-                        }
-                        placeholder="Size"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`published-${media.id}`}
-                        checked={Boolean(media.isPublished)}
-                        onCheckedChange={(checked) =>
-                          updateMediaItem(media.id, "isPublished", checked)
-                        }
-                      />
-                      <Label
-                        htmlFor={`published-${media.id}`}
-                        className="text-sm font-normal"
-                      >
-                        Published
-                      </Label>
-                    </div>
-                    <div className="flex items-end pb-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeMediaItem(media.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         </div>
       </div>
     </div>
