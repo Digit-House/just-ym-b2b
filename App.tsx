@@ -3,8 +3,11 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { UserProvider } from "./provider/UserProvider";
+import { useEffect } from "react";
 
 import AuthLayout from "./layouts/AuthLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -38,11 +41,30 @@ import Preview from "./pages/web/cart/preview/Preview";
 import Vouchers from "./pages/admin/vouchers/Vouchers";
 import CreateVoucher from "./pages/admin/vouchers/create/CreateVoucher";
 import EditVoucher from "./pages/admin/vouchers/edit/EditPage";
+import ErrorPage from "./pages/web/ErrorPage";
+import { shouldRedirectToErrorPage, setErrorRedirected } from "@/util/errorHandler";
+
+// Error Redirect Component - checks if we should redirect to error page
+const ErrorRedirectHandler = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only check for redirect if we're not already on the error page
+    if (location.pathname !== "/error" && shouldRedirectToErrorPage()) {
+      setErrorRedirected();
+      navigate("/error", { replace: true });
+    }
+  }, [location.pathname, navigate]);
+
+  return null;
+};
 
 const App = () => {
   return (
     <UserProvider>
       <Router>
+        <ErrorRedirectHandler />
         <Routes>
           {/* 🔓 Public */}
           <Route element={<AuthLayout />}>
@@ -91,6 +113,9 @@ const App = () => {
               />
             </Route>
           </Route>
+
+          {/* Error Route */}
+          <Route path="/error" element={<ErrorPage />} />
 
           {/* fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
