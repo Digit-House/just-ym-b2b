@@ -13,10 +13,16 @@ import { Plus, Trash2, GripVertical } from "lucide-react";
 import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 
 // Simple ID generator function
-const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+const generateId = () =>
+  Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 
 type MediaTabProps = {
   errors: FieldErrors<TicketFormValues>;
@@ -36,81 +42,92 @@ const MediaTab: React.FC<MediaTabProps> = ({
   // Use a ref to store the initial media items to prevent re-initialization
   const initialMediaItemsRef = useRef<MediaFileT[] | null>(null);
   const hasInitializedFromFormRef = useRef<boolean>(false);
-  
+
   // Initialize the ref with initial values only once
   if (initialMediaItemsRef.current === null) {
-    initialMediaItemsRef.current = (initialValues as UpdateProductPayloadT)?.media ?? [];
+    initialMediaItemsRef.current =
+      (initialValues as UpdateProductPayloadT)?.media ?? [];
   }
-  
+
   // State for media items with unique IDs
   const [mediaItems, setMediaItems] = useState<(MediaFileT & { id: string })[]>(
     initialMediaItemsRef.current.map((item, index) => ({
       ...item,
       position: item.position ?? index, // Use existing position or default to index
-      id: generateId()
+      id: generateId(),
     }))
   );
-  
+
   // Initialize from form state on mount if available
   useEffect(() => {
     if (!hasInitializedFromFormRef.current) {
-      const formMedia = watch('media');
+      const formMedia = watch("media");
       if (formMedia && Array.isArray(formMedia) && formMedia.length > 0) {
-        setMediaItems(formMedia.map((item, index) => ({
-          ...item,
-          position: item.position ?? index, // Use existing position or default to index
-          id: generateId()
-        })));
+        setMediaItems(
+          formMedia.map((item, index) => ({
+            ...item,
+            position: item.position ?? index, // Use existing position or default to index
+            id: generateId(),
+          }))
+        );
       }
       hasInitializedFromFormRef.current = true;
     }
-  }, [watch('media')]);
-  
+  }, [watch("media")]);
+
   // Synchronize media items with form state (without the id field)
   useEffect(() => {
     const mediaWithoutIds = mediaItems.map(({ id, ...rest }) => rest);
-    setValue('media', mediaWithoutIds);
+    setValue("media", mediaWithoutIds);
   }, [mediaItems, setValue]);
-  
+
   // Watch for external changes to media in form state and update local state
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
-      if (name === 'media' && type === 'change') {
+      if (name === "media" && type === "change") {
         const currentFormMedia = value.media;
         if (currentFormMedia && Array.isArray(currentFormMedia)) {
           // Compare without considering ids
-          const formMediaWithoutIds = currentFormMedia.map(item => JSON.stringify({
-            type: item.type,
-            size: item.size,
-            path: item.path,
-            name: item.name,
-            isPublished: item.isPublished,
-            extension: item.extension
-          }));
-          
-          const localMediaWithoutIds = mediaItems.map(item => JSON.stringify({
-            type: item.type,
-            size: item.size,
-            path: item.path,
-            name: item.name,
-            isPublished: item.isPublished,
-            extension: item.extension
-          }));
-          
-          if (JSON.stringify(formMediaWithoutIds) !== JSON.stringify(localMediaWithoutIds)) {
-            setMediaItems(currentFormMedia.map((item, index) => ({
-              ...item,
-              position: item.position ?? index, // Use existing position or default to index
-              id: generateId()
-            })));
+          const formMediaWithoutIds = currentFormMedia.map((item) =>
+            JSON.stringify({
+              type: item.type,
+              size: item.size,
+              path: item.path,
+              name: item.name,
+              isPublished: item.isPublished,
+              extension: item.extension,
+            })
+          );
+
+          const localMediaWithoutIds = mediaItems.map((item) =>
+            JSON.stringify({
+              type: item.type,
+              size: item.size,
+              path: item.path,
+              name: item.name,
+              isPublished: item.isPublished,
+              extension: item.extension,
+            })
+          );
+
+          if (
+            JSON.stringify(formMediaWithoutIds) !==
+            JSON.stringify(localMediaWithoutIds)
+          ) {
+            setMediaItems(
+              currentFormMedia.map((item, index) => ({
+                ...item,
+                position: item.position ?? index, // Use existing position or default to index
+                id: generateId(),
+              }))
+            );
           }
         }
       }
     });
-    
+
     return () => subscription.unsubscribe();
   }, [watch, mediaItems]);
-  
 
   // Refs for ImageUpload components
   const mediaItemRefs = React.useRef<Map<number, ImageUploadRef>>(new Map());
@@ -147,7 +164,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
   };
 
   const removeMediaItem = (itemId: string) => {
-    setMediaItems((prev) => prev.filter(item => item.id !== itemId));
+    setMediaItems((prev) => prev.filter((item) => item.id !== itemId));
   };
 
   const updateMediaItem = (
@@ -156,23 +173,29 @@ const MediaTab: React.FC<MediaTabProps> = ({
     value: string | number | boolean | null
   ) => {
     setMediaItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item))
+      prev.map((item) =>
+        item.id === itemId ? { ...item, [field]: value } : item
+      )
     );
   };
 
   // This will be updated when we have file information
-  const handleMediaItemImageUpload = (itemId: string, imageUrl: string, file?: File) => {
+  const handleMediaItemImageUpload = (
+    itemId: string,
+    imageUrl: string,
+    file?: File
+  ) => {
     // If we have the original file object, extract information from it
     let name = null;
     let extension = null;
     let size = null;
     let type = null;
-    
+
     if (file) {
       // Extract name and extension from the file object
       const originalName = file.name;
-      const lastDotIndex = originalName.lastIndexOf('.');
-      
+      const lastDotIndex = originalName.lastIndexOf(".");
+
       if (lastDotIndex !== -1) {
         name = originalName.substring(0, lastDotIndex);
         extension = originalName.substring(lastDotIndex + 1).toLowerCase();
@@ -180,14 +203,14 @@ const MediaTab: React.FC<MediaTabProps> = ({
         // If no extension, use the whole name
         name = originalName;
       }
-      
+
       size = file.size;
       type = file.type;
     } else {
       // Fallback to extracting from URL if file object isn't available
-      const fileName = imageUrl.split('/').pop() || '';
-      const lastDotIndex = fileName.lastIndexOf('.');
-      
+      const fileName = imageUrl.split("/").pop() || "";
+      const lastDotIndex = fileName.lastIndexOf(".");
+
       if (lastDotIndex !== -1) {
         name = fileName.substring(0, lastDotIndex);
         extension = fileName.substring(lastDotIndex + 1).toLowerCase();
@@ -196,12 +219,12 @@ const MediaTab: React.FC<MediaTabProps> = ({
         name = fileName;
       }
     }
-    
-    updateMediaItem(itemId, 'path', imageUrl);
-    updateMediaItem(itemId, 'name', name);
-    updateMediaItem(itemId, 'extension', extension);
-    updateMediaItem(itemId, 'size', size);
-    updateMediaItem(itemId, 'type', type);
+
+    updateMediaItem(itemId, "path", imageUrl);
+    updateMediaItem(itemId, "name", name);
+    updateMediaItem(itemId, "extension", extension);
+    updateMediaItem(itemId, "size", size);
+    updateMediaItem(itemId, "type", type);
   };
 
   // Handle drag end event to reorder media items
@@ -221,7 +244,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
     // Update positions based on new order
     const itemsWithUpdatedPositions = items.map((item, index) => ({
       ...item,
-      position: index
+      position: index,
     }));
 
     setMediaItems(itemsWithUpdatedPositions);
@@ -254,7 +277,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -289,135 +312,157 @@ const MediaTab: React.FC<MediaTabProps> = ({
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="media-items">
               {(provided) => (
-                <div 
-                  {...provided.droppableProps} 
+                <div
                   ref={provided.innerRef}
-                  className="space-y-4"
+                  {...provided.droppableProps}
+                  className="flex flex-col gap-4 w-full"
+                  style={{ minWidth: "100%" }}
                 >
                   {mediaItems?.map((media, index) => (
-                    <Draggable key={media.id} draggableId={media.id} index={index}>
+                    <Draggable
+                      key={media.id}
+                      draggableId={media.id}
+                      index={index}
+                    >
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className={`p-4 rounded-lg border grid grid-cols-[auto_1fr_auto] gap-4 ${
-                            errors.media?.[mediaItems.findIndex(item => item.id === media.id)]
-                              ? "bg-red-50 border-red-300"
-                              : "bg-gray-50"
-                          } ${snapshot.isDragging ? 'shadow-md z-10' : ''}`}
+                          style={{
+                            ...provided.draggableProps.style,
+                            width: "100%", // 🚀 LOCK WIDTH
+                          }}
+                          className={`rounded-lg border bg-gray-50 transition-all duration-200
+                  ${
+                    snapshot.isDragging
+                      ? "shadow-lg ring-2 ring-indigo-500"
+                      : ""
+                  }
+                `}
                         >
-                          {/* Drag Handle */}
-                          <div 
-                            {...provided.dragHandleProps}
-                            className="flex items-center justify-center cursor-move text-gray-400 hover:text-gray-600 self-start pt-2"
-                          >
-                            <GripVertical className="h-5 w-5" />
-                          </div>
-                          
-                          <div className="grid grid-cols-1 gap-4">
+                          {/* INNER CONTENT WRAPPER */}
+                          <div className="p-4 grid grid-cols-[auto_1fr_auto] gap-4">
+                            {/* Drag Handle */}
                             <div
-                              className={`${
-                                errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.path
-                                  ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                                  : ""
-                              }`}
+                              {...provided.dragHandleProps}
+                              className="flex items-center justify-center cursor-move text-gray-400 hover:text-gray-600 self-start pt-2"
                             >
-                              <ImageUpload
-                                ref={setImageUploadRef(mediaItems.findIndex(item => item.id === media.id))}
-                                label="Media Image"
-                                value={media.path}
-                                onChange={(val, file) => {
-                                  updateMediaItem(media.id, 'path', val);
-                                  if (file) {
-                                    handleMediaItemImageUpload(media.id, val, file);
-                                  }
-                                }}
-                                folderType="PRODUCT_MEDIA"
-                                enableCrop={true}
-                                presetCropSetting="LANDING_HERO"
-                                cropLibrary="react-easy-crop"
-                              />
+                              <GripVertical className="h-5 w-5" />
                             </div>
-                            
-                            {/* Hidden Name Input Field */}
-                            <div className="hidden">
-                              <InputField
-                                label="Name"
-                                value={media.name || ""}
-                                onChange={(e) =>
-                                  updateMediaItem(media.id, "name", e.target.value)
-                                }
-                                placeholder="Name"
-                              />
-                            </div>
-                            <div className="hidden">
-                              <InputField
-                                label="Extension"
-                                value={media.extension || ""}
-                                onChange={(e) =>
-                                  updateMediaItem(media.id, "extension", e.target.value)
-                                }
-                                placeholder="Extension"
-                              />
-                            </div>
-                            <div className="hidden">
-                              <InputField
-                                label="Type"
-                                value={media.type || ""}
-                                onChange={(e) =>
-                                  updateMediaItem(media.id, "type", e.target.value)
-                                }
-                                placeholder="Type"
-                              />
-                            </div>
-                            <div className="flex gap-2">
-                              {/* Hidden Size Input Field */}
-                              <div className="flex-grow hidden">
-                                <div
-                                  className={`${
-                                    errors.media?.[mediaItems.findIndex(item => item.id === media.id)]?.size
-                                      ? "border border-red-300 rounded-lg p-2 bg-red-50"
-                                      : ""
-                                  }`}
-                                >
-                                  <InputField
-                                    label="Size (bytes)"
-                                    type="number"
-                                    value={media.size || 0}
-                                    onChange={(e) =>
-                                      updateMediaItem(
+
+                            {/* CENTER */}
+                            <div className="grid gap-4">
+                              <div
+                                className={`${
+                                  errors.media?.[index]?.path
+                                    ? "border border-red-300 rounded-lg p-2 bg-red-50"
+                                    : ""
+                                }`}
+                              >
+                                <ImageUpload
+                                  ref={setImageUploadRef(index)}
+                                  label="Media Image"
+                                  value={media.path}
+                                  onChange={(val, file) => {
+                                    updateMediaItem(media.id, "path", val);
+                                    if (file)
+                                      handleMediaItemImageUpload(
                                         media.id,
-                                        "size",
-                                        parseInt(e.target.value)
-                                      )
-                                    }
-                                    placeholder="Size"
-                                  />
-                                </div>
+                                        val,
+                                        file
+                                      );
+                                  }}
+                                  folderType="PRODUCT_MEDIA"
+                                  enableCrop
+                                  presetCropSetting="LANDING_HERO"
+                                  cropLibrary="react-easy-crop"
+                                />
+                              </div>
+
+                              <div className="hidden">
+                                <InputField
+                                  label="Name"
+                                  value={media.name || ""}
+                                  onChange={(e) =>
+                                    updateMediaItem(
+                                      media.id,
+                                      "name",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </div>
+
+                              <div className="hidden">
+                                <InputField
+                                  label="Extension"
+                                  value={media.extension || ""}
+                                  onChange={(e) =>
+                                    updateMediaItem(
+                                      media.id,
+                                      "extension",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </div>
+
+                              <div className="hidden">
+                                <InputField
+                                  label="Type"
+                                  value={media.type || ""}
+                                  onChange={(e) =>
+                                    updateMediaItem(
+                                      media.id,
+                                      "type",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </div>
+
+                              <div className="hidden">
+                                <InputField
+                                  label="Size"
+                                  type="number"
+                                  value={media.size || 0}
+                                  onChange={(e) =>
+                                    updateMediaItem(
+                                      media.id,
+                                      "size",
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                />
                               </div>
                             </div>
-                          </div>
-                          
-                          <div className="flex flex-col items-end gap-2">
-                            <div className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-1">
-                              #{index + 1}
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`published-${media.id}`}
-                                checked={Boolean(media.isPublished)}
-                                onCheckedChange={(checked) =>
-                                  updateMediaItem(media.id, "isPublished", checked)
-                                }
-                              />
-                              <Label
-                                htmlFor={`published-${media.id}`}
-                                className="text-sm font-normal"
-                              >
-                                Published
-                              </Label>
-                            </div>
-                            <div className="flex items-end pb-1">
+
+                            {/* RIGHT SIDE */}
+                            <div className="flex flex-col items-end gap-2">
+                              <div className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-1">
+                                #{index + 1}
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`published-${media.id}`}
+                                  checked={Boolean(media.isPublished)}
+                                  onCheckedChange={(checked) =>
+                                    updateMediaItem(
+                                      media.id,
+                                      "isPublished",
+                                      checked
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={`published-${media.id}`}
+                                  className="text-sm font-normal"
+                                >
+                                  Published
+                                </Label>
+                              </div>
+
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -433,6 +478,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                       )}
                     </Draggable>
                   ))}
+
                   {provided.placeholder}
                 </div>
               )}
