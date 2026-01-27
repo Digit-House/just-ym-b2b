@@ -120,6 +120,21 @@ export default ImageCrop;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // async function getCroppedFile(
 //   image: HTMLImageElement,
 //   crop: PixelCrop,
