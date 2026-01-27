@@ -73,18 +73,18 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
         {/* Embla Container (The Moving Track) */}
         <div className="flex h-full">
           {mediaList.map((media, index) => (
-            // <div 
-            //   key={index} 
-            //   className="flex-[0_0_100%] min-w-0 relative bg-gray-800"
-            // >
+            <div 
+              key={index} 
+              className="flex-[0_0_100%] min-w-0 relative bg-gray-500"
+            >
               <ImageFallback
                 key={index}
                 src={preFixImg(media.path)}
                 alt={`${productName}-${index}`}
-                className="w-full h-full"
+                className="w-full h-full object-contain"
               />
-            //   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-            // </div>
+               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+             </div>
           ))}
         </div>
       </div>
@@ -106,15 +106,15 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
 
       <button
         onClick={scrollPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-black flex items-center justify-center opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
       >
-        <ChevronLeft size={24} strokeWidth={2.5} />
+        <ChevronLeft size={24} strokeWidth={2.5} className="text-white" />
       </button>
       <button
         onClick={scrollNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-black flex items-center justify-center opacity-100 transition-all hover:bg-white/20 hover:scale-110 z-20 shadow-xl"
       >
-        <ChevronRight size={24} strokeWidth={2.5} />
+        <ChevronRight size={24} strokeWidth={2.5} className="text-white" />
       </button>
 
       {/* Badges */}
