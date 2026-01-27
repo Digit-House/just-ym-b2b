@@ -28,6 +28,15 @@ query FindAllProducts($params: UserProductsInput!) {
 }
 `;
 
+export const UPDATE_PRODUCT_POSITION=`
+mutation UpdateProductPosition($data: UpdateProductPositionInput!) {
+  updateProductPosition(data: $data) {
+    status
+    message
+  }
+}
+`;
+
 export const GET_PRODUCT_INFO = `
 query GetProductInfo($productId: String!, $date: DateTime) {
   getProductInfo(productId: $productId, date: $date) {
@@ -58,6 +67,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     isBestSeller
     isCancellable
     isGTRecommend
+    isRecommended
     isPublished
     isInstantConfirmation
     isOpenDated
@@ -96,6 +106,13 @@ query GetProductInfo($productId: String!, $date: DateTime) {
      name
      description
      isPublished
+     visitDate{
+      isOpenDated
+     }
+     ticketValidity
+     definedDuration 
+     inclusions
+     inclusions_mm
      ticketType {
         id
         name

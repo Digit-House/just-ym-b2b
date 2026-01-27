@@ -51,6 +51,7 @@ export const ticketSchema = z.object({
   isBestSeller: z.boolean().optional().nullable(),
   isCancellable: z.boolean().optional().nullable(),
   isGTRecommend: z.boolean().optional().nullable(),
+  isRecommended:z.boolean().optional().nullable(),
   isInstantConfirmation: z.boolean().optional().nullable(),
   isOpenDated: z.boolean().optional().nullable(),
   isPublished: z.boolean().optional().nullable(),
@@ -87,6 +88,16 @@ export const ticketSchema = z.object({
         name: z.string().optional().nullable(),
         description: z.string().optional().nullable(),
         isPublished: z.boolean().optional().nullable(),
+        ticketValidity: z.string().optional().nullable(),
+        visitDate: z
+          .object({
+            isOpenDated: z.boolean().default(false),
+          })
+          .optional()
+          .nullable(),
+        definedDuration: z.number().optional().nullable(),
+        inclusions: z.array(z.string()).optional().nullable(),
+        inclusions_mm: z.array(z.string()).optional().nullable(),
         ticketTypes: z
           .array(
             z.object({

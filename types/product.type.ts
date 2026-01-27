@@ -1,7 +1,3 @@
-import { BOOKING_STATUS_ENUM } from "./booking.type";
-import z from "zod";
-import { ticketSchema } from "./schema/ticketSchema";
-
 export enum AVAILABILITY_ENUM {
   AVAILABLE = "AVAILABLE",
   UNAVAILABLE = "NOT_AVAILABLE",
@@ -29,7 +25,13 @@ export type FilterProductListT = {
   };
   page: number;
   published: "ALL" | "PUBLISHED" | "UNPUBLISHED";
+  isRecommended?: boolean | null;
 };
+
+export type ProductPositionT = {
+  position:number;
+  productId:string;
+}
 
 export type ProductT = {
   category: string;
@@ -40,6 +42,7 @@ export type ProductT = {
   image: string;
   isPublished: boolean;
   isCancellable: boolean;
+  isRecommended: boolean;
   media: [];
   name: string;
   originalPrice: number;
@@ -195,12 +198,15 @@ export interface ProductOptionT {
   name: string;
   description: string;
   isPublished: boolean;
+  ticketValidity:string;
+  definedDuration:number;
   ticketType: TicketTypeT[];
   advanceBooking: AdvanceBookingT | null;
   isCapacity: boolean;
   questions: ProductOptionQuestionT[];
   visitDate: VisitDateT;
   inclusions: string[];
+  inclusions_mm: string[];
 
   // createdAt: Date;
   // currency: string;
@@ -286,8 +292,8 @@ export interface ProductOptionQuestionT {
 
 export interface VisitDateT {
   isOpenDated: boolean;
-  request: boolean;
-  required: boolean;
+  // request: boolean;
+  // required: boolean;
 }
 
 export interface OptionT {

@@ -14,6 +14,7 @@ import {
   SEED_PRODUCT_MUTATION,
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
   UPDATE_PRODUCT_MUTATION,
+  UPDATE_PRODUCT_POSITION,
 } from "./type-query/product";
 import {
   AddToCartResponse,
@@ -22,25 +23,11 @@ import {
   FindAllProductsT,
   ProductInfoResponse,
   ProductInfoT,
+  ProductPositionT,
   TicketTypeEventAvailableResponse,
   UpdateProductPayloadT,
 } from "@/types/product.type";
 
-export const getAllProducts = async (data: FilterProductListT) => {
-  try {
-    const res = await client.query({
-      query: warpGql(GET_ALL_PRODUCTS),
-      variables: {
-        params: { ...data },
-      },
-      fetchPolicy: "no-cache",
-    });
-    //@ts-ignore
-    return res.data.findAllProducts as FindAllProductsT;
-  } catch (err) {
-    throw err;
-  }
-};
 
 export const getProductInfo = async (productId: string) => {
   try {
@@ -73,8 +60,24 @@ export const updateProductInfo = async (data: UpdateProductPayloadT) => {
   }
 };
 
+export const getAllProducts = async (data: FilterProductListT) => {
+  try {
+    const res = await client.query({
+      query: warpGql(GET_ALL_PRODUCTS),
+      variables: {
+        params: { ...data },
+      },
+      fetchPolicy: "no-cache",
+    });
+    //@ts-ignore
+    return res.data.findAllProducts as FindAllProductsT;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { categories, countries, sort, published, search }] = queryKey;
+  const [_key, { categories, countries, sort, published, search, isRecommended }] = queryKey;
   
   const filter = {
     category: categories[0] || "",
@@ -83,9 +86,9 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     limit: 10,
     page: pageParam,
     published: published,
+    isRecommended: isRecommended,
     orderBy: { dir: sort?.toLowerCase() === "alphabet" ? "asc" : sort, field: sort?.toLowerCase() === 'alphabet' ? 'name' : 'updatedAt' as string },
     name:search
-    // ...(search && { search }), // Add search parameter if it exists
   };
 
   const res = await getAllProducts(filter);
@@ -94,6 +97,55 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     nextPage: res?.data?.length ? pageParam + 1 : null,
   };
 };
+
+export const fetchRecommendedProducts = async () => {
+  const filter = {
+    category: "",
+    cityId: "",
+    countryId: "",
+    limit: 50,
+    page: 1,
+    published:"PUBLISHED" as any,
+    isRecommended: true,
+    orderBy: { dir: "asc", field: "isRecommended" as string },
+    name:undefined
+  };
+  const res = await getAllProducts(filter);
+  return res;
+};
+
+export const relatedProducts = async (ticketId:string,isPublished:boolean) => {
+   const filter = {
+    category: "",
+    cityId: "",
+    countryId: "",
+    limit: 10,
+    page: 1,
+    isRecommended: false,
+    relatedFromProductId:ticketId,
+    published:isPublished ? "PUBLISHED" : "UNPUBLISHED" as any,
+    orderBy: { dir: "asc", field: "name" as string },
+    name:undefined
+  };
+  const res = await getAllProducts(filter);
+  return res;
+}
+
+//for submit
+export const updateRecommendedProductPosition = async (data:ProductPositionT[]) => {
+  try{
+    const res = await client.mutate({
+      mutation:warpGql(UPDATE_PRODUCT_POSITION),
+      variables:{
+        data: { products: data }
+      },
+      fetchPolicy:"no-cache"
+    })
+    return res;
+  }catch(err){
+    throw err;
+  }
+}
 
 export const getProductOptions = async (productId: string, date: Date) => {
   try {

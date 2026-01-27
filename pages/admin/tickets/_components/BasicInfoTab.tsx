@@ -186,11 +186,12 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
-            <Label>Category <span className="text-red-500">*</span></Label>
+            <Label>
+              Category <span className="text-red-500">*</span>
+            </Label>
             <Controller
               name="category_relation_id"
               control={control}
-              
               render={({ field }) => (
                 <Select
                   value={field.value || ""}
@@ -214,10 +215,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem
-                        key={category.id}
-                        value={category.id}
-                      >
+                      <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
                     ))}
@@ -438,6 +436,34 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
 
             <div
               className={`flex items-center space-x-3 p-3 rounded-lg ${
+                errors.isRecommended
+                  ? "bg-red-50 border border-red-300"
+                  : "bg-gray-50"
+              }`}
+            >
+              <Controller
+                name="isRecommended"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    id="isRecommended"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <div>
+                <Label htmlFor="isRecommended" className="font-medium">
+                  Recommended
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Allow Recommended
+                </p>
+              </div>
+            </div>
+
+            {/* <div
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
                 errors.isGTRecommend
                   ? "bg-red-50 border border-red-300"
                   : "bg-gray-50"
@@ -462,7 +488,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                   GlobalTix recommendation
                 </p>
               </div>
-            </div>
+            </div> */}
 
             <div
               className={`flex items-center space-x-3 p-3 rounded-lg ${

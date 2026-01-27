@@ -46,6 +46,11 @@ const TicketEditForm: React.FC<Props> = ({
           name: option.name,
           description: option.description,
           isPublished: option.isPublished,
+          ticketValidity:option.ticketValidity,
+          visitDate:option.visitDate,
+          definedDuration:option.definedDuration,
+          inclusions:option?.inclusions || [],
+          inclusions_mm:option?.inclusions_mm || [],
           ticketTypes: option.ticketType
             ? option.ticketType.map((ticket: any) => ({
                 ticketTypeId: ticket.id,
@@ -73,6 +78,7 @@ const TicketEditForm: React.FC<Props> = ({
   
 
   const form = useForm<TicketFormValues>({
+    //@ts-ignore
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       id: initialValues?.id ?? null,
@@ -106,6 +112,7 @@ const TicketEditForm: React.FC<Props> = ({
       isBestSeller: (initialValues as any)?.isBestSeller ?? false,
       isCancellable: (initialValues as any)?.isCancellable ?? false,
       isGTRecommend: (initialValues as any)?.isGTRecommend ?? false,
+      isRecommended:(initialValues as any)?.isRecommended ?? false,
       isInstantConfirmation:
         (initialValues as any)?.isInstantConfirmation ?? null,
       isOpenDated: (initialValues as any)?.isOpenDated ?? false,
@@ -264,6 +271,7 @@ const TicketEditForm: React.FC<Props> = ({
           errors.image ||
           errors.isBestSeller ||
           errors.isCancellable ||
+          errors.isRecommended ||
           errors.isGTRecommend ||
           errors.isInstantConfirmation ||
           errors.isOpenDated
@@ -384,14 +392,14 @@ const TicketEditForm: React.FC<Props> = ({
     }
   
     const { category: _,...restOfValues } = values;
-    
     const payload = {
       ...restOfValues,
       image: processedImage, 
       media: processedMedia, 
       productOptions: values.productOptions.map((d) => {
+        const {ticketValidity:_,definedDuration:__,...restOfValues} = d;
         return {
-          ...d,
+          ...restOfValues,
           ticketTypes: d.ticketTypes.map((t) => {
             return {
               ticketTypeId: t.ticketTypeId,

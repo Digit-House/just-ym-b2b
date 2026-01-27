@@ -6,7 +6,7 @@ const ReadOnly = ({ label, value, valueClassName }: { label: string; value: stri
       <p className="text-xs ">{label}</p>
       <LockKeyhole size={12} className="mb-1" />
     </div>
-    <div className={`h-9 flex items-center px-3 rounded-md bg-gray-100 border ${valueClassName || ''}`}>
+    <div className={`h-9 text-sm flex items-center px-3 rounded-md bg-gray-100 border ${valueClassName || ''}`}>
       {value}
     </div>
   </div>
