@@ -175,6 +175,7 @@ export interface BlockedDateT {
 export interface MediaFileT {
   extension: "jpeg" | "png" | null;
   isPublished: boolean | null;
+  position: number | null;
   name: string | null;
   path: string | null;
   size: number | null;

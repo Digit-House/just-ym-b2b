@@ -18,21 +18,17 @@ import { useRef } from "react";
 const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 
 type MediaTabProps = {
-  control: Control<TicketFormValues>;
   errors: FieldErrors<TicketFormValues>;
   watch: any;
   setValue: any;
-  mode: "create" | "edit";
   initialValues?: UpdateProductPayloadT | ProductInfoT;
   setMediaItemRef?: (index: number) => (ref: ImageUploadRef | null) => void;
 };
 
 const MediaTab: React.FC<MediaTabProps> = ({
-  control,
   errors,
   watch,
   setValue,
-  mode,
   initialValues,
   setMediaItemRef,
 }) => {
@@ -138,6 +134,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
         type: null,
         size: null,
         path: null,
+        position:null,
         name: null,
         isPublished: null,
         extension: null,
