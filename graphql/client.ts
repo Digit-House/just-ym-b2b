@@ -10,6 +10,7 @@ import {
 } from "@apollo/client/errors";
 import { ErrorLink } from "@apollo/client/link/error";
 import { LSKeys, clearLSItem } from "../util/initData";
+import { toast } from "sonner";
 
 const handleUnauthorized = () => {
   clearLSItem(LSKeys.callBack);
@@ -19,6 +20,13 @@ const handleUnauthorized = () => {
   if (typeof window !== "undefined") {
     window.location.href = "/";
   }
+};
+
+const handleGatewayTimeout = () => {
+  toast.error("Gateway Timeout", {
+    description: "The server took too long to respond. Please try again later.",
+    duration: 5000,
+  });
 };
 
 const removeTypename = (value: any): any => {
@@ -76,31 +84,28 @@ const errorLink = new ErrorLink(({ error }) => {
       if (statusCode === 401 || err?.message === "Unauthorized") {
         handleUnauthorized();
       }
+      
+      // Handle 504 Gateway Timeout errors
+      if (statusCode === 504) {
+        handleGatewayTimeout();
+      }
 
       console.error(`[GraphQL error]: ${err.message}`, err.locations, err.path);
     });
     return;
   }
 
-  if (CombinedProtocolErrors.is(error)) {
-    error.errors.forEach((err: any) => {
-      const status =
-        err?.extensions?.http?.status ?? err?.extensions?.response?.status;
-
-      if (status === 401) {
-        handleUnauthorized();
-      }
-
-      console.error(`[Protocol error]: ${err.message}`, err.extensions);
-    });
-    return;
-  }
-
+  
   const networkStatus =
     (error as any)?.statusCode ?? (error as any)?.response?.status;
 
   if (networkStatus === 401) {
     handleUnauthorized();
+  }
+  
+  // Handle 504 Gateway Timeout errors
+  if (networkStatus === 504) {
+    handleGatewayTimeout();
   }
 
   console.error("[Network error]", error);
