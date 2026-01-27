@@ -220,9 +220,35 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg, image/jpg"
             disabled={disabled}
+            draggable={true}
             onChange={handleFileChange}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (disabled) return;
+              
+              const files = e.dataTransfer.files;
+              if (files && files.length > 0) {
+                const file = files[0];
+                // Create a mock input element to hold the file
+                const input = document.createElement('input');
+                input.type = 'file';
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                input.files = dataTransfer.files;
+                
+                const event = {
+                  target: input
+                } as unknown as React.ChangeEvent<HTMLInputElement>;
+                handleFileChange(event);
+              }
+            }}
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
 
@@ -257,7 +283,8 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           ) : (
             <div className="flex flex-col items-center text-muted-foreground">
               <Upload className="w-6 h-6 mb-1" />
-              <span className="text-xs font-medium">Click to upload</span>
+              <span className="text-xs font-medium">Click to upload or Drag and drop</span>
+              <span className="text-xs text-gray-500 mt-1">Only PNG, JPG, JPEG files accepted</span>
             </div>
           )}
         </div>

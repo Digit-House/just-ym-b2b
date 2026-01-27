@@ -7,6 +7,7 @@ import { TicketFormValues, ticketSchema } from "@/types/schema/ticketSchema";
 import {
   ProductInfoT,
   ProductOptionT,
+  TicketTypeT,
   UpdateProductPayloadT,
 } from "@/types/product.type";
 import BasicInfoTab from "./BasicInfoTab";
@@ -52,7 +53,7 @@ const TicketEditForm: React.FC<Props> = ({
           inclusions:option?.inclusions || [],
           inclusions_mm:option?.inclusions_mm || [],
           ticketTypes: option.ticketType
-            ? option.ticketType.map((ticket: any) => ({
+            ? option.ticketType.map((ticket: TicketTypeT) => ({
                 ticketTypeId: ticket.id,
                 name: ticket.name,
                 quantity: ticket.quantity,
@@ -525,11 +526,9 @@ const TicketEditForm: React.FC<Props> = ({
 
         <div style={{ display: currentTab === "media" ? "block" : "none" }}>
           <MediaTab
-            control={control}
             errors={errors}
             watch={watch}
             setValue={setValue}
-            mode={mode}
             initialValues={initialValues as ProductInfoT}
             setMediaItemRef={setMediaItemRef}
           />
