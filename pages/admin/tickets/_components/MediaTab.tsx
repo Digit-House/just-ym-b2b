@@ -292,7 +292,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     }}
                     folderType="PRODUCT_MEDIA"
                     enableCrop={true}
-                    presetCropSetting="GET_INSPIRED_BIG"
+                    presetCropSetting="LANDING_HERO"
                     cropLibrary="react-easy-crop"
                   />
                 </div>

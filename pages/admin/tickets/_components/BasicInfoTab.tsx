@@ -87,7 +87,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 folderType="PRODUCT_MEDIA"
                 isRequired={!watch("image")} // Always required
                 enableCrop={true}
-                presetCropSetting="GET_INSPIRED_BIG"
+                presetCropSetting="TICKET_CARD"
                 cropLibrary="react-easy-crop"
               />
             )}

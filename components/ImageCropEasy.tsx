@@ -39,18 +39,14 @@ const ImageCropEasy: React.FC<ImageCropEasyProps> = ({
 
   const onCropCompleteHandler = useCallback(
     (_croppedArea: any, croppedAreaPixels: any) => {
-      console.log('Crop complete:', { _croppedArea, croppedAreaPixels });
       setCroppedAreaPixels(croppedAreaPixels);
     },
     []
   );
 
   const applyCrop = async () => {
-    console.log('Apply crop clicked', { croppedAreaPixels, imgRef: !!imgRef.current });
-    
+   
     if (!croppedAreaPixels) {
-      console.log('Cannot apply crop - missing croppedAreaPixels');
-      console.log('croppedAreaPixels:', croppedAreaPixels);
       return;
     }
     
@@ -65,8 +61,6 @@ const ImageCropEasy: React.FC<ImageCropEasyProps> = ({
       });
     }
     
-    console.log('Image ready for cropping:', img);
-
     const file = await getCroppedFile(
       img,
       {
@@ -90,7 +84,6 @@ const ImageCropEasy: React.FC<ImageCropEasyProps> = ({
 
   // Also capture image ref directly from Cropper component
   const handleMediaLoaded = (media: HTMLImageElement) => {
-    console.log('Media loaded from cropper:', media);
     if (media && media.complete) {
       imgRef.current = media;
     }

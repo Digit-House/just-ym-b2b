@@ -11,9 +11,9 @@ export interface CropSettings {
 export const CROP_SETTINGS = {
   // 🎟 Ticket Card Image — 418×208 → ~2.01:1
   TICKET_CARD: {
-    aspect: 418/ 208, // ✅ FIXED
-    minWidth: 418,
-    minHeight: 208,
+    aspect: 307/  192, // ✅ FIXED
+    minWidth: 307,
+    minHeight: 192,
   },
 
   // 🗂 Category Image — 252×208 → 63:52

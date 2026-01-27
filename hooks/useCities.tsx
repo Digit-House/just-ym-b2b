@@ -39,7 +39,7 @@ export const useCities = ({
 
         return data?.cities || [];
       } catch (err) {
-        console.log("Error fetching cities:", err);
+        console.error("Error fetching cities:", err);
         return [];
       }
     },

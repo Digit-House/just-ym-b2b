@@ -48,7 +48,7 @@ const DashboardLayout = () => {
         setAddToCartCount(res.data.myCart.itemsCount);
       }
     } catch (err) {
-      console.log(err);
+       toast.error(getErrMsg(err, "message"));
     }
   };
 

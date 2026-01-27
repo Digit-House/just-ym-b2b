@@ -35,7 +35,7 @@ export const useCountries = ({
         });
         return data?.countries || [];
       } catch (err) {
-        console.log("Error fetching countries:", err);
+        console.error("Error fetching countries:", err);
         return [];
       }
     },
