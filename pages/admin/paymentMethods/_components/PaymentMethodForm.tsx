@@ -151,7 +151,36 @@ export default function PaymentMethodForm({
       </div>
 
       {/* Logo Upload */}
-      <ImageUpload
+       {type === "QR_CODE" && (
+        <>
+          <ImageUpload
+            ref={qrCodeImageUploadRef}
+            label="QR Code Image"
+            isRequired
+            value={watch("qrCodeUrl")}
+            onChange={(val) => setValue("qrCodeUrl", val)}
+            errMsg={errors.qrCodeUrl?.message}
+            folderType="CREDIT_TOP_UP"
+            maxSizeMB={5}
+            allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
+            enableCrop={false}
+            presetCropSetting="PAYMENT_LOGO_SQUARE"
+          />
+
+          {/* QR Code Preview for Edit Mode */}
+          {isEdit && watch("qrCodeUrl") && (
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <ImagePreview
+                images={[watch("qrCodeUrl")]}
+                title="Current QR Code Preview"
+                className="w-full"
+              />
+            </div>
+          )}
+        </>
+      )}
+
+       <ImageUpload
         ref={logoImageUploadRef}
         label="Logo Image"
         value={watch("logo")}
@@ -160,7 +189,7 @@ export default function PaymentMethodForm({
         folderType="CREDIT_TOP_UP"
         maxSizeMB={5}
         allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
-        enableCrop={true}
+        enableCrop={false}
         presetCropSetting="PAYMENT_LOGO_SQUARE"
       />
 
@@ -222,34 +251,7 @@ export default function PaymentMethodForm({
           </>
         )}
       </>
-      {type === "QR_CODE" && (
-        <>
-          <ImageUpload
-            ref={qrCodeImageUploadRef}
-            label="QR Code Image"
-            isRequired
-            value={watch("qrCodeUrl")}
-            onChange={(val) => setValue("qrCodeUrl", val)}
-            errMsg={errors.qrCodeUrl?.message}
-            folderType="CREDIT_TOP_UP"
-            maxSizeMB={5}
-            allowedTypes={['image/jpeg', 'image/jpg', 'image/png']}
-            enableCrop={true}
-            presetCropSetting="PAYMENT_LOGO_SQUARE"
-          />
-
-          {/* QR Code Preview for Edit Mode */}
-          {isEdit && watch("qrCodeUrl") && (
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <ImagePreview
-                images={[watch("qrCodeUrl")]}
-                title="Current QR Code Preview"
-                className="w-full"
-              />
-            </div>
-          )}
-        </>
-      )}
+     
 
       <TextareaField
         label="Description"
