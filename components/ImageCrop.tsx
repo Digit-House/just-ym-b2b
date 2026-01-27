@@ -1,15 +1,8 @@
 import React, { useRef, useState } from "react";
 import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { CROP_SETTINGS, CropSettingType } from "@/lib/cropSettings";
+import { CROP_SETTINGS, CropSettings, CropSettingType, getCroppedFile } from "@/lib/cropSettings";
 
-interface CropSettings {
-  aspect?: number;
-  minWidth?: number;
-  minHeight?: number;
-  maxWidth?: number;
-  maxHeight?: number;
-}
 
 interface ImageCropProps {
   isOpen: boolean;
@@ -36,8 +29,7 @@ const ImageCrop: React.FC<ImageCropProps> = ({
     ? CROP_SETTINGS[presetCropSetting]
     : cropSettings;
 
-  const [aspect, setAspect] = useState<number | undefined>(undefined);
-
+ 
   const [crop, setCrop] = useState<Crop>({
     unit: "%",
     x: 10,
@@ -54,7 +46,6 @@ const ImageCrop: React.FC<ImageCropProps> = ({
   const getCropProps = () => {
     const props: any = {};
 
-    if (aspect !== undefined) props.aspect = aspect;
     if (resolvedCropSettings?.minWidth !== undefined)
       props.minWidth = resolvedCropSettings.minWidth;
     if (resolvedCropSettings?.minHeight !== undefined)
@@ -65,19 +56,6 @@ const ImageCrop: React.FC<ImageCropProps> = ({
 
   const onImageLoaded = (img: HTMLImageElement) => {
     imgRef.current = img;
-  };
-
-  const handleAspectChange = (newAspect?: number) => {
-    setAspect(newAspect);
-
-    setCrop({
-      unit: "%",
-      x: 10,
-      y: 10,
-      width: 80,
-      height: newAspect ? 80 / newAspect : 80,
-      // aspect: newAspect ?? undefined,
-    });
   };
 
   const applyCrop = async () => {
@@ -107,7 +85,7 @@ const ImageCrop: React.FC<ImageCropProps> = ({
             src={imageSrc}
             onLoad={(e) => onImageLoaded(e.currentTarget)}
             alt="Crop"
-            className="max-h-[60vh] mx-auto"
+            className="mx-auto"
           />
         </ReactCrop>
 
@@ -138,63 +116,65 @@ const ImageCrop: React.FC<ImageCropProps> = ({
 
 export default ImageCrop;
 
-/* -------------------- CANVAS UTILITY -------------------- */
 
-async function getCroppedFile(
-  image: HTMLImageElement,
-  crop: PixelCrop,
-  fileName: string,
-  cropSettings?: CropSettings
-): Promise<File> {
-  const canvas = document.createElement("canvas");
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
 
-  // Actual pixel dimensions of the crop region
-  let cropWidth = crop.width * scaleX;
-  let cropHeight = crop.height * scaleY;
 
-  // Respect maxWidth/maxHeight if provided, otherwise keep full resolution
-  if (cropSettings?.maxWidth && cropWidth > cropSettings.maxWidth) {
-    const ratio = cropSettings.maxWidth / cropWidth;
-    cropWidth = cropSettings.maxWidth;
-    cropHeight = cropHeight * ratio;
-  }
-  if (cropSettings?.maxHeight && cropHeight > cropSettings.maxHeight) {
-    const ratio = cropSettings.maxHeight / cropHeight;
-    cropHeight = cropSettings.maxHeight;
-    cropWidth = cropWidth * ratio;
-  }
 
-  canvas.width = cropWidth;
-  canvas.height = cropHeight;
+// async function getCroppedFile(
+//   image: HTMLImageElement,
+//   crop: PixelCrop,
+//   fileName: string,
+//   cropSettings?: CropSettings
+// ): Promise<File> {
+//   const canvas = document.createElement("canvas");
+//   const scaleX = image.naturalWidth / image.width;
+//   const scaleY = image.naturalHeight / image.height;
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas error");
+//   let cropWidth = crop.width * scaleX;
+//   let cropHeight = crop.height * scaleY;
 
-  ctx.drawImage(
-    image,
-    crop.x * scaleX,
-    crop.y * scaleY,
-    crop.width * scaleX,
-    crop.height * scaleY,
-    0,
-    0,
-    cropWidth,
-    cropHeight
-  );
+//   if (cropSettings?.maxWidth && cropWidth > cropSettings.maxWidth) {
+//     const ratio = cropSettings.maxWidth / cropWidth;
+//     cropWidth = cropSettings.maxWidth;
+//     cropHeight = cropHeight * ratio;
+//   }
+//   if (cropSettings?.maxHeight && cropHeight > cropSettings.maxHeight) {
+//     const ratio = cropSettings.maxHeight / cropHeight;
+//     cropHeight = cropSettings.maxHeight;
+//     cropWidth = cropWidth * ratio;
+//   }
 
-  return new Promise((resolve) => {
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) throw new Error("Crop failed");
-        resolve(new File([blob], fileName, { type: "image/jpeg" }));
-      },
-      "image/jpeg",
-      1
-    );
-  });
-}
+//   canvas.width = cropWidth;
+//   canvas.height = cropHeight;
+
+//   const ctx = canvas.getContext("2d");
+//   if (!ctx) throw new Error("Canvas error");
+
+//   ctx.drawImage(
+//     image,
+//     crop.x * scaleX,
+//     crop.y * scaleY,
+//     crop.width * scaleX,
+//     crop.height * scaleY,
+//     0,
+//     0,
+//     cropWidth,
+//     cropHeight
+//   );
+
+//   return new Promise((resolve) => {
+//     canvas.toBlob(
+//       (blob) => {
+//         if (!blob) throw new Error("Crop failed");
+//         resolve(new File([blob], fileName, { type: "image/jpeg" }));
+//       },
+//       "image/jpeg",
+//       1
+//     );
+//   });
+// }
+
+
 
 // async function getCroppedFile(
 //   image: HTMLImageElement,
