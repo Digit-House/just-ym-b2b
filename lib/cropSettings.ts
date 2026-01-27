@@ -11,7 +11,7 @@ export interface CropSettings {
 export const CROP_SETTINGS = {
   // 🎟 Ticket Card Image — 418×208 → ~2.01:1
   TICKET_CARD: {
-    aspect: 418 / 208, // ✅ FIXED
+    aspect: 418/ 208, // ✅ FIXED
     minWidth: 418,
     minHeight: 208,
   },
@@ -182,6 +182,65 @@ export const CROP_SETTINGS = {
 
 export type CropSettingType = keyof typeof CROP_SETTINGS;
 
+/**
+ * Get human-readable information about crop settings
+ */
+export function getCropSettingsInfo(settings: CropSettings | undefined, presetName?: CropSettingType): { label: string, description: string } {
+  if (!settings) {
+    return {
+      label: "Flexible",
+      description: "No specific crop requirements"
+    };
+  }
+
+  if (presetName) {
+    const presetLabelMap: Record<CropSettingType, string> = {
+      TICKET_CARD: "Ticket Card",
+      CATEGORY_IMAGE: "Category Image", 
+      GET_INSPIRED_BIG: "Get Inspired (Big)",
+      GET_INSPIRED_SMALL: "Get Inspired (Small)",
+      LANDING_HERO: "Landing Hero",
+      EXPLORE_PAGE: "Explore Page",
+      TICKET_DETAIL_BIG: "Ticket Detail (Big)",
+      TICKET_DETAIL_SMALL: "Ticket Detail (Small)",
+      PAYMENT_LOGO_SQUARE: "Payment Logo (Square)",
+      PAYMENT_LOGO_LANDSCAPE: "Payment Logo (Landscape)",
+      DOCUMENT_UPLOAD: "Document Upload",
+      PROFILE_IMAGE: "Profile Image",
+    };
+
+    const presetDescMap: Record<CropSettingType, string> = {
+      TICKET_CARD: `Fixed aspect ratio: ${(CROP_SETTINGS.TICKET_CARD.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.TICKET_CARD.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.TICKET_CARD.minWidth}×${CROP_SETTINGS.TICKET_CARD.minHeight}px`,
+      CATEGORY_IMAGE: `Fixed aspect ratio: ${(CROP_SETTINGS.CATEGORY_IMAGE.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.CATEGORY_IMAGE.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.CATEGORY_IMAGE.minWidth}×${CROP_SETTINGS.CATEGORY_IMAGE.minHeight}px`,
+      GET_INSPIRED_BIG: `Fixed aspect ratio: ${(CROP_SETTINGS.GET_INSPIRED_BIG.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.GET_INSPIRED_BIG.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.GET_INSPIRED_BIG.minWidth}×${CROP_SETTINGS.GET_INSPIRED_BIG.minHeight}px`,
+      GET_INSPIRED_SMALL: `Fixed aspect ratio: ${(CROP_SETTINGS.GET_INSPIRED_SMALL.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.GET_INSPIRED_SMALL.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.GET_INSPIRED_SMALL.minWidth}×${CROP_SETTINGS.GET_INSPIRED_SMALL.minHeight}px`,
+      LANDING_HERO: `Fixed aspect ratio: ${(CROP_SETTINGS.LANDING_HERO.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.LANDING_HERO.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.LANDING_HERO.minWidth}×${CROP_SETTINGS.LANDING_HERO.minHeight}px`,
+      EXPLORE_PAGE: `Fixed aspect ratio: ${(CROP_SETTINGS.EXPLORE_PAGE.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.EXPLORE_PAGE.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.EXPLORE_PAGE.minWidth}×${CROP_SETTINGS.EXPLORE_PAGE.minHeight}px`,
+      TICKET_DETAIL_BIG: `Fixed aspect ratio: ${(CROP_SETTINGS.TICKET_DETAIL_BIG.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.TICKET_DETAIL_BIG.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.TICKET_DETAIL_BIG.minWidth}×${CROP_SETTINGS.TICKET_DETAIL_BIG.minHeight}px`,
+      TICKET_DETAIL_SMALL: `Fixed aspect ratio: ${(CROP_SETTINGS.TICKET_DETAIL_SMALL.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.TICKET_DETAIL_SMALL.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.TICKET_DETAIL_SMALL.minWidth}×${CROP_SETTINGS.TICKET_DETAIL_SMALL.minHeight}px`,
+      PAYMENT_LOGO_SQUARE: `Fixed aspect ratio: ${(CROP_SETTINGS.PAYMENT_LOGO_SQUARE.aspect || 1).toFixed(2)}, Min: ${CROP_SETTINGS.PAYMENT_LOGO_SQUARE.minWidth}×${CROP_SETTINGS.PAYMENT_LOGO_SQUARE.minHeight}px`,
+      PAYMENT_LOGO_LANDSCAPE: `Fixed aspect ratio: ${(CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.minWidth}×${CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.minHeight}px`,
+      DOCUMENT_UPLOAD: `Flexible ratio, Min: ${CROP_SETTINGS.DOCUMENT_UPLOAD.minWidth}×${CROP_SETTINGS.DOCUMENT_UPLOAD.minHeight}px`,
+      PROFILE_IMAGE: `Fixed aspect ratio: ${(CROP_SETTINGS.PROFILE_IMAGE.aspect || 1).toFixed(2)}, Min: ${CROP_SETTINGS.PROFILE_IMAGE.minWidth}×${CROP_SETTINGS.PROFILE_IMAGE.minHeight}px`,
+    };
+
+    return {
+      label: presetLabelMap[presetName],
+      description: presetDescMap[presetName]
+    };
+  } else {
+    // Custom settings
+    const aspectRatio = settings.aspect ? settings.aspect.toFixed(2) : "Flexible";
+    const aspectStr = settings.aspect ? ` (${Math.round(settings.aspect * 100)}:${100})` : '';
+    const minSize = settings.minWidth && settings.minHeight ? `, Min: ${settings.minWidth}×${settings.minHeight}px` : '';
+    
+    return {
+      label: "Custom Settings",
+      description: `Aspect ratio: ${aspectRatio}${aspectStr}${minSize}`
+    };
+  }
+}
+
 
 
 export async function getCroppedFile(
@@ -241,3 +300,5 @@ export async function getCroppedFile(
     );
   });
 }
+
+

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import Cropper from "react-easy-crop";
-import { CROP_SETTINGS, CropSettings, CropSettingType, getCroppedFile } from "@/lib/cropSettings";
+import { CROP_SETTINGS, CropSettings, CropSettingType, getCroppedFile, getCropSettingsInfo } from "@/lib/cropSettings";
 
 interface ImageCropEasyProps {
   isOpen: boolean;
@@ -31,6 +31,9 @@ const ImageCropEasy: React.FC<ImageCropEasyProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isCropped, setIsCropped] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
+
+  // Get crop settings info
+  const cropSettingsInfo = getCropSettingsInfo(resolvedCropSettings, presetCropSetting);
 
   if (!isOpen) return null;
 
@@ -121,10 +124,17 @@ const ImageCropEasy: React.FC<ImageCropEasyProps> = ({
         <div className="bg-white rounded-md w-full max-w-2xl">
           {/* Header */}
           <div className="p-4 border-b">
-            <h3 className="text-lg font-semibold">Cropped Preview</h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Your image has been cropped successfully
-            </p>
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-semibold">Cropped Preview</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {cropSettingsInfo.description}
+                </p>
+              </div>
+              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                {cropSettingsInfo.label}
+              </span>
+            </div>
           </div>
 
           {/* Preview */}
@@ -163,10 +173,17 @@ const ImageCropEasy: React.FC<ImageCropEasyProps> = ({
       <div className="bg-white rounded-md w-full max-w-3xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-4 border-b">
-          <h3 className="text-lg font-semibold">Crop Image</h3>
-          <p className="text-sm text-gray-500 mt-1">
-            Adjust the crop area to fit your desired aspect ratio
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-lg font-semibold">Crop Image</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {cropSettingsInfo.description}
+              </p>
+            </div>
+            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+              {cropSettingsInfo.label}
+            </span>
+          </div>
         </div>
 
         {/* Crop Area */}
