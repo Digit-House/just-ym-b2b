@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import BackBtn from "@/components/BackBtn";
-import RelatedTicketsAdmin from "@/pages/admin/tickets/_components/RelatedTicketsAdmin";
 import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicketsCarousel";
 
 const AdminTicketEdit = () => {
@@ -104,7 +103,7 @@ const AdminTicketEdit = () => {
 
       await updateProductInfo(updatedFormData as UpdateProductPayloadT);
       toast.success("Successfully Updated !");
-      // navigate("/tickets");
+      navigate("/tickets");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
