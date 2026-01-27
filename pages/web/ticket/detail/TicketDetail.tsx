@@ -13,6 +13,7 @@ import SevenDayPicker from "./_components/SevenDayPicker";
 import ProductionOptionSelecter from "./_components/ProductionOptionSelecter";
 import VariantSelecter from "./_components/VariantSelecter";
 import ProductAddToCart from "./_components/ProductAddToCart";
+import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicketsCarousel";
 
 const TicketDetail = () => {
   const { id } = useParams();
@@ -149,6 +150,12 @@ const TicketDetail = () => {
           />
         </div>
       </div>
+      {product && (
+        <RelatedTicketsCarousel
+          ticketId={product.id}
+          isPublished={product.isPublished}
+        />
+      )}
     </PageContainer>
   );
 };

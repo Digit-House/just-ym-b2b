@@ -98,13 +98,12 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
   };
 };
 
-//for fetchRecommendedProducts
 export const fetchRecommendedProducts = async () => {
   const filter = {
     category: "",
     cityId: "",
     countryId: "",
-    limit: 30,
+    limit: 50,
     page: 1,
     published:"PUBLISHED" as any,
     isRecommended: true,
@@ -114,6 +113,23 @@ export const fetchRecommendedProducts = async () => {
   const res = await getAllProducts(filter);
   return res;
 };
+
+export const relatedProducts = async (ticketId:string,isPublished:boolean) => {
+   const filter = {
+    category: "",
+    cityId: "",
+    countryId: "",
+    limit: 10,
+    page: 1,
+    isRecommended: false,
+    relatedFromProductId:ticketId,
+    published:isPublished ? "PUBLISHED" : "UNPUBLISHED" as any,
+    orderBy: { dir: "asc", field: "name" as string },
+    name:undefined
+  };
+  const res = await getAllProducts(filter);
+  return res;
+}
 
 //for submit
 export const updateRecommendedProductPosition = async (data:ProductPositionT[]) => {
