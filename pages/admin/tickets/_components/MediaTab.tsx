@@ -12,6 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { ImageUpload, ImageUploadRef } from "@/components/ImageUpload";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRef } from "react";
 import {
   DragDropContext,
@@ -39,6 +46,11 @@ const MediaTab: React.FC<MediaTabProps> = ({
   initialValues,
   setMediaItemRef,
 }) => {
+  // State for crop library selection
+  const [cropLibrary, setCropLibrary] = useState<
+    "react-image-crop" | "react-easy-crop"
+  >("react-easy-crop");
+
   // Use a ref to store the initial media items to prevent re-initialization
   const initialMediaItemsRef = useRef<MediaFileT[] | null>(null);
   const hasInitializedFromFormRef = useRef<boolean>(false);
@@ -359,6 +371,33 @@ const MediaTab: React.FC<MediaTabProps> = ({
                                     : ""
                                 }`}
                               >
+                                {/* Crop Library Selection */}
+                                <div className="mb-4">
+                                  <Label className="text-sm font-medium mb-2 block">
+                                    Crop Library
+                                  </Label>
+                                  <Select
+                                    value={cropLibrary}
+                                    onValueChange={(
+                                      value:
+                                        | "react-image-crop"
+                                        | "react-easy-crop"
+                                    ) => setCropLibrary(value)}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select crop library" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="react-easy-crop">
+                                        React Easy Crop
+                                      </SelectItem>
+                                       <SelectItem value="react-image-crop">
+                                        React Image Crop
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
                                 <ImageUpload
                                   ref={setImageUploadRef(index)}
                                   label="Media Image"
@@ -375,7 +414,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                                   folderType="PRODUCT_MEDIA"
                                   enableCrop
                                   presetCropSetting="LANDING_HERO"
-                                  cropLibrary="react-easy-crop"
+                                  cropLibrary={cropLibrary}
                                 />
                               </div>
 
