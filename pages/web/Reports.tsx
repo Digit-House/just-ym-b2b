@@ -75,14 +75,15 @@ const Reports = () => {
 
   const [reportData, setReportData] = useState<ReportMonthT[]>([]);
 
-  const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
-  const { data: COUNTRIES } = useCountries({
-    limit: 250,
-    page: 1,
-    orderBy: { dir: "asc" },
-    isPublished: true,
-    search:undefined
-  });
+  // do not remove
+  // const { data: CATEGORIES } = useCategories({ limit: 10, page: 1 });
+  // const { data: COUNTRIES } = useCountries({
+  //   limit: 250,
+  //   page: 1,
+  //   orderBy: { dir: "asc" },
+  //   isPublished: true,
+  //   search:undefined
+  // });
 
 
   useEffect(() => {
@@ -105,7 +106,6 @@ const Reports = () => {
 
       //@ts-ignore
       const monthData = res?.data?.monthlySalesReport;
-
       setReportData(monthData?.data ?? []);
       setReportStats({
         allTimeProfit: monthData?.allTimeProfit ?? 0,
@@ -213,8 +213,9 @@ const Reports = () => {
             </PopoverContent>
           </Popover>
 
+           {/* // do not remove        */}
           {/* Category & Country */}
-          <div className="flex items-center border border-gray-200 px-2 rounded-md">
+          {/* <div className="flex items-center border border-gray-200 px-2 rounded-md">
             <Select
               label="Categories"
               placeholder="Categories"
@@ -231,7 +232,7 @@ const Reports = () => {
               onChange={() => {}}
               width="w-32"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Export */}
