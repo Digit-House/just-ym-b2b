@@ -4,7 +4,9 @@ import {
   ADD_TO_CART_DATA_TYPE,
   ADD_TO_CART_ITEM_DATA_TYPE,
 } from "@/types/product.type";
+import { getErrMsg } from "@/util/initData";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const useCart = () => {
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export const useCart = () => {
         setData(res);
       }
     } catch (e) {
-      console.log(e);
+      toast.error(getErrMsg(e, "message"));
     } finally {
       setLoading(false);
     }

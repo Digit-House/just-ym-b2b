@@ -1,6 +1,8 @@
 import { getBookingDetail } from "@/graphql/booking";
 import { MY_BOOKING_DATA_TYPE } from "@/types/booking.type";
+import { getErrMsg } from "@/util/initData";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const usePreview = (id?: string) => {
   const [bookingDetail, setBookingDetail] =
@@ -23,7 +25,7 @@ export const usePreview = (id?: string) => {
         setBookingDetail(res.data.getTransactionDetailBy);
       }
     } catch (err) {
-      console.log(err);
+      toast.error(getErrMsg(err, "message"));
     } finally {
       setLoading(false);
     }

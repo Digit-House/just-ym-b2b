@@ -109,7 +109,6 @@ const VoucherForm = ({ data }: Props) => {
           navigate("/vouchers");
         }
       } catch (err) {
-        console.log(err);
         toast.error(getErrMsg(err, "message"));
       } finally {
         setLoading(false);
@@ -142,7 +141,6 @@ const VoucherForm = ({ data }: Props) => {
           navigate("/vouchers");
         }
       } catch (err) {
-        console.log(err);
         toast.error(getErrMsg(err, "message"));
       } finally {
         setLoading(false);

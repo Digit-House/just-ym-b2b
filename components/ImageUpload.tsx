@@ -4,12 +4,13 @@ import React, {
   useImperativeHandle,
   useRef,
 } from "react";
-import { Upload, X, LockKeyhole } from "lucide-react";
+import { Upload, X, LockKeyhole, Info } from "lucide-react";
 import { toast } from "sonner";
 import { preFixImg } from "@/util/initData";
 import ImageFallback from "./ImageFallback";
 import ImageCrop from "./ImageCrop";
-import { CropSettingType } from "@/lib/cropSettings";
+import ImageCropEasy from "./ImageCropEasy";
+import { CropSettingType, getCropSettingsInfo } from "@/lib/cropSettings";
 
 /* -------------------- TYPES -------------------- */
 
@@ -37,6 +38,7 @@ type ImageUploadProps = {
   cropShape?: "rect" | "round";
   presetCropSetting?: CropSettingType;
   mode?: "create" | "edit";
+  cropLibrary?: "react-image-crop" | "react-easy-crop"; // New prop to choose cropper
 };
 
 export type ImageUploadRef = {
@@ -59,6 +61,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       cropSettings,
       presetCropSetting,
       mode = "create",
+      cropLibrary = "react-image-crop", // Default to react-image-crop
     },
     ref
   ) => {
@@ -206,6 +209,14 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         )}
 
         <div className="relative group w-full h-50 border-2 border-dashed rounded-md flex items-center justify-center bg-secondary/20 hover:bg-secondary/50 transition">
+          {enableCrop && (presetCropSetting || cropSettings) && (
+            <div className="absolute top-2 left-2 flex items-center gap-1 text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
+              <Info className="w-3 h-3" />
+              <span className="truncate max-w-[120px]">
+                {getCropSettingsInfo(cropSettings, presetCropSetting).label}
+              </span>
+            </div>
+          )}
           <input
             ref={fileInputRef}
             type="file"
@@ -288,15 +299,27 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         {/* CROP DIALOG */}
         {enableCrop && cropDialogOpen && (
           <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center">
-            <ImageCrop
-              isOpen={cropDialogOpen}
-              onClose={handleCropCancel}
-              imageSrc={imageSrc || ""}
-              onCropComplete={handleCropComplete}
-              presetCropSetting={presetCropSetting}
-              cropSettings={cropSettings}
-              fileName={originalFile?.name || `image_${Date.now()}.jpg`}
-            />
+            {cropLibrary === "react-easy-crop" ? (
+              <ImageCropEasy
+                isOpen={cropDialogOpen}
+                onClose={handleCropCancel}
+                imageSrc={imageSrc || ""}
+                onCropComplete={handleCropComplete}
+                presetCropSetting={presetCropSetting}
+                cropSettings={cropSettings}
+                fileName={originalFile?.name || `image_${Date.now()}.jpg`}
+              />
+            ) : (
+              <ImageCrop
+                isOpen={cropDialogOpen}
+                onClose={handleCropCancel}
+                imageSrc={imageSrc || ""}
+                onCropComplete={handleCropComplete}
+                presetCropSetting={presetCropSetting}
+                cropSettings={cropSettings}
+                fileName={originalFile?.name || `image_${Date.now()}.jpg`}
+              />
+            )}
           </div>
         )}
 

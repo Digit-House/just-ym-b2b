@@ -9,6 +9,7 @@ import { ADD_TO_CART_ITEM_DATA_TYPE } from "@/types/product.type";
 import { createBookingWithCart } from "@/graphql/booking";
 import { useNavigate } from "react-router-dom";
 import { getAddToCartCount } from "@/graphql/product";
+import { getErrMsg } from "@/util/initData";
 
 const OrderCheckOut = () => {
   const [open, setOpen] = useState(false);
@@ -72,7 +73,7 @@ const OrderCheckOut = () => {
         setAddToCartCount(res.data.myCart.itemsCount);
       }
     } catch (err) {
-      console.log(err);
+      toast.error(getErrMsg(err, "message"))
     }
   };
 

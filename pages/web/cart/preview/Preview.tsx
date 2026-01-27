@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { preFixImg } from "@/util/initData";
+import { getErrMsg, preFixImg } from "@/util/initData";
 import { Download, Mail } from "lucide-react";
 import ResendModel from "./_component/ResendModal";
 import { useUser } from "@/provider/UserProvider";
@@ -52,7 +52,7 @@ const Preview = () => {
         toast.success("Booking Confirmed Successfully");
       }
     } catch (err) {
-      console.log(err);
+      toast.error(getErrMsg(err, "message"));
     } finally {
       setConfirmLoading(false);
     }
@@ -67,11 +67,6 @@ const Preview = () => {
       </div>
     );
   }
-
-  console.log(
-    bookingDetail.requiresManualConfirm,
-    bookingDetail.isTicketConfirmed
-  );
 
   return (
     <PageContainer>
