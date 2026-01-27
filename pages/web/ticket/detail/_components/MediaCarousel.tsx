@@ -30,7 +30,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
       loop: true,
       align: 'start', // Ensures slides fit w-full
     },
-    [Autoplay({ delay: 5000, stopOnInteraction: false })] // Optional: Autoplay
+    [Autoplay({ delay: 10000, stopOnInteraction: false })] // Optional: Autoplay
   );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
