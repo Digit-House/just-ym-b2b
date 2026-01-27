@@ -5,12 +5,11 @@ import {
   HttpLink,
 } from "@apollo/client";
 import {
-  CombinedGraphQLErrors,
   CombinedProtocolErrors,
 } from "@apollo/client/errors";
-import { ErrorLink } from "@apollo/client/link/error";
 import { LSKeys, clearLSItem } from "../util/initData";
 import { toast } from "sonner";
+import { setErrorStatus } from "@/util/errorHandler";
 
 const handleUnauthorized = () => {
   clearLSItem(LSKeys.callBack);
@@ -23,6 +22,13 @@ const handleUnauthorized = () => {
 };
 
 const handleGatewayTimeout = () => {
+  // Store error status in localStorage for network error
+  setErrorStatus(
+    "network",
+    "Failed to fetch data from the server. Please check your connection and try again.",
+    window.location.pathname
+  );
+  
   toast.error("Gateway Timeout", {
     description: "The server took too long to respond. Please try again later.",
     duration: 5000,
@@ -77,39 +83,84 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward ? forward(operation) : null;
 });
 
+import { ErrorLink } from "@apollo/client/link/error";
+import {
+  CombinedGraphQLErrors,
+  ServerError,
+} from "@apollo/client/errors";
+
 const errorLink = new ErrorLink(({ error }) => {
+  /* ---------------- GRAPHQL ERRORS ---------------- */
   if (CombinedGraphQLErrors.is(error)) {
     error.errors.forEach((err: any) => {
-      const statusCode = err?.status;
-      if (statusCode === 401 || err?.message === "Unauthorized") {
+      // 🔑 Most backends send status here
+      const statusCode =
+        err?.extensions?.http?.status ||
+        err?.extensions?.status ||
+        err?.extensions?.code;
+
+      if (statusCode === 401 || err.message === "Unauthorized") {
         handleUnauthorized();
       }
-      
-      // Handle 504 Gateway Timeout errors
+
       if (statusCode === 504) {
         handleGatewayTimeout();
       }
 
-      console.error(`[GraphQL error]: ${err.message}`, err.locations, err.path);
+      console.error("[GraphQL error]", {
+        message: err.message,
+        statusCode,
+        locations: err.locations,
+        path: err.path,
+      });
     });
+
     return;
   }
 
-  
-  const networkStatus =
-    (error as any)?.statusCode ?? (error as any)?.response?.status;
-
-  if (networkStatus === 401) {
-    handleUnauthorized();
-  }
-  
-  // Handle 504 Gateway Timeout errors
-  if (networkStatus === 504) {
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    // Store error status in localStorage for network error
+    setErrorStatus(
+      "network",
+      "Failed to fetch data from the server. Please check your connection and try again.",
+      window.location.pathname
+    );
     handleGatewayTimeout();
   }
 
-  console.error("[Network error]", error);
+  /* ---------------- NETWORK ERRORS ---------------- */
+  if (ServerError.is(error)) {
+    
+    const statusCode = error.statusCode; // ✅ REAL HTTP status
+
+    if (statusCode === 401) {
+      handleUnauthorized();
+    }
+
+    if (statusCode === 504) {
+      handleGatewayTimeout();
+    }
+
+    // Handle 500 Internal Server Error
+    if (statusCode === 500) {
+      setErrorStatus(
+        "server",
+        error.bodyText || "Internal server error occurred. Please try again later.",
+        window.location.pathname
+      );
+    }
+
+    console.error("[Network error]", {
+      statusCode,
+      bodyText: error.bodyText,
+    });
+
+    return;
+  }
+
+  console.error("[Unknown error]", error);
 });
+
 
 const httpLink = new HttpLink({
   uri: import.meta?.env?.VITE_PUBLIC_API_URL || "https://stg-api.justym.me/graphql",
