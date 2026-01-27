@@ -10,10 +10,11 @@ import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
-import { Tag } from "lucide-react";
+import { NotebookIcon, Plus, Tag, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import TextareaField from "@/components/TextareaField";
 import ReadOnly from "@/components/ReadOnly";
+import { Button } from "@/components/ui/button";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -32,16 +33,13 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   getValues,
   setValue,
   trigger,
-  mode,
 }) => {
-  // Watch the productOptions field to trigger re-renders when it changes
   const watchedProductOptions = watch("productOptions");
 
-  // Trigger validation when product options change
   useEffect(() => {
     const timer = setTimeout(() => {
       trigger("productOptions");
-    }, 300); // Small delay to avoid excessive triggering
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [watchedProductOptions, trigger]);
@@ -98,6 +96,96 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
         ? {
             ...option,
             [field]: processedValue,
+          }
+        : option
+    );
+
+    setValue("productOptions", updatedOptions, {
+      shouldDirty: true,
+    });
+
+    // Trigger validation after the update
+    setTimeout(() => trigger("productOptions"), 0);
+  };
+
+  // Helper functions for inclusions array operations
+  const addInclusion = (optionIndex: number, isMyanmar: boolean = false) => {
+    const currentOptions = getValues("productOptions") ?? [];
+    if (!currentOptions[optionIndex]) return;
+
+    const field = isMyanmar ? "inclusions_mm" : "inclusions";
+    const currentArray = currentOptions[optionIndex][field] ?? [];
+
+    const updatedOptions = currentOptions.map((option, oi) =>
+      oi === optionIndex
+        ? {
+            ...option,
+            [field]: [...currentArray, ""],
+          }
+        : option
+    );
+
+    setValue("productOptions", updatedOptions, {
+      shouldDirty: true,
+    });
+
+    // Trigger validation after the update
+    setTimeout(() => trigger("productOptions"), 0);
+  };
+
+  const updateInclusion = (
+    optionIndex: number,
+    index: number,
+    value: string,
+    isMyanmar: boolean = false
+  ) => {
+    const currentOptions = getValues("productOptions") ?? [];
+    if (!currentOptions[optionIndex]) return;
+
+    const field = isMyanmar ? "inclusions_mm" : "inclusions";
+    const currentArray = currentOptions[optionIndex][field] ?? [];
+
+    const updatedArray = currentArray.map((item, i) =>
+      i === index ? value : item
+    );
+
+    const updatedOptions = currentOptions.map((option, oi) =>
+      oi === optionIndex
+        ? {
+            ...option,
+            [field]: updatedArray,
+          }
+        : option
+    );
+
+    setValue("productOptions", updatedOptions, {
+      shouldDirty: true,
+    });
+
+    // Trigger validation after the update
+    setTimeout(() => trigger("productOptions"), 0);
+  };
+
+  const removeInclusion = (
+    optionIndex: number,
+    index: number,
+    isMyanmar: boolean = false
+  ) => {
+    const currentOptions = getValues("productOptions") ?? [];
+    if (!currentOptions[optionIndex]) return;
+
+    const field = isMyanmar ? "inclusions_mm" : "inclusions";
+    const currentArray = currentOptions[optionIndex][field] ?? [];
+
+    if (currentArray.length <= 1) return; // Prevent removing all items
+
+    const updatedArray = currentArray.filter((_, i) => i !== index);
+
+    const updatedOptions = currentOptions.map((option, oi) =>
+      oi === optionIndex
+        ? {
+            ...option,
+            [field]: updatedArray,
           }
         : option
     );
@@ -167,9 +255,119 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
               <ReadOnly label="Ticket Validity" value={option.ticketValidity} />
 
-              <ReadOnly label="Defined Duration" value={option.definedDuration} />
+              <ReadOnly
+                label="Defined Duration"
+                value={option.definedDuration}
+              />
 
-              <ReadOnly label="Visit Date" value={option.visitDate.isOpenDated ? "True" : "False"} />
+              <ReadOnly
+                label="Visit Date"
+                value={option.visitDate.isOpenDated ? "True" : "False"}
+              />
+
+              
+
+              <div className="space-y-4">
+              <hr className="border-gray-200 mt-5" />
+                <div className="flex items-center gap-2 mb-4">
+                  <NotebookIcon className="h-5 w-5 text-red-500" />
+                  <h4 className="text-lg font-semibold text-gray-800">
+                    Inclusions
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* English */}
+                  <div className="space-y-3">
+                    <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                      English
+                    </h5>
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                      {option.inclusions.map((item, index) => (
+                        <div key={index} className="relative group">
+                          <TextareaField
+                            label=""
+                            value={item}
+                            onChange={(e) =>
+                              updateInclusion(optionIndex, index, e.target.value, false)
+                            }
+                            placeholder="Enter inclusions"
+                            minHeight={60}
+                            maxHeight={150}
+                          />
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                removeInclusion(optionIndex, index, false)
+                              }
+                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        onClick={() => addInclusion(optionIndex, false)}
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" /> Add Inclusions
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Myanmar */}
+                  <div className="space-y-3">
+                    <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                      Myanmar
+                    </h5>
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                      {option.inclusions_mm.map((item, index) => (
+                        <div key={index} className="relative group">
+                          <TextareaField
+                            label=""
+                            value={item}
+                            onChange={(e) =>
+                              updateInclusion(optionIndex, index, e.target.value, true)
+                            }
+                            placeholder="Enter inclusions (MM)"
+                            minHeight={60}
+                            maxHeight={150}
+                          />
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                removeInclusion(optionIndex, index, true)
+                              }
+                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        onClick={() => addInclusion(optionIndex, true)}
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" /> Add Inclusions MM
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="mb-4">
                 <div className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">

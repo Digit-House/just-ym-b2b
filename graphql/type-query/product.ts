@@ -111,6 +111,8 @@ query GetProductInfo($productId: String!, $date: DateTime) {
      }
      ticketValidity
      definedDuration 
+     inclusions
+     inclusions_mm
      ticketType {
         id
         name

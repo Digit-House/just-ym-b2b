@@ -102,7 +102,7 @@ const AdminTicketEdit = () => {
 
       await updateProductInfo(updatedFormData as UpdateProductPayloadT);
       toast.success("Successfully Updated !");
-      navigate("/tickets");
+      // navigate("/tickets");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {

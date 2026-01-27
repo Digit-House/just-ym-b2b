@@ -206,6 +206,7 @@ export interface ProductOptionT {
   questions: ProductOptionQuestionT[];
   visitDate: VisitDateT;
   inclusions: string[];
+  inclusions_mm: string[];
 
   // createdAt: Date;
   // currency: string;

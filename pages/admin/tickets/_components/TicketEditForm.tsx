@@ -49,6 +49,8 @@ const TicketEditForm: React.FC<Props> = ({
           ticketValidity:option.ticketValidity,
           visitDate:option.visitDate,
           definedDuration:option.definedDuration,
+          inclusions:option?.inclusions || [],
+          inclusions_mm:option?.inclusions_mm || [],
           ticketTypes: option.ticketType
             ? option.ticketType.map((ticket: any) => ({
                 ticketTypeId: ticket.id,
@@ -390,7 +392,6 @@ const TicketEditForm: React.FC<Props> = ({
     }
   
     const { category: _,...restOfValues } = values;
-    
     const payload = {
       ...restOfValues,
       image: processedImage, 

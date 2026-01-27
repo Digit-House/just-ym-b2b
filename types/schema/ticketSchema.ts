@@ -96,6 +96,8 @@ export const ticketSchema = z.object({
           .optional()
           .nullable(),
         definedDuration: z.number().optional().nullable(),
+        inclusions: z.array(z.string()).optional().nullable(),
+        inclusions_mm: z.array(z.string()).optional().nullable(),
         ticketTypes: z
           .array(
             z.object({
