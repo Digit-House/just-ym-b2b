@@ -57,7 +57,6 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       allowedTypes = ["image/jpeg", "image/jpg", "image/png"],
       enableCrop = false,
       cropSettings,
-      cropShape = "rect",
       presetCropSetting,
       mode = "create",
     },

@@ -292,7 +292,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                     }}
                     folderType="PRODUCT_MEDIA"
                     enableCrop={true}
-                    presetCropSetting="TICKET_CARD"
+                    presetCropSetting="GET_INSPIRED_BIG"
                   />
                 </div>
                 {/* Hidden Name Input Field */}
