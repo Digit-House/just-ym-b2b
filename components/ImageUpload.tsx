@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { preFixImg } from "@/util/initData";
 import ImageFallback from "./ImageFallback";
 import ImageCrop from "./ImageCrop";
+import ImageCropEasy from "./ImageCropEasy";
 import { CropSettingType } from "@/lib/cropSettings";
 
 /* -------------------- TYPES -------------------- */
@@ -37,6 +38,7 @@ type ImageUploadProps = {
   cropShape?: "rect" | "round";
   presetCropSetting?: CropSettingType;
   mode?: "create" | "edit";
+  cropLibrary?: "react-image-crop" | "react-easy-crop"; // New prop to choose cropper
 };
 
 export type ImageUploadRef = {
@@ -59,6 +61,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       cropSettings,
       presetCropSetting,
       mode = "create",
+      cropLibrary = "react-image-crop", // Default to react-image-crop
     },
     ref
   ) => {
@@ -288,15 +291,27 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         {/* CROP DIALOG */}
         {enableCrop && cropDialogOpen && (
           <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center">
-            <ImageCrop
-              isOpen={cropDialogOpen}
-              onClose={handleCropCancel}
-              imageSrc={imageSrc || ""}
-              onCropComplete={handleCropComplete}
-              presetCropSetting={presetCropSetting}
-              cropSettings={cropSettings}
-              fileName={originalFile?.name || `image_${Date.now()}.jpg`}
-            />
+            {cropLibrary === "react-easy-crop" ? (
+              <ImageCropEasy
+                isOpen={cropDialogOpen}
+                onClose={handleCropCancel}
+                imageSrc={imageSrc || ""}
+                onCropComplete={handleCropComplete}
+                presetCropSetting={presetCropSetting}
+                cropSettings={cropSettings}
+                fileName={originalFile?.name || `image_${Date.now()}.jpg`}
+              />
+            ) : (
+              <ImageCrop
+                isOpen={cropDialogOpen}
+                onClose={handleCropCancel}
+                imageSrc={imageSrc || ""}
+                onCropComplete={handleCropComplete}
+                presetCropSetting={presetCropSetting}
+                cropSettings={cropSettings}
+                fileName={originalFile?.name || `image_${Date.now()}.jpg`}
+              />
+            )}
           </div>
         )}
 
