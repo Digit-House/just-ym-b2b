@@ -120,18 +120,6 @@ export default function Tickets() {
           filters={filters}
           setFilters={setFilters}
         />
-        {/* Filters */}
-        {/* <div className="relative mt-5">
-          <Search className="absolute left-3 top-[26px] -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            value={filters.search}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, search: e.target.value }))
-            }
-            placeholder="Search tickets..."
-            className="pl-10 pr-4 py-2 border rounded-md w-[30%] text-sm"
-          />
-        </div> */}
         <div className="flex justify-between gap-4 mt-3 mb-10 border px-4 py-2">
           <div className="flex gap-5 items-center">
             <Select
@@ -220,7 +208,7 @@ export default function Tickets() {
 
         {/* Content */}
         {isPending && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -234,7 +222,7 @@ export default function Tickets() {
         )}
 
         {!isPending && !!products.length && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((p) => (
               <TicketCard user={user} key={p.id} p={p} handleNavigate={handleNavigate} />
             ))}

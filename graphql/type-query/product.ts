@@ -110,6 +110,9 @@ query GetProductInfo($productId: String!, $date: DateTime) {
       isOpenDated
      }
      ticketValidity
+     thaiNationalOnly
+     redeemStart
+     redeemEnd
      definedDuration 
      inclusions
      inclusions_mm

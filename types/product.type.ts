@@ -200,6 +200,9 @@ export interface ProductOptionT {
   description: string;
   isPublished: boolean;
   ticketValidity:string;
+  thaiNationalOnly:boolean;
+  redeemStart: string;
+  redeemEnd:string;
   definedDuration:number;
   ticketType: TicketTypeT[];
   advanceBooking: AdvanceBookingT | null;

@@ -255,6 +255,10 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
               <ReadOnly label="Ticket Validity" value={option.ticketValidity} />
 
+              <ReadOnly label="Redeem Start" value={option.redeemStart} />
+
+              <ReadOnly label="Redeem End" value={option.redeemEnd} />
+
               <ReadOnly
                 label="Defined Duration"
                 value={option.definedDuration}
@@ -265,10 +269,20 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 value={option.visitDate.isOpenDated ? "True" : "False"}
               />
 
-              
+              <div className="mb-4">
+                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
+                  <Checkbox
+                    checked={!!option.thaiNationalOnly}
+                    onCheckedChange={(checked) =>
+                      updateProductOption(optionIndex, "thaiNationalOnly", checked)
+                    }
+                  />
+                  <Label>Thai National Only</Label>
+                </div>
+              </div>
 
               <div className="space-y-4">
-              <hr className="border-gray-200 mt-5" />
+                <hr className="border-gray-200 mt-5" />
                 <div className="flex items-center gap-2 mb-4">
                   <NotebookIcon className="h-5 w-5 text-red-500" />
                   <h4 className="text-lg font-semibold text-gray-800">
@@ -289,7 +303,12 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                             label=""
                             value={item}
                             onChange={(e) =>
-                              updateInclusion(optionIndex, index, e.target.value, false)
+                              updateInclusion(
+                                optionIndex,
+                                index,
+                                e.target.value,
+                                false
+                              )
                             }
                             placeholder="Enter inclusions"
                             minHeight={60}
@@ -334,7 +353,12 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                             label=""
                             value={item}
                             onChange={(e) =>
-                              updateInclusion(optionIndex, index, e.target.value, true)
+                              updateInclusion(
+                                optionIndex,
+                                index,
+                                e.target.value,
+                                true
+                              )
                             }
                             placeholder="Enter inclusions (MM)"
                             minHeight={60}
@@ -370,7 +394,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
               </div>
 
               <div className="mb-4">
-                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
                   <Checkbox
                     checked={!!option.isPublished}
                     onCheckedChange={(checked) =>

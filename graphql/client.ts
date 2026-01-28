@@ -4,9 +4,6 @@ import {
   ApolloLink,
   HttpLink,
 } from "@apollo/client";
-import {
-  CombinedProtocolErrors,
-} from "@apollo/client/errors";
 import { LSKeys, clearLSItem } from "../util/initData";
 import { toast } from "sonner";
 import { setErrorStatus } from "@/util/errorHandler";

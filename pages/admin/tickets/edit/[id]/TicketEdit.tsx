@@ -132,7 +132,7 @@ const AdminTicketEdit = () => {
   return (
     <PageContainer>
       <BackBtn route="/tickets" title="Back to Tickets" preserveParams={true} />
-      <PageHeader title="Edit Ticket" des="Modify the ticket details below." />
+      <PageHeader title={data?.name} des="Modify the ticket details below." />
 
       <div className="w-full flex  mb-6">
         <Button size="lg" disabled={refresh} onClick={handleRefresh}>

@@ -311,14 +311,6 @@ const MediaTab: React.FC<MediaTabProps> = ({
               </svg>
               <h4 className="text-lg font-medium">Media Items</h4>
             </div>
-            <Button
-              type="button"
-              onClick={addMediaItem}
-              size="sm"
-              variant="outline"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Media
-            </Button>
           </div>
 
           <DragDropContext onDragEnd={onDragEnd}>
@@ -523,6 +515,16 @@ const MediaTab: React.FC<MediaTabProps> = ({
               )}
             </Droppable>
           </DragDropContext>
+          <div className="flex items-center justify-end pt-5">
+          <Button
+              type="button"
+              onClick={addMediaItem}
+              size="sm"
+              variant="outline"
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add Media
+            </Button>
+          </div>
         </div>
       </div>
     </div>

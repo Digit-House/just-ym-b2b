@@ -18,7 +18,7 @@ const TicketCard = ({user,p,handleNavigate}:Props) => {
         <ImageFallback
           src={preFixImg(p.image)}
           alt={p.name}
-         className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-110"
+         className="w-full h-full transition-transform duration-500 ease-in-out hover:scale-110"
         />
       </div>
 

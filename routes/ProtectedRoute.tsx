@@ -18,7 +18,7 @@ const RouteGuard = () => {
   const location = useLocation();
   const { user } = useUser();
 
-  if(user?.type !== "OWNER" && location.pathname.includes("admin-tickets")){
+  if(user && user?.type !== "OWNER" && location.pathname.includes("admin-tickets")){
     return <Navigate to="/" replace />; 
   }
 
