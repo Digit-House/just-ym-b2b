@@ -389,10 +389,10 @@ const MediaTab: React.FC<MediaTabProps> = ({
                                     </SelectTrigger>
                                     <SelectContent>
                                       <SelectItem value="react-easy-crop">
-                                        React Easy Crop
+                                        Fixed 
                                       </SelectItem>
                                        <SelectItem value="react-image-crop">
-                                        React Image Crop
+                                        Flexible
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
