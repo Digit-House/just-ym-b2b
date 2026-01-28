@@ -90,14 +90,14 @@ import {
 } from "@apollo/client/errors";
 
 const errorLink = new ErrorLink(({ error }) => {
-  /* ---------------- GRAPHQL ERRORS ---------------- */
   if (CombinedGraphQLErrors.is(error)) {
     error.errors.forEach((err: any) => {
       // 🔑 Most backends send status here
       const statusCode =
         err?.extensions?.http?.status ||
         err?.extensions?.status ||
-        err?.extensions?.code;
+        err?.extensions?.code ||
+        err?.status
 
       if (statusCode === 401 || err.message === "Unauthorized") {
         handleUnauthorized();
@@ -106,13 +106,6 @@ const errorLink = new ErrorLink(({ error }) => {
       if (statusCode === 504) {
         handleGatewayTimeout();
       }
-
-      console.error("[GraphQL error]", {
-        message: err.message,
-        statusCode,
-        locations: err.locations,
-        path: err.path,
-      });
     });
 
     return;
