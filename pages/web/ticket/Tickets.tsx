@@ -236,7 +236,7 @@ export default function Tickets() {
         {!isPending && !!products.length && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((p) => (
-              <TicketCard user={user} p={p} handleNavigate={handleNavigate} />
+              <TicketCard user={user} key={p.id} p={p} handleNavigate={handleNavigate} />
             ))}
           </div>
         )}
