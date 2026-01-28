@@ -13,12 +13,12 @@ type Props = {
 
 const TicketCard = ({user,p,handleNavigate}:Props) => {
   return (
-    <div key={p.id} className="bg-white rounded-2xl border overflow-hidden">
+    <div key={p.id} className="bg-white rounded-2xl border overflow-hidden cursor-pointer">
       <div className="h-48 overflow-hidden">
         <ImageFallback
           src={preFixImg(p.image)}
           alt={p.name}
-          className="w-full h-full object-cover"
+         className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-110"
         />
       </div>
 
