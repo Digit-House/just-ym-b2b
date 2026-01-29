@@ -127,7 +127,7 @@ const ChangePasswordForm = ({ onClose }: Props) => {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full">
       {/* Change Password Form */}
       {formMode === FormMode.CHANGE_PASSWORD && (
         <form onSubmit={handleSubmitChange(onChangePasswordSubmit)} className="space-y-4">
