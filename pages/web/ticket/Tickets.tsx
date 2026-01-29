@@ -108,8 +108,6 @@ export default function Tickets() {
     navigate(path);
   };
 
-  console.log(categoryData?.data);
-
   return (
     <>
       <PageContainer>
