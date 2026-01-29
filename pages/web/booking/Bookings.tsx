@@ -11,6 +11,7 @@ import BookingCard from "./_component/BookingCard";
 import NotFoundComponent from "@/components/NotFoundComponent";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/provider/UserProvider";
+import MainSearch from "@/components/MainSearch";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -33,7 +34,6 @@ const STATUS_OPTIONS: SortOption[] = [
 ];
 
 export default function Bookings() {
-  // Initialize state from localStorage only
   const getStoredFilters = () => {
     const stored = localStorage.getItem("bookingFilters");
     if (stored) {
@@ -48,7 +48,6 @@ export default function Bookings() {
 
   const storedFilters = getStoredFilters();
 
-  // Use localStorage or defaults only
   const initialSort = storedFilters?.sort || "desc";
   const initialStatus = storedFilters?.status || BOOKING_STATUS_ENUM.PAID;
 
@@ -58,7 +57,7 @@ export default function Bookings() {
   const [requireManualConfirm, setRequireManualConfirm] = useState(false);
   const { user } = useUser();
 
-  const debouncedSearch = useDebounce(search, 2000); // 2 second debounce
+  const debouncedSearch = useDebounce(search, 2000);
 
   useEffect(() => {
     const filtersToStore = {
@@ -132,6 +131,14 @@ export default function Bookings() {
         des="Measure your advertising ROI and report website traffic."
       />
 
+      <MainSearch
+        search={search}
+          placeHolder="Search bookings..."
+        onClick={(value: string) => {
+          setSearch(value)
+        }}
+      />
+
       <div className="flex items-center justify-between my-10 gap-4 border border-[#21212124] py-2 px-4">
         <div className="flex gap-5 items-center">
           <SortSelect
@@ -151,21 +158,6 @@ export default function Bookings() {
               onChange={(val) => setRequireManualConfirm(val === "YES")}
             />
           )}
-          <div className="relative">
-            <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search bookings..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-72 text-sm"
-            />
-            {search && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
-                Searching...
-              </div>
-            )}
-          </div>
         </div>
         <div className="flex items-center gap-2">
           <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />

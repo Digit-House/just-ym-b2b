@@ -29,7 +29,7 @@ import { fetchProducts } from "@/graphql/product";
 import { useTicketFilters } from "@/hooks/useTicketFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import TicketCard from "./_components/TicketCard";
-import TicketSearch from "./_components/TicketSearch";
+import MainSearch from "../../../components/MainSearch";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Alphabet", value: "alphabet" },
@@ -108,6 +108,8 @@ export default function Tickets() {
     navigate(path);
   };
 
+  console.log(categoryData?.data);
+
   return (
     <>
       <PageContainer>
@@ -116,16 +118,19 @@ export default function Tickets() {
           des="Measure your advertising ROI and report website traffic."
         />
 
-        <TicketSearch
-          filters={filters}
-          setFilters={setFilters}
+        <MainSearch
+          search={filters.search}
+          placeHolder="Search tickets..."
+          onClick={(value:string) => {
+            setFilters((f) => ({ ...f, search: value }))
+          }}
         />
         <div className="flex justify-between gap-4 mt-3 mb-10 border px-4 py-2">
           <div className="flex gap-5 items-center">
             <Select
               label="Categories"
               placeholder="Categories"
-              options={categoryData?.data}
+              options={categoryData}
               value={filters.categories}
               onChange={(v) => setFilters((f) => ({ ...f, categories: v }))}
               width="w-32"

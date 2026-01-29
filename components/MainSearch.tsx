@@ -1,23 +1,23 @@
 import React from "react";
 import { Search} from "lucide-react";
-import { TicketFilters } from "@/hooks/useTicketFilter";
 
 interface SearchUIProps {
-  filters: TicketFilters;
-  setFilters: React.Dispatch<React.SetStateAction<TicketFilters>>;
+  search:string;
+  placeHolder:string;
+  onClick:(search:string)=>void;
 }
 
-const TicketSearch: React.FC<SearchUIProps> = ({ filters, setFilters }) => {
+const MainSearch: React.FC<SearchUIProps> = ({search,placeHolder,onClick}) => {
   return (
     <div className="w-full  mt-0 relative z-10 bg-gray-200 p-4">
         <div className="relative m-auto w-[50%]">
           <Search className="absolute left-4 top-[33px] -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
           <input
-            value={filters.search}
+            value={search}
             onChange={(e) =>
-              setFilters((f) => ({ ...f, search: e.target.value }))
+              onClick(e.target.value)
             }
-            placeholder="Search tickets..."
+            placeholder={placeHolder}
             className="w-full pl-10 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-200 transition-all text-slate-700 font-medium placeholder:text-slate-400"
           />
         </div>
@@ -25,4 +25,4 @@ const TicketSearch: React.FC<SearchUIProps> = ({ filters, setFilters }) => {
   );
 };
 
-export default TicketSearch;
+export default MainSearch;

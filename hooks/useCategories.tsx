@@ -30,7 +30,6 @@ export const useCategories = ({
         },
         fetchPolicy: "no-cache",
       });
-
       return data?.findAllCategories?.data;
     },
   });
