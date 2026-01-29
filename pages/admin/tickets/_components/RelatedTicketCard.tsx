@@ -3,6 +3,7 @@ import { ProductT } from "@/types/product.type";
 import { Checkbox } from "@/components/ui/checkbox";
 import ImageFallback from "@/components/ImageFallback";
 import { preFixImg } from "@/util/initData";
+import { truncateDescription } from "@/lib/utils";
 
 interface RelatedTicketCardProps {
   product: ProductT | any; // Using any to accommodate both ProductT and form values
@@ -63,7 +64,7 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
         </h3>
         
         <p className={`text-sm line-clamp-2 mb-3 ${isDisabled ? 'text-gray-400' : 'text-gray-600'}`}>
-          {product?.description || product?.whatToExpect}
+          {truncateDescription(product.description || "-----",20)}
         </p>
 
         <div className="flex items-center justify-between">

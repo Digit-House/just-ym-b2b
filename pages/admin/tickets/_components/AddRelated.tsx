@@ -331,7 +331,7 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
       )}
 
       {!isPending && allProductsWithStatus.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-10">
           {allProductsWithStatus.map((product: any) => {
             const isRelated = isProductRelated(product.id);
             const relatedProduct = getRelatedProduct(product.id);
