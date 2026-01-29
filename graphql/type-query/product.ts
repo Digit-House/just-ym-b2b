@@ -38,8 +38,8 @@ mutation UpdateProductPosition($data: UpdateProductPositionInput!) {
 `;
 
 export const GET_PRODUCT_INFO = `
-query GetProductInfo($productId: String!, $date: DateTime) {
-  getProductInfo(productId: $productId, date: $date) {
+query GetProductInfo($productId: String!,$includeRelated: Boolean,$date: DateTime) {
+  getProductInfo(productId: $productId,includeRelated: $includeRelated,date: $date) {
     id
     name
     addressLine
@@ -70,11 +70,26 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     isRecommended
     isPublished
     isInstantConfirmation
+    requiresManualConfirmation
     isOpenDated
     keywords
     latitude
     location
     longitude
+    relatedProducts {
+      category
+      city
+      description
+      dhSellingPrice
+      id
+      image
+      isCancellable
+      isPublished
+      name
+      originalPrice
+      price
+      requiresManualConfirmation
+    }
     media {
       extension
       isPublished  

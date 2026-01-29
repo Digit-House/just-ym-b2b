@@ -23,7 +23,7 @@ const AdminTicketEdit = () => {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["ticket", id],
-    queryFn: () => getProductInfo(id!),
+    queryFn: () => getProductInfo(id!, true),
     enabled: !!id,
     gcTime: 0,
     staleTime: 0,
@@ -103,7 +103,7 @@ const AdminTicketEdit = () => {
 
       await updateProductInfo(updatedFormData as UpdateProductPayloadT);
       toast.success("Successfully Updated !");
-      navigate("/tickets");
+      // navigate("/tickets");
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {

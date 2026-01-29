@@ -7,7 +7,8 @@ export type TicketFilters ={
   sort: string;
   published: PublishedFilter;
   categories: string[];
-  countries: string[];
+  countryId:string; 
+  cityId:string;
   isRecommended:boolean;
   search: string;
 }
@@ -18,7 +19,8 @@ const DEFAULT_FILTERS: TicketFilters = {
   sort: "alphabet",
   published: "PUBLISHED",
   categories: [],
-  countries: [],
+  countryId: "",
+  cityId:"",
   isRecommended:false,
   search: "",
 };

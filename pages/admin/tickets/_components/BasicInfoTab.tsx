@@ -325,33 +325,29 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             />
           </div>
 
-          {/* <div
-          className={`space-y-3 ${
-            errors.originalPrice
-              ? "border border-red-300 rounded-lg p-3 bg-red-50"
-              : ""
-          }`}
-        >
-          <Controller
-            name="originalPrice"
-            control={control}
-            render={({ field }) => (
-              <InputField
-                label="Original Price"
-                type="number"
-                {...field}
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
-                  )
-                }
-                errMsg={errors.originalPrice?.message}
-                placeholder="Enter original price"
-              />
-            )}
-          />
-        </div> */}
+          <div
+            className={`space-y-3 ${
+              errors.originalPrice
+                ? "border border-red-300 rounded-lg p-3 bg-red-50"
+                : ""
+            }`}
+          >
+            <Controller
+              name="originalPrice"
+              control={control}
+              render={({ field }) => (
+                <InputField
+                  label="Original Price"
+                  type="number"
+                  {...field}
+                  value={field.value ?? ""}
+                  disabled={true}
+                  errMsg={errors.originalPrice?.message}
+                  placeholder="Enter original price"
+                />
+              )}
+            />
+          </div>
 
           <div
             className={`space-y-3 ${
@@ -457,9 +453,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 <Label htmlFor="isRecommended" className="font-medium">
                   Recommended
                 </Label>
-                <p className="text-xs text-gray-500">
-                  Allow Recommended
-                </p>
+                <p className="text-xs text-gray-500">Allow Recommended</p>
               </div>
             </div>
 
@@ -492,7 +486,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             </div> */}
 
             <div
-              className={`flex items-center space-x-3 p-3 rounded-lg ${
+              className={`flex items-center  space-x-3 p-3 rounded-lg ${
                 errors.isInstantConfirmation
                   ? "bg-red-50 border border-red-300"
                   : "bg-gray-50"
@@ -504,6 +498,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 render={({ field }) => (
                   <Checkbox
                     id="isInstantConfirmation"
+                    disabled={true}
                     checked={field.value}
                     onCheckedChange={field.onChange}
                   />
@@ -515,6 +510,34 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 </Label>
                 <p className="text-xs text-gray-500">
                   Provide instant booking confirmation
+                </p>
+              </div>
+            </div>
+
+            <div
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
+                errors.requiresManualConfirmation
+                  ? "bg-red-50 border border-red-300"
+                  : "bg-gray-50"
+              }`}
+            >
+              <Controller
+                name="requiresManualConfirmation"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    id="requiresManualConfirmation"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <div>
+                <Label htmlFor="requiresManualConfirmation" className="font-medium">
+                  Requires Manual Confirmation
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Provide manual booking confirmation
                 </p>
               </div>
             </div>

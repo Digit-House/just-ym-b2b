@@ -6,7 +6,7 @@ export interface SelectOption {
   id: string;
 }
 
-interface SelectProps {
+interface Props {
   label?: string;
   placeholder?: string;
   options: SelectOption[];
@@ -15,18 +15,17 @@ interface SelectProps {
   width?: string; // tailwind width class e.g. "w-56"
 }
 
-export default function Select({
+export default function MultiSelect({
   label,
-  placeholder = 'Select',
+  placeholder = 'Select Multi Option',
   options,
   value,
   onChange,
   width = 'w-full',
-}: SelectProps) {
+}: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // close when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -63,7 +62,7 @@ export default function Select({
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 mt-2 w-full rounded-xl bg-white p-4 shadow-xl">
+        <div className="absolute z-50 mt-2 min-w-50 rounded-xl bg-white p-4 shadow-xl">
           {label && (
             <p className="mb-3 text-sm font-semibold text-gray-800">
               {label}
