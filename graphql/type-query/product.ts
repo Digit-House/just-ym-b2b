@@ -70,6 +70,7 @@ query GetProductInfo($productId: String!, $date: DateTime) {
     isRecommended
     isPublished
     isInstantConfirmation
+    requiresManualConfirmation
     isOpenDated
     keywords
     latitude

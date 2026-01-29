@@ -15,7 +15,7 @@ import { DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 
 import PageHeader from "@/components/PageHeader";
-import Select from "@/components/Select";
+import Select from "@/components/MultiSelect";
 import PageContainer from "@/components/PageContainer";
 
 import { useCategories } from "@/hooks/useCategories";

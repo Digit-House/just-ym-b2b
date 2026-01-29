@@ -1,3 +1,5 @@
+import { relatedProducts } from "@/graphql/product";
+import { de } from "date-fns/locale";
 import { z } from "zod";
 
 export const ticketSchema = z.object({
@@ -51,7 +53,7 @@ export const ticketSchema = z.object({
   isBestSeller: z.boolean().optional().nullable(),
   isCancellable: z.boolean().optional().nullable(),
   isGTRecommend: z.boolean().optional().nullable(),
-  isRecommended:z.boolean().optional().nullable(),
+  isRecommended: z.boolean().optional().nullable(),
   isInstantConfirmation: z.boolean().optional().nullable(),
   isOpenDated: z.boolean().optional().nullable(),
   isPublished: z.boolean().optional().nullable(),
@@ -59,6 +61,7 @@ export const ticketSchema = z.object({
   timezoneOffset: z.number().optional().nullable(),
   termsAndConditions: z.string().optional().nullable(),
   termsAndConditions_mm: z.string().optional().nullable(),
+  requiresManualConfirmation: z.boolean().optional().nullable(),
 
   thingsToNote: z.array(z.string()).optional().nullable(),
   thingsToNote_mm: z.array(z.string()).optional().nullable(),
@@ -78,6 +81,25 @@ export const ticketSchema = z.object({
         .optional()
         .nullable(),
     })
+    .optional()
+    .nullable(),
+
+  relatedProducts: z
+    .array(
+      z.object({
+        id: z.string().optional().nullable(),
+        image: z.string().optional().nullable(),
+        isCancellable: z.boolean().optional().nullable(),
+        isPublished: z.boolean().optional().nullable(),
+        name: z.string().optional().nullable(),
+        originalPrice: z.number().optional().nullable(),
+        price: z.number().optional().nullable(),
+        requiresManualConfirmation: z.boolean().optional().nullable(),
+        category: z.string().optional().nullable(),
+        city: z.string().optional().nullable(),
+        dhSellingPrice: z.number().optional().nullable(),
+      })
+    )
     .optional()
     .nullable(),
 

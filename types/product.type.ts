@@ -16,6 +16,7 @@ export type FindAllProductsT = {
 
 export type FilterProductListT = {
   category: string;
+  categoryIds: string[];
   cityId: string;
   countryId: string;
   limit: number;
@@ -29,9 +30,9 @@ export type FilterProductListT = {
 };
 
 export type ProductPositionT = {
-  position:number;
-  productId:string;
-}
+  position: number;
+  productId: string;
+};
 
 export type ProductT = {
   category: string;
@@ -79,7 +80,7 @@ export interface UpdateProductPayloadT {
   id: string;
   image: string;
   addressLine: string;
-  category_relation_id:string;
+  category_relation_id: string;
   description: string;
   description_mm: string;
   exclusions: string[];
@@ -113,17 +114,23 @@ export interface UpdateProductPayloadT {
   timezoneOffset: number;
   whatToExpect: string;
   whatToExpect_mm: string;
+  relatedProducts:ProductRelatedT[]
   // blockedDate: BlockedDateT[];
+}
+
+export interface ProductRelatedT {
+  linkBack:boolean;
+  productId:string;
 }
 
 export interface ProductInfoT {
   id: string;
   name: string;
   category_relation: {
-    id:string;
-    name:string;
+    id: string;
+    name: string;
   };
-  category:string;
+  category: string;
   description: string;
   description_mm: string;
   whatToExpect: string;
@@ -146,6 +153,7 @@ export interface ProductInfoT {
   howToUseList: string[];
   howToUseList_mm: string[];
   inclusions: string[];
+  requiresManualConfirmation: boolean;
   inclusions_mm: string[];
   thingsToNote: string[];
   thingsToNote_mm: string[];
@@ -160,11 +168,26 @@ export interface ProductInfoT {
   createdAt: string;
   updatedAt: string;
   // blockedDate: BlockedDateT[];
+  relatedProducts:ProductRelatedT[];
   media: MediaFileT[];
   operatingHours: OperatingHoursT;
   termsAndConditions: string;
   termsAndConditions_mm: string;
   productOptions: ProductOptionT[];
+}
+
+export interface ProductRelatedT {
+  id: string;
+  image: string;
+  isCancellable: boolean;
+  isPublished: boolean;
+  name: string;
+  originalPrice: number;
+  price: number;
+  requiresManualConfirmation: boolean;
+  category: string;
+  city: string;
+  dhSellingPrice: number;
 }
 
 export interface BlockedDateT {
@@ -199,11 +222,11 @@ export interface ProductOptionT {
   name: string;
   description: string;
   isPublished: boolean;
-  ticketValidity:string;
-  thaiNationalOnly:boolean;
+  ticketValidity: string;
+  thaiNationalOnly: boolean;
   redeemStart: string;
-  redeemEnd:string;
-  definedDuration:number;
+  redeemEnd: string;
+  definedDuration: number;
   ticketType: TicketTypeT[];
   advanceBooking: AdvanceBookingT | null;
   isCapacity: boolean;

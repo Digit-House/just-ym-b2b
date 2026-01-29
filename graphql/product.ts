@@ -77,12 +77,13 @@ export const getAllProducts = async (data: FilterProductListT) => {
 };
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { categories, countries, sort, published, search, isRecommended }] = queryKey;
+  const [_key, { categories,countryId,cityId, sort, published, search, isRecommended }] = queryKey;
   
   const filter = {
-    category: categories[0] || "",
-    cityId: "",
-    countryId: countries[0] || "",
+    categoryIds: categories || [] ,
+    category:"",
+    cityId: cityId || "",
+    countryId: countryId || "",
     limit: 10,
     page: pageParam,
     published: published,
@@ -94,6 +95,7 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
   const res = await getAllProducts(filter);
   return {
     data: res?.data,
+    total:res?.total,
     nextPage: res?.data?.length ? pageParam + 1 : null,
   };
 };
@@ -103,6 +105,7 @@ export const fetchRecommendedProducts = async () => {
     category: "",
     cityId: "",
     countryId: "",
+    categoryIds:[],
     limit: 50,
     page: 1,
     published:"PUBLISHED" as any,
@@ -119,6 +122,7 @@ export const relatedProducts = async (ticketId:string,isPublished:boolean) => {
     category: "",
     cityId: "",
     countryId: "",
+    categoryIds:[],
     limit: 10,
     page: 1,
     isRecommended: false,

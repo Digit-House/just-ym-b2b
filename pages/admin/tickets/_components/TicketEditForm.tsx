@@ -18,6 +18,7 @@ import OperatingHoursTab from "./OperatingHoursTab";
 import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
+import RelatedTicketTab from "./RelatedTicketTab";
 
 type Mode = "edit";
 
@@ -79,7 +80,6 @@ const TicketEditForm: React.FC<Props> = ({
       productOptions: transformedProductOptions,
     };
   };
-  
 
   const form = useForm<TicketFormValues>({
     //@ts-ignore
@@ -131,12 +131,11 @@ const TicketEditForm: React.FC<Props> = ({
         isToursActivities: null,
         fixedDays: [],
       },
+      relatedProducts: initialValues?.relatedProducts ?? [],
       productOptions:
         transformApiDataToForm(initialValues as any)?.productOptions,
     },
   });
-
-  
 
   const {
     control,
@@ -150,7 +149,6 @@ const TicketEditForm: React.FC<Props> = ({
 
   const [currentTab, setCurrentTab] = useState("basic-info");
 
-  // Refs for media items to handle deferred uploads
   const mediaItemRefs = useRef<Map<number, ImageUploadRef>>(new Map());
   const mainImageRef = useRef<ImageUploadRef>(null);
 
@@ -254,6 +252,7 @@ const TicketEditForm: React.FC<Props> = ({
       "media",
       "operating-hours",
       "options",
+      "relatedTickets"
     ];
     const currentIndex = tabs.indexOf(currentTab);
     if (currentIndex > 0) {
@@ -481,6 +480,7 @@ const TicketEditForm: React.FC<Props> = ({
         <TabButton id="media" label="Media" />
         <TabButton id="operating-hours" label="Operating Hours" />
         <TabButton id="options" label="Pricing & Packages" />
+        <TabButton id="relatedTickets" label="Related Tickets" />
       </div>
 
       <div className="p-6 border rounded-xl min-h-125 bg-white shadow-sm relative">
@@ -537,7 +537,6 @@ const TicketEditForm: React.FC<Props> = ({
           />
         </div>
 
-        {/* Operating Hours Tab */}
         <div
           style={{
             display: currentTab === "operating-hours" ? "block" : "none",
@@ -553,7 +552,6 @@ const TicketEditForm: React.FC<Props> = ({
           />
         </div>
 
-        {/* Options Tab */}
         <div style={{ display: currentTab === "options" ? "block" : "none" }}>
           <OptionsTab
             control={control}
@@ -566,9 +564,26 @@ const TicketEditForm: React.FC<Props> = ({
             initialValues={initialValues as ProductInfoT}
           />
         </div>
+
+        <div
+          style={{
+            display: currentTab === "relatedTickets" ? "block" : "none",
+          }}
+        >
+          <RelatedTicketTab
+            control={control}
+            errors={errors}
+            getValues={getValues}
+            trigger={trigger}
+            watch={watch}
+            setValue={setValue}
+            mode={mode}
+            initialValues={initialValues as ProductInfoT}
+          />
+        </div>
+
       </div>
 
-      {/* Navigation buttons */}
       <div className="flex justify-between pt-4 border-t border-gray-200">
         <Button
           type="button"
