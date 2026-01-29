@@ -69,7 +69,7 @@ export const fetchMyBookingList = async ({ pageParam = 1, queryKey }: any) => {
   const filter: FilterBookingListT = {
     page: pageParam,
     limit: 10,
-    orderBy: { dir: sort, field: "email" },
+    orderBy: { dir: sort, field: "ticketConfirmedAt" },
     status: status,
     search: search ?? null,
     requireManualConfirm: requireManualConfirm,

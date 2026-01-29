@@ -131,7 +131,7 @@ export default function Tickets() {
               options={categoryData}
               value={filters.categories}
               onChange={(v) => setFilters((f) => ({ ...f, categories: v }))}
-              width="w-32"
+              width="max-w-52"
             />
 
             <Select
