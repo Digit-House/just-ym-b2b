@@ -111,7 +111,7 @@ export default function Bookings() {
   // Reset filters to initial state
   const handleResetFilters = () => {
     setSort("desc");
-    setStatus("ALL");
+    setStatus("PAID");
     setSearch("");
     // Clear localStorage when resetting
     localStorage.removeItem("bookingFilters");
@@ -120,7 +120,7 @@ export default function Bookings() {
   // Check if filters have been modified from initial state
   const filtersChanged =
     sort !== "desc" ||
-    status !== "ALL" ||
+    status !== "PAID" ||
     search !== "" ||
     requireManualConfirm !== false;
 
