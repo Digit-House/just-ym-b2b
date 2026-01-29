@@ -59,6 +59,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(1)}
           disabled={isFirstPage}
+          type="button"
           className="p-1 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <ChevronsLeft size={16} />
@@ -68,6 +69,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={isFirstPage}
+          type="button"
           className="p-1 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <ChevronLeft size={16} />
@@ -77,6 +79,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={isLastPage}
+          type="button"
           className="p-1 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <ChevronRight size={16} />
@@ -86,6 +89,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={isLastPage}
+          type="button"
           className="p-1 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <ChevronsRight size={16} />

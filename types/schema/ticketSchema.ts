@@ -98,6 +98,9 @@ export const ticketSchema = z.object({
         category: z.string().optional().nullable(),
         city: z.string().optional().nullable(),
         dhSellingPrice: z.number().optional().nullable(),
+        // Additional fields for related products functionality
+        productId: z.string().optional().nullable(),
+        linkBack: z.boolean().optional().nullable(),
       })
     )
     .optional()

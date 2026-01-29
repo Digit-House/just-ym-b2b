@@ -19,6 +19,7 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
+import { relatedProducts } from "@/graphql/product";
 
 type Mode = "edit";
 
@@ -395,10 +396,29 @@ const TicketEditForm: React.FC<Props> = ({
     }
   
     const { category: _,...restOfValues } = values;
+    console.log("Related Products:", values.relatedProducts);
+    
+    // Process relatedProducts - handle both full product objects and simplified objects
+    const processedRelatedProducts = values.relatedProducts?.map((d) => {
+      // If it's already in the simplified format
+      if (d.productId && d.linkBack !== undefined) {
+        return {
+          productId: d.productId,
+          linkBack: d.linkBack,
+        };
+      }
+      // If it's a full product object
+      return {
+        productId: d.id || d.productId,
+        linkBack: d.linkBack || false,
+      };
+    }) || [];
+    
     const payload = {
       ...restOfValues,
       image: processedImage, 
       media: processedMedia, 
+      relatedProducts: processedRelatedProducts, 
       productOptions: values.productOptions.map((d) => {
         const {ticketValidity:_,definedDuration:__,...restOfValues} = d;
         return {

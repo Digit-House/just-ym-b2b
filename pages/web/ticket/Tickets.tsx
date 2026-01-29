@@ -208,7 +208,7 @@ export default function Tickets() {
                   <SelectContent>
                     <SelectItem value="RECOMMENDED">Recommended</SelectItem>
                     <SelectItem value="NOT_RECOMMENDED">
-                      Not Recommended (ALL)
+                      ALL
                     </SelectItem>
                   </SelectContent>
                 </ShadcnSelect>

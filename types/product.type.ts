@@ -190,6 +190,20 @@ export interface ProductRelatedT {
   dhSellingPrice: number;
 }
 
+export interface RelatedProductItemT {
+  productId: string;
+  linkBack: boolean;
+}
+
+export interface RelatedProductFormValues {
+  productId: string;
+  linkBack: boolean;
+  name: string;
+  image: string;
+  description: string;
+  originalPrice: number;
+}
+
 export interface BlockedDateT {
   date: string;
   title: string;

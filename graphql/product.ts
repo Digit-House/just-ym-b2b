@@ -29,12 +29,13 @@ import {
 } from "@/types/product.type";
 
 
-export const getProductInfo = async (productId: string) => {
+export const getProductInfo = async (productId: string, includeRelated?: boolean) => {
   try {
     const res: ProductInfoResponse = await client.query({
       query: warpGql(GET_PRODUCT_INFO),
       variables: {
         productId: productId,
+        includeRelated:includeRelated || false,
       },
       fetchPolicy: "no-cache",
     });
@@ -43,6 +44,22 @@ export const getProductInfo = async (productId: string) => {
     throw err;
   }
 };
+
+export const getRelatedProductInfo = async (productId:string,includeRelated?:boolean) => {
+  try {
+    const res: ProductInfoResponse = await client.query({
+      query: warpGql(GET_PRODUCT_INFO),
+      variables: {
+        productId: productId,
+        includeRelated:includeRelated || false,
+      },
+      fetchPolicy: "no-cache",
+    });
+    return res.data.getProductInfo as ProductInfoT | UpdateProductPayloadT;
+  } catch (err) {
+    throw err;
+  }
+}
 
 export const updateProductInfo = async (data: UpdateProductPayloadT) => {
   try {
