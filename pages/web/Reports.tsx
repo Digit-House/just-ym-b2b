@@ -194,7 +194,6 @@ const Reports = () => {
 
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
-                initialFocus
                 mode="range"
                 numberOfMonths={2}
                 defaultMonth={dateRange.from}

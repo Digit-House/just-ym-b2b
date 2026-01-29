@@ -30,10 +30,16 @@ export type NavItem = {
 export const NAV_CONFIG: NavItem[] = [
   {
     label: "Dashboard",
-    path: "/",
-    icon: Home,
+    path: "/reports",
+    icon: BarChart3,
     types: "ALL",
   },
+  // {
+  //   label: "Dashboard",
+  //   path: "/",
+  //   icon: Home,
+  //   types: "ALL",
+  // },
   {
     label: "Categories",
     path: "/categories",
@@ -76,13 +82,6 @@ export const NAV_CONFIG: NavItem[] = [
     icon: Wallet,
     types: ["RESELLER"],
   },
-  {
-    label: "Reports",
-    path: "/reports",
-    icon: BarChart3,
-    types: "ALL",
-  },
-
   {
     label: "Currency Rate",
     path: "/currencyRate",

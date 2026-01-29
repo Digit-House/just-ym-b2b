@@ -110,7 +110,7 @@ export default function Tickets() {
 
   return (
     <>
-      <PageContainer>
+      <PageContainer className="w-full">
         <PageHeader
           title="Tickets"
           des="Measure your advertising ROI and report website traffic."
@@ -123,6 +123,7 @@ export default function Tickets() {
             setFilters((f) => ({ ...f, search: value }))
           }}
         />
+       
         <div className="flex justify-between gap-4 mt-3 mb-10 border px-4 py-2">
           <div className="flex gap-5 items-center">
             <Select
@@ -131,7 +132,7 @@ export default function Tickets() {
               options={categoryData}
               value={filters.categories}
               onChange={(v) => setFilters((f) => ({ ...f, categories: v }))}
-              width="max-w-52"
+              width="w-50"
             />
 
             <Select
@@ -143,6 +144,7 @@ export default function Tickets() {
               width="w-32"
             />
           </div>
+          
 
           <div className="flex items-center gap-2">
             {user?.type === "OWNER" && (
@@ -207,9 +209,11 @@ export default function Tickets() {
               </button>
             )}
           </div>
+          
         </div>
 
-        {/* Content */}
+        <p className="flex gap-2 items-center justify-end text-sm w-full">Total : <p>{products.length}</p></p>   
+
         {isPending && (
           <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
