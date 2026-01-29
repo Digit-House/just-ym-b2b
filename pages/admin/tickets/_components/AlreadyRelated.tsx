@@ -11,10 +11,17 @@ type Props = {
   watch: any;
   setValue: UseFormSetValue<TicketFormValues>;
   initialValues?: ProductInfoT;
+  onRelatedProductsChange?: (relatedProducts: any[]) => void;
 };
 
-const AlreadyRelated = ({ watch, setValue, initialValues }: Props) => {
+const AlreadyRelated = ({ watch, setValue, initialValues, onRelatedProductsChange }: Props) => {
   const [dataRelatedProducts, setDataRelatedProducts] = useState<ProductRelatedT[]>(initialValues?.relatedProducts as ProductRelatedT[] || []);
+  
+  // Update local state when initialValues change
+  useEffect(() => {
+    const relatedProducts = initialValues?.relatedProducts as ProductRelatedT[] || [];
+    setDataRelatedProducts(relatedProducts);
+  }, [initialValues?.relatedProducts]);
 
   // Watch for changes in the form's relatedProducts value
   const formRelatedProducts = watch("relatedProducts");
@@ -34,9 +41,17 @@ const AlreadyRelated = ({ watch, setValue, initialValues }: Props) => {
     const updatedRelatedProducts = dataRelatedProducts.map((item: any) =>
       (item.id || item.productId) === productId ? { ...item, [field]: value } : item
     );
-    setValue("relatedProducts", updatedRelatedProducts);
+    
     // Update local state immediately for instant UI feedback
     setDataRelatedProducts(updatedRelatedProducts);
+    
+    // Notify parent of changes if callback provided
+    if (onRelatedProductsChange) {
+      onRelatedProductsChange(updatedRelatedProducts);
+    } else {
+      // Fallback to direct form update
+      setValue("relatedProducts", updatedRelatedProducts);
+    }
   };
 
   const removeRelatedProduct = (productId: string) => {
@@ -44,9 +59,16 @@ const AlreadyRelated = ({ watch, setValue, initialValues }: Props) => {
       (item: any) => (item.id || item.productId) !== productId
     );
     
-    setValue("relatedProducts", updatedRelatedProducts);
     // Update local state immediately for instant UI feedback
     setDataRelatedProducts(updatedRelatedProducts);
+    
+    // Notify parent of changes if callback provided
+    if (onRelatedProductsChange) {
+      onRelatedProductsChange(updatedRelatedProducts);
+    } else {
+      // Fallback to direct form update
+      setValue("relatedProducts", updatedRelatedProducts);
+    }
   };
 
   return (

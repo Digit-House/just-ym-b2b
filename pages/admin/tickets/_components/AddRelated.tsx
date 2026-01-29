@@ -1,6 +1,6 @@
 import { ProductT } from "@/types/product.type";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { UseFormSetValue } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts, getProductInfo } from "@/graphql/product";
@@ -28,12 +28,12 @@ import {
 } from "@/components/ui/select";
 
 type Props = {
-  setValue: UseFormSetValue<TicketFormValues>;
   currentRelatedProducts: any[];
   currentTicketId?: string;
+  onRelatedProductsChange: (updatedProducts: any[]) => void;
 };
 
-const AddRelated = ({ setValue, currentRelatedProducts, currentTicketId }: Props) => {
+const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProductsChange }: Props) => {
   const { filters, setFilters, resetFilters } = useRelatedTicketFilters();
   
   // Pagination state
@@ -142,12 +142,6 @@ const AddRelated = ({ setValue, currentRelatedProducts, currentTicketId }: Props
 
   const allProducts = useMemo(() => productsData?.data || [], [productsData]);
 
-  // Handle selection of products to add as related
-  // This state tracks products selected for addition with their productId and linkBack values
-  // Structure matches dataRelatedProducts: {productId: string, linkBack: boolean}[]
-  const [selectedToAdd, setSelectedToAdd] = useState<{productId: string, linkBack: boolean}[]>([]);
-  const [isAddingProducts, setIsAddingProducts] = useState(false);
-
   // Show all products but disable already related and self ticket
   const allProductsWithStatus = useMemo(() => {
     // Create sets for fast lookup
@@ -177,73 +171,55 @@ const AddRelated = ({ setValue, currentRelatedProducts, currentTicketId }: Props
     });
   }, [allProducts, currentRelatedProducts, currentTicketId]);
 
-  const toggleProductSelection = (productId: string) => {
-    setSelectedToAdd((prev) => {
-      // Check if product is already selected (matches dataRelatedProducts structure)
-      if (prev.some(item => item.productId === productId)) {
-        // Remove product from selection
-        return prev.filter((item) => item.productId !== productId);
-      } else {
-        // Add product to selection with default linkBack: false (same structure as dataRelatedProducts)
-        return [...prev, { productId, linkBack: false }];
-      }
-    });
+  // Check if a product is already related
+  const isProductRelated = (productId: string) => {
+    return currentRelatedProducts.some(item => (item.id || item.productId) === productId);
   };
 
-  const updateSelectedLinkBack = (productId: string, linkBack: boolean) => {
-    setSelectedToAdd((prev) => 
-      prev.map(item => 
-        item.productId === productId 
-          // Update linkBack value (maintains same structure as dataRelatedProducts)
-          ? { ...item, linkBack } 
-          : item
-      )
-    );
+  // Get related product data by productId
+  const getRelatedProduct = (productId: string) => {
+    return currentRelatedProducts.find(item => (item.id || item.productId) === productId);
   };
 
-  const addSelectedProducts = async () => {
-    if (isAddingProducts || selectedToAdd.length === 0) return;
-    
-    setIsAddingProducts(true);
-    
-    try {
-      // Get existing related products from current form value
-      const existingRelatedProducts = [...currentRelatedProducts];
-      
-      // Get newly selected products from availableProducts (via selectedToAdd)
-      // These are the products user checked in the "Add Related" tab
-      const newlySelectedProducts = selectedToAdd.map(item => {
-        // Find the product details from allProductsWithStatus to populate the full product object
-        const productDetails = allProductsWithStatus.find((p: any) => p.id === item.productId);
-        
-        return {
-          id: item.productId,
-          image: productDetails?.image || "",
-          isCancellable: productDetails?.isCancellable || false,
-          isPublished: productDetails?.isPublished || true,
-          name: productDetails?.name || "",
-          originalPrice: productDetails?.originalPrice || 0,
-          price: productDetails?.price || 0,
+  // Toggle product in related products (add or remove)
+  const toggleProductInRelated = (productId: string) => {
+    if (isProductRelated(productId)) {
+      // Remove product from related
+      const updatedProducts = currentRelatedProducts.filter(
+        item => (item.id || item.productId) !== productId
+      );
+      onRelatedProductsChange(updatedProducts);
+    } else {
+      // Add product to related
+      const productToAdd = allProductsWithStatus.find((p: any) => p.id === productId);
+      if (productToAdd) {
+        const newRelatedProduct = {
+          id: productId,
+          image: productToAdd.image || "",
+          isCancellable: productToAdd.isCancellable || false,
+          isPublished: productToAdd.isPublished || true,
+          name: productToAdd.name || "",
+          originalPrice: productToAdd.originalPrice || 0,
+          price: productToAdd.price || 0,
           requiresManualConfirmation: false,
-          category: productDetails?.category || "",
-          city: productDetails?.city || "",
-          dhSellingPrice: productDetails?.dhSellingPrice || 0,
-          productId: item.productId,  
-          linkBack: item.linkBack,  
+          category: productToAdd.category || "",
+          city: productToAdd.city || "",
+          dhSellingPrice: productToAdd.dhSellingPrice || 0,
+          productId: productId,
+          linkBack: false,
         };
-      });
-      
-      const combinedRelatedProducts = [
-        ...existingRelatedProducts,
-        ...newlySelectedProducts.filter(item => 
-          !existingRelatedProducts.some(existing => (existing.id || existing.productId) === item.productId)
-        )
-      ];
-
-      setValue("relatedProducts", combinedRelatedProducts);
-    } finally {
-      setIsAddingProducts(false);
+        const updatedProducts = [...currentRelatedProducts, newRelatedProduct];
+        onRelatedProductsChange(updatedProducts);
+      }
     }
+  };
+
+  // Update linkBack property for related product
+  const updateRelatedProductLinkBack = (productId: string, linkBack: boolean) => {
+    const updatedProducts = currentRelatedProducts.map(item =>
+      (item.id || item.productId) === productId ? { ...item, linkBack } : item
+    );
+    onRelatedProductsChange(updatedProducts);
   };
 
   return (
@@ -340,19 +316,6 @@ const AddRelated = ({ setValue, currentRelatedProducts, currentTicketId }: Props
         </button>
       </div>
 
-       {selectedToAdd.length > 0 && (
-        <div className="my-4 flex justify-end">
-          <Button 
-            type="button" 
-            onClick={addSelectedProducts}
-            disabled={isAddingProducts}
-            className={isAddingProducts ? "opacity-70 cursor-not-allowed" : ""}
-          >
-            {isAddingProducts ? "Adding..." : `Add ${selectedToAdd.length} Selected Product${selectedToAdd.length !== 1 ? "s" : ""} as Related`}
-          </Button>
-        </div>
-      )}
-
       {isPending && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -370,24 +333,32 @@ const AddRelated = ({ setValue, currentRelatedProducts, currentTicketId }: Props
       {!isPending && allProductsWithStatus.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allProductsWithStatus.map((product: any) => {
-            const isSelected = selectedToAdd.some(item => item.productId === product.id);
-            const selectedItem = selectedToAdd.find(item => item.productId === product.id);
+            const isRelated = isProductRelated(product.id);
+            const relatedProduct = getRelatedProduct(product.id);
+            const isSelfTicket = currentTicketId && product.id === currentTicketId;
             
             return (
               <div key={product.id} className="relative">
-                <RelatedTicketCard
-                  product={product}
-                  isSelected={isSelected}
-                  onToggle={() => toggleProductSelection(product.id)}
-                  showCheckbox={true}
-                  linkBack={selectedItem?.linkBack || false}
-                  onLinkBackChange={(checked) => updateSelectedLinkBack(product.id, checked)}
-                  isDisabled={product.isDisabled}
-                />
-                {product.isDisabled && (
+                <div className={isRelated ? "ring-2 ring-green-500 ring-offset-2 rounded-lg" : ""}>
+                  <RelatedTicketCard
+                    product={product}
+                    isSelected={isRelated}
+                    onToggle={() => toggleProductInRelated(product.id)}
+                    showCheckbox={true}
+                    linkBack={relatedProduct?.linkBack || false}
+                    onLinkBackChange={(checked) => updateRelatedProductLinkBack(product.id, checked)}
+                    isDisabled={isSelfTicket}
+                  />
+                </div>
+                {isRelated && (
+                  <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full z-20 shadow-md">
+                    Related
+                  </div>
+                )}
+                {isSelfTicket && !isRelated && (
                   <div className="absolute inset-0 bg-gray-100 bg-opacity-70 rounded-lg flex items-center justify-center z-20">
                     <div className="text-center p-2">
-                      <p className="text-gray-500 text-sm font-medium">{product.disabledReason}</p>
+                      <p className="text-gray-500 text-sm font-medium">Cannot relate ticket to itself</p>
                       <p className="text-gray-400 text-xs mt-1">This product cannot be selected</p>
                     </div>
                   </div>

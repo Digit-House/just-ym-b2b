@@ -1,7 +1,4 @@
-import {
-  ProductInfoT,
-  ProductRelatedT,
-} from "@/types/product.type";
+import { ProductInfoT, ProductRelatedT } from "@/types/product.type";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import {
   Control,
@@ -11,7 +8,7 @@ import {
   UseFormTrigger,
 } from "react-hook-form";
 import { useState, useEffect } from "react";
-import AlreadyRelated from "./AlreadyRelated";
+import { Button } from "@/components/ui/button";
 import AddRelated from "./AddRelated";
 
 type Props = {
@@ -35,63 +32,43 @@ const RelatedTicketTab = ({
   mode,
   initialValues,
 }: Props) => {
+  const dataRelatedProducts =
+    (initialValues?.relatedProducts as ProductRelatedT[]) || [];
 
-  const dataRelatedProducts = initialValues?.relatedProducts as ProductRelatedT[] || [];
-  const [activeTab, setActiveTab] = useState<"alreadyRelated" | "addRelated">(
-    "alreadyRelated"
+  // State for current related products in the form
+  const [currentRelatedProducts, setCurrentRelatedProducts] = useState<any[]>(
+    dataRelatedProducts || []
   );
 
- 
   useEffect(() => {
     if (dataRelatedProducts.length > 0) {
-      
       setValue("relatedProducts", dataRelatedProducts);
+      setCurrentRelatedProducts(dataRelatedProducts);
     }
-  }, []); 
+  }, [dataRelatedProducts, setValue]);
+
+  // const handleSaveRelatedTickets = () => {
+  //   setValue("relatedProducts", currentRelatedProducts);
+  // };
+
+  const handleRelatedProductsChange = (updatedProducts: any[]) => {
+    setCurrentRelatedProducts(updatedProducts);
+    setValue("relatedProducts", updatedProducts);
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex border-b">
-        <button
-          type="button"
-          className={`px-4 py-2 font-medium text-sm ${
-            activeTab === "alreadyRelated"
-              ? "text-indigo-600 border-b-2 border-indigo-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("alreadyRelated")}
-        >
-          Already Related
-        </button>
-        <button
-          type="button"
-          className={`px-4 py-2 font-medium text-sm ${
-            activeTab === "addRelated"
-              ? "text-indigo-600 border-b-2 border-indigo-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("addRelated")}
-        >
-          Add Related
-        </button>
-      </div>
-      
+      {/* <div className="flex justify-end mb-4">
+        <Button type="button" onClick={handleSaveRelatedTickets}>
+          Save Related Tickets
+        </Button>
+      </div> */}
 
-      {activeTab === "alreadyRelated" && (
-        <AlreadyRelated
-          watch={watch}
-          setValue={setValue}
-          initialValues={initialValues}
-        />
-      )}
-
-      {activeTab === "addRelated" && (
-        <AddRelated
-          setValue={setValue}
-          currentRelatedProducts={dataRelatedProducts || []}
-          currentTicketId={initialValues?.id}
-        />
-      )}
+      <AddRelated
+        currentRelatedProducts={currentRelatedProducts}
+        currentTicketId={initialValues?.id}
+        onRelatedProductsChange={handleRelatedProductsChange}
+      />
     </div>
   );
 };

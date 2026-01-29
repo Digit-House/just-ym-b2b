@@ -181,6 +181,7 @@ export interface ProductRelatedT {
   image: string;
   isCancellable: boolean;
   isPublished: boolean;
+  linkBack: boolean;
   name: string;
   originalPrice: number;
   price: number;
