@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 export const categorySchema = z.object({
-  name: z.string().min(1, "Name is required")
+  id: z.string(),
+  name: z.string().optional(),
+  name_mm: z.string().optional(),
+  image: z.string().optional(),
+  showOnLanding: z.boolean(),
 });
 
 export type CategoryFormValues = z.infer<typeof categorySchema>;

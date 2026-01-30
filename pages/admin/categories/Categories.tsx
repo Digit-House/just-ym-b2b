@@ -8,14 +8,12 @@ import Pagination from "@/components/Pagination";
 import { useCategories } from "@/hooks/useCategories";
 import { CategoryT } from "@/types/categories.type";
 import { getErrMsg,PAGE_SIZE,SORT_OPTION } from "@/util/initData";
-import RoleCheckAction from "@/components/RoleCheckAction";
-import { Plus } from "lucide-react";
+import { FileEdit} from "lucide-react";
 import ModalWrapper from "@/components/ModalWrapper";
 import CategoryForm from "./_components/CategoryForm";
 import { CategoryFormValues } from "@/types/schema/categorySchema";
 import { toast } from "sonner";
-import { postCategory } from "@/graphql/category";
-import { Button } from "@/components/ui/button";
+import { putCategory } from "@/graphql/category";
 import { SortT } from "@/types/index.type";
 
 const Categories = () => {
@@ -24,9 +22,8 @@ const Categories = () => {
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   const [loading, setLoading] = useState(false);
-
   const [modalState, setModalState] = useState<{
-    mode: "create" | "edit" | null;
+    mode: "edit" | null;
     category?: CategoryT;
   }>({
     mode: null,
@@ -49,19 +46,19 @@ const Categories = () => {
     },
   });
 
-  const handleCreateCategory = async (value: CategoryFormValues) => {
-    try {
+  const handleEditCategory = async (value: CategoryFormValues) => {
+    try{
       setLoading(true);
-      await postCategory(value.name);
-      toast.success("Successfully Created !");
+      await putCategory(value);
+      toast.success("Successfully Updated !");
       closeModal();
       await refetch();
-    } catch (err) {
-      toast.error(getErrMsg(err, "message"));
+    }catch(err){
+      toast.error(getErrMsg(err,"message"));
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <PageContainer>
@@ -70,19 +67,6 @@ const Categories = () => {
         des="Manage available categories used across the system."
       />
       <div className="flex items-center justify-end mb-5 gap-4 border border-[#21212124] py-2 px-4">
-        {/* <RoleCheckAction>
-          <Button
-            onClick={() => {
-              setModalState({ mode: "create" });
-            }}
-            size="lg"
-            type="button"
-            loading={loading}
-          >
-            <Plus size={18} />
-            Add Category
-          </Button>
-        </RoleCheckAction> */}
         <SortSelect
           options={SORT_OPTION}
           value={sort}
@@ -101,12 +85,14 @@ const Categories = () => {
               <tr>
                 <th className="px-6 py-4 font-semibold">Id</th>
                 <th className="px-6 py-4 font-semibold">Category Name</th>
+                <th className="px-6 py-4 font-semibold">Category Name (MM)</th>
                 <th className="px-6 py-4 font-semibold text-center">
                   Created At
                 </th>
                 <th className="px-6 py-4 font-semibold text-right">
                   Last Updated
                 </th>
+                <th className="px-6 py-4">Action</th>
                 {/* //don't remove */}
                 {/* <th className="px-6 py-4 font-semibold">Action</th> */}
               </tr>
@@ -133,6 +119,9 @@ const Categories = () => {
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {category.name}
                     </td>
+                    <td className="px-6 py-4 font-medium text-gray-900">
+                      {category.name_mm || "-----"}
+                    </td>
 
                     <td className="px-6 py-4 text-center">
                       {new Date(category.createdAt).toLocaleString()}
@@ -141,18 +130,14 @@ const Categories = () => {
                     <td className="px-6 py-4 text-right">
                       {new Date(category.updatedAt).toLocaleString()}
                     </td>
-
-                    {/* //don't remove */}
-                    {/* <td className="px-6 py-4">
+                    <td className="px-6 py-4">
                       <button
-                        onClick={() =>
-                          navigate(`/categories/${category.id}`)
-                        }
+                        onClick={() => setModalState({ mode: "edit", category })}
                         className="text-indigo-600 hover:text-indigo-800"
                       >
                         <FileEdit size={18} />
                       </button>
-                    </td> */}
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -160,13 +145,14 @@ const Categories = () => {
         </div>
       </div>
 
-      {modalState.mode === "create" && (
-        <ModalWrapper title="Create Category" onClose={closeModal}>
+      {modalState.mode === "edit" && modalState.category && (
+        <ModalWrapper title="Edit Category" onClose={closeModal}>
           <CategoryForm
-            mode="create"
+            mode="edit"
+            category={modalState.category}
             loading={loading}
             onCancel={closeModal}
-            onSubmit={handleCreateCategory}
+            onSubmit={handleEditCategory}
           />
         </ModalWrapper>
       )}

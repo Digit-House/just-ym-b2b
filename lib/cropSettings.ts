@@ -65,6 +65,7 @@ export const CROP_SETTINGS = {
     minHeight: 128,
   },
 
+
   // 💳 Payment Method Logo (Square)
   PAYMENT_LOGO_SQUARE: {
     aspect: 1,

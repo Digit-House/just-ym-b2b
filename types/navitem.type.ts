@@ -70,6 +70,12 @@ export const NAV_CONFIG: NavItem[] = [
     icon: FileText,
     types: "ALL",
   },
+   {
+    label: "Transactions",
+    path: "/transactions",
+    icon: DollarSign,
+    types: ["OWNER"],
+  },
   {
     label: "Vouchers",
     path: "/vouchers",

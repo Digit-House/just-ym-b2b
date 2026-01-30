@@ -34,9 +34,9 @@ const UsersFilterBar = ({
       onChange={(v) => onType(v.target.value as UserRoleTypeT)}
       className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none"
     >
-      <option value={null}>All Roles</option>
-      <option value={"RESELLER"}>Reseller</option>
-      <option value={"MANAGER"}>Manager</option>
+      <option value={"RESELLER"}>RESELLER</option>
+      {/* <option value={"MANAGER"}>Manager</option> */}
+      <option value={"USER"}>USER</option>
     </select>
     <select
       value={active === null ? "null" : active ? "true" : "false"}

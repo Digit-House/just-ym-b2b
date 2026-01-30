@@ -5,6 +5,9 @@ export const GET_ALL_CATEGORIES = `
         createdAt
         id
         name
+        name_mm
+        image
+        showOnLanding
         updatedAt
       }
       total
@@ -19,6 +22,14 @@ mutation CreateCategory($data: CategoryCreateInputDTO!) {
     id
     name
     updatedAt
+  }
+}
+`;
+
+export const UPDATE_CATEGORY = `
+mutation UpdateCategory($data: CategoryUpdateInputDTO!) {
+  updateCategory(data: $data) {
+    id
   }
 }
 `;

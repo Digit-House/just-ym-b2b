@@ -166,7 +166,7 @@ const Reports = () => {
   return (
     <PageContainer>
       <PageHeader
-        title="Reports"
+        title="Dashboard"
         des="Measure your advertising ROI and report website traffic."
       />
 

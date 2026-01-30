@@ -178,9 +178,8 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       setOriginalFile(null);
       setOriginalValue(undefined);
 
-      if (mode === "create") {
-        onChange("");
-      }
+      // Always call onChange to update parent form state, regardless of mode
+      onChange("");
     };
 
     /* 🔥 PREVIEW DIALOG HANDLERS */
