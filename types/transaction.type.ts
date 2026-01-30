@@ -1,11 +1,16 @@
 export type TransactionT = {
   amount: number;
-  id:string;
+  id: string;
   type: "MINUS" | "PLUS";
   createdAt: string;
   updatedAt: string;
   actionLog: {
-    type: "ADMIN_SALE" | "AGENT_SALE" | "CUSTOMER_SALE" | "GT_TOP_UP" | "TOP_UP";
+    type:
+      | "ADMIN_SALE"
+      | "AGENT_SALE"
+      | "CUSTOMER_SALE"
+      | "GT_TOP_UP"
+      | "TOP_UP";
     txn: {
       id: string;
     };
@@ -14,6 +19,7 @@ export type TransactionT = {
   };
   credit: {
     reseller: {
+      name: string;
       email: string;
     };
   };

@@ -18,6 +18,7 @@ query FindAllCreditLogs($params: CreditLogPagedParams!) {
       }
       credit {
         reseller {
+          name
           email
         }
       }
