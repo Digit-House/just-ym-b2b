@@ -86,6 +86,7 @@ const Categories = () => {
                 <th className="px-6 py-4 font-semibold">Id</th>
                 <th className="px-6 py-4 font-semibold">Category Name</th>
                 <th className="px-6 py-4 font-semibold">Category Name (MM)</th>
+                 <th className="px-6 py-4 font-semibold">Show on Landing</th>
                 <th className="px-6 py-4 font-semibold text-center">
                   Created At
                 </th>
@@ -121,6 +122,9 @@ const Categories = () => {
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {category.name_mm || "-----"}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900">
+                      {category.showOnLanding ? "Yes" : "No"}
                     </td>
 
                     <td className="px-6 py-4 text-center">
