@@ -159,7 +159,7 @@ const Transactions = () => {
                 <th className="px-6 py-4 font-semibold">Action Type</th>
                 <th className="px-6 py-4 font-semibold">Transaction ID</th>
                 <th className="px-6 py-4 font-semibold">TopUp ID</th>
-                <th className="px-6 py-4 font-semibold">Reseller Email</th>
+                <th className="px-6 py-4 font-semibold">Reseller Name</th>
                 <th className="px-6 py-4 font-semibold">Created At</th>
                 <th className="px-6 py-4 font-semibold">Updated At</th>
               </tr>
@@ -221,7 +221,7 @@ const Transactions = () => {
                     </td>
 
                     <td className="px-6 py-4">
-                      {transaction.credit?.reseller?.email || "-"}
+                      {transaction.credit?.reseller?.name || "-"}
                     </td>
 
                     <td className="px-6 py-4 text-sm">
