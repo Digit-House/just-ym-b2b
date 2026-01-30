@@ -2,6 +2,8 @@ import useAuthStore from "@/store/useAuthStore";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { NAV_CONFIG } from "@/types/navitem.type";
 import { useUser } from "@/provider/UserProvider";
+import { useEffect, useState } from "react";
+import Loading from "@/components/Loading";
 
 const ProtectedRoute = () => {
   const { token } = useAuthStore();
@@ -17,6 +19,12 @@ const ProtectedRoute = () => {
 const RouteGuard = () => {
   const location = useLocation();
   const { user } = useUser();
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    setLoading(false);
+  }, [user]);
 
   if(user && user?.type !== "OWNER" && location.pathname.includes("admin-tickets")){
     return <Navigate to="/" replace />; 
@@ -35,6 +43,10 @@ const RouteGuard = () => {
         return <Navigate to="/" replace />;
       }
     }
+  }
+
+  if(loading){
+    return <Loading />;
   }
 
   return <Outlet />;

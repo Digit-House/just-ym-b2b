@@ -21,11 +21,11 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
       <td className="px-6 py-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-300">
-            {user.username.charAt(0).toUpperCase()}
+            {user?.username?.charAt(0).toUpperCase()}
           </div>
           <div>
             <p className="text-sm font-bold text-slate-800 leading-none mb-1">
-              {user.username}
+              {user?.username}
             </p>
             <p className="text-[10px] text-slate-400 font-medium">
               Joined {formatDateTime(user.createdAt)}
@@ -39,12 +39,12 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-slate-600">
             <Icons.Mail size={12} className="text-slate-400" />
-            <span className="text-xs font-medium">{user.email}</span>
+            <span className="text-xs font-medium">{user?.email}</span>
           </div>
           <div className="flex items-center gap-1.5 text-slate-600">
             <Icons.Phone size={12} className="text-slate-400" />
             <span className="text-xs font-medium">
-              {user.contactNo || "------"}
+              {user?.contactNo || "------"}
             </span>
           </div>
         </div>
@@ -54,14 +54,14 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
       <td className="px-6 py-5">
         <span
           className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${
-            user.roles[0].name === "ADMIN"
+            user?.roles[0]?.name === "ADMIN"
               ? "bg-green-100 text-green-700"
-              : user.roles[0].name === "MANAGER"
+              : user?.roles[0]?.name === "MANAGER"
               ? "bg-blue-100 text-blue-700"
               : "bg-slate-100 text-slate-700"
           }`}
         >
-          {user.roles[0].name}
+          {user?.roles[0]?.name || "USER"}
         </span>
       </td>
 
@@ -70,15 +70,15 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
         <div className="inline-flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded-full border border-slate-100">
           <div
             className={`w-1.5 h-1.5 rounded-full ${
-              user.active ? "bg-green-500" : "bg-red-500"
+              user?.active ? "bg-green-500" : "bg-red-500"
             }`}
           />
           <span
             className={`text-[10px] font-bold ${
-              user.active ? "text-green-600" : "text-red-600"
+              user?.active ? "text-green-600" : "text-red-600"
             }`}
           >
-            {user.active ? "Active" : "Inactive"}
+            {user?.active ? "Active" : "Inactive"}
           </span>
         </div>
       </td>
@@ -86,10 +86,10 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
       {/* Last Login */}
       <td className="px-6 py-5">
         <p className="text-sm font-bold text-slate-800 mb-0.5">
-          {formatDateTime(user.lastLogin)}
+          {formatDateTime(user?.lastLogin)}
         </p>
         <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
-          Last: {formatDateTime(user.lastLogin)}
+          Last: {formatDateTime(user?.lastLogin)}
         </p>
       </td>
 

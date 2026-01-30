@@ -1,13 +1,12 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, use, useMemo, useState } from "react";
 import { ArrowUpDown, RotateCcw, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import Select from "@/components/Select";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import NotFoundComponent from "@/components/NotFoundComponent";
 import SkeletonCard from "./_components/SkeletonCard";
@@ -30,6 +29,10 @@ import { useTicketFilters } from "@/hooks/useTicketFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import TicketCard from "./_components/TicketCard";
 import MainSearch from "../../../components/MainSearch";
+import MultiSelect from "@/components/MultiSelect";
+import SingleSelect from "@/components/SingleSelect";
+import { useCities } from "@/hooks/useCities";
+
 
 const SORT_OPTION: SortOption[] = [
   { label: "Alphabet", value: "alphabet" },
@@ -54,6 +57,17 @@ export default function Tickets() {
     search: undefined,
   });
 
+  const { data: cityData } = useCities({
+    countryId : filters.countryId,
+    limit: 250,
+    page:1,
+    orderBy:{
+      dir:"desc"
+    },
+    isPublished:true,
+    search:undefined,
+  });
+
   const { data: categoryData } = useCategories({ limit: 10, page: 1 });
 
   const {
@@ -70,7 +84,8 @@ export default function Tickets() {
       "products",
       {
         categories: filters.categories,
-        countries: filters.countries,
+        countryId: filters.countryId,
+        cityId: filters.cityId,
         sort: filters.sort,
         published: filters.published,
         search: debouncedSearch,
@@ -83,6 +98,7 @@ export default function Tickets() {
     gcTime: 0,
   });
 
+  const total = data?.pages[0]?.total || 0;
   const products = useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
     [data]
@@ -99,7 +115,8 @@ export default function Tickets() {
     filters.published !== "PUBLISHED" ||
     filters.isRecommended !== null ||
     filters.categories.length ||
-    filters.countries.length ||
+    filters.countryId ||
+    filters.cityId ||
     filters.search;
 
   const handleNavigate = (e: React.MouseEvent, path: string) => {
@@ -110,7 +127,7 @@ export default function Tickets() {
 
   return (
     <>
-      <PageContainer>
+      <PageContainer className="w-full">
         <PageHeader
           title="Tickets"
           des="Measure your advertising ROI and report website traffic."
@@ -119,13 +136,14 @@ export default function Tickets() {
         <MainSearch
           search={filters.search}
           placeHolder="Search tickets..."
-          onClick={(value:string) => {
-            setFilters((f) => ({ ...f, search: value }))
+          onClick={(value: string) => {
+            setFilters((f) => ({ ...f, search: value }));
           }}
         />
+
         <div className="flex justify-between gap-4 mt-3 mb-10 border px-4 py-2">
           <div className="flex gap-5 items-center">
-            <Select
+            <MultiSelect
               label="Categories"
               placeholder="Categories"
               options={categoryData}
@@ -134,14 +152,25 @@ export default function Tickets() {
               width="w-32"
             />
 
-            <Select
-              label="Countries"
-              placeholder="Countries"
+            <SingleSelect
+              label="Country"
+              placeholder="Country"
               options={countryData?.data}
-              value={filters.countries}
-              onChange={(v) => setFilters((f) => ({ ...f, countries: v }))}
+              value={filters.countryId}
+              onChange={(v) => setFilters((f) => ({ ...f, countryId: v }))}
               width="w-32"
             />
+
+            {filters.countryId && (
+              <SingleSelect
+                label="City"
+                placeholder="City"
+                options={cityData?.data || []}
+                value={filters.cityId}
+                onChange={(v) => setFilters((f) => ({ ...f, cityId: v }))}
+                width="w-32"
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -179,7 +208,7 @@ export default function Tickets() {
                   <SelectContent>
                     <SelectItem value="RECOMMENDED">Recommended</SelectItem>
                     <SelectItem value="NOT_RECOMMENDED">
-                      Not Recommended (ALL)
+                      ALL
                     </SelectItem>
                   </SelectContent>
                 </ShadcnSelect>
@@ -209,7 +238,10 @@ export default function Tickets() {
           </div>
         </div>
 
-        {/* Content */}
+        <p className="flex gap-2 items-center justify-end text-sm w-full mb-3">
+          Total Tickets : <p>{total}</p>
+        </p>
+
         {isPending && (
           <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -227,7 +259,12 @@ export default function Tickets() {
         {!isPending && !!products.length && (
           <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((p) => (
-              <TicketCard user={user} key={p.id} p={p} handleNavigate={handleNavigate} />
+              <TicketCard
+                user={user}
+                key={p.id}
+                p={p}
+                handleNavigate={handleNavigate}
+              />
             ))}
           </div>
         )}

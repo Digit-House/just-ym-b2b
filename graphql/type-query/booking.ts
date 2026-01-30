@@ -127,34 +127,6 @@ query Query($params: BookingTransactionsInput!) {
       isTicketReady
       bookingTickets {
         code
-        eventId
-        eventTime
-        fromResellerId
-        globaltixTicketTypeId
-        image
-        index
-        issuedDate
-        price
-        productId
-        productName
-        productOptionId
-        productOptionName
-        qrCode
-        quantity
-        questionList {
-          answer
-          id
-          questionId
-          ticketIndex
-        }
-        ticketFormat
-        ticketTypeId
-        ticketTypeName
-        visitDate
-        visitDateSettings {
-          productId
-          value
-        }
       }
       viewTicketUrl
       transactionRefNumber

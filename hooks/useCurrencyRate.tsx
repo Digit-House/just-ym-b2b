@@ -11,15 +11,13 @@ export const useCurrencyRate = (autoRefresh: boolean = true) => {
       return response.data.currencyRate as CurrencyRateT;
     },
 
-    // ✅ Cache & freshness
-    staleTime: 60_000,        // data fresh for 1 min
+    // staleTime: 60_000,        // data fresh for 1 min
+    staleTime: 15_000,
     gcTime: 300_000,          // cache for 5 min
 
-    // ✅ Auto refresh every 1 min
     refetchInterval: autoRefresh ? 60_000 : false,
     refetchIntervalInBackground: true,
 
-    // ✅ UX improvements
     refetchOnWindowFocus: true,
     retry: 1,
   });

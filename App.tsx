@@ -43,6 +43,7 @@ import CreateVoucher from "./pages/admin/vouchers/create/CreateVoucher";
 import EditVoucher from "./pages/admin/vouchers/edit/EditPage";
 import ErrorPage from "./pages/web/ErrorPage";
 import { shouldRedirectToErrorPage, setErrorRedirected } from "@/util/errorHandler";
+import Transactions from "./pages/admin/transactions/Transactions";
 
 // Error Redirect Component - checks if we should redirect to error page
 const ErrorRedirectHandler = () => {
@@ -100,6 +101,7 @@ const App = () => {
               <Route path="categories" element={<Categories />} />
               <Route path="topup" element={<TopUp />} />
               <Route path="resellers" element={<Resellers />} />
+              <Route path="transactions" element={<Transactions />} />
               <Route path="roles" element={<Roles />} />
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />

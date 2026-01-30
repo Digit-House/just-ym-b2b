@@ -108,16 +108,13 @@ export default function Bookings() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage]);
 
-  // Reset filters to initial state
   const handleResetFilters = () => {
     setSort("desc");
     setStatus("PAID");
     setSearch("");
-    // Clear localStorage when resetting
     localStorage.removeItem("bookingFilters");
   };
 
-  // Check if filters have been modified from initial state
   const filtersChanged =
     sort !== "desc" ||
     status !== "PAID" ||

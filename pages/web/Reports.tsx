@@ -15,7 +15,7 @@ import { DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 
 import PageHeader from "@/components/PageHeader";
-import Select from "@/components/Select";
+import Select from "@/components/MultiSelect";
 import PageContainer from "@/components/PageContainer";
 
 import { useCategories } from "@/hooks/useCategories";
@@ -166,7 +166,7 @@ const Reports = () => {
   return (
     <PageContainer>
       <PageHeader
-        title="Reports"
+        title="Dashboard"
         des="Measure your advertising ROI and report website traffic."
       />
 
@@ -194,7 +194,6 @@ const Reports = () => {
 
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
-                initialFocus
                 mode="range"
                 numberOfMonths={2}
                 defaultMonth={dateRange.from}

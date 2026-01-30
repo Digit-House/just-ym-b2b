@@ -23,7 +23,7 @@ const AdminTicketEdit = () => {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["ticket", id],
-    queryFn: () => getProductInfo(id!),
+    queryFn: () => getProductInfo(id!, true),
     enabled: !!id,
     gcTime: 0,
     staleTime: 0,
