@@ -14,6 +14,7 @@ interface RelatedTicketCardProps {
   onLinkBackChange?: (linkBack: boolean) => void;
   productId?: string;
   linkBack?: boolean;
+  linkBackDisable?:boolean;
   isDisabled?: boolean;
 }
 
@@ -85,7 +86,7 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
           )}
         </div>
 
-        {onLinkBackChange !== undefined && (
+        {onLinkBackChange !== undefined  && (
           <div className="mt-3 flex items-center">
             <Checkbox
               id={`linkBack-${product?.id}`}
