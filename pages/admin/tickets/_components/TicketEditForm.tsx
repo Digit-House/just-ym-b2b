@@ -25,7 +25,7 @@ type Mode = "edit";
 
 type Props = {
   mode: Mode;
-  initialValues?:ProductInfoT;
+  initialValues?: ProductInfoT;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: UpdateProductPayloadT) => void;
@@ -49,21 +49,21 @@ const TicketEditForm: React.FC<Props> = ({
           name: option.name,
           description: option.description,
           isPublished: option.isPublished,
-          ticketValidity:option.ticketValidity,
-          visitDate:option.visitDate,
-          thaiNationalOnly:option.thaiNationalOnly,
-          redeemStart:option.redeemStart,
-          redeemEnd:option.redeemEnd,
-          definedDuration:option.definedDuration,
-          inclusions:option?.inclusions || [],
-          inclusions_mm:option?.inclusions_mm || [],
+          ticketValidity: option.ticketValidity,
+          visitDate: option.visitDate,
+          thaiNationalOnly: option.thaiNationalOnly,
+          redeemStart: option.redeemStart,
+          redeemEnd: option.redeemEnd,
+          definedDuration: option.definedDuration,
+          inclusions: option?.inclusions || [],
+          inclusions_mm: option?.inclusions_mm || [],
           ticketTypes: option.ticketType
             ? option.ticketType.map((ticket: TicketTypeT) => ({
                 ticketTypeId: ticket.id,
                 name: ticket.name,
                 quantity: ticket.quantity,
                 dhNetPrice: ticket.dhNetPrice,
-                nettPrice:ticket.nettPrice,
+                nettPrice: ticket.nettPrice,
                 dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice,
                 minimumSellingPrice: ticket.minimumSellingPrice,
                 dhSellingPrice: ticket.dhSellingPrice,
@@ -117,9 +117,11 @@ const TicketEditForm: React.FC<Props> = ({
       isBestSeller: (initialValues as any)?.isBestSeller ?? false,
       isCancellable: (initialValues as any)?.isCancellable ?? false,
       isGTRecommend: (initialValues as any)?.isGTRecommend ?? false,
-      isRecommended:(initialValues as any)?.isRecommended ?? false,
+      isRecommended: (initialValues as any)?.isRecommended ?? false,
       isInstantConfirmation:
         (initialValues as any)?.isInstantConfirmation ?? null,
+      requiresManualConfirmation:
+        (initialValues as any)?.requiresManualConfirmation ?? false,
       isOpenDated: (initialValues as any)?.isOpenDated ?? false,
       isPublished: (initialValues as any)?.isPublished ?? false,
       termsAndConditions: (initialValues as any)?.termsAndConditions ?? null,
@@ -133,15 +135,15 @@ const TicketEditForm: React.FC<Props> = ({
         fixedDays: [],
       },
       relatedProducts: initialValues?.relatedProducts ?? [],
-      productOptions:
-        transformApiDataToForm(initialValues as any)?.productOptions,
+      productOptions: transformApiDataToForm(initialValues as any)
+        ?.productOptions,
     },
   });
 
   const {
     control,
     handleSubmit,
-    formState: { errors},
+    formState: { errors },
     watch,
     setValue,
     getValues,
@@ -253,7 +255,7 @@ const TicketEditForm: React.FC<Props> = ({
       "media",
       "operating-hours",
       "options",
-      "relatedTickets"
+      "relatedTickets",
     ];
     const currentIndex = tabs.indexOf(currentTab);
     if (currentIndex > 0) {
@@ -394,33 +396,34 @@ const TicketEditForm: React.FC<Props> = ({
         }
       }
     }
-  
-    const { category: _,...restOfValues } = values;
+
+    const { category: _, ...restOfValues } = values;
     console.log("Related Products:", values.relatedProducts);
-    
+
     // Process relatedProducts - handle both full product objects and simplified objects
-    const processedRelatedProducts = values.relatedProducts?.map((d) => {
-      // If it's already in the simplified format
-      if (d.productId && d.linkBack !== undefined) {
+    const processedRelatedProducts =
+      values.relatedProducts?.map((d) => {
+        // If it's already in the simplified format
+        if (d.productId && d.linkBack !== undefined) {
+          return {
+            productId: d.productId,
+            linkBack: d.linkBack,
+          };
+        }
+        // If it's a full product object
         return {
-          productId: d.productId,
-          linkBack: d.linkBack,
+          productId: d.id || d.productId,
+          linkBack: d.linkBack || false,
         };
-      }
-      // If it's a full product object
-      return {
-        productId: d.id || d.productId,
-        linkBack: d.linkBack || false,
-      };
-    }) || [];
-    
+      }) || [];
+
     const payload = {
       ...restOfValues,
-      image: processedImage, 
-      media: processedMedia, 
-      relatedProducts: processedRelatedProducts, 
+      image: processedImage,
+      media: processedMedia,
+      relatedProducts: processedRelatedProducts,
       productOptions: values.productOptions.map((d) => {
-        const {ticketValidity:_,definedDuration:__,...restOfValues} = d;
+        const { ticketValidity: _, definedDuration: __, ...restOfValues } = d;
         return {
           ...restOfValues,
           ticketTypes: d.ticketTypes.map((t) => {
@@ -536,7 +539,6 @@ const TicketEditForm: React.FC<Props> = ({
           />
         </div>
 
-
         <div style={{ display: currentTab === "location" ? "block" : "none" }}>
           <LocationTab
             control={control}
@@ -601,7 +603,6 @@ const TicketEditForm: React.FC<Props> = ({
             initialValues={initialValues as ProductInfoT}
           />
         </div>
-
       </div>
 
       <div className="flex justify-between pt-4 border-t border-gray-200">
