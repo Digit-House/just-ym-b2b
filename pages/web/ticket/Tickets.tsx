@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, use, useMemo, useState } from "react";
-import { ArrowUpDown, RotateCcw, Search } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import { ArrowUpDown, RotateCcw, DownloadIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
@@ -24,7 +24,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/provider/UserProvider";
-import { fetchProducts } from "@/graphql/product";
+import { fetchProducts, exportProductsReport, ProductReportInput } from "@/graphql/product";
 import { useTicketFilters } from "@/hooks/useTicketFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import TicketCard from "./_components/TicketCard";
@@ -32,6 +32,7 @@ import MainSearch from "../../../components/MainSearch";
 import MultiSelect from "@/components/MultiSelect";
 import SingleSelect from "@/components/SingleSelect";
 import { useCities } from "@/hooks/useCities";
+import { toast } from "sonner";
 
 
 const SORT_OPTION: SortOption[] = [
@@ -123,6 +124,53 @@ export default function Tickets() {
     e.preventDefault();
     e.stopPropagation();
     navigate(path);
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      // Map the current filters to the export report input
+      const exportData: ProductReportInput = {};
+      
+      // Map the published filter
+      if (filters.published === "PUBLISHED") {
+        exportData.isPublished = true;
+      } else if (filters.published === "UNPUBLISHED") {
+        exportData.isPublished = false;
+      }
+      
+      // Add other applicable filters if needed
+      if (filters.categories.length > 0) {
+        // Note: We may need to adjust the backend to accept categoryIds in the export
+      }
+      
+      const response = await exportProductsReport(exportData);
+      
+      // Create a blob from the base64 data
+      const binaryData = atob(response.data);
+      const bytes = new Uint8Array(binaryData.length);
+      for (let i = 0; i < binaryData.length; i++) {
+        bytes[i] = binaryData.charCodeAt(i);
+      }
+      
+      const blob = new Blob([bytes], { type: response.contentType });
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = response.filename;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Tickets exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export tickets");
+    }
   };
 
   return (
@@ -238,9 +286,21 @@ export default function Tickets() {
           </div>
         </div>
 
-        <p className="flex gap-2 items-center justify-end text-sm w-full mb-3">
-          Total Tickets : <p>{total}</p>
-        </p>
+        <div className={`flex ${user?.type === "OWNER" ? "justify-between" : "justify-end"}  items-center mb-3`}>
+          <p className="text-sm">
+            Total Tickets : <span>{total}</span>
+          </p>
+          {user?.type === "OWNER" && (
+            <button
+              onClick={handleExportExcel}
+              title="Export to Excel"
+              className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-1"
+            >
+              <DownloadIcon size={16} />
+              <span>Export Excel</span>
+            </button>
+          )}
+        </div>
 
         {isPending && (
           <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">

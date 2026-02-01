@@ -9,6 +9,8 @@ export enum CART_ICON_ENUM {
   GUEST = "GUEST",
 }
 
+
+
 export type FindAllProductsT = {
   data: ProductT[];
   total: number;
