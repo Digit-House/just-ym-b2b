@@ -359,3 +359,22 @@ mutation Mutation($productId: String!) {
     status
   }
 }`;
+
+export type ExportProductReportT = {
+  isPublished:boolean;
+}
+
+export interface ProductReportInput {
+  isPublished?: boolean;
+}
+
+export const EXPORT_PRODUCTS_REPORT = `
+query ExportProductsReport($data: ProductReportInput!) {
+  exportProductsReport(data: $data) {
+    contentType
+    data
+    extension
+    filename
+  }
+}
+`;

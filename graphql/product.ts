@@ -15,6 +15,7 @@ import {
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
   UPDATE_PRODUCT_MUTATION,
   UPDATE_PRODUCT_POSITION,
+  EXPORT_PRODUCTS_REPORT,
 } from "./type-query/product";
 import {
   AddToCartResponse,
@@ -27,6 +28,7 @@ import {
   TicketTypeEventAvailableResponse,
   UpdateProductPayloadT,
 } from "@/types/product.type";
+import { GenReportResT } from "@/types/report.type";
 
 
 export const getProductInfo = async (productId: string, includeRelated?: boolean) => {
@@ -273,6 +275,26 @@ export const seedProduct = async (productId: string) => {
       },
     });
     return res;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export interface ProductReportInput {
+  isPublished?: boolean;
+}
+
+export const exportProductsReport = async (data: ProductReportInput) => {
+  try {
+    const res: any = await client.query({
+      query: warpGql(EXPORT_PRODUCTS_REPORT),
+      variables: {
+        data: data,
+      },
+      fetchPolicy: "no-cache",
+    });
+    
+    return res.data.exportProductsReport as GenReportResT;
   } catch (err) {
     throw err;
   }
