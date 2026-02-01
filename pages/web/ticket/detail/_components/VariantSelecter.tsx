@@ -3,7 +3,7 @@ import { Minus, Plus } from "lucide-react";
 import React from "react";
 
 type Props = {
-  selectedProductOption: SelectedProductOptionT;
+  selectedProductOption: SelectedProductOptionT | null;
   setSelectedProductOption: React.Dispatch<
     React.SetStateAction<SelectedProductOptionT | null>
   >;
@@ -72,19 +72,20 @@ const VariantSelecter = ({
       ticketType: variants,
     });
   };
+
+  if (!selectedProductOption) return null;
   return (
-    <div className="w-full">
-      <h5>Guest</h5>
-      <div className="mt-4 border border-[#D9D9D9] rounded-2xl p-6 w-full flex flex-col lg:gap-10 md:gap-6 gap-2">
+    <div className="w-full px-4">
+      <div className="border-y border-[#E2E8F0] py-3 w-full flex flex-col gap-4">
         {selectedProductOption.ticketType.map((item: TicketTypeT) => (
           <div
             className="lg:gap-10 gap-5 grid grid-cols-4 items-center"
             key={item.id}
           >
             <div className="flex flex-col flex-1 gap-2 col-span-2">
-              <p className="text-black text-xl font-bold">{item.name}</p>
+              <p className="text-black text-base font-bold">{item.name}</p>
               {item.ageFrom && item.ageTo && (
-                <p className="text-nowrap">
+                <p className="text-nowrap text-sm">
                   {item.ageFrom} yrs to {item.ageTo} yrs
                 </p>
               )}
@@ -96,7 +97,7 @@ const VariantSelecter = ({
                   onClick={() => {
                     handleDecrease(item);
                   }}
-                  className={`md:p-3 p-1 rounded-full  flex justify-center items-center cursor-pointer ${
+                  className={`w-8 h-8 rounded-full  flex justify-center items-center cursor-pointer ${
                     item.quantity <= 0
                       ? "bg-[rgba(33,33,33,0.06)]"
                       : "bg-[#F0EBF8]"
@@ -110,7 +111,7 @@ const VariantSelecter = ({
                 </button>
                 <p className="text-black text-xl font-bold">{item.quantity}</p>
                 <button
-                  className={`md:p-3 p-1 rounded-full flex justify-center items-center cursor-pointer ${
+                  className={`w-8 h-8 rounded-full flex justify-center items-center cursor-pointer ${
                     item.maxPurchaseQty !== null &&
                     item.quantity >= item.maxPurchaseQty
                       ? "bg-[rgba(33,33,33,0.06)]"
@@ -153,25 +154,8 @@ const VariantSelecter = ({
                     : " justify-center"
                 }`}
               >
-                <p className="font-medium">฿ {item.dhNetPrice.toFixed(2)}</p>
-                {/* {item.originalPrice < item.dhNetPrice && (
-                  <p className="line-through font-medium">
-                    ฿ {item.originalPrice.toFixed(2)}
-                  </p>
-                )} */}
+                <p className="font-medium">฿ {item.dhNetPrice.toFixed(2)}</p>{" "}
               </div>
-              {/* {item.originalPrice < item.dhNetPrice && (
-                <div>
-                  <p className="md:px-2 md:py-1 px-1 py-0.5 rounded-full bg-[#c4e9c7]">
-                    {(
-                      ((item.originalPrice - item.dhNetPrice) /
-                        item.originalPrice) *
-                      100
-                    ).toFixed(2)}
-                    % off
-                  </p>
-                </div>
-              )} */}
             </div>
           </div>
         ))}

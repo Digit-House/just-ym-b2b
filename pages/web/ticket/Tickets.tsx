@@ -33,7 +33,6 @@ import MultiSelect from "@/components/MultiSelect";
 import SingleSelect from "@/components/SingleSelect";
 import { useCities } from "@/hooks/useCities";
 
-
 const SORT_OPTION: SortOption[] = [
   { label: "Alphabet", value: "alphabet" },
   { label: "Newest", value: "desc" },
@@ -58,14 +57,14 @@ export default function Tickets() {
   });
 
   const { data: cityData } = useCities({
-    countryId : filters.countryId,
+    countryId: filters.countryId,
     limit: 250,
-    page:1,
-    orderBy:{
-      dir:"desc"
+    page: 1,
+    orderBy: {
+      dir: "desc",
     },
-    isPublished:true,
-    search:undefined,
+    isPublished: true,
+    search: undefined,
   });
 
   const { data: categoryData } = useCategories({ limit: 10, page: 1 });
@@ -207,9 +206,7 @@ export default function Tickets() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="RECOMMENDED">Recommended</SelectItem>
-                    <SelectItem value="NOT_RECOMMENDED">
-                      ALL
-                    </SelectItem>
+                    <SelectItem value="NOT_RECOMMENDED">ALL</SelectItem>
                   </SelectContent>
                 </ShadcnSelect>
               </Fragment>

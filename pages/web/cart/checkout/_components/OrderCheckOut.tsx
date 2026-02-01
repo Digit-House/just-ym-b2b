@@ -10,13 +10,15 @@ import { createBookingWithCart } from "@/graphql/booking";
 import { useNavigate } from "react-router-dom";
 import { getAddToCartCount } from "@/graphql/product";
 import { getErrMsg } from "@/util/initData";
+import { useUser } from "@/provider/UserProvider";
 
 const OrderCheckOut = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { selectedCartList, user, setAddToCartCount, setSelectedCartList } =
+  const { selectedCartList, userInfo, setAddToCartCount, setSelectedCartList } =
     useCartStore();
   const { creditInfo, setCreditInfo } = useWalletStore();
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const total = selectedCartList.reduce(
@@ -35,9 +37,9 @@ const OrderCheckOut = () => {
         cartItemIds: selectedCartList.map(
           (item: ADD_TO_CART_ITEM_DATA_TYPE) => item.id
         ),
-        customerName: user?.name || "Guest",
-        email: user?.email || "",
-        mobileNumber: null,
+        customerName: userInfo?.leaderName || "Guest",
+        email: userInfo?.leaderEmail || "",
+        mobileNumber: userInfo?.leaderPhone || null,
         mobilePrefix: null,
         partnerReference: null,
         passportNumber: null,
@@ -51,10 +53,12 @@ const OrderCheckOut = () => {
       if (res.data) {
         setSelectedCartList([]);
         fetchAddToCartCount();
-        setCreditInfo({
-          ...creditInfo,
-          balance: creditInfo.balance - total,
-        });
+        if (user.type !== "OWNER") {
+          setCreditInfo({
+            ...creditInfo,
+            balance: creditInfo.balance - total,
+          });
+        }
         navigate(
           `/cart/preview/${res.data.createBookingWithCart.transactionId}`
         );
@@ -73,7 +77,7 @@ const OrderCheckOut = () => {
         setAddToCartCount(res.data.myCart.itemsCount);
       }
     } catch (err) {
-      toast.error(getErrMsg(err, "message"))
+      toast.error(getErrMsg(err, "message"));
     }
   };
 
