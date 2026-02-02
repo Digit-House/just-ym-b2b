@@ -22,7 +22,7 @@ export const useTicketDetail = (id?: string) => {
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [activeTab, setActiveTab] = useState("highlights");
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const [pickedDate, setPickedDate] = useState<Date>(addDays(new Date(), 1));
+  const [pickedDate, setPickedDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(false);
   const [optionLoading, setOptionLoading] = useState(false);
   const [productOptions, setProductOptions] = useState<ProductOptionT[]>([]);

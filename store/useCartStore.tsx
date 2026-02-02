@@ -51,8 +51,8 @@ interface CartState {
   selectedCartList: ADD_TO_CART_ITEM_DATA_TYPE[];
   setSelectedCartList: (item: ADD_TO_CART_ITEM_DATA_TYPE[]) => void;
 
-  user: ADD_TO_CART_USER_TYPE;
-  setUser: (user: ADD_TO_CART_USER_TYPE) => void;
+  userInfo: ADD_TO_CART_USER_TYPE;
+  setUserInfo: (userInfo: ADD_TO_CART_USER_TYPE) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -82,7 +82,7 @@ export const useCartStore = create<CartState>()(
       selectedCartList: [],
       setSelectedCartList: (item) => set({ selectedCartList: item }),
 
-      user: {
+      userInfo: {
         name: "",
         email: "",
         phone: "",
@@ -92,7 +92,7 @@ export const useCartStore = create<CartState>()(
         leaderPhone: "",
       },
 
-      setUser: (user: ADD_TO_CART_USER_TYPE) => set(() => ({ user })),
+      setUserInfo: (user: ADD_TO_CART_USER_TYPE) => set(() => ({ user })),
 
       items: [],
       selectedIds: [],
@@ -194,7 +194,7 @@ export const useCartStore = create<CartState>()(
         eventList: state.eventList,
         addToCartCount: state.addToCartCount,
         selectedCartList: state.selectedCartList,
-        user: state.user,
+        userInfo: state.user,
       }),
     }
   )
