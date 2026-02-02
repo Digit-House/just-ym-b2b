@@ -48,6 +48,14 @@ export const useTicketDetail = (id?: string) => {
     }
   }, [selectedProductOption]);
 
+  function toISODateLocal(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
   const fetchProduct = async (productId: string) => {
     try {
       setLoading(true);
@@ -71,7 +79,10 @@ export const useTicketDetail = (id?: string) => {
     setOptionLoading(true);
     setSelectedProductOption(null);
     try {
-      const res = await getProductOptions(productId, pickedDate);
+      const res = await getProductOptions(
+        productId,
+        toISODateLocal(pickedDate)
+      );
       const result = res.productOptions.filter((item: any) =>
         [AVAILABILITY_ENUM.AVAILABLE, null].includes(item.availability)
       );

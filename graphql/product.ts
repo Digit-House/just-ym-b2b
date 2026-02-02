@@ -30,14 +30,16 @@ import {
 } from "@/types/product.type";
 import { GenReportResT } from "@/types/report.type";
 
-
-export const getProductInfo = async (productId: string, includeRelated?: boolean) => {
+export const getProductInfo = async (
+  productId: string,
+  includeRelated?: boolean
+) => {
   try {
     const res: ProductInfoResponse = await client.query({
       query: warpGql(GET_PRODUCT_INFO),
       variables: {
         productId: productId,
-        includeRelated:includeRelated || false,
+        includeRelated: includeRelated || false,
       },
       fetchPolicy: "no-cache",
     });
@@ -47,13 +49,16 @@ export const getProductInfo = async (productId: string, includeRelated?: boolean
   }
 };
 
-export const getRelatedProductInfo = async (productId:string,includeRelated?:boolean) => {
+export const getRelatedProductInfo = async (
+  productId: string,
+  includeRelated?: boolean
+) => {
   try {
     const res: ProductInfoResponse = await client.query({
       query: warpGql(GET_PRODUCT_INFO),
       variables: {
         productId: productId,
-        includeRelated:includeRelated || false,
+        includeRelated: includeRelated || false,
       },
       fetchPolicy: "no-cache",
     });
@@ -61,7 +66,7 @@ export const getRelatedProductInfo = async (productId:string,includeRelated?:boo
   } catch (err) {
     throw err;
   }
-}
+};
 
 export const updateProductInfo = async (data: UpdateProductPayloadT) => {
   try {
@@ -96,25 +101,32 @@ export const getAllProducts = async (data: FilterProductListT) => {
 };
 
 export const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
-  const [_key, { categories,countryId,cityId, sort, published, search, isRecommended }] = queryKey;
-  
+  const [
+    _key,
+    { categories, countryId, cityId, sort, published, search, isRecommended },
+  ] = queryKey;
+
   const filter = {
-    categoryIds: categories || [] ,
-    category:"",
+    categoryIds: categories || [],
+    category: "",
     cityId: cityId || "",
     countryId: countryId || "",
     limit: 10,
     page: pageParam,
     published: published,
     isRecommended: isRecommended,
-    orderBy: { dir: sort?.toLowerCase() === "alphabet" ? "asc" : sort, field: sort?.toLowerCase() === 'alphabet' ? 'name' : 'updatedAt' as string },
-    name:search
+    orderBy: {
+      dir: sort?.toLowerCase() === "alphabet" ? "asc" : sort,
+      field:
+        sort?.toLowerCase() === "alphabet" ? "name" : ("updatedAt" as string),
+    },
+    name: search,
   };
 
   const res = await getAllProducts(filter);
   return {
     data: res?.data,
-    total:res?.total,
+    total: res?.total,
     nextPage: res?.data?.length ? pageParam + 1 : null,
   };
 };
@@ -124,53 +136,58 @@ export const fetchRecommendedProducts = async () => {
     category: "",
     cityId: "",
     countryId: "",
-    categoryIds:[],
+    categoryIds: [],
     limit: 50,
     page: 1,
-    published:"PUBLISHED" as any,
+    published: "PUBLISHED" as any,
     isRecommended: true,
     orderBy: { dir: "asc", field: "isRecommended" as string },
-    name:undefined
+    name: undefined,
   };
   const res = await getAllProducts(filter);
   return res;
 };
 
-export const relatedProducts = async (ticketId:string,isPublished:boolean) => {
-   const filter = {
+export const relatedProducts = async (
+  ticketId: string,
+  isPublished: boolean
+) => {
+  const filter = {
     category: "",
     cityId: "",
     countryId: "",
-    categoryIds:[],
+    categoryIds: [],
     limit: 10,
     page: 1,
     isRecommended: false,
-    relatedFromProductId:ticketId,
-    published:isPublished ? "PUBLISHED" : "UNPUBLISHED" as any,
+    relatedFromProductId: ticketId,
+    published: isPublished ? "PUBLISHED" : ("UNPUBLISHED" as any),
     orderBy: { dir: "asc", field: "name" as string },
-    name:undefined
+    name: undefined,
   };
   const res = await getAllProducts(filter);
   return res;
-}
+};
 
 //for submit
-export const updateRecommendedProductPosition = async (data:ProductPositionT[]) => {
-  try{
+export const updateRecommendedProductPosition = async (
+  data: ProductPositionT[]
+) => {
+  try {
     const res = await client.mutate({
-      mutation:warpGql(UPDATE_PRODUCT_POSITION),
-      variables:{
-        data: { products: data }
+      mutation: warpGql(UPDATE_PRODUCT_POSITION),
+      variables: {
+        data: { products: data },
       },
-      fetchPolicy:"no-cache"
-    })
+      fetchPolicy: "no-cache",
+    });
     return res;
-  }catch(err){
+  } catch (err) {
     throw err;
   }
-}
+};
 
-export const getProductOptions = async (productId: string, date: Date) => {
+export const getProductOptions = async (productId: string, date: string) => {
   try {
     const res: ProductInfoResponse = await client.query({
       query: warpGql(GET_PRODUCT_OPTIONS),

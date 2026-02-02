@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { addTocart } from "@/graphql/product";
+import { addTocart, getAddToCart } from "@/graphql/product";
 import { useCartStore } from "@/store/useCartStore";
 import { ADD_TO_CART_USER_TYPE } from "@/types/product.type";
 import { StarsIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -14,32 +14,34 @@ type Props = {
 };
 
 const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
-  const { answerList, setAddToCartCount, user } = useCartStore();
+  const { answerList, setAddToCartCount, userInfo, setSelectedCartList } =
+    useCartStore();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!user) return;
+    if (!userInfo) return;
     setLoading(true);
     try {
       const responses = await Promise.all(
         answerList.map((data) => {
           const guestUserInfo = {
-            customerName: user.name,
-            email: user.email,
-            mobileNumber: user.phone || null,
+            customerName: userInfo.name,
+            email: userInfo.email,
+            mobileNumber: userInfo.phone || null,
           };
 
           const guestInfo = {
-            customerName: user.leaderName,
-            email: user.leaderEmail,
-            mobileNumber: user.leaderPhone || null,
+            customerName: userInfo.leaderName,
+            email: userInfo.leaderEmail,
+            mobileNumber: userInfo.leaderPhone || null,
           };
 
           const newData: any = {
             ...data,
-            guestInfoSameAsUserInfo: user.sameAsLeader,
+            guestInfoSameAsUserInfo: userInfo.sameAsLeader,
             guestUserInfo,
-            guestInfo: user.sameAsLeader ? guestUserInfo : guestInfo,
+            guestInfo: userInfo.sameAsLeader ? guestUserInfo : guestInfo,
           };
 
           return addTocart(newData);
@@ -60,6 +62,69 @@ const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
       toast.error("Something went wrong!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    setLoading(true);
+    try {
+      const responses = await Promise.all(
+        answerList.map((data) => {
+          const guestUserInfo = {
+            customerName: userInfo.name,
+            email: userInfo.email,
+            mobileNumber: userInfo.phone || null,
+          };
+
+          const guestInfo = {
+            customerName: userInfo.leaderName,
+            email: userInfo.leaderEmail,
+            mobileNumber: userInfo.leaderPhone || null,
+          };
+
+          const newData: any = {
+            ...data,
+            guestInfoSameAsUserInfo: userInfo.sameAsLeader,
+            guestUserInfo,
+            guestInfo: userInfo.sameAsLeader ? guestUserInfo : guestInfo,
+          };
+
+          return addTocart(newData);
+        })
+      );
+
+      const cartItemIds: string[] = responses
+        .map((res: any) => res.data?.addToCart?.cartItemId)
+        .filter(Boolean);
+      const lastResponse: any = responses[responses.length - 1];
+      const itemsCount = lastResponse?.data?.addToCart?.itemsCount;
+      setAddToCartCount(itemsCount);
+      toast.success("Added to cart successfully!");
+      await fetchMyCart(cartItemIds);
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      toast.error("Something went wrong!");
+    }
+  };
+
+  const fetchMyCart = async (list: string[]) => {
+    setCheckoutLoading(true);
+    setSelectedCartList([]);
+    try {
+      const res = await getAddToCart();
+      if (res) {
+        const data = res;
+        console.log(data.items.filter((item: any) => list.includes(item.id)));
+        setSelectedCartList(
+          data.items.filter((item: any) => list.includes(item.id))
+        );
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setCheckoutLoading(false);
+
+      navigate("/cart/checkout");
     }
   };
 
@@ -85,14 +150,26 @@ const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
           confirmation email shortly.
         </p>
       </div>
-      <Button
-        type="button"
-        disabled={disable || loading}
-        onClick={handleSubmit}
-        size="lg"
-      >
-        Confirm to Add to Cart
-      </Button>
+      <div className="w-full flex gap-4">
+        <Button
+          disabled={disable || loading || checkoutLoading}
+          onClick={handleCheckOut}
+          size="lg"
+          className="flex-1"
+        >
+          Buy Now
+        </Button>
+        <Button
+          type="button"
+          disabled={disable || loading || checkoutLoading}
+          onClick={handleSubmit}
+          size="lg"
+          className="flex-1 border-indigo-700 text-indigo-700"
+          variant="outline"
+        >
+          Add to Cart
+        </Button>
+      </div>
     </div>
   );
 };

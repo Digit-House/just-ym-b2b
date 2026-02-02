@@ -28,7 +28,7 @@ query FindAllProducts($params: UserProductsInput!) {
 }
 `;
 
-export const UPDATE_PRODUCT_POSITION=`
+export const UPDATE_PRODUCT_POSITION = `
 mutation UpdateProductPosition($data: UpdateProductPositionInput!) {
   updateProductPosition(data: $data) {
     status
@@ -154,7 +154,7 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
 `;
 
 export const GET_PRODUCT_OPTIONS = `
-query GetProductInfo($productId: String!, $date: DateTime) {
+query Query($productId: String!, $date: String) {
   getProductInfo(productId: $productId, date: $date) {
     productOptions {
       advanceBooking {
@@ -309,6 +309,7 @@ export const ADD_TO_CART_MUTATION = `mutation Mutation($item: CartItemInput!) {
   addToCart(item: $item) {
     itemsCount
     success
+    cartItemId
   }
 }`;
 
