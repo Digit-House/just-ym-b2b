@@ -24,10 +24,10 @@ const DatePicker = ({
 }: Props) => {
   const [open, setOpen] = useState(false);
   const today = new Date();
-  const tomorrow = addDays(today, 1);
+  // const tomorrow = addDays(today, 1);
   const [blockedDate, setBlockedDate] = React.useState<Date[]>([]);
-  const [startDate, setStartDate] = React.useState<Date>(tomorrow);
-  const [startDate2, setStartDate2] = React.useState<Date>(tomorrow);
+  const [startDate, setStartDate] = React.useState<Date>(today);
+  const [startDate2, setStartDate2] = React.useState<Date>(today);
 
   React.useEffect(() => {
     if (!ticketDetail) return;
@@ -39,9 +39,9 @@ const DatePicker = ({
         return new Date(d.getFullYear(), d.getMonth(), d.getDate());
       }) ?? [];
 
-    let date = tomorrow;
+    let date = today;
     while (normalized.some((b) => isSameDay(b, date))) {
-      date = addDays(date, 1);
+      date = addDays(date, 0);
     }
     setStartDate(date);
     setBlockedDate(normalized);
@@ -49,10 +49,19 @@ const DatePicker = ({
 
   useEffect(() => {
     if (!ticketDetail) return;
-    const date = addDays(
-      today,
-      ticketDetail?.productOptions[0]?.advanceBooking?.day || 1
-    );
+    let date = today;
+    if (ticketDetail.productOptions[0]?.advanceBooking?.day) {
+      date = addDays(
+        selectedDate,
+        ticketDetail.productOptions[0]?.advanceBooking?.day
+      );
+    } else {
+      date = today;
+    }
+    // const date = addDays(
+    //   today,
+    //   ticketDetail?.productOptions[0]?.advanceBooking?.day || 1
+    // );
     setStartDate2(date);
   }, [ticketDetail]);
   return (

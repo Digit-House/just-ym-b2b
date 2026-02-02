@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import z from "zod";
 import PreviewFormFrame from "./PreviewFormFrame";
-import { ADD_TO_CART_USER_TYPE, CART_ICON_ENUM } from "@/types/product.type";
+import { CART_ICON_ENUM } from "@/types/product.type";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -72,6 +72,7 @@ const PreviewUserInfoForm = ({ setCurrentOpen, setUserInfoCheck }: Props) => {
   });
 
   const onSubmit = (data: any) => {
+    console.log("here");
     setUserInfo({
       name: data.name ? data.name : "",
       email: data.email,
@@ -168,12 +169,10 @@ const PreviewUserInfoForm = ({ setCurrentOpen, setUserInfoCheck }: Props) => {
                       dissabled={!isEdit}
                     />
 
-                    <FormWapper
+                    <PhoneNumberInput
                       name="leaderPhone"
                       label="Phone Number"
-                      type="text"
-                      placeholder="Enter group leader phone"
-                      dissabled={!isEdit}
+                      disable={!isEdit}
                     />
                   </div>
                 </div>
