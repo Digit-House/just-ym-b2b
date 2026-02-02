@@ -15,6 +15,7 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import ImageUpload from "@/components/ImageUpload";
+import { LockKeyhole } from "lucide-react";
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -238,13 +239,16 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
-            <Label>Country</Label>
+            <Label>
+              Country <LockKeyhole size={12} className="mb-[1px]" />
+            </Label>
             <Controller
               name="countryId"
               control={control}
               render={({ field }) => (
                 <Select
                   value={field.value?.toString() ?? ""}
+                  disabled={true}
                   onValueChange={(value) =>
                     field.onChange(value === "" ? null : Number(value))
                   }
@@ -274,6 +278,28 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 {errors.countryId.message?.toString()}
               </p>
             )}
+          </div>
+
+          <div
+            className={`space-y-3 ${
+              errors.city
+                ? "border border-red-300 rounded-lg p-3 bg-red-50"
+                : ""
+            }`}
+          >
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <InputField
+                  label="City"
+                  {...field}
+                  errMsg={errors.city?.message}
+                  disabled={true}
+                  isRequired={true}
+                />
+              )}
+            />
           </div>
 
           <div
@@ -533,7 +559,10 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 )}
               />
               <div>
-                <Label htmlFor="requiresManualConfirmation" className="font-medium">
+                <Label
+                  htmlFor="requiresManualConfirmation"
+                  className="font-medium"
+                >
                   Requires Manual Confirmation
                 </Label>
                 <p className="text-xs text-gray-500">

@@ -99,6 +99,7 @@ const TicketEditForm: React.FC<Props> = ({
       postalCode: initialValues?.postalCode ?? null,
       countryId: initialValues?.countryId ?? null,
       city_relation_id: initialValues?.city_relation_id ?? null,
+      city: initialValues?.city ?? null,
       latitude: initialValues?.latitude ?? null,
       longitude: initialValues?.longitude ?? null,
       keywords: initialValues?.keywords ?? null,
@@ -397,7 +398,7 @@ const TicketEditForm: React.FC<Props> = ({
       }
     }
 
-    const { category: _, ...restOfValues } = values;
+    const { category: _,city:__, ...restOfValues } = values;
     // Process relatedProducts - handle both full product objects and simplified objects
     const processedRelatedProducts =
       values.relatedProducts?.map((d) => {

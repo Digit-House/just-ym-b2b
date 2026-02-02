@@ -18,6 +18,7 @@ export const ticketSchema = z.object({
   category: z.string().optional().nullable(),
   category_relation_id: z.string().optional().nullable(),
   countryId: z.string().optional().nullable(),
+  city:z.string().optional().nullable(),
   city_relation_id: z.string().optional().nullable(),
 
   latitude: z.number().optional().nullable(),
