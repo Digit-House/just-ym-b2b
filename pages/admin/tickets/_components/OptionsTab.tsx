@@ -272,7 +272,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
               <div className="mb-4">
                 <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
                   <Checkbox
-                    checked={!!option.thaiNationalOnly}
+                    checked={option.thaiNationalOnly}
                     onCheckedChange={(checked) =>
                       updateProductOption(optionIndex, "thaiNationalOnly", checked)
                     }

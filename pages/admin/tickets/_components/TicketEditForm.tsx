@@ -19,7 +19,6 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
-import { relatedProducts } from "@/graphql/product";
 
 type Mode = "edit";
 
@@ -51,7 +50,7 @@ const TicketEditForm: React.FC<Props> = ({
           isPublished: option.isPublished,
           ticketValidity: option.ticketValidity,
           visitDate: option.visitDate,
-          thaiNationalOnly: option.thaiNationalOnly,
+          thaiNationalOnly: option.thaiNationalOnly ?? false,
           redeemStart: option.redeemStart,
           redeemEnd: option.redeemEnd,
           definedDuration: option.definedDuration,
@@ -65,6 +64,7 @@ const TicketEditForm: React.FC<Props> = ({
                 dhNetPrice: ticket.dhNetPrice,
                 nettPrice: ticket.nettPrice,
                 dhRecommendedSellingPrice: ticket.dhRecommendedSellingPrice,
+                dhMinimumSellingPrice: ticket.dhMinimumSellingPrice,
                 minimumSellingPrice: ticket.minimumSellingPrice,
                 dhSellingPrice: ticket.dhSellingPrice,
                 recommendedSellingPrice: ticket.recommendedSellingPrice,
@@ -398,8 +398,6 @@ const TicketEditForm: React.FC<Props> = ({
     }
 
     const { category: _, ...restOfValues } = values;
-    console.log("Related Products:", values.relatedProducts);
-
     // Process relatedProducts - handle both full product objects and simplified objects
     const processedRelatedProducts =
       values.relatedProducts?.map((d) => {
@@ -417,6 +415,7 @@ const TicketEditForm: React.FC<Props> = ({
         };
       }) || [];
 
+       
     const payload = {
       ...restOfValues,
       image: processedImage,
