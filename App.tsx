@@ -14,7 +14,6 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
-import Dashboard from "./pages/web/Dashboard";
 import Reports from "./pages/web/Reports";
 import KYCWizard from "./pages/web/KYCWizard";
 import UserTickets from "./pages/web/ticket/Tickets";
@@ -75,14 +74,13 @@ const App = () => {
           {/* 🔐 Protected */}
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
-              <Route index element={<Dashboard />} />
+              <Route index element={<Reports />} />
               <Route path="tickets" element={<UserTickets />} />
               <Route path="tickets/:id" element={<TicketDetailPage />} />
               <Route path="tickets/user-info" element={<UserInfoPage />} />
               <Route path="bookings" element={<Bookings />} />
               <Route path="users" element={<UsersManagement />} />
               <Route path="bookings/:id" element={<BookingDetail />} />
-              <Route path="reports" element={<Reports />} />
               <Route path="cart" element={<Cart />} />
               <Route path="cart/checkout" element={<Checkout />} />
               <Route path="cart/preview/:id" element={<Preview />} />
