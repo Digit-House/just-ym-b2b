@@ -16,7 +16,7 @@ const SevenDayPicker = ({
 }: SevenDayPickerProps) => {
   const today = new Date();
   const tomorrow = addDays(today, 1);
-  const [selectedDate, setSelectedDate] = useState<Date>(tomorrow);
+  const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [dayList, setDayList] = useState<Date[]>([]);
   const [blockedDate, setBlockedDate] = useState<Date[]>([]);
 
@@ -39,10 +39,15 @@ const SevenDayPicker = ({
 
   useEffect(() => {
     if (!product) return;
-    const selectDay = addDays(
-      today,
-      product.productOptions[0]?.advanceBooking?.day + 1 || 1
-    );
+    let selectDay = today;
+    if (product.productOptions[0]?.advanceBooking?.day) {
+      selectDay = addDays(
+        selectedDate,
+        product.productOptions[0]?.advanceBooking?.day
+      );
+    } else {
+      selectDay = today;
+    }
     setSelectedDate(selectDay);
     setPickedDate(selectDay);
   }, [product]);
