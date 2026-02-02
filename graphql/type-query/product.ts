@@ -137,6 +137,8 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
         dhNetPrice
         minimumSellingPrice
         recommendedSellingPrice
+        dhRecommendedSellingPrice
+        dhMinimumSellingPrice
         dhSellingPrice
         maxPurchaseQty
         minPurchaseQty
