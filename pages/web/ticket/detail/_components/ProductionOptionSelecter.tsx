@@ -54,8 +54,6 @@ const ProductionOptionSelecter = ({
 
   if (loading) return <div>Loading...</div>;
 
-  console.log(selectedProductOption);
-
   return (
     <div className="w-full">
       <h5>What do you prefer?</h5>

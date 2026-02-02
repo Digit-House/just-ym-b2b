@@ -114,7 +114,6 @@ const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
       const res = await getAddToCart();
       if (res) {
         const data = res;
-        console.log(data.items.filter((item: any) => list.includes(item.id)));
         setSelectedCartList(
           data.items.filter((item: any) => list.includes(item.id))
         );
