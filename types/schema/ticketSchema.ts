@@ -120,6 +120,9 @@ export const ticketSchema = z.object({
           })
           .optional()
           .nullable(),
+        thaiNationalOnly: z.boolean().optional().nullable(),
+        redeemStart: z.string().optional().nullable(),
+        redeemEnd: z.string().optional().nullable(),
         definedDuration: z.number().optional().nullable(),
         inclusions: z.array(z.string()).optional().nullable(),
         inclusions_mm: z.array(z.string()).optional().nullable(),
