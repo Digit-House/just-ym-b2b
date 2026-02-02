@@ -127,7 +127,7 @@ const ProductAddToCart = ({
                   size="sm"
                   className="text-black"
                 /> */}
-                <p className="text-sm">{selectedProductOption.name}</p>
+                <p className="text-sm flex-1">{selectedProductOption.name}</p>
               </div>
             )}
 
@@ -143,7 +143,9 @@ const ProductAddToCart = ({
                 size="sm"
                 className="text-black"
               /> */}
-              <p className="text-sm">{format(pickedDate, "EEE, MMM d yyyy")}</p>
+              <p className="text-sm flex-1">
+                {format(pickedDate, "EEE, MMM d yyyy")}
+              </p>
             </div>
             {/* <button className="transition-all duration-300 cursor-pointer text-primary hover:text-primary/80">
               <Typo text="Edit" fontWeight="bold" size="sm" />
@@ -187,7 +189,7 @@ const ProductAddToCart = ({
               onClick={handleAdded}
               className="w-full py-3 font-normal disabled:cursor-not-allowed"
             >
-              Add to Cart
+              Continue
             </Button>
           </div>
         )}

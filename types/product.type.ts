@@ -116,13 +116,13 @@ export interface UpdateProductPayloadT {
   timezoneOffset: number;
   whatToExpect: string;
   whatToExpect_mm: string;
-  relatedProducts:ProductRelatedT[]
+  relatedProducts: ProductRelatedT[];
   // blockedDate: BlockedDateT[];
 }
 
 export interface ProductRelatedT {
-  linkBack:boolean;
-  productId:string;
+  linkBack: boolean;
+  productId: string;
 }
 
 export interface ProductInfoT {
@@ -169,8 +169,8 @@ export interface ProductInfoT {
   timezoneOffset: number;
   createdAt: string;
   updatedAt: string;
-  // blockedDate: BlockedDateT[];
-  relatedProducts:ProductRelatedT[];
+  blockedDate: BlockedDateT[];
+  relatedProducts: ProductRelatedT[];
   media: MediaFileT[];
   operatingHours: OperatingHoursT;
   termsAndConditions: string;

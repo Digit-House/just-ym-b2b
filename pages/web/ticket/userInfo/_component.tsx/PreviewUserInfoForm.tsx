@@ -56,23 +56,23 @@ type FormData = z.infer<typeof formSchema>;
 
 const PreviewUserInfoForm = ({ setCurrentOpen, setUserInfoCheck }: Props) => {
   const [isEdit, setIsEdit] = useState(true);
-  const { user, setUser } = useCartStore();
+  const { userInfo, setUserInfo } = useCartStore();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: user?.name ?? "",
-      email: user?.email ?? "",
-      phone: user?.phone ?? "",
-      leaderName: user?.leaderName ?? "",
-      leaderEmail: user?.leaderEmail ?? "",
-      leaderPhone: user?.leaderPhone ?? "",
-      sameAsLeader: user?.sameAsLeader ?? false,
+      name: userInfo?.name ?? "",
+      email: userInfo?.email ?? "",
+      phone: userInfo?.phone ?? "",
+      leaderName: userInfo?.leaderName ?? "",
+      leaderEmail: userInfo?.leaderEmail ?? "",
+      leaderPhone: userInfo?.leaderPhone ?? "",
+      sameAsLeader: userInfo?.sameAsLeader ?? false,
     },
   });
 
   const onSubmit = (data: any) => {
-    setUser({
+    setUserInfo({
       name: data.name ? data.name : "",
       email: data.email,
       phone: data.phone ? data.phone : "",
