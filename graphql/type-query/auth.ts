@@ -4,6 +4,7 @@ mutation Login($email: String!, $password: String!, $site: Site) {
     id
     accessToken
     active
+    requiresTwoFactor
   }
 }
 `;

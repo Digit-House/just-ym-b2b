@@ -26,6 +26,7 @@ const Login = () => {
     try {
       const res: any = await login(data.email, data.password);
       if (res.data.login.accessToken) {
+        //const res.data.login.requiresTwoFactor
         setToken(res.data.login.accessToken);
         navigate("/", { replace: true });
       }

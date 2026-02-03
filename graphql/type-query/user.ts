@@ -9,6 +9,8 @@ query Me {
     id
     imageURI
     lastLogin
+    twoFactorEnabled
+    twoFactorConfirmedAt
     profileData {
       dateOfBirth
       email
@@ -35,6 +37,7 @@ query Me {
   }
 }
 `;
+
 
 export const USER_ROLES = `
 query FindAllRoles($params: RolePaginatedInput!) {

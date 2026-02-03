@@ -4,23 +4,14 @@ import {
   User, 
   Mail, 
   Phone, 
-  Calendar, 
-  Globe, 
   Shield, 
   Clock, 
-  Fingerprint, 
-  MapPin, 
-  ChevronRight,
-  LogOut
 } from 'lucide-react';
 import { useUser } from "@/provider/UserProvider";
 import PageContainer from "@/components/PageContainer";
 import ModalWrapper from "@/components/ModalWrapper";
 import ChangePasswordForm from "./_components/ChangePasswordForm";
 
-const getInitials = (firstName?: string, lastName?: string) => {
-  return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
-};
 
 const Settings: React.FC = () => {
   const [open, setOpen] = useState(false);
