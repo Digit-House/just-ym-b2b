@@ -4,26 +4,19 @@ import {
   User, 
   Mail, 
   Phone, 
-  Calendar, 
-  Globe, 
   Shield, 
   Clock, 
-  Fingerprint, 
-  MapPin, 
-  ChevronRight,
-  LogOut
 } from 'lucide-react';
 import { useUser } from "@/provider/UserProvider";
 import PageContainer from "@/components/PageContainer";
 import ModalWrapper from "@/components/ModalWrapper";
 import ChangePasswordForm from "./_components/ChangePasswordForm";
+import TwoFactorAuth from "./_components/TwoFactorAuth";
 
-const getInitials = (firstName?: string, lastName?: string) => {
-  return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
-};
 
 const Settings: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const { user } = useUser();
 
   if (!user) return <div className="p-10 text-center">Loading...</div>;
@@ -188,15 +181,35 @@ const Settings: React.FC = () => {
               </button>
             </div>
 
-            {/* <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <p className="font-semibold text-gray-900">Two-Factor Authentication</p>
-                <p className="text-sm text-gray-500">Add an extra layer of security to your account.</p>
-              </div>
-              <button className="bg-gray-50 text-gray-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all border border-gray-200">
-                Setup 2FA
-              </button>
-            </div> */}
+            {user.type === "OWNER" && 
+            <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <p className="font-semibold text-gray-900">Two-Factor Authentication</p>
+              <p className="text-sm text-gray-500">
+                {user.twoFactorEnabled 
+                  ? "Two-factor authentication is currently enabled on your account." 
+                  : "Add an extra layer of security to your account."}
+              </p>
+              {user.twoFactorEnabled && user.twoFactorConfirmedAt && (
+                <div className="flex items-center gap-1.5 pt-1">
+                  <Shield size={12} className="text-green-500" />
+                  <span className="text-xs text-green-600 font-medium">
+                    Enabled on {new Date(user.twoFactorConfirmedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                  </span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setTwoFactorOpen(true)}
+              className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm border ${user.twoFactorEnabled
+                ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                : "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100"
+              }`}
+            >
+              {user.twoFactorEnabled ? "Disable 2FA" : "Setup 2FA"}
+            </button>
+          </div>
+            }
           </div>
         </div>
 
@@ -219,6 +232,16 @@ const Settings: React.FC = () => {
           onClose={() => setOpen(false)}
         >
           <ChangePasswordForm onClose={() => setOpen(false)} />
+        </ModalWrapper>
+      )}
+
+      {twoFactorOpen && (
+        <ModalWrapper
+          title={user.twoFactorEnabled ? "Disable Two-Factor Authentication" : "Setup Two-Factor Authentication"}
+          onClose={() => setTwoFactorOpen(false)}
+          width="md"
+        >
+          <TwoFactorAuth onClose={() => setTwoFactorOpen(false)} />
         </ModalWrapper>
       )}
     </PageContainer>

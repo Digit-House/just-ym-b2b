@@ -8,10 +8,13 @@ import { login } from "@/graphql/auth";
 import { getErrMsg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
+import TwoFactorLogin from "@/components/TwoFactorLogin";
 
 const Login = () => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
+  const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
+  const [twoFactorToken, setTwoFactorToken] = useState("");
   const setToken = useAuthStore((state) => state.setToken);
 
   const {
@@ -25,7 +28,16 @@ const Login = () => {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const res: any = await login(data.email, data.password);
+      if (res.data.login.requiresTwoFactor) {
+        // Store the twoFactorToken for 2FA verification
+        setTwoFactorToken(res.data.login.twoFactorToken);
+        setRequiresTwoFactor(true);
+        setErrMsg(""); // Clear any previous errors
+        return;
+      }
+      
       if (res.data.login.accessToken) {
+        // Regular login without 2FA
         setToken(res.data.login.accessToken);
         navigate("/", { replace: true });
       }
@@ -35,6 +47,23 @@ const Login = () => {
     }
   };
 
+  const handleBackToLogin = () => {
+    setRequiresTwoFactor(false);
+    setTwoFactorToken("");
+    setErrMsg("");
+  };
+
+  // Show 2FA verification if required
+  if (requiresTwoFactor) {
+    return (
+      <TwoFactorLogin 
+        twoFactorToken={twoFactorToken} 
+        onBack={handleBackToLogin} 
+      />
+    );
+  }
+
+  // Show regular login form
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gray-50">
       {/* Background */}
