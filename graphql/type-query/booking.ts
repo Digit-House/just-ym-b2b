@@ -12,6 +12,7 @@ export interface BOOKING_CREATE_MUTATION_DATA_TYPE {
   promotionType: string | null;
   remarks: string | null;
   returnUri: string;
+  twoFactorCode: string | null;
 }
 
 export interface GET_MY_BOOKING_QUERY_DATA_TYPE {

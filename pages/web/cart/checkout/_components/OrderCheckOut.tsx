@@ -11,10 +11,14 @@ import { useNavigate } from "react-router-dom";
 import { getAddToCartCount } from "@/graphql/product";
 import { getErrMsg } from "@/util/initData";
 import { useUser } from "@/provider/UserProvider";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const OrderCheckOut = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState("");
   const { selectedCartList, userInfo, setAddToCartCount, setSelectedCartList } =
     useCartStore();
   const { creditInfo, setCreditInfo } = useWalletStore();
@@ -29,6 +33,10 @@ const OrderCheckOut = () => {
   const handleCheckout = async () => {
     if (!selectedCartList || selectedCartList.length === 0) {
       toast.error("something went wrong");
+      return;
+    }
+    if (user.type === "OWNER" && user.twoFactorEnabled && code.length !== 6) {
+      setCodeError("Please enter a valid 6-digit code");
       return;
     }
     setLoading(true);
@@ -47,6 +55,8 @@ const OrderCheckOut = () => {
         promotionType: null,
         remarks: null,
         returnUri: `${window.location.origin}/bookings`,
+        twoFactorCode:
+          user.type === "OWNER" && user.twoFactorEnabled ? code : null,
       };
 
       const res: any = await createBookingWithCart(data);
@@ -82,21 +92,58 @@ const OrderCheckOut = () => {
   };
 
   return (
-    <div className="w-full">
-      <Button
-        disabled={loading}
-        className="w-full"
-        size="lg"
-        onClick={() => {
-          if (total > creditInfo.balance) {
-            setOpen(true);
-          } else {
-            handleCheckout();
-          }
-        }}
-      >
-        {loading ? "Loading..." : "Checkout"}
-      </Button>
+    <div className="w-full space-y-6">
+      {user.type === "OWNER" && user.twoFactorEnabled && (
+        <div className="space-y-4">
+          <p className="text-gray-500">
+            Enter the 6-digit code from your authenticator app to complete
+            setup.
+          </p>
+
+          <div className="space-y-2">
+            <Label htmlFor="code" className="text-sm font-medium">
+              Authentication Code
+            </Label>
+            <Input
+              id="code"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={code}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                setCode(value);
+                if (value.length === 6) {
+                  setCodeError("");
+                }
+              }}
+              placeholder="Enter 6-digit code"
+              className="text-center text-lg font-mono tracking-widest"
+            />
+          </div>
+        </div>
+      )}
+      <div className="space-y-2">
+        {codeError && (
+          <p className="text-red-500 text-sm font-medium">{codeError}</p>
+        )}
+        <Button
+          disabled={loading}
+          className="w-full"
+          size="lg"
+          onClick={() => {
+            if (total > creditInfo.balance) {
+              setOpen(true);
+            } else {
+              handleCheckout();
+            }
+          }}
+        >
+          {loading ? "Loading..." : "Checkout"}
+        </Button>
+      </div>
+
       <Model open={open} onClose={() => setOpen(false)} />
     </div>
   );
