@@ -624,6 +624,34 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 </p>
               </div>
             </div>
+
+            <div
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
+                errors.notEligibleForVoucher
+                  ? "bg-red-50 border border-red-300"
+                  : "bg-gray-50"
+              }`}
+            >
+              <Controller
+                name="notEligibleForVoucher"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    id="notEligibleForVoucher"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <div>
+                <Label htmlFor="notEligibleForVoucher" className="font-medium">
+                  Not Eligible for Voucher
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Not Eligible for Voucher
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

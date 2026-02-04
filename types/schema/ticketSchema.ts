@@ -21,6 +21,7 @@ export const ticketSchema = z.object({
   city:z.string().optional().nullable(),
   city_relation_id: z.string().optional().nullable(),
 
+  notEligibleForVoucher:z.boolean().optional().nullable(),
   latitude: z.number().optional().nullable(),
   longitude: z.number().optional().nullable(),
 
