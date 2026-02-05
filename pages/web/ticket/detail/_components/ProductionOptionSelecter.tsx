@@ -69,7 +69,7 @@ const ProductionOptionSelecter = ({
           >
             {/* title */}
             <div
-              className={`flex p-4 ${
+              className={`flex flex-col gap-3 p-4 ${
                 selectedProductOption?.id === item.id
                   ? "bg-indigo-100"
                   : "bg-transparent"
@@ -80,50 +80,6 @@ const ProductionOptionSelecter = ({
                   <p className="text-[#0F172B] font-bold text-base">
                     {item.name}
                   </p>
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-[#0F172B]" />
-                    <p className="text-sm text-[#0F172B]">
-                      {format(new Date(pickedDate), "EEE, MMM dd, yyyy")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {isManual ? (
-                      <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#FEF3C6]">
-                        <Clock className="w-4 h-4 text-[#BB4D00]" />
-
-                        <p className="text-[#BB4D00] text-xs font-bold">
-                          Awaiting Approval
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#DCFCE7]">
-                        <Check className="w-4 h-4 text-[#008236]" />
-
-                        <p className="text-[#008236] font-bold text-xs">
-                          Instant Confirmation
-                        </p>
-                      </div>
-                    )}
-                    {item.thaiNationalOnly && (
-                      <p className="px-2 py-0.5 rounded-full bg-[#155DFC] text-white text-xs">
-                        Thai Nation Only
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (detailOpenId === item.id) setDetailOpenId(null);
-                      else setDetailOpenId(item.id);
-                    }}
-                    className="flex items-center gap-1 cursor-pointer text-indigo-700 hover:text-indigo-700/80 transition-all duration-300 "
-                  >
-                    <p className="text-xs">Package Details</p>
-                    <ChevronDown
-                      className={`w-4 h-4 transitaion-all duration-300 ${
-                        detailOpenId === item.id ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
                 </div>
 
                 {/* right side */}
@@ -157,6 +113,71 @@ const ProductionOptionSelecter = ({
                   </div>
                 </div>
               </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-6 h-6 text-[#0F172B]" />
+                  <p className="text-sm text-[#0F172B]">
+                    {format(new Date(pickedDate), "EEE, MMM dd, yyyy")}
+                  </p>
+                </div>
+                {item.ticketValidity === "Duration" && (
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-6 h-6 text-indigo-700" />
+                    {/* <Typo
+                            text={t("bookable", {
+                              day:
+                                locale === "en"
+                                  ? item.definedDuration
+                                  : toMyanmarNumber(item.definedDuration),
+                            })}
+                            size="sm"
+                            className="text-primary"
+                          /> */}
+                    <p className="text-sm text-indigo-700">
+                      Open Date : Bookable for {item.definedDuration} days
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {isManual ? (
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#FEF3C6]">
+                    <Clock className="w-4 h-4 text-[#BB4D00]" />
+
+                    <p className="text-[#BB4D00] text-xs font-bold">
+                      Awaiting Approval
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#DCFCE7]">
+                    <Check className="w-4 h-4 text-[#008236]" />
+
+                    <p className="text-[#008236] font-bold text-xs">
+                      Instant Confirmation
+                    </p>
+                  </div>
+                )}
+                {item.thaiNationalOnly && (
+                  <p className="px-2 py-0.5 rounded-full bg-[#155DFC] text-white text-xs">
+                    🇹🇭 Thai Nation Only
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  if (detailOpenId === item.id) setDetailOpenId(null);
+                  else setDetailOpenId(item.id);
+                }}
+                className="flex items-center gap-1 cursor-pointer text-indigo-700 hover:text-indigo-700/80 transition-all duration-300 "
+              >
+                <p className="text-xs">Package Details</p>
+                <ChevronDown
+                  className={`w-4 h-4 transitaion-all duration-300 ${
+                    detailOpenId === item.id ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
             </div>
 
             {/* Detail Section */}

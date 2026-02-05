@@ -7,7 +7,6 @@ export type UserRoleTypeT =
   | null;
 export type UserStatusT = "Active" | "Inactive";
 
-
 export type ProfileDataT = {
   dateOfBirth: string;
   email: string;
@@ -28,6 +27,8 @@ export type UserT = {
   id: string;
   imageURI: string;
   lastLogin: string;
+  twoFactorEnabled:boolean;
+  twoFactorConfirmedAt:string;
   profileData: ProfileDataT;
   roleIds: string[];
   roles: {
@@ -40,9 +41,9 @@ export type UserT = {
 };
 
 export type UserChangePasswordT = {
-  newPassword:string;
-  oldPassword:string;
-}
+  newPassword: string;
+  oldPassword: string;
+};
 
 export interface UserRolesFilterT {
   active: null | boolean;

@@ -106,6 +106,7 @@ const TicketEditForm: React.FC<Props> = ({
       image: initialValues?.image ?? null,
       media: initialValues?.media || [],
       exclusions: initialValues?.exclusions ?? null,
+      notEligibleForVoucher: initialValues?.notEligibleForVoucher ?? false,
       exclusions_mm: initialValues?.exclusions_mm ?? null,
       originalPrice: (initialValues as any)?.originalPrice ?? null,
       timezoneOffset: (initialValues as any)?.timezoneOffset ?? null,
@@ -191,6 +192,7 @@ const TicketEditForm: React.FC<Props> = ({
           "isCancellable",
           "isGTRecommend",
           "isInstantConfirmation",
+          "notEligibleForVoucher",
           "isOpenDated",
         ];
       case "details":
@@ -398,8 +400,7 @@ const TicketEditForm: React.FC<Props> = ({
       }
     }
 
-    const { category: _,city:__, ...restOfValues } = values;
-    // Process relatedProducts - handle both full product objects and simplified objects
+    const { category: _, city: __, ...restOfValues } = values;
     const processedRelatedProducts =
       values.relatedProducts?.map((d) => {
         // If it's already in the simplified format
@@ -416,7 +417,6 @@ const TicketEditForm: React.FC<Props> = ({
         };
       }) || [];
 
-       
     const payload = {
       ...restOfValues,
       image: processedImage,

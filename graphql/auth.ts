@@ -1,6 +1,6 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { LOGIN } from "./type-query/auth";
+import { LOGIN, LOGIN_WITH_TWO_FACTOR } from "./type-query/auth";
 
 export const login = async (email: string, password: string) => {
   return client.mutate({
@@ -13,3 +13,19 @@ export const login = async (email: string, password: string) => {
     fetchPolicy: "no-cache",
   });
 };
+
+
+export const loginWithTwoFactor = async (code: string, twoFactorToken: string) => {
+  return client.mutate({
+    mutation: warpGql(LOGIN_WITH_TWO_FACTOR),
+    variables: {
+      input: {
+        code,
+        twoFactorToken,
+      },
+    },
+    fetchPolicy: "no-cache",
+  });
+};
+
+//loginWithTwoFactor response is the same as login 

@@ -61,6 +61,7 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
     highlights_mm
     howToUseList
     howToUseList_mm
+    notEligibleForVoucher
     image
     inclusions
     inclusions_mm
@@ -186,6 +187,7 @@ query Query($productId: String!, $date: String) {
       redeemEnd
       redeemStart
       ticketFormat
+      thaiNationalOnly
       ticketType {
         ageFrom
         ageTo
@@ -364,8 +366,8 @@ mutation Mutation($productId: String!) {
 }`;
 
 export type ExportProductReportT = {
-  isPublished:boolean;
-}
+  isPublished: boolean;
+};
 
 export interface ProductReportInput {
   isPublished?: boolean;
