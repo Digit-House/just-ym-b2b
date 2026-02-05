@@ -96,49 +96,49 @@ const errorLink = new ErrorLink(({ error }) => {
         err?.extensions?.code ||
         err?.status
 
-      // if (statusCode === 401 || err.message === "Unauthorized") {
-      //   handleUnauthorized();
-      // }
+      if (statusCode === 401 || err.message === "Unauthorized") {
+        handleUnauthorized();
+      }
 
-      // if (statusCode === 504) {
-      //   handleGatewayTimeout();
-      // }
+      if (statusCode === 504) {
+        handleGatewayTimeout();
+      }
     });
 
     return;
   }
 
-  // if (error instanceof TypeError && error.message === "Failed to fetch") {
-  //   // Store error status in localStorage for network error
-  //   setErrorStatus(
-  //     "network",
-  //     "Failed to fetch data from the server. Please check your connection and try again.",
-  //     window.location.pathname
-  //   );
-  //   handleGatewayTimeout();
-  // }
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    // Store error status in localStorage for network error
+    setErrorStatus(
+      "network",
+      "Failed to fetch data from the server. Please check your connection and try again.",
+      window.location.pathname
+    );
+    handleGatewayTimeout();
+  }
 
   /* ---------------- NETWORK ERRORS ---------------- */
   if (ServerError.is(error)) {
     
     const statusCode = error.statusCode; // ✅ REAL HTTP status
 
-    // if (statusCode === 401) {
-    //   handleUnauthorized();
-    // }
+    if (statusCode === 401) {
+      handleUnauthorized();
+    }
 
-    // if (statusCode === 504) {
-    //   handleGatewayTimeout();
-    // }
+    if (statusCode === 504) {
+      handleGatewayTimeout();
+    }
 
-    // Handle 500 Internal Server Error
-    // if (statusCode === 500) {
-    //   setErrorStatus(
-    //     "server",
-    //     error.bodyText || "Internal server error occurred. Please try again later.",
-    //     window.location.pathname
-    //   );
-    // }
+    //Handle 500 Internal Server Error
+    if (statusCode === 500) {
+      setErrorStatus(
+        "server",
+        error.bodyText || "Internal server error occurred. Please try again later.",
+        window.location.pathname
+      );
+    }
 
     console.error("[Network error]", {
       statusCode,
