@@ -140,6 +140,7 @@ export interface ProductInfoT {
   addressLine: string;
   location: string;
   postalCode: string;
+  notEligibleForVoucher: boolean;
   city: string;
   cityId: number;
   city_relation_id: string;

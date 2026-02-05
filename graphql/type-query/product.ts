@@ -61,6 +61,7 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
     highlights_mm
     howToUseList
     howToUseList_mm
+    notEligibleForVoucher
     image
     inclusions
     inclusions_mm
