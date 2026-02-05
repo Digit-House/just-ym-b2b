@@ -164,7 +164,7 @@ const ProductAddToCart = ({
                   {item.quantity}x {item.name}
                 </p>
                 <p className="text-sm font-bold text-indigo-700">
-                  ฿${(item.dhNetPrice * item.quantity).toFixed(2)}
+                  ฿{(item.dhNetPrice * item.quantity).toFixed(2)}
                 </p>
               </div>
             ))}
