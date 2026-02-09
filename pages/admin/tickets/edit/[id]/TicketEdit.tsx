@@ -15,11 +15,13 @@ import { getErrMsg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import BackBtn from "@/components/BackBtn";
 import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicketsCarousel";
+import { set } from "zod";
 
 const AdminTicketEdit = () => {
   const [refresh, setRefresh] = useState(false);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [submitLoading,setSubmitLoading] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["ticket", id],
@@ -70,8 +72,8 @@ const AdminTicketEdit = () => {
     formData: UpdateProductPayloadT
   ) => {
     try {
-
-      // Process media uploads if there are any
+      if(submitLoading) return;
+      setSubmitLoading(true);
       let updatedFormData = { ...(formData as UpdateProductPayloadT) };
 
       if (updatedFormData.media && Array.isArray(updatedFormData.media)) {
@@ -107,6 +109,9 @@ const AdminTicketEdit = () => {
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
     } finally {
+     setTimeout(() => {
+      setSubmitLoading(false);
+     },3000)
     }
   };
 
@@ -143,6 +148,7 @@ const AdminTicketEdit = () => {
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
         <TicketEditForm
           mode="edit"
+          loading={submitLoading}
           initialValues={data as ProductInfoT}
           onSubmit={handleSave}
           onCancel={handleCancel}
