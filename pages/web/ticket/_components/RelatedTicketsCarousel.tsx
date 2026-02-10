@@ -23,7 +23,6 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /** ---------------- EMBLA SETUP ---------------- */
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: "start",
@@ -41,7 +40,6 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
-  /** ---------------- FETCH DATA ---------------- */
   useEffect(() => {
     const fetchRelatedTickets = async () => {
       try {
@@ -60,7 +58,6 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
     if (ticketId) fetchRelatedTickets();
   }, [ticketId, isPublished]);
 
-  /** ---------------- EMBLA EVENTS ---------------- */
   const onInit = useCallback(() => {
     if (!emblaApi) return;
     setScrollSnaps(emblaApi.scrollSnapList());
@@ -84,13 +81,11 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
     emblaApi.on("select", onSelect);
   }, [emblaApi, onInit, onSelect]);
 
-  // Recalculate when slides change
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.reInit();
   }, [relatedTickets, emblaApi]);
 
-  /** ---------------- NAVIGATION ---------------- */
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
@@ -103,7 +98,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   if (!loading && relatedTickets.length === 0) return null;
 
   return (
-    <section className="py-10 w-full">
+    <section className="py-10 w-full overflow-hidden">
       <div className="mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -125,7 +120,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
             <p className="text-red-600 font-medium">{error}</p>
           </div>
         ) : (
-          <div className="relative group">
+          <div className="relative group overflow-hidden">
             {/* Prev Button */}
             <button
               onClick={scrollPrev}
@@ -136,24 +131,29 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
             </button>
 
             {/* Viewport */}
-            <div className="overflow-hidden rounded-xl" ref={emblaRef}>
-              <div className="flex gap-5 touch-pan-y">
+            <div
+              className="overflow-hidden rounded-xl"
+              ref={emblaRef}
+              style={{ contain: "layout paint size" }}
+            >
+              <div className="flex gap-5 touch-pan-y items-stretch">
                 {relatedTickets.map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0"
+                    className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0 h-full"
                   >
-                    <TicketCard
-                      user={user as UserT}
-                      p={ticket}
-                      handleNavigate={handleNavigate}
-                    />
+                    <div className="h-full">
+                      <TicketCard
+                        user={user as UserT}
+                        p={ticket}
+                        handleNavigate={handleNavigate}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Next Button */}
             <button
               onClick={scrollNext}
               disabled={!canScrollNext}
@@ -162,7 +162,6 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
               ›
             </button>
 
-            {/* Pagination */}
             {scrollSnaps.length > 1 && (
               <div className="flex justify-center mt-8 gap-2">
                 {scrollSnaps.map((_, index) => (
