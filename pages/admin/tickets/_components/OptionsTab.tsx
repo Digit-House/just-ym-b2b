@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import TextareaField from "@/components/TextareaField";
 import ReadOnly from "@/components/ReadOnly";
 import { Button } from "@/components/ui/button";
+import { formatUtcDate } from "@/lib/dateFormat";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -255,9 +256,19 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
               <ReadOnly label="Ticket Validity" value={option.ticketValidity} />
 
-              <ReadOnly label="Redeem Start" value={option.redeemStart} />
+              <ReadOnly
+                label="Redeem Start"
+                value={
+                  option.redeemStart ? formatUtcDate(option.redeemStart) : "---"
+                }
+              />
 
-              <ReadOnly label="Redeem End" value={option.redeemEnd} />
+              <ReadOnly
+                label="Redeem End"
+                value={
+                  option.redeemEnd ? formatUtcDate(option.redeemEnd) : "---"
+                }
+              />
 
               <ReadOnly
                 label="Defined Duration"
@@ -274,7 +285,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                   <Checkbox
                     checked={option.thaiNationalOnly}
                     onCheckedChange={(checked) =>
-                      updateProductOption(optionIndex, "thaiNationalOnly", checked)
+                      updateProductOption(
+                        optionIndex,
+                        "thaiNationalOnly",
+                        checked
+                      )
                     }
                   />
                   <Label>Thai National Only</Label>
