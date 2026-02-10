@@ -153,10 +153,11 @@ const AdminTicketEdit = () => {
           onSubmit={handleSave}
           onCancel={handleCancel}
         />
-      </div>
-      {data && (
-        <RelatedTicketsCarousel ticketId={data.id} isPublished={data.isPublished} />
+        {data && (
+         <RelatedTicketsCarousel ticketId={data.id} isPublished={data.isPublished} />
       )}
+      </div>
+      
     </PageContainer>
   );
 };

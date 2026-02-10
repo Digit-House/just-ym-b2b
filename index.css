@@ -160,3 +160,26 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+
+/* Swiper height fix */
+.tickets-swiper,
+.tickets-swiper .swiper-wrapper,
+.tickets-swiper .swiper-slide {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.tickets-swiper .swiper-wrapper {
+  align-items: flex-start !important;
+}
+
+.slide-inner {
+  height: auto;
+  min-height: 0;
+  display: block;
+}
+
+.tickets-swiper * {
+  min-height: 0 !important;
+}

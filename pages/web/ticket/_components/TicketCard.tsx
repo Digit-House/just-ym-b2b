@@ -13,7 +13,7 @@ type Props = {
 
 const TicketCard = ({user,p,handleNavigate}:Props) => {
   return (
-    <div key={p.id} className="bg-white rounded-2xl h-[400px] border overflow-hidden cursor-pointer">
+    <div className="bg-white rounded-2xl  h-[400px] border overflow-hidden cursor-pointer">
       <div className="h-48 overflow-hidden">
         <ImageFallback
           src={preFixImg(p.image)}

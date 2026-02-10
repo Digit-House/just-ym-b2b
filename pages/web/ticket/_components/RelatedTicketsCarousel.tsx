@@ -28,6 +28,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
     loop: false,
     align: "start",
     dragFree: true,
+    containScroll: "trimSnaps", // Helps prevent edge overflow issues
     breakpoints: {
       "(min-width: 1280px)": { slidesToScroll: 4, dragFree: false },
       "(min-width: 1024px)": { slidesToScroll: 3, dragFree: false },
@@ -100,7 +101,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   if (!loading && relatedTickets.length === 0) return null;
 
   return (
-    <section className="py-10 w-full">
+    <section className="py-10 overflow-hidden w-[80vw] m-auto">
       <div className="mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -131,14 +132,21 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
             >
               ‹
             </button>
-
-            {/* Viewport */}
-            <div className="overflow-hidden rounded-xl" ref={emblaRef}>
-              <div className="flex gap-5 touch-pan-y">
+            <div 
+              className="w-full overflow-hidden rounded-xl touch-pan-y" 
+              ref={emblaRef}
+            >
+              <div className="flex gap-0 md:gap-5">
                 {relatedTickets.map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0"
+                    className="
+                      flex-[0_0_100%] 
+                      md:flex-[0_0_calc(50%-10px)]   /* 2 items: 50% minus half gap */
+                      lg:flex-[0_0_calc(33.333%-13.33px)] /* 3 items: 33.33% minus 2/3 gap */
+                      xl:flex-[0_0_calc(25%-15px)]   /* 4 items: 25% minus 3/4 gap */
+                      min-w-0
+                    "
                   >
                     <TicketCard
                       user={user as UserT}
@@ -150,7 +158,6 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
               </div>
             </div>
 
-            {/* Next Button */}
             <button
               onClick={scrollNext}
               disabled={!canScrollNext}
@@ -159,7 +166,6 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
               ›
             </button>
 
-            {/* Pagination */}
             {scrollSnaps.length > 1 && (
               <div className="flex justify-center mt-8 gap-2">
                 {scrollSnaps.map((_, index) => (

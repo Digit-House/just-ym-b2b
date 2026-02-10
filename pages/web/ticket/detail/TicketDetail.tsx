@@ -101,7 +101,8 @@ const TicketDetail = () => {
   }
 
   return (
-    <PageContainer className="space-y-8 w-full lg:w-[90%] mx-auto">
+    <PageContainer>
+      <div className="space-y-8 w-full lg:w-[90%] mx-auto">
       <BackBtn route="/tickets" title="Back to Tickets" />
       <div className="flex flex-col gap-8">
         <MediaCarousel
@@ -175,6 +176,7 @@ const TicketDetail = () => {
             />
           </div>
         </div>
+      </div>
       </div>
       {product && (
         <RelatedTicketsCarousel
