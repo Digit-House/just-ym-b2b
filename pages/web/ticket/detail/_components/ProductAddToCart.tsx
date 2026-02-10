@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/provider/UserProvider";
+import { truncateDescription } from "@/lib/utils";
 
 type Props = {
   title: string;

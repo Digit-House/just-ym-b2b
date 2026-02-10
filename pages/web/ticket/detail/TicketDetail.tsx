@@ -14,6 +14,8 @@ import ProductionOptionSelecter from "./_components/ProductionOptionSelecter";
 import VariantSelecter from "./_components/VariantSelecter";
 import ProductAddToCart from "./_components/ProductAddToCart";
 import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicketsCarousel";
+import { truncate } from "fs";
+import { truncateDescription } from "@/lib/utils";
 
 const TicketDetail = () => {
   const { id } = useParams();

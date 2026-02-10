@@ -23,7 +23,7 @@ const TicketCard = ({user,p,handleNavigate}:Props) => {
       </div>
 
       <div className="p-6 flex flex-col">
-        <h3 className="font-bold line-clamp-1">{p.name}</h3>
+        <h3 className="font-bold ">{truncateDescription(p.name,35)}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-4">
           {truncateDescription(p.description)}
         </p>
