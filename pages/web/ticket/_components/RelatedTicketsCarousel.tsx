@@ -23,6 +23,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /** ---------------- EMBLA SETUP ---------------- */
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: "start",
@@ -40,6 +41,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
+  /** ---------------- FETCH DATA ---------------- */
   useEffect(() => {
     const fetchRelatedTickets = async () => {
       try {
@@ -98,7 +100,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
   if (!loading && relatedTickets.length === 0) return null;
 
   return (
-    <section className="py-10 w-full overflow-hidden">
+    <section className="py-10 w-full">
       <div className="mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -120,48 +122,44 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
             <p className="text-red-600 font-medium">{error}</p>
           </div>
         ) : (
-          <div className="relative group overflow-hidden">
+          <div className="relative group">
             {/* Prev Button */}
             <button
               onClick={scrollPrev}
               disabled={!canScrollPrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-2 rounded-full disabled:opacity-30"
+              className="absolute left-0 size-10 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full disabled:opacity-30"
             >
               ‹
             </button>
 
             {/* Viewport */}
-            <div
-              className="overflow-hidden rounded-xl"
-              ref={emblaRef}
-              style={{ contain: "layout paint size" }}
-            >
-              <div className="flex gap-5 touch-pan-y items-stretch">
+            <div className="overflow-hidden rounded-xl" ref={emblaRef}>
+              <div className="flex gap-5 touch-pan-y">
                 {relatedTickets.map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0 h-full"
+                    className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0"
                   >
-                    <div className="h-full">
-                      <TicketCard
-                        user={user as UserT}
-                        p={ticket}
-                        handleNavigate={handleNavigate}
-                      />
-                    </div>
+                    <TicketCard
+                      user={user as UserT}
+                      p={ticket}
+                      handleNavigate={handleNavigate}
+                    />
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Next Button */}
             <button
               onClick={scrollNext}
               disabled={!canScrollNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-2 rounded-full disabled:opacity-30"
+              className="absolute right-0 size-10  top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full disabled:opacity-30"
             >
               ›
             </button>
 
+            {/* Pagination */}
             {scrollSnaps.length > 1 && (
               <div className="flex justify-center mt-8 gap-2">
                 {scrollSnaps.map((_, index) => (
