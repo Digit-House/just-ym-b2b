@@ -24,6 +24,7 @@ export type PAYMENT_DETAIL_TYPE = {
   method: string;
   stripeCSId: string;
   stripeClientSecret: string;
+  amount:string;
 };
 
 export type VISIT_DATE_TYPE = {

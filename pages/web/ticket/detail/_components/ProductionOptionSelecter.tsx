@@ -4,7 +4,7 @@ import {
   TicketTypeT,
 } from "@/types/product.type";
 import { format } from "date-fns";
-import { Calendar, Check, ChevronDown, Clock } from "lucide-react";
+import { Calendar, Check, CheckIcon, ChevronDown, Clock, ThumbsDownIcon, ThumbsUpIcon, XIcon } from "lucide-react";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import VariantSelecter from "./VariantSelecter";
@@ -140,29 +140,50 @@ const ProductionOptionSelecter = ({
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
-                {isManual ? (
-                  <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#FEF3C6]">
-                    <Clock className="w-4 h-4 text-[#BB4D00]" />
+              <div className="flex gap-2 items-center">
+                <div className="flex items-center gap-2">
+                  {isManual ? (
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#FEF3C6]">
+                      <Clock className="w-4 h-4 text-[#BB4D00]" />
 
-                    <p className="text-[#BB4D00] text-xs font-bold">
-                      Awaiting Approval
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#DCFCE7]">
-                    <Check className="w-4 h-4 text-[#008236]" />
+                      <p className="text-[#BB4D00] text-xs font-bold">
+                        Awaiting Approval
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#DCFCE7]">
+                      <Check className="w-4 h-4 text-[#008236]" />
 
-                    <p className="text-[#008236] font-bold text-xs">
-                      Instant Confirmation
+                      <p className="text-[#008236] font-bold text-xs">
+                        Instant Confirmation
+                      </p>
+                    </div>
+                  )}
+                  {item.thaiNationalOnly && (
+                    <p className="px-2 py-0.5 rounded-full bg-[#155DFC] text-white text-xs">
+                      🇹🇭 Thai Nation Only
                     </p>
-                  </div>
-                )}
-                {item.thaiNationalOnly && (
-                  <p className="px-2 py-0.5 rounded-full bg-[#155DFC] text-white text-xs">
-                    🇹🇭 Thai Nation Only
-                  </p>
-                )}
+                  )}
+                </div>
+                <div>
+                  {item.isPublished ? (
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-green-200">
+                      <CheckIcon  className="w-4 h-4 text-green-500" />
+
+                      <p className="text-green-400 text-xs font-bold">
+                        Published
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-red-200">
+                      <XIcon className="w-4 h-4 text-red-500" />
+
+                      <p className="text-red-400 text-xs font-bold">
+                        UnPublished
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
               <button
                 onClick={() => {

@@ -148,6 +148,12 @@ const Preview = () => {
               label="Payment Method"
               value={bookingDetail.paymentMethod}
             />
+            {bookingDetail.paymentMethod === "AYAPAY" && (
+              <InfoRow
+                label="Payment Amount"
+                value={`MMK ${bookingDetail.paymentDetail?.amount?.toLocaleString()}`}
+              />
+            )}
             <InfoRow label="Group Name" value={bookingDetail.groupName} />
             <InfoRow
               label="Members In Group"

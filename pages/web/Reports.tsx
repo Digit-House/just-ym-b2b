@@ -64,7 +64,6 @@ const Reports = () => {
     fromDate: oneMonthAgo,
     toDate: today,
     selfSale: user?.type !== "OWNER",
-    sellerId: user?.id ?? null,
   });
 
   const [reportStats, setReportStats] = useState({

@@ -1,7 +1,12 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { ArrowUpDown, RotateCcw, DownloadIcon } from "lucide-react";
+import {
+  ArrowUpDown,
+  RotateCcw,
+  DownloadIcon,
+  LayersPlusIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
@@ -24,7 +29,11 @@ import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/provider/UserProvider";
-import { fetchProducts, exportProductsReport, ProductReportInput } from "@/graphql/product";
+import {
+  fetchProducts,
+  exportProductsReport,
+  ProductReportInput,
+} from "@/graphql/product";
 import { useTicketFilters } from "@/hooks/useTicketFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import TicketCard from "./_components/TicketCard";
@@ -33,6 +42,7 @@ import MultiSelect from "@/components/MultiSelect";
 import SingleSelect from "@/components/SingleSelect";
 import { useCities } from "@/hooks/useCities";
 import { toast } from "sonner";
+import CreateNewProductDialog from "./_components/CreateNewProductDialog";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Alphabet", value: "alphabet" },
@@ -48,6 +58,7 @@ export default function Tickets() {
   const debouncedSearch = useDebounce(filters.search, 500);
 
   const [sortDialogOpen, setSortDialogOpen] = useState(false);
+  const [newProductDialogOpen, setNewProductDialogOpen] = useState(false);
 
   const { data: countryData } = useCountries({
     limit: 250,
@@ -129,42 +140,42 @@ export default function Tickets() {
     try {
       // Map the current filters to the export report input
       const exportData: ProductReportInput = {};
-      
+
       // Map the published filter
       if (filters.published === "PUBLISHED") {
         exportData.isPublished = true;
       } else if (filters.published === "UNPUBLISHED") {
         exportData.isPublished = false;
       }
-      
+
       // Add other applicable filters if needed
       if (filters.categories.length > 0) {
         // Note: We may need to adjust the backend to accept categoryIds in the export
       }
-      
+
       const response = await exportProductsReport(exportData);
-      
+
       // Create a blob from the base64 data
       const binaryData = atob(response.data);
       const bytes = new Uint8Array(binaryData.length);
       for (let i = 0; i < binaryData.length; i++) {
         bytes[i] = binaryData.charCodeAt(i);
       }
-      
+
       const blob = new Blob([bytes], { type: response.contentType });
       const url = URL.createObjectURL(blob);
-      
+
       // Create a temporary link and trigger download
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = response.filename;
       document.body.appendChild(link);
       link.click();
-      
+
       // Clean up
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       toast.success("Tickets exported successfully!");
     } catch (error) {
       console.error("Export error:", error);
@@ -283,20 +294,36 @@ export default function Tickets() {
           </div>
         </div>
 
-        <div className={`flex ${user?.type === "OWNER" ? "justify-between" : "justify-end"}  items-center mb-3`}>
+        <div
+          className={`flex ${
+            user?.type === "OWNER" ? "justify-between" : "justify-end"
+          }  items-center mb-3`}
+        >
           <p className="text-sm">
             Total Tickets : <span>{total}</span>
           </p>
-          {user?.type === "OWNER" && (
-            <button
-              onClick={handleExportExcel}
-              title="Export to Excel"
-              className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-1"
-            >
-              <DownloadIcon size={16} />
-              <span>Export Excel</span>
-            </button>
-          )}
+          <div>
+            {user?.type === "OWNER" && (
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => setNewProductDialogOpen(true)}
+                  title="Export to Excel"
+                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-1"
+                >
+                  <LayersPlusIcon size={16} />
+                  <span>Create New Product</span>
+                </button>
+                <button
+                  onClick={handleExportExcel}
+                  title="Export to Excel"
+                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-1"
+                >
+                  <DownloadIcon size={16} />
+                  <span>Export Excel</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {isPending && (
@@ -336,6 +363,12 @@ export default function Tickets() {
         <RecommendedTicketsSortDialog
           open={sortDialogOpen}
           onOpenChange={setSortDialogOpen}
+        />
+      )}
+      {newProductDialogOpen && (
+        <CreateNewProductDialog
+          open={newProductDialogOpen}
+          onOpenChange={setNewProductDialogOpen}
         />
       )}
     </>

@@ -16,6 +16,7 @@ import {
   UPDATE_PRODUCT_MUTATION,
   UPDATE_PRODUCT_POSITION,
   EXPORT_PRODUCTS_REPORT,
+  CREATE_NEW_PRODUCT,
 } from "./type-query/product";
 import {
   AddToCartResponse,
@@ -194,6 +195,7 @@ export const getProductOptions = async (productId: string, date: string) => {
       variables: {
         productId: productId,
         date: date,
+        isPublished: true,
       },
       fetchPolicy: "no-cache",
     });
@@ -297,6 +299,20 @@ export const seedProduct = async (productId: string) => {
   }
 };
 
+export const createNewProduct = async (globaltixProductId: string) => {
+  try {
+    const res = await client.mutate({
+      mutation: warpGql(CREATE_NEW_PRODUCT),
+      variables: {
+        globaltixProductId: globaltixProductId,
+      },
+    });
+    return res;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export interface ProductReportInput {
   isPublished?: boolean;
 }
@@ -310,7 +326,7 @@ export const exportProductsReport = async (data: ProductReportInput) => {
       },
       fetchPolicy: "no-cache",
     });
-    
+
     return res.data.exportProductsReport as GenReportResT;
   } catch (err) {
     throw err;

@@ -157,8 +157,8 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
 `;
 
 export const GET_PRODUCT_OPTIONS = `
-query Query($productId: String!, $date: String) {
-  getProductInfo(productId: $productId, date: $date) {
+query Query($productId: String!, $date: String, $isPublished: Boolean) {
+  getProductInfo(productId: $productId, date: $date, isPublished: $isPublished) {
     productOptions {
       advanceBooking {
         day
@@ -179,6 +179,7 @@ query Query($productId: String!, $date: String) {
       isTagged
       keywords
       name
+      isPublished
       primaryTicket
       productId
       publishStart
@@ -239,6 +240,15 @@ query Query($productId: String!, $date: String) {
     }
   }
 }`;
+
+export const CREATE_NEW_PRODUCT = `
+mutation CreateNewProduct($globaltixProductId: Float!) {
+  createNewProduct(globaltixProductId: $globaltixProductId) {
+    status
+    message
+  }
+}
+`;
 
 export interface TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE {
   dateFrom: string;
