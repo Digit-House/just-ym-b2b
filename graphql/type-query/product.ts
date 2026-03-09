@@ -8,6 +8,7 @@ query FindAllProducts($params: UserProductsInput!) {
       category
       city
       description
+      globaltixId
       dhSellingPrice
       id
       image

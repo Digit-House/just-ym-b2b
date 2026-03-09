@@ -6,27 +6,35 @@ import { preFixImg } from "@/util/initData";
 import { ArrowRight } from "lucide-react";
 
 type Props = {
-    user:UserT;
-    p:ProductT;
-    handleNavigate:(e: React.MouseEvent, path: string)=>void;
-}
+  user: UserT;
+  p: ProductT;
+  handleNavigate: (e: React.MouseEvent, path: string) => void;
+};
 
-const TicketCard = ({user,p,handleNavigate}:Props) => {
+const TicketCard = ({ user, p, handleNavigate }: Props) => {
   return (
-    <div className="bg-white rounded-2xl  h-[400px] border overflow-hidden cursor-pointer">
+    <div className="bg-white rounded-2xl  h-[420px] border overflow-hidden cursor-pointer">
       <div className="h-48 overflow-hidden">
         <ImageFallback
           src={preFixImg(p.image)}
           alt={p.name}
-         className="w-full h-full transition-transform duration-500 ease-in-out hover:scale-110"
+          className="w-full h-full transition-transform duration-500 ease-in-out hover:scale-110"
         />
       </div>
 
       <div className="p-6 flex flex-col">
-        <h3 className="font-bold ">{truncateDescription(p.name,35)}</h3>
+        <div className="h-[80px]">
+        <h3 className="font-bold ">{truncateDescription(p.name, 35)}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-4">
           {truncateDescription(p.description)}
         </p>
+        </div>
+
+        {user.type === "OWNER" && (
+          <p className="text-sm text-gray-500 line-clamp-2">
+            {`Globaltix ID: ${p.globaltixId}`}
+          </p>
+        )}
 
         <button
           onClick={(e) => handleNavigate(e, `/tickets/${p.id}`)}

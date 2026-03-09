@@ -40,6 +40,7 @@ export type ProductT = {
   category: string;
   city: string;
   description: string;
+  globaltixId:number;
   dhSellingPrice: number;
   id: string;
   image: string;
