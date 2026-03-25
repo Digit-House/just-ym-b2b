@@ -138,7 +138,7 @@ const OrderCheckOut = () => {
           className="w-full"
           size="lg"
           onClick={() => {
-            if (total > creditInfo.balance) {
+            if (total > creditInfo.balance && user.type !== "OWNER") {
               setOpen(true);
             } else {
               handleCheckout();
