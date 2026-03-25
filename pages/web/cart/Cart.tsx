@@ -97,23 +97,7 @@ const Cart = () => {
     }
   };
 
-  // const {
-  //   items,
-  //   selectedIds,
-  //   toggleSelect,
-  //   selectAll,
-  //   clearSelection,
-  //   clearCart,
-  //   getSelectedTotal,
-  // } = useCartStore();
-
   if (loading) return <p>Loading...</p>;
-
-  // const selectedTotal = getSelectedTotal();
-  // const discount = selectedTotal > 5000 ? 500 : 0;
-  // const finalTotal = selectedTotal - discount;
-
-  // const isAllSelected = items.length > 0 && selectedIds.length === items.length;
 
   return (
     <>
@@ -155,11 +139,6 @@ const Cart = () => {
                     className="flex items-center lg:gap-2 gap-1 cursor-pointer lg:px-4 py-2 px-2 rounded-[8px] hover:bg-[#FBE8E9] transition-all duration-300"
                   >
                     <Trash2 className="w-4 h-4 text-red-500" />
-                    {/* <Typo
-                    text={`${allSelected ? "Delete All" : "Delete"}`}
-                    className="text-red"
-                    size={isMobile ? "md" : "lg"}
-                  /> */}
                     <p className="text-red-500 ">
                       {allSelected ? "Delete All" : "Delete"}
                     </p>
@@ -177,12 +156,6 @@ const Cart = () => {
                   return (
                     <div className="w-full py-5" key={i}>
                       <div className="flex items-center justify-between w-full mb-3">
-                        {/* <Typo
-                        text={`${item[0][0].productName}`}
-                        size={isMobile ? "md" : "lg"}
-                        className="text-black line-clamp-1"
-                        fontWeight="bold"
-                      /> */}
                         <p className="text-lg line-clamp-1 font-bold">
                           {item[0][0].productName}
                         </p>
@@ -192,31 +165,10 @@ const Cart = () => {
                             THB {totalPrice.toFixed(2)}
                           </span>
                         </p>
-                        {/* <div className="flex items-center gap-1">
-                        <Typo
-                          text="Total:"
-                          size={isMobile ? "md" : "lg"}
-                          className="text-primary"
-                        />
-                        <p>
-
-                        </p>
-                        <Typo
-                          text={`B ${totalPrice.toFixed(2)}`}
-                          size={isMobile ? "md" : "lg"}
-                          className="text-primary"
-                          fontWeight="bold"
-                        />
-                      </div> */}
                       </div>
                       <div className="flex flex-col w-full gap-4">
                         {item.map((d, dIndx) => (
                           <div className="w-full" key={dIndx}>
-                            {/* <Typo
-                            text={d[0].productOptionName}
-                            size="md"
-                            className="mb-2 text-primary"
-                          /> */}
                             <p className="text-base text-indigo-700 mb-2">
                               {d[0].productOptionName}
                             </p>
@@ -272,16 +224,6 @@ const Cart = () => {
               {selectedCartList.length > 0 && (
                 <div className="rounded w-full rounded-t-2xl h-[109px] px-4 py-8  relative overflow-hidden z-10">
                   <div className="relative z-20">
-                    {/* <Typo
-                      text={
-                        selectedCartList.length > 1
-                          ? "Order Summary"
-                          : selectedCartList[0].productName
-                      }
-                      size="2xl"
-                      className="text-white"
-                      fontWeight="bold"
-                    /> */}
                     <p className="text-white text-2xl font-bold">
                       {selectedCartList.length > 1
                         ? "Order Summary"
@@ -329,16 +271,8 @@ const Cart = () => {
                         >
                           <div className="flex items-center gap-3">
                             <Ticket className="w-6 h-6 " />
-                            {/* <Typo text={item.productName} size="sm" /> */}
                             <p className="text-sm">{item.productOptionName}</p>
                           </div>
-                          {/* <Typo
-                            text={`B ${(item.price * item.quantity).toFixed(
-                              2
-                            )}`}
-                            className=" text-primary text-end"
-                            size="sm"
-                          /> */}
                           <p className="text-sm text-indigo-700">
                             THB {(item.price * item.quantity).toFixed(2)}
                           </p>
@@ -348,22 +282,10 @@ const Cart = () => {
                   </div>
                   <div className="flex flex-col gap-6 pt-4">
                     <div className="flex items-center justify-between">
-                      {/* <Typo
-                        text="Total Payment"
-                        size="md"
-                        fontWeight="bold"
-                        className="text-black"
-                      /> */}
                       <p className="text-base font-bold">Total Payment</p>
                       <p className="text-sm font-bold text-indigo-700">
                         THB {totalPrice.toFixed(2)}
                       </p>
-                      {/* <Typo
-                        text={`B ${totalPrice.toFixed(2)}`}
-                        size="sm"
-                        fontWeight="bold"
-                        className="text-primary"
-                      /> */}
                     </div>
 
                     <Button
@@ -374,10 +296,6 @@ const Cart = () => {
                     >
                       Confirm Payment
                     </Button>
-                    {/* text="Confirm Payment"
-                      className="py-4"
-                      onClick={() => router.push("/cart/checkout")}
-                    /> */}
                   </div>
                 </div>
               )}

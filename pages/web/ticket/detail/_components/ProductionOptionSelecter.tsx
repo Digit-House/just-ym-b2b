@@ -4,10 +4,11 @@ import {
   TicketTypeT,
 } from "@/types/product.type";
 import { format } from "date-fns";
-import { Calendar, Check, CheckIcon, ChevronDown, Clock, ThumbsDownIcon, ThumbsUpIcon, XIcon } from "lucide-react";
+import { Calendar, Check, CheckIcon, ChevronDown, Clock,  XIcon } from "lucide-react";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import VariantSelecter from "./VariantSelecter";
+import { useUser } from "@/provider/UserProvider";
 
 type Props = {
   loading: boolean;
@@ -28,6 +29,7 @@ const ProductionOptionSelecter = ({
   pickedDate,
   isManual,
 }: Props) => {
+  const { user } = useUser();
   const [detailOpenId, setDetailOpenId] = useState<string | null>(null);
   const handleSelected = (item: ProductOptionT) => {
     if (selectedProductOption?.id === item.id) {
@@ -93,20 +95,8 @@ const ProductionOptionSelecter = ({
                         }`}
                       >
                         <p className="text-[#050505] capitalize text-sm">{`${ticket.name.toLowerCase()}:`}</p>
-                        {/* <Typo
-                          text={`฿ ${
-                            locale === "en"
-                              ? ticket.dhSellingPrice.toFixed(2)
-                              : toMyanmarNumber(
-                                  ticket.dhSellingPrice.toFixed(2)
-                                )
-                          }`}
-                          size="md"
-                          className="text-[#F54900]"
-                          fontWeight="bold"
-                        /> */}
                         <p className=" text-indigo-700 font-bold">
-                          ฿{ticket.dhNetPrice.toFixed(2)}
+                          ฿{user.type === "OWNER" ? ticket.dhSellingPrice.toFixed(2) : ticket.dhNetPrice.toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -123,16 +113,6 @@ const ProductionOptionSelecter = ({
                 {item.ticketValidity === "Duration" && (
                   <div className="flex items-center gap-3">
                     <Calendar className="w-6 h-6 text-indigo-700" />
-                    {/* <Typo
-                            text={t("bookable", {
-                              day:
-                                locale === "en"
-                                  ? item.definedDuration
-                                  : toMyanmarNumber(item.definedDuration),
-                            })}
-                            size="sm"
-                            className="text-primary"
-                          /> */}
                     <p className="text-sm text-indigo-700">
                       Open Date : Bookable for {item.definedDuration} days
                     </p>
@@ -229,11 +209,6 @@ const ProductionOptionSelecter = ({
                               className="flex items-center gap-2"
                             >
                               <Check className="w-3.5 h-3.5 text-[#008236]" />
-                              {/* <Typo
-                                    text={inclusion}
-                                    size="xs"
-                                    className="text-[#314158]"
-                                  /> */}
                               <p className="text-[#314158] text-xs">
                                 {inclusion}
                               </p>
@@ -271,60 +246,18 @@ const ProductionOptionSelecter = ({
                 }}
                 className={`w-full rounded-[8px] font-bold text-sm cursor-pointer py-2 px-4 flex items-center justify-center transition-all duration-300 ${
                   selectedProductOption?.id === item.id
-                    ? "bg-indigo-700 text-white hover:bg-indigo-700/80"
+                    ? "bg-indigo-400 text-white hover:bg-indigo-500/80"
                     : "bg-[#F1F5F9] text-[#314158] hover:bg-[#F1F5F9]/80"
                 }`}
               >
-                <p>
+                {selectedProductOption?.id === item.id  && selectedProductOption?.ticketType.some((ticket) => ticket.quantity > 0) ? "UnSelect" : selectedProductOption?.id === item.id ? "Selected" : "Select"}
+                {/* <p>
                   {selectedProductOption?.id === item.id
                     ? "selected"
                     : "select"}
-                </p>
+                </p> */}
               </button>
             </div>
-            {/* <div className="flex flex-col justify-between flex-1 gap-6 p-4">
-              <div className="min-h-14">
-                <p className="line-clamp-2">{item.name}</p>
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mt-3 mb-4">
-                  <p>฿ ${item.ticketType[0].dhNetPrice.toFixed(2)}</p>
-                </div>
-                <button
-                  onClick={() => handleSelected(item)}
-                  className={`w-full flex items-center justify-center gap-2 border border-indigo-700 rounded-[12px] p-3 cursor-pointer hover:bg-[#F0EBF8]/50 text-black transition-all duration-300
-                    ${
-                      selectedProductOption?.id === item.id
-                        ? "bg-[#F0EBF8] "
-                        : ""
-                    }
-                    `}
-                >
-                  {selectedProductOption?.id === item.id && (
-                    <Check className="w-5 h-5" />
-                  )}
-
-                  <span>
-                    {selectedProductOption?.id === item.id
-                      ? "Selected"
-                      : "Select"}
-                  </span>
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 p-4">
-              <ul className="flex flex-col gap-1">
-                {item.inclusions.map((d: string, idx: number) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2 text-base text-gray-500"
-                  >
-                    <div className="h-1 mt-3 rounded-full min-w-1 bg-gray-500" />
-                    {d}
-                  </li>
-                ))}
-              </ul>
-            </div> */}
           </div>
         ))}
       </div>

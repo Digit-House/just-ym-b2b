@@ -13,7 +13,7 @@ type Props = {
 
 const TicketCard = ({ user, p, handleNavigate }: Props) => {
   return (
-    <div className="bg-white rounded-2xl  h-[420px] border overflow-hidden cursor-pointer">
+    <div className="bg-white rounded-2xl  min-h-[420px] border overflow-hidden cursor-pointer">
       <div className="h-48 overflow-hidden">
         <ImageFallback
           src={preFixImg(p.image)}
@@ -23,7 +23,7 @@ const TicketCard = ({ user, p, handleNavigate }: Props) => {
       </div>
 
       <div className="p-6 flex flex-col">
-        <div className="h-[80px]">
+        <div className="h-[100px]">
         <h3 className="font-bold ">{truncateDescription(p.name, 35)}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-4">
           {truncateDescription(p.description)}

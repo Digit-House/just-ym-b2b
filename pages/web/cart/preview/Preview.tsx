@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { usePreview } from "./usePreview";
 import PageContainer from "@/components/PageContainer";
@@ -13,18 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getErrMsg, preFixImg } from "@/util/initData";
-import { Download, Mail, Copy, User, CreditCard, FileText } from "lucide-react";
+import { Download, Mail, User, CreditCard, FileText } from "lucide-react";
 import ResendModel from "./_component/ResendModal";
 import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
 import { confirmBooking } from "@/graphql/booking";
 import { toast } from "sonner";
-import { Separator } from "@/components/ui/separator";
-
-// Assumed types based on your prompt for completeness in this file context
-type VISIT_DATE_TYPE = any;
-type PAYMENT_DETAIL_TYPE = any;
-type BOOKING_STATUS_ENUM = any;
 
 const Preview = () => {
   const { id } = useParams();

@@ -16,6 +16,7 @@ export const usePreview = (id?: string) => {
     setLoading(true);
     try {
       const res: any = await getBookingDetail(id);
+
       if (res.data) {
         const data = res.data.getTransactionDetailBy;
         const total = data.bookingTickets.reduce((sum: any, data: any) => {

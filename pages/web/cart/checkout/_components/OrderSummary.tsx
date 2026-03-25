@@ -15,16 +15,6 @@ const OrderSummary = () => {
     <div className="w-[405px] flex flex-col">
       <div className="rounded w-full rounded-t-2xl h-[109px] px-4 py-8  relative overflow-hidden z-10">
         <div className="relative z-20">
-          {/* <Typo
-            text={
-              selectedCartList.length > 1
-                ? "Order Summary"
-                : selectedCartList[0].productName
-            }
-            size="2xl"
-            className="text-white"
-            fontWeight="bold"
-          /> */}
           <p className="text-white font-bold text-2xl">
             {selectedCartList.length > 1
               ? "Order Summary"
@@ -61,68 +51,24 @@ const OrderSummary = () => {
         }}
       >
         <div className="flex flex-col gap-4 pb-4 border-b border-[#D9D9D9]">
-          {/* <Typo
-            text="Billing Info"
-            size="md"
-            fontWeight="bold"
-            className="text-black"
-          /> */}
           <p className=" font-bold">Billing Info</p>
           <div className="flex items-center justify-between gap-4">
-            {/* <Typo text="Name:" size="sm" className="text-black" /> */}
             <p className="text-sm">Name:</p>
             <p className="text-sm text-indigo-700 font-bold">{userInfo?.name}</p>
-            {/* <Typo
-              text={user?.name}
-              size="sm"
-              className="text-primary"
-              fontWeight="bold"
-            /> */}
           </div>
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm">Email Address:</p>
             <p className="text-sm text-indigo-700 font-bold">{userInfo?.email}</p>
-            {/* <Typo text="Email Address:" size="sm" className="text-black" />
-            <Typo
-              text={user?.email}
-              size="sm"
-              className="text-primary"
-              fontWeight="bold"
-            /> */}
           </div>
         </div>
         <div className="flex flex-col gap-4 pt-4">
           <div className="flex items-center justify-between gap-4">
             <p className=" font-bold">Total</p>
             <p className="text-indigo-700 font-bold">THB {totalPrice}</p>
-            {/* <Typo
-              text="Total"
-              size="md"
-              className="text-black"
-              fontWeight="bold"
-            />
-            <Typo
-              text={`B ${totalPrice}`}
-              size="md"
-              className="text-primary"
-              fontWeight="bold"
-            /> */}
           </div>
           <div className="flex items-center justify-between gap-4">
             <p className=" font-bold"> Subtotal</p>
             <p className="text-indigo-700 font-bold">THB {totalPrice}</p>
-            {/* <Typo
-              text="Subtotal"
-              size="md"
-              className="text-black"
-              fontWeight="bold"
-            />
-            <Typo
-              text={`B ${totalPrice}`}
-              size="md"
-              className="text-primary"
-              fontWeight="bold"
-            /> */}
           </div>
         </div>
       </div>
