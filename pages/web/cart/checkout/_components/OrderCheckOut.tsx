@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useWalletStore } from "@/store/useWalletStore";
-import React, { useState } from "react";
+import { useState } from "react";
 import Model from "./Model";
 import { toast } from "sonner";
 import { BOOKING_CREATE_MUTATION_DATA_TYPE } from "@/graphql/type-query/booking";
@@ -29,6 +29,8 @@ const OrderCheckOut = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+
 
   const handleCheckout = async () => {
     if (!selectedCartList || selectedCartList.length === 0) {
@@ -62,7 +64,7 @@ const OrderCheckOut = () => {
       const res: any = await createBookingWithCart(data);
       if (res.data) {
         setSelectedCartList([]);
-        fetchAddToCartCount();
+        fetchAddToCartCount();  
         if (user.type !== "OWNER") {
           setCreditInfo({
             ...creditInfo,
@@ -73,8 +75,11 @@ const OrderCheckOut = () => {
           `/cart/preview/${res.data.createBookingWithCart.transactionId}`
         );
         toast.success("Booking created successfully");
+      }else{
+        toast.error("Failed to create booking");
       }
     } catch (err) {
+      toast.error(getErrMsg(err,"message"));
     } finally {
       setLoading(false);
     }

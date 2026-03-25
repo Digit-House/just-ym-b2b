@@ -62,7 +62,6 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ onClose }) => {
       toast.error("Please enter a valid 6-digit code");
       return;
     }
-
     setLoading(true);
     try {
       const res: any = await confirmTwoFactorSetup(code);
@@ -83,6 +82,7 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ onClose }) => {
         throw new Error("Failed to confirm 2FA setup");
       }
     } catch (err: any) {
+      console.log(err,"86")
       toast.error(err.message || "Invalid code. Please try again.");
     } finally {
       setLoading(false);

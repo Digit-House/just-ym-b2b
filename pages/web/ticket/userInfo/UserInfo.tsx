@@ -22,6 +22,7 @@ const UserInfoPage = () => {
     loading,
     setLoading,
   } = useUserInfo();
+  const {userInfo} = useCartStore()
   const { finalPackage } = useCartStore();
 
   return (
@@ -55,7 +56,7 @@ const UserInfoPage = () => {
             setCurrentOpen={setCurrentOpen}
           />
         )}
-        {
+        {userInfoCheck && userInfo && 
           <PreViewCheckOut
             disable={
               !userInfoCheck || !timeInfoCheck || !variantCheck ? true : false

@@ -92,7 +92,7 @@ export const useCartStore = create<CartState>()(
         leaderPhone: "",
       },
 
-      setUserInfo: (user: ADD_TO_CART_USER_TYPE) => set(() => ({ user })),
+      setUserInfo: (userInfo: ADD_TO_CART_USER_TYPE) => set(() => ({ userInfo: userInfo })),
 
       items: [],
       selectedIds: [],
@@ -194,7 +194,7 @@ export const useCartStore = create<CartState>()(
         eventList: state.eventList,
         addToCartCount: state.addToCartCount,
         selectedCartList: state.selectedCartList,
-        userInfo: state.user,
+        userInfo: state.userInfo,
       }),
     }
   )

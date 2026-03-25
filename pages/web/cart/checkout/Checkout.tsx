@@ -1,8 +1,6 @@
 import BackBtn from "@/components/BackBtn";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import { useCartStore } from "@/store/useCartStore";
-import React from "react";
 import MySelectedCartList from "./_components/MySelectedCartList";
 import OrderSummary from "./_components/OrderSummary";
 import OrderCheckOut from "./_components/OrderCheckOut";

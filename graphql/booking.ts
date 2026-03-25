@@ -19,7 +19,9 @@ export const createBookingWithCart = async (
     variables: {
       data: data,
     },
-  });
+  }).then((res) => res).catch((err) => {
+    throw err;
+  })
 };
 
 export const getBookingDetail = (id: string) => {

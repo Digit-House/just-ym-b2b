@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { addTocart, getAddToCart } from "@/graphql/product";
 import { useCartStore } from "@/store/useCartStore";
-import { ADD_TO_CART_USER_TYPE } from "@/types/product.type";
+import { getErrMsg } from "@/util/initData";
 import { StarsIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -59,7 +59,7 @@ const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
       // router.back();
     } catch (err) {
       console.error("Add to cart error:", err);
-      toast.error("Something went wrong!");
+      toast.error(getErrMsg(err,"message"));
     } finally {
       setLoading(false);
     }
