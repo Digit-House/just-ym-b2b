@@ -3,8 +3,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { preFixImg } from "@/util/initData";
 
 const OrderSummary = () => {
-  const { selectedCartList, user } = useCartStore();
-  // const { user } = useUserInfoStore();
+  const { selectedCartList, userInfo } = useCartStore();
 
   const totalPrice = selectedCartList.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -72,7 +71,7 @@ const OrderSummary = () => {
           <div className="flex items-center justify-between gap-4">
             {/* <Typo text="Name:" size="sm" className="text-black" /> */}
             <p className="text-sm">Name:</p>
-            <p className="text-sm text-indigo-700 font-bold">{user?.name}</p>
+            <p className="text-sm text-indigo-700 font-bold">{userInfo?.name}</p>
             {/* <Typo
               text={user?.name}
               size="sm"
@@ -82,7 +81,7 @@ const OrderSummary = () => {
           </div>
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm">Email Address:</p>
-            <p className="text-sm text-indigo-700 font-bold">{user?.email}</p>
+            <p className="text-sm text-indigo-700 font-bold">{userInfo?.email}</p>
             {/* <Typo text="Email Address:" size="sm" className="text-black" />
             <Typo
               text={user?.email}
