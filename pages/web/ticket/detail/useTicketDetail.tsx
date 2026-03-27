@@ -4,7 +4,6 @@ import {
   getTicketTypeEventAvailable,
 } from "@/graphql/product";
 import {
-  ADD_TO_CART_USER_TYPE,
   AVAILABILITY_ENUM,
   ProductInfoT,
   ProductOptionT,
@@ -12,7 +11,6 @@ import {
 } from "@/types/product.type";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { addDays } from "date-fns";
 import { useCartStore } from "@/store/useCartStore";
 import { TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE } from "@/graphql/type-query/product";
 
@@ -127,12 +125,12 @@ export const useTicketDetail = (id?: string) => {
     }));
   };
 
-  const totalPrice = useMemo(() => {
-    if (!currentOption) return 0;
-    return currentOption.ticketType.reduce((sum, tt) => {
-      return sum + tt.dhSellingPrice * (quantities[tt.id] || 0);
-    }, 0);
-  }, [currentOption, quantities]);
+  // const totalPrice = useMemo(() => {
+  //   if (!currentOption) return 0;
+  //   return currentOption.ticketType.reduce((sum, tt) => {
+  //     return sum + tt.dhSellingPrice * (quantities[tt.id] || 0);
+  //   }, 0);
+  // }, [currentOption, quantities]);
 
   const mediaList = useMemo(() => {
     if (!product) return [];
@@ -156,7 +154,6 @@ export const useTicketDetail = (id?: string) => {
     selectedOptionIndex,
     setSelectedOptionIndex,
     updateQuantity,
-    totalPrice,
     activeTab,
     setActiveTab,
     currentMediaIndex,

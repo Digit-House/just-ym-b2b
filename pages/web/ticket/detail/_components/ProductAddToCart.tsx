@@ -1,12 +1,12 @@
 import { SelectedProductOptionT, TicketTypeT } from "@/types/product.type";
 import { Calendar, TicketIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/provider/UserProvider";
-import { truncateDescription } from "@/lib/utils";
+
 
 type Props = {
   title: string;
@@ -24,12 +24,12 @@ const ProductAddToCart = ({
   const {
     finalPackage,
     setFinalPackage,
-    answerList,
     setAnswerList,
     setGuestList,
     setStep,
     setVariantStep,
   } = useCartStore();
+  const { user } = useUser();
   const [variant, setVariant] = useState<TicketTypeT[]>([]);
   const navigate = useNavigate();
 
@@ -104,7 +104,6 @@ const ProductAddToCart = ({
       setStep(1);
       navigate("/tickets/user-info");
     } else {
-      // setOpen(true);
       setStep(1);
       navigate("/tickets/user-info");
     }
@@ -123,34 +122,17 @@ const ProductAddToCart = ({
             {selectedProductOption && (
               <div className="flex items-center gap-3">
                 <TicketIcon />
-                {/* <Typo
-                  text={selectedProductOption.name}
-                  size="sm"
-                  className="text-black"
-                /> */}
                 <p className="text-sm flex-1">{selectedProductOption.name}</p>
               </div>
             )}
-
-            {/* <button className="transition-all duration-300 cursor-pointer text-primary hover:text-primary/80">
-              <Typo text="Edit" fontWeight="bold" size="sm" />
-            </button> */}
           </div>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Calendar />
-              {/* <Typo
-                text={format(pickedDate, "EEE, MMM d yyyy")}
-                size="sm"
-                className="text-black"
-              /> */}
               <p className="text-sm flex-1">
                 {format(pickedDate, "EEE, MMM d yyyy")}
               </p>
             </div>
-            {/* <button className="transition-all duration-300 cursor-pointer text-primary hover:text-primary/80">
-              <Typo text="Edit" fontWeight="bold" size="sm" />
-            </button> */}
           </div>
         </div>
 
@@ -165,7 +147,9 @@ const ProductAddToCart = ({
                   {item.quantity}x {item.name}
                 </p>
                 <p className="text-sm font-bold text-indigo-700">
-                  ฿{(item.dhNetPrice * item.quantity).toFixed(2)}
+                  {user.type === "OWNER"
+                    ? (item.dhSellingPrice * item.quantity).toFixed(2)
+                    : (item.dhNetPrice * item.quantity).toFixed(2)}
                 </p>
               </div>
             ))}
