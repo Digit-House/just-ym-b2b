@@ -86,9 +86,13 @@ const PreviewGuestForm = ({
 
   /* ---------------- Handlers ---------------- */
   const handleAnswerChange = (index: number, value: string | number) => {
-    setUserAnswerList((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, answer: value } : item))
-    );
+    const newAnswerList = userAnswerList.map((data: any, i: number) => {
+      if (i === index) {
+        return { ...data, answer: value };
+      }
+      return data;
+    });
+    setUserAnswerList(newAnswerList);
   };
 
   const disableCheck = () => userAnswerList.some((item) => item.answer === "");
@@ -138,7 +142,7 @@ const PreviewGuestForm = ({
           return (
             <div key={item.id + i} className="w-full">
               {/* OPTION */}
-              {item.type === "OPTION" && (
+              {/* {item.type === "OPTION" && (
                 <div className="flex flex-col gap-1.5">
                   <p className="text-sm text-[#344054]">{item.question}</p>
                   <Select
@@ -152,6 +156,31 @@ const PreviewGuestForm = ({
                       <SelectGroup>
                         {item.optionList.map((q: any) => (
                           <SelectItem key={q.key} value={q.value}>
+                            {q.value}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )} */}
+
+              {item.type === "OPTION" && (
+                <div className="flex flex-col gap-[6px]">
+                  <p className="text-sm text-[#344054]">{item.question}</p>
+                  <Select
+                    value={userAnswerList[i]?.answer || ""}
+                    onValueChange={(value: string | number) => {
+                      handleAnswerChange(i, value);
+                    }}
+                  >
+                    <SelectTrigger className="w-full min-h-11 border border-gray-300">
+                      <SelectValue placeholder={"Select option"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {item.optionList.map((q: any) => (
+                          <SelectItem key={q.key} value={q.key}>
                             {q.value}
                           </SelectItem>
                         ))}
@@ -184,7 +213,7 @@ const PreviewGuestForm = ({
                         month={calendarMonth}
                         onMonthChange={setCalendarMonth}
                         captionLayout="dropdown"
-                        startMonth={new Date(1920, 0)} 
+                        startMonth={new Date(1920, 0)}
                         endMonth={new Date(2300, 11)}
                         // startMonth={minDate ?? undefined}
                         // endMonth={maxDate ?? undefined}

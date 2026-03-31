@@ -43,7 +43,6 @@ const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
             guestUserInfo,
             guestInfo: userInfo.sameAsLeader ? guestUserInfo : guestInfo,
           };
-
           return addTocart(newData);
         })
       );
