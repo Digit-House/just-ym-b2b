@@ -153,7 +153,7 @@ const errorLink = new ErrorLink(({ error }) => {
 
 
 const httpLink = new HttpLink({
-  uri: import.meta?.env?.VITE_PUBLIC_API_URL || "https://stg-api.justym.me/graphql",
+  uri: import.meta?.env?.VITE_PUBLIC_API_URL || "https://api.justym.me/graphql",
 });
 
 const link = ApolloLink.from([

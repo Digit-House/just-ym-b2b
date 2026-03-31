@@ -30,8 +30,6 @@ type Props = {
 
 const strip = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-const today = strip(new Date());
-
 const PreviewGuestForm = ({
   guestInfo,
   step,
@@ -41,8 +39,9 @@ const PreviewGuestForm = ({
   const { answerList, finalPackage, setAnswerList, guestList, setGuestList } =
     useCartStore();
 
+  const today = useMemo(() => strip(new Date()), []);  
   const [open, setOpen] = useState(false);
-  const [dateOpen, setDateOpen] = useState(false);
+  const [dateOpenMap, setDateOpenMap] = useState<Record<number, boolean>>({});
   const [userAnswerList, setUserAnswerList] = useState<any[]>([]);
   const [minDate, setMinDate] = useState<Date | null>(null);
   const [maxDate, setMaxDate] = useState<Date | null>(null);
@@ -64,19 +63,18 @@ const PreviewGuestForm = ({
       return;
     }
 
-    const minAge = Math.min(guestInfo.ticket.ageFrom, guestInfo.ticket.ageTo);
-    const maxAge = Math.max(guestInfo.ticket.ageFrom, guestInfo.ticket.ageTo);
+    // const minAge = Math.min(guestInfo.ticket.ageFrom, guestInfo.ticket.ageTo);
+    // const maxAge = Math.max(guestInfo.ticket.ageFrom, guestInfo.ticket.ageTo);
+    // console.log(minAge, maxAge);
+    // // oldest allowed DOB
+    // const earliest = strip(addYears(today, -maxAge));
+    // // youngest allowed DOB
+    // const latest = strip(addYears(today, -minAge));
 
-    // oldest allowed DOB
-    const earliest = strip(addYears(today, -maxAge));
-    // youngest allowed DOB
-    const latest = strip(addYears(today, -minAge));
-
-    setMinDate(earliest);
-    setMaxDate(latest);
-
-    // ✅ start calendar at valid month
-    setCalendarMonth(latest);
+    // setMinDate(earliest);
+    // setMaxDate(latest);
+    //✅ start calendar at valid month
+    setCalendarMonth(today);
   }, [guestInfo]);
 
   /* ---------------- Open section ---------------- */
@@ -120,6 +118,9 @@ const PreviewGuestForm = ({
     setCurrentOpen((v) => v + 1);
   };
 
+  const setDateOpen = (i: number, val: boolean) =>
+    setDateOpenMap((prev) => ({ ...prev, [i]: val }));
+
   /* ---------------- Render ---------------- */
   return (
     <PreviewFormFrame
@@ -130,11 +131,11 @@ const PreviewGuestForm = ({
     >
       <div className="flex flex-col w-full gap-5 px-8 py-4">
         {finalPackage?.questions.map((item, i) => {
+        
           /* ---- DATE helpers ---- */
           const selectedDate = userAnswerList[i]?.answer
             ? parseISO(userAnswerList[i].answer)
             : undefined;
-
           return (
             <div key={item.id + i} className="w-full">
               {/* OPTION */}
@@ -166,7 +167,10 @@ const PreviewGuestForm = ({
                 <div className="flex flex-col gap-1.5">
                   <p className="text-sm text-[#344054]">{item.question}</p>
 
-                  <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <Popover 
+                  open={!!dateOpenMap[i]}
+                  onOpenChange={(val) => setDateOpen(i, val)}
+                  >
                     <PopoverTrigger asChild>
                       <button className="h-11 w-full rounded-md border px-3 flex justify-between items-center">
                         {userAnswerList[i]?.answer || "Select date"}
@@ -181,18 +185,18 @@ const PreviewGuestForm = ({
                         month={calendarMonth}
                         onMonthChange={setCalendarMonth}
                         captionLayout="dropdown"
-                        fromMonth={minDate ?? undefined}
-                        toMonth={maxDate ?? undefined}
-                        disabled={(d) => {
-                          const dd = strip(d);
-                          if (minDate && dd < strip(minDate)) return true;
-                          if (maxDate && dd > strip(maxDate)) return true;
-                          return false;
-                        }}
+                        startMonth={minDate ?? undefined}
+                        endMonth={maxDate ?? undefined}
+                        // disabled={(d) => {
+                        //   const dd = strip(d);
+                        //   if (minDate && dd < strip(minDate)) return true;
+                        //   if (maxDate && dd > strip(maxDate)) return true;
+                        //   return false;
+                        // }}
                         onSelect={(date) => {
                           if (!date) return;
                           handleAnswerChange(i, format(date, "yyyy-MM-dd"));
-                          setDateOpen(false);
+                          setDateOpen(i, false);
                         }}
                       />
                     </PopoverContent>
