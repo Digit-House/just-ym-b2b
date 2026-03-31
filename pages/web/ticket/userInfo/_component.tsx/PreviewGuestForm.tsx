@@ -39,7 +39,7 @@ const PreviewGuestForm = ({
   const { answerList, finalPackage, setAnswerList, guestList, setGuestList } =
     useCartStore();
 
-  const today = useMemo(() => strip(new Date()), []);  
+  const today = useMemo(() => strip(new Date()), []);
   const [open, setOpen] = useState(false);
   const [dateOpenMap, setDateOpenMap] = useState<Record<number, boolean>>({});
   const [userAnswerList, setUserAnswerList] = useState<any[]>([]);
@@ -131,7 +131,6 @@ const PreviewGuestForm = ({
     >
       <div className="flex flex-col w-full gap-5 px-8 py-4">
         {finalPackage?.questions.map((item, i) => {
-        
           /* ---- DATE helpers ---- */
           const selectedDate = userAnswerList[i]?.answer
             ? parseISO(userAnswerList[i].answer)
@@ -167,9 +166,9 @@ const PreviewGuestForm = ({
                 <div className="flex flex-col gap-1.5">
                   <p className="text-sm text-[#344054]">{item.question}</p>
 
-                  <Popover 
-                  open={!!dateOpenMap[i]}
-                  onOpenChange={(val) => setDateOpen(i, val)}
+                  <Popover
+                    open={!!dateOpenMap[i]}
+                    onOpenChange={(val) => setDateOpen(i, val)}
                   >
                     <PopoverTrigger asChild>
                       <button className="h-11 w-full rounded-md border px-3 flex justify-between items-center">
@@ -185,8 +184,10 @@ const PreviewGuestForm = ({
                         month={calendarMonth}
                         onMonthChange={setCalendarMonth}
                         captionLayout="dropdown"
-                        startMonth={minDate ?? undefined}
-                        endMonth={maxDate ?? undefined}
+                        startMonth={new Date(1920, 0)} 
+                        endMonth={new Date(2300, 11)}
+                        // startMonth={minDate ?? undefined}
+                        // endMonth={maxDate ?? undefined}
                         // disabled={(d) => {
                         //   const dd = strip(d);
                         //   if (minDate && dd < strip(minDate)) return true;
