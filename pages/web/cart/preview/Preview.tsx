@@ -46,6 +46,7 @@ const Preview = () => {
       const res = await confirmBooking(id);
       if (res.data) {
         setConfirmLoading(false);
+        window.location.reload();
         toast.success("Booking Confirmed Successfully");
       }
     } catch (err) {
