@@ -128,6 +128,7 @@ query Query($params: BookingTransactionsInput!) {
       isTicketReady
       bookingTickets {
         code
+        productName
       }
       viewTicketUrl
       transactionRefNumber

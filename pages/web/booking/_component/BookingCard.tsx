@@ -50,7 +50,7 @@ const BookingCard = ({ data }: Props) => {
           {/* Header: Name + Status */}
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="text-lg font-bold text-slate-900 truncate">
-              {mainTicket?.productName || "Product"}
+              {mainTicket.productName || "Product"}
             </h3>
             {/* Status Badge - Prominent */}
             <span
