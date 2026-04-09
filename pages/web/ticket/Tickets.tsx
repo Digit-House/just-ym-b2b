@@ -215,7 +215,7 @@ export default function Tickets() {
               placeholder="Country"
               options={countryData?.data}
               value={filters.countryId}
-              onChange={(v) => setFilters((f) => ({ ...f, countryId: v }))}
+              onChange={(v) => setFilters((f) => ({ ...f, countryId: v,cityId:"" }))}
               width="w-32"
             />
 
