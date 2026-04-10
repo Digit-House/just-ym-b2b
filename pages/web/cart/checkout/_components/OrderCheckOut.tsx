@@ -30,8 +30,6 @@ const OrderCheckOut = () => {
     0
   );
 
-
-
   const handleCheckout = async () => {
     if (!selectedCartList || selectedCartList.length === 0) {
       toast.error("something went wrong");
@@ -60,7 +58,6 @@ const OrderCheckOut = () => {
         twoFactorCode:
           user.type === "OWNER" && user.twoFactorEnabled ? code : null,
       };
-
       const res: any = await createBookingWithCart(data);
       if (res.data) {
         setSelectedCartList([]);

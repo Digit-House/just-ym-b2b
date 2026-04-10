@@ -24,7 +24,6 @@ const DatePicker = ({
 }: Props) => {
   const [open, setOpen] = useState(false);
   const today = new Date();
-  // const tomorrow = addDays(today, 1);
   const [blockedDate, setBlockedDate] = React.useState<Date[]>([]);
   const [startDate, setStartDate] = React.useState<Date>(today);
   const [startDate2, setStartDate2] = React.useState<Date>(today);
@@ -58,25 +57,15 @@ const DatePicker = ({
     } else {
       date = today;
     }
-    // const date = addDays(
-    //   today,
-    //   ticketDetail?.productOptions[0]?.advanceBooking?.day || 1
-    // );
     setStartDate2(date);
   }, [ticketDetail]);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          // variant="outline"
           className="flex flex-col p-3 items-center justify-center border-0 cursor-pointer hover:bg-gray-200/50  transition-all duration-300 rounded-2xl"
         >
           <CalendarIcon className="w-5 h-5 text-indigo-700" />
-          {/* <Typo
-        text="See More"
-        className="text-primary text-nowrap"
-        size="sm"
-      /> */}
           <span className="text-sm text-indigo-700 text-nowrap">See More</span>
         </button>
       </PopoverTrigger>

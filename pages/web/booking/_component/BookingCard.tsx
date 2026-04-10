@@ -16,7 +16,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn, truncateDescription } from "@/lib/utils";
 
 type Props = {
   data: MY_BOOKING_DATA_TYPE;
@@ -49,8 +49,8 @@ const BookingCard = ({ data }: Props) => {
         <div className="flex-1 min-w-0 space-y-2">
           {/* Header: Name + Status */}
           <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-lg font-bold text-slate-900 truncate">
-              {mainTicket.productName || "Product"}
+            <h3 title={mainTicket.productName} className="text-lg font-bold text-slate-900 truncate">
+              {truncateDescription(mainTicket.productName,30) || "Product"}
             </h3>
             {/* Status Badge - Prominent */}
             <span

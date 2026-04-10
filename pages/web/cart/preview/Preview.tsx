@@ -18,6 +18,7 @@ import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
 import { confirmBooking } from "@/graphql/booking";
 import { toast } from "sonner";
+import { truncateDescription } from "@/lib/utils";
 
 const Preview = () => {
   const { id } = useParams();
@@ -271,8 +272,8 @@ const Preview = () => {
 
                     {/* Product Info */}
                     <TableCell className="max-w-[250px]">
-                      <p className="text-sm font-semibold text-[#0F172B]">
-                        {data.productName}
+                      <p title={data.productName} className="text-sm font-semibold text-[#0F172B]">
+                        {truncateDescription(data.productName,10)}
                       </p>
                       <p className="text-xs text-[#64748B]">
                         {data.productOptionName}

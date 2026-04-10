@@ -9,6 +9,7 @@ import {
   ProductOptionT,
   SelectedProductOptionT,
 } from "@/types/product.type";
+import { format } from "date-fns";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { useCartStore } from "@/store/useCartStore";
@@ -96,9 +97,16 @@ export const useTicketDetail = (id?: string) => {
     if (!selectedProductOption) return;
     try {
       setEventLoading(true);
+      // const data: TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE = {
+      //   dateFrom: pickedDate.toISOString(),
+      //   dateTo: pickedDate.toISOString(),
+      //   //@ts-ignore
+      //   globalTixTicketTypeID:
+      //     selectedProductOption.ticketType[0].globaltixId || 0,
+      // };
       const data: TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE = {
-        dateFrom: pickedDate.toISOString(),
-        dateTo: pickedDate.toISOString(),
+        dateFrom: format(pickedDate, "yyyy-MM-dd"),
+        dateTo: format(pickedDate, "yyyy-MM-dd"),
         //@ts-ignore
         globalTixTicketTypeID:
           selectedProductOption.ticketType[0].globaltixId || 0,
@@ -124,13 +132,6 @@ export const useTicketDetail = (id?: string) => {
       [ticketId]: Math.max(0, (prev[ticketId] || 0) + delta),
     }));
   };
-
-  // const totalPrice = useMemo(() => {
-  //   if (!currentOption) return 0;
-  //   return currentOption.ticketType.reduce((sum, tt) => {
-  //     return sum + tt.dhSellingPrice * (quantities[tt.id] || 0);
-  //   }, 0);
-  // }, [currentOption, quantities]);
 
   const mediaList = useMemo(() => {
     if (!product) return [];
