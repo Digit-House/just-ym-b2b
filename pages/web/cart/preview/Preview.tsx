@@ -272,11 +272,14 @@ const Preview = () => {
 
                     {/* Product Info */}
                     <TableCell className="max-w-[250px]">
-                      <p title={data.productName} className="text-sm font-semibold text-[#0F172B]">
-                        {truncateDescription(data.productName,10)}
+                      <p
+                        title={data.productName}
+                        className="text-sm font-semibold text-[#0F172B]"
+                      >
+                        {truncateDescription(data.productName, 10)}
                       </p>
                       <p className="text-xs text-[#64748B]">
-                        {data.productOptionName}
+                        {truncateDescription(data.productOptionName, 20)}
                       </p>
                     </TableCell>
 
