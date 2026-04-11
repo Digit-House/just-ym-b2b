@@ -12,7 +12,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getErrMsg, preFixImg } from "@/util/initData";
-import { Download, Mail, User, CreditCard, FileText } from "lucide-react";
+import {
+  Download,
+  Mail,
+  User,
+  CreditCard,
+  FileText,
+  Info,
+  RefreshCw,
+} from "lucide-react"; // Added Info and RefreshCw
 import ResendModel from "./_component/ResendModal";
 import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
@@ -40,6 +48,10 @@ const Preview = () => {
     link.click();
   };
 
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
   const handleConfirm = async () => {
     if (!id) return;
     setConfirmLoading(true);
@@ -57,6 +69,40 @@ const Preview = () => {
     }
   };
 
+  // Helper component for text with Info Icon and Tooltip
+  const InfoText = ({
+    text,
+    maxLength = 20,
+  }: {
+    text: string;
+    maxLength?: number;
+  }) => {
+    const shouldTruncate = text.length > maxLength;
+
+    return (
+      <div className="flex items-center gap-1.5 group relative max-w-full">
+        <span className="truncate" title={shouldTruncate ? text : undefined}>
+          {shouldTruncate ? text.substring(0, maxLength) + "..." : text}
+        </span>
+
+        {shouldTruncate && (
+          <>
+            <Info
+              size={14}
+              className="text-indigo-400 cursor-help shrink-0 hover:text-indigo-600 transition-colors"
+            />
+            {/* Tooltip */}
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+              <p className="break-words leading-relaxed">{text}</p>
+              {/* Tooltip Arrow */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
+
   if (loading || !bookingDetail) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -69,7 +115,19 @@ const Preview = () => {
 
   return (
     <PageContainer>
-      <BackBtn route="/bookings" title="Back to My Bookings" />
+      {/* Header with Back and Refresh Buttons */}
+      <div className="flex items-center justify-between mb-6">
+        <BackBtn route="/bookings" title="Back to My Bookings" />
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleRefresh}
+          title="Refresh Page"
+          className="rounded-full hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200"
+        >
+          <RefreshCw size={18} />
+        </Button>
+      </div>
 
       <div className="flex flex-col gap-6">
         {/* HEADER SECTION */}
@@ -77,7 +135,7 @@ const Preview = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Left: Status & Time */}
             <div className="space-y-2">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <h2 className="text-2xl font-bold text-[#0F172B]">
                   {bookingDetail.transactionRefNumber}
                 </h2>
@@ -270,20 +328,17 @@ const Preview = () => {
                       </span>
                     </TableCell>
 
-                    {/* Product Info */}
+                    {/* Product Info - Updated with Info Icon */}
                     <TableCell className="max-w-[250px]">
-                      <p
-                        title={data.productName}
-                        className="text-sm font-semibold text-[#0F172B]"
-                      >
-                        {truncateDescription(data.productName, 10)}
-                      </p>
-                      <p
-                        title={data.productOptionName}
-                        className="text-xs text-[#64748B]"
-                      >
-                        {truncateDescription(data.productOptionName, 20)}
-                      </p>
+                      <div className="flex flex-col gap-1">
+                        <InfoText text={data.productName} maxLength={20} />
+                        <div className="text-xs text-[#64748B] pl-1">
+                          <InfoText
+                            text={data.productOptionName}
+                            maxLength={25}
+                          />
+                        </div>
+                      </div>
                     </TableCell>
 
                     {/* Ticket Type */}

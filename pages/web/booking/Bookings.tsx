@@ -130,14 +130,14 @@ export default function Bookings() {
 
       <MainSearch
         search={search}
-          placeHolder="Search bookings..."
+        placeHolder="Search bookings..."
         onClick={(value: string) => {
-          setSearch(value)
+          setSearch(value);
         }}
       />
 
-      <div className="flex items-center justify-between my-10 gap-4 border border-[#21212124] py-2 px-4">
-        <div className="flex gap-5 items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between my-10 gap-4 border border-[#21212124] py-2 px-4">
+        <div className="flex flex-col md:flex-row gap-5 md:items-center">
           <SortSelect
             options={STATUS_OPTIONS}
             value={status}

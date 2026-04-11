@@ -6,7 +6,11 @@ import PageHeader from "@/components/PageHeader";
 import SortSelect from "@/components/SortSelect";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
-import { createReseller, getResellers, updateReseller } from "@/graphql/reseller";
+import {
+  createReseller,
+  getResellers,
+  updateReseller,
+} from "@/graphql/reseller";
 import { ResellerFilterT, ResellerT } from "@/types/reseller.type";
 import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import ResellerForm from "./_components/ResellerForm";
@@ -15,7 +19,13 @@ import { Edit2, Plus, Search, RotateCcw } from "lucide-react";
 import RoleCheckAction from "@/components/RoleCheckAction";
 import { ResellerFormValues } from "@/types/schema/resellerSchema";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDebounce } from "@/hooks/useDebounce";
 import NotFoundComponent from "@/components/NotFoundComponent";
 
@@ -38,7 +48,7 @@ const Resellers = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 2000);
-  
+
   const [filterData, setFilterData] = useState<ResellerFilterT>({
     active: null,
     limit: PAGE_SIZE,
@@ -51,13 +61,12 @@ const Resellers = () => {
 
   // Update filterData when debouncedSearchTerm changes
   useEffect(() => {
-    setFilterData(prev => ({
+    setFilterData((prev) => ({
       ...prev,
       search: debouncedSearchTerm || undefined,
       page: 1, // Reset to page 1 when search changes
     }));
   }, [debouncedSearchTerm]);
-
 
   useEffect(() => {
     fetchResellers();
@@ -129,10 +138,12 @@ const Resellers = () => {
         title="Resellers"
         des="Manage reseller accounts and credit balances."
       />
-      <div className="flex items-center flex-row-reverse justify-between mb-5 gap-4 border border-[#21212124] py-[8px] px-[16px]">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-             <Search className="absolute left-3 top-[26px] transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="flex flex-col gap-4 mb-5 border border-[#21212124] py-4 px-4 bg-white rounded-lg md:flex-row md:justify-between md:items-center md:py-[8px] md:px-[16px]">
+        {/* Left Side: Filters (Stacks on mobile, Row on desktop) */}
+        <div className="flex flex-col gap-3 w-full md:flex-row md:items-center">
+          {/* Search Input */}
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search resellers..."
@@ -140,7 +151,7 @@ const Resellers = () => {
               onChange={(e) => {
                 setSearchTerm(e.target.value);
               }}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-48 text-sm"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full text-sm"
             />
             {searchTerm && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
@@ -148,44 +159,62 @@ const Resellers = () => {
               </div>
             )}
           </div>
-          <Select
-            value={filterData.active === true ? "active" : filterData.active === false ? "inactive" : "all"}
-            onValueChange={(value) => {
-              const activeValue = value === "active" ? true : value === "inactive" ? false : null;
-              setFilterData((prev) => ({
-                ...prev,
-                page: 1,
-                active: activeValue,
-              }));
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Resellers</SelectItem>
-              <SelectItem value="active">Active Only</SelectItem>
-              <SelectItem value="inactive">Inactive Only</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <SortSelect
-            options={SORT_OPTION}
-            value={filterData.orderBy.dir === "desc" ? "newest" : "oldest"}
-            onChange={(value) =>
-              setFilterData((prev) => ({
-                ...prev,
-                page: 1,
-                orderBy: {
-                  dir: value === "newest" ? "desc" : "asc",
-                  field:"name"
-                },
-              }))
-            }
-          />
 
-          {/* Reset button - appears when filters are active */}
-          {(searchTerm || filterData.active !== null || filterData.orderBy.dir !== "desc") && (
+          {/* Filter Selects Wrapper */}
+          <div className="flex flex-col gap-3 w-full md:flex-row md:items-center">
+            <Select
+              value={
+                filterData.active === true
+                  ? "active"
+                  : filterData.active === false
+                  ? "inactive"
+                  : "all"
+              }
+              onValueChange={(value) => {
+                const activeValue =
+                  value === "active"
+                    ? true
+                    : value === "inactive"
+                    ? false
+                    : null;
+                setFilterData((prev) => ({
+                  ...prev,
+                  page: 1,
+                  active: activeValue,
+                }));
+              }}
+            >
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Select Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Resellers</SelectItem>
+                <SelectItem value="active">Active Only</SelectItem>
+                <SelectItem value="inactive">Inactive Only</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <SortSelect
+              options={SORT_OPTION}
+              value={filterData.orderBy.dir === "desc" ? "newest" : "oldest"}
+              onChange={(value) =>
+                setFilterData((prev) => ({
+                  ...prev,
+                  page: 1,
+                  orderBy: {
+                    dir: value === "newest" ? "desc" : "asc",
+                    field: "name",
+                  },
+                }))
+              }
+              // className="w-full md:w-auto"
+            />
+          </div>
+
+          {/* Reset Button */}
+          {(searchTerm ||
+            filterData.active !== null ||
+            filterData.orderBy.dir !== "desc") && (
             <button
               onClick={() => {
                 setSearchTerm("");
@@ -199,7 +228,7 @@ const Resellers = () => {
                   search: undefined,
                 });
               }}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors self-start md:self-auto"
               title="Reset filters"
             >
               <RotateCcw size={18} />
@@ -207,21 +236,25 @@ const Resellers = () => {
           )}
         </div>
 
-        <RoleCheckAction>
-          <Button
-            onClick={() => {
-              setModalState({ mode: "create" });
-            }}
-            size="lg"
-            type="button"
-            loading={loading}
-          >
-            <Plus size={18} />
-            Add Reseller
-          </Button>
-        </RoleCheckAction>
+        {/* Right Side: Action Button (Full width on mobile, auto on desktop) */}
+        <div className="w-full md:w-auto">
+          <RoleCheckAction>
+            <Button
+              onClick={() => {
+                setModalState({ mode: "create" });
+              }}
+              size="lg"
+              type="button"
+              loading={loading}
+              className="w-full md:w-auto"
+            >
+              <Plus size={18} className="mr-2" />
+              Add Reseller
+            </Button>
+          </RoleCheckAction>
+        </div>
       </div>
-      
+
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
@@ -247,7 +280,8 @@ const Resellers = () => {
                 </tr>
               )}
 
-              {!loading && data.length > 0 && 
+              {!loading &&
+                data.length > 0 &&
                 data.map((reseller) => (
                   <tr
                     key={reseller.id}

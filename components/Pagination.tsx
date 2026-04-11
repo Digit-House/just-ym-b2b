@@ -32,9 +32,9 @@ const Pagination: React.FC<PaginationProps> = ({
   const isLastPage = page === totalPages;
 
   return (
-    <div className="p-4 flex items-center justify-end gap-4 text-sm text-gray-500">
+    <div className="p-4 flex items-center justify-between md:justify-end gap-4 text-sm  text-gray-500">
       {/* Result per page */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 text-xs">
         <span>Result per page</span>
         <select
           value={pageSize}

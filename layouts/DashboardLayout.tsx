@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "@/components/Header";
 import Loading from "@/components/Loading";
@@ -12,13 +12,16 @@ import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
 import { useCartStore } from "@/store/useCartStore";
 import { getAddToCartCount } from "@/graphql/product";
+import { useResize } from "@/hooks/useResizer";
 
 const DashboardLayout = () => {
   const { setUser, fetchWallet } = useUser();
   const { setCreditInfo } = useWalletStore();
   const { setAddToCartCount } = useCartStore();
-  const { isOpen } = useSidebarStore();
+  const { isOpen, toggleSidebar } = useSidebarStore();
   const [loading, setLoading] = React.useState(true);
+  const isDesktop = useResize();
+  const location = useLocation();
 
   const fetchMe = async () => {
     try {
@@ -26,9 +29,7 @@ const DashboardLayout = () => {
       setUser(res?.data?.me);
     } catch (err) {
     } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
+      setTimeout(() => setLoading(false), 1000);
     }
   };
 
@@ -61,21 +62,31 @@ const DashboardLayout = () => {
     fetchCreditInfo();
   }, [fetchWallet]);
 
-  if (loading) {
-    return <Loading />;
-  }
+  // Auto-close sidebar on mobile when route changes
+  useEffect(() => {
+    if (!isDesktop && isOpen) {
+      toggleSidebar();
+    }
+  }, [location.pathname]);
+
+  if (loading) return <Loading />;
 
   return (
-    <div className="flex min-h-screen">
-      {isOpen && <Sidebar />}
-      <Header />
-      <main
-        className={`flex-1 transition-all duration-300 ease-in-out p-8 mt-10 ${
-          isOpen ? "ml-58" : "ml-0"
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar — always rendered, visibility controlled inside Sidebar */}
+      <Sidebar />
+
+      {/* Main content — only offset on desktop when sidebar is open */}
+      <div
+        className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out ${
+          isOpen && isDesktop ? "ml-64" : "ml-0"
         }`}
       >
-        <Outlet />
-      </main>
+        <Header />
+        <main className="mt-14 p-4 md:p-8">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

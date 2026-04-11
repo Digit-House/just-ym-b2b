@@ -199,15 +199,17 @@ export default function Tickets() {
           }}
         />
 
-        <div className="flex justify-between gap-4 mt-3 mb-10 border px-4 py-2">
-          <div className="flex gap-5 items-center">
+        {/* --- UPDATED RESPONSIVE FILTER SECTION --- */}
+        <div className="flex flex-col gap-4 mt-3 mb-6 border p-4 bg-white rounded-xl shadow-sm">
+          {/* Row 1: Main Filters (Stack on mobile, Row on desktop) */}
+          <div className="flex flex-col md:flex-row gap-4 w-full">
             <MultiSelect
               label="Categories"
               placeholder="Categories"
               options={categoryData}
               value={filters.categories}
               onChange={(v) => setFilters((f) => ({ ...f, categories: v }))}
-              width="w-32"
+              width="w-full"
             />
 
             <SingleSelect
@@ -215,8 +217,10 @@ export default function Tickets() {
               placeholder="Country"
               options={countryData?.data}
               value={filters.countryId}
-              onChange={(v) => setFilters((f) => ({ ...f, countryId: v,cityId:"" }))}
-              width="w-32"
+              onChange={(v) =>
+                setFilters((f) => ({ ...f, countryId: v, cityId: "" }))
+              }
+              width="w-full"
             />
 
             {filters.countryId && (
@@ -226,12 +230,13 @@ export default function Tickets() {
                 options={cityData?.data || []}
                 value={filters.cityId}
                 onChange={(v) => setFilters((f) => ({ ...f, cityId: v }))}
-                width="w-32"
+                width="w-full"
               />
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Row 2: Sort, Status, Actions (Wrap on mobile, Row on desktop) */}
+          <div className="flex flex-wrap items-center gap-3 w-full border-t border-gray-100 pt-4 md:border-none md:pt-0">
             {user?.type === "OWNER" && (
               <Fragment>
                 <ShadcnSelect
@@ -240,7 +245,7 @@ export default function Tickets() {
                     setFilters((f) => ({ ...f, published: v as any }))
                   }
                 >
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full md:w-48">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -260,7 +265,7 @@ export default function Tickets() {
                     }))
                   }
                 >
-                  <SelectTrigger className="w-55">
+                  <SelectTrigger className="w-full md:w-48">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -270,6 +275,7 @@ export default function Tickets() {
                 </ShadcnSelect>
               </Fragment>
             )}
+
             <SortSelect
               value={filters.sort}
               options={SORT_OPTION}
@@ -277,57 +283,63 @@ export default function Tickets() {
             />
 
             {showReset && (
-              <button onClick={resetFilters} title="Reset filters">
+              <button
+                onClick={resetFilters}
+                title="Reset filters"
+                className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+              >
                 <RotateCcw size={18} />
               </button>
             )}
+
             {user.type === "OWNER" && (
               <button
                 onClick={() => {
                   setSortDialogOpen(true);
                 }}
-                title="Reset filters"
+                title="Manage Sort Order"
+                className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
               >
                 <ArrowUpDown size={18} />
               </button>
             )}
           </div>
         </div>
+        {/* --- END UPDATED SECTION --- */}
 
+        {/* Total and Action Buttons Section */}
         <div
-          className={`flex ${
+          className={`flex flex-col md:flex-row ${
             user?.type === "OWNER" ? "justify-between" : "justify-end"
-          }  items-center mb-3`}
+          } items-start md:items-center mb-6 gap-4`}
         >
-          <p className="text-sm">
-            Total Tickets : <span>{total}</span>
+          <p className="text-sm font-medium text-gray-600">
+            Total Tickets :{" "}
+            <span className="font-bold text-gray-900">{total}</span>
           </p>
-          <div>
-            {user?.type === "OWNER" && (
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => setNewProductDialogOpen(true)}
-                  title="Export to Excel"
-                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-1"
-                >
-                  <LayersPlusIcon size={16} />
-                  <span>Create New Product</span>
-                </button>
-                <button
-                  onClick={handleExportExcel}
-                  title="Export to Excel"
-                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-1"
-                >
-                  <DownloadIcon size={16} />
-                  <span>Export Excel</span>
-                </button>
-              </div>
-            )}
-          </div>
+
+          {user?.type === "OWNER" && (
+            <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+              <button
+                onClick={() => setNewProductDialogOpen(true)}
+                className="w-full md:w-auto p-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium text-sm shadow-sm"
+              >
+                <LayersPlusIcon size={16} />
+                <span>Create New Product</span>
+              </button>
+              <button
+                onClick={handleExportExcel}
+                className="w-full md:w-auto p-2.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 font-medium text-sm shadow-sm"
+              >
+                <DownloadIcon size={16} />
+                <span>Export Excel</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {isPending && (
-          <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -341,7 +353,7 @@ export default function Tickets() {
         )}
 
         {!isPending && !!products.length && (
-          <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((p) => (
               <TicketCard
                 user={user}
@@ -366,10 +378,7 @@ export default function Tickets() {
         />
       )}
       {newProductDialogOpen && (
-        <CreateNewProductDialog
-          open={newProductDialogOpen}
-          onOpenChange={setNewProductDialogOpen}
-        />
+        <CreateNewProductDialog onOpenChange={setNewProductDialogOpen} />
       )}
     </>
   );

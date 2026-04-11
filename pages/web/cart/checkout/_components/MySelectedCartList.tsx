@@ -1,8 +1,7 @@
 "use client";
 
 import { ADD_TO_CART_ITEM_DATA_TYPE } from "@/types/product.type";
-import React from "react";
-import { Calendar, Ticket } from "lucide-react";
+import { Calendar, Clock, Ticket } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { preFixImg } from "@/util/initData";
 
@@ -20,52 +19,33 @@ const MySelectedCartList = () => {
               <img
                 src={preFixImg(item.image)}
                 alt="addToCart"
-                // width={60}
-                // height={60}
                 className=" rounded-[12px] object-cover object-center w-[60px] h-[60px]"
               />
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 lg:w-6 lg:h-6 text-indigo-700" />
-                  {/* <Typo
-                    text={item.visitDate}
-                    size={isMobile ? "sm" : "lg"}
-                    className="text-black text-nowrap"
-                  /> */}
-                  <p className="text-nowrap text-lg">{item.visitDate}</p>
+                  <Calendar className="w-4 h-4  text-indigo-700" />
+                  <p className="text-nowrap text-md">{item.visitDate}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Ticket className="w-4 h-4 lg:w-6 lg:h-6 text-indigo-700" />
-                  {/* <CouponIcon fill="#ff924d" /> */}
-                  {/* <Typo
-                    text={`${item.quantity} ${item.ticketTypeName}`}
-                    size={isMobile ? "sm" : "lg"}
-                    className="text-black text-nowrap"
-                  /> */}
-                  <p className="text-nowrap text-lg">
+                  <Ticket className="w-4 h-4  text-indigo-700" />
+                  <p className="text-nowrap text-md">
                     {item.quantity} {item.ticketTypeName}
                   </p>
                 </div>
+                {item.eventTime && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4  text-indigo-700" />
+                    <p className="text-nowrap text-md">{item.eventTime}</p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-center w-full h-full">
-              {/* <Typo
-                text={`${item.quantity}`}
-                size="md"
-                className="text-primary"
-                fontWeight="bold"
-              /> */}
               <p className="text-indigo-700 text-base font-bold">
                 {item.quantity}
               </p>
             </div>
             <div className="flex items-center justify-end w-full h-full">
-              {/* <Typo
-                text={`B ${item.price}`}
-                size={isMobile ? "sm" : "md"}
-                fontWeight="bold"
-                className="text-primary"
-              /> */}
               <p className="text-indigo-700 text-base font-bold">
                 THB {item.price}
               </p>

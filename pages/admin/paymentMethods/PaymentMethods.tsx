@@ -226,7 +226,7 @@ const PaymentMethods = () => {
                     <td className="px-6 py-4">
                       {new Date(item.createdAt).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 flex items-center py-4">
                       <button
                         onClick={() => {
                           setModalState({

@@ -1,6 +1,5 @@
 import { UserManagementT } from "@/types/user.type";
 import UserRow from "./UserRow";
-import RoleCheckAction from "@/components/RoleCheckAction";
 
 
 export default function UsersTable({
@@ -13,7 +12,7 @@ export default function UsersTable({
   onDelete: (u: UserManagementT) => void;
 }) {
   return (
-    <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border shadow-sm overflow-x-scroll">
       <table className="w-full text-left">
         <thead>
           <tr className="bg-indigo-50 text-slate-600">

@@ -1,8 +1,14 @@
-import React from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { preFixImg } from "@/util/initData";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
-const OrderSummary = () => {
+type Props = {
+  isCheckout?: boolean;
+};
+
+const OrderSummary = ({ isCheckout = true }: Props) => {
+  const navigate = useNavigate();
   const { selectedCartList, userInfo } = useCartStore();
 
   const totalPrice = selectedCartList.reduce(
@@ -12,7 +18,7 @@ const OrderSummary = () => {
 
   if (selectedCartList.length === 0) return <div></div>;
   return (
-    <div className="w-[405px] flex flex-col">
+    <div className="w-full md:w-[405px] flex flex-col">
       <div className="rounded w-full rounded-t-2xl h-[109px] px-4 py-8  relative overflow-hidden z-10">
         <div className="relative z-20">
           <p className="text-white font-bold text-2xl">
@@ -54,11 +60,15 @@ const OrderSummary = () => {
           <p className=" font-bold">Billing Info</p>
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm">Name:</p>
-            <p className="text-sm text-indigo-700 font-bold">{userInfo?.name}</p>
+            <p className="text-sm text-indigo-700 font-bold">
+              {userInfo?.name}
+            </p>
           </div>
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm">Email Address:</p>
-            <p className="text-sm text-indigo-700 font-bold">{userInfo?.email}</p>
+            <p className="text-sm text-indigo-700 font-bold">
+              {userInfo?.email}
+            </p>
           </div>
         </div>
         <div className="flex flex-col gap-4 pt-4">
@@ -71,6 +81,17 @@ const OrderSummary = () => {
             <p className="text-indigo-700 font-bold">THB {totalPrice}</p>
           </div>
         </div>
+        {!isCheckout && (
+          <Button
+            size="lg"
+            onClick={() => {
+              navigate("/cart/checkout");
+            }}
+            className="mt-10 w-full"
+          >
+            Confirm Payment
+          </Button>
+        )}
       </div>
     </div>
   );

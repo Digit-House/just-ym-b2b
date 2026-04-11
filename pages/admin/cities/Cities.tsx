@@ -84,7 +84,7 @@ const Cities = () => {
       <PageHeader title="Cities" des="Select a country to manage its cities." />
 
       <div className="flex flex-wrap items-center justify-between mb-5 gap-4 border border-[#21212124] py-3 px-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
           <Select
             value={countryId || ""}
             onValueChange={(value) => {

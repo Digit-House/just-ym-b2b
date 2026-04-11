@@ -1,3 +1,4 @@
+import { useResize } from "@/hooks/useResizer";
 import { useUser } from "@/provider/UserProvider";
 import useAuthStore from "@/store/useAuthStore";
 import { useSidebarStore } from "@/store/useSidebarStore";
@@ -14,6 +15,7 @@ const Sidebar = () => {
   const { setToken } = useAuthStore();
   const { isOpen, toggleSidebar } = useSidebarStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const isDesktop = useResize();
   const TYPE = user.type as USER_TYPE;
 
   const isActive = (path: string) =>
@@ -40,18 +42,21 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile overlay */}
-      {isOpen && (
+      {/* Overlay — only on mobile when sidebar is open */}
+      {isOpen && !isDesktop && (
         <div
-          className="fixed inset-0 z-30 bg-black/30 md:hidden"
+          className="fixed inset-0 z-30 bg-black/30"
           onClick={toggleSidebar}
         />
       )}
 
       <aside
-        className={`h-screen bg-white border-r fixed flex flex-col z-40 top-0 left-0 w-64 transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`
+          h-screen bg-white border-r flex flex-col z-40 top-0 left-0 w-64
+          transition-transform duration-300 ease-in-out
+          ${isDesktop ? "fixed" : "fixed"}
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
       >
         {/* LOGO */}
         <div className="px-4 py-5 flex items-center justify-center border-b">

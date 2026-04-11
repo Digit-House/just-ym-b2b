@@ -1,4 +1,4 @@
-import { Calendar, Ticket, Trash2 } from "lucide-react";
+import { Calendar, Clock, Ticket, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import EmptyCart from "./_components/EmptyCart";
 import PageHeader from "@/components/PageHeader";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { preFixImg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import OrderSummary from "./checkout/_components/OrderSummary";
 
 const Cart = () => {
   const {
@@ -154,7 +155,7 @@ const Cart = () => {
                     0
                   );
                   return (
-                    <div className="w-full py-5" key={i}>
+                    <div className="w-full py-5 gap-2 flex flex-col" key={i}>
                       <div className="flex items-center justify-between w-full mb-3">
                         <p className="text-lg line-clamp-1 font-bold">
                           {item[0][0].productName}
@@ -166,12 +167,14 @@ const Cart = () => {
                           </span>
                         </p>
                       </div>
-                      <div className="flex flex-col w-full gap-4">
+                      <div className="flex flex-col w-full gap-10">
                         {item.map((d, dIndx) => (
                           <div className="w-full" key={dIndx}>
-                            <p className="text-base text-indigo-700 mb-2">
-                              {d[0].productOptionName}
-                            </p>
+                            <div className="flex justify-between gap-2 items-center">
+                              <p className="text-base text-indigo-700 mb-2">
+                                {d[0].productOptionName}
+                              </p>
+                            </div>
                             <div className="flex flex-col w-full gap-5">
                               {d.map((p, index) => (
                                 <div
@@ -190,16 +193,24 @@ const Cart = () => {
                                     />
                                     <div className="flex flex-col gap-2">
                                       <div className="flex items-center gap-2">
-                                        <Calendar className="w-6 h-6 text-primary" />
-                                        <p className="text-lg">{p.visitDate}</p>
+                                        <Calendar className="w-4 h-4 text-primary" />
+                                        <p className="text-md">{p.visitDate}</p>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <Ticket className="w-6 h-6 text-indigo-600" />
-                                        <p className="text-lg">
+                                        <Ticket className="w-4 h-4 text-indigo-600" />
+                                        <p className="text-md">
                                           {p.quantity.toString()}{" "}
                                           {p.ticketTypeName}
                                         </p>
                                       </div>
+                                      {p.eventTime && (
+                                        <div className="flex items-center gap-2">
+                                          <Clock className="w-4 h-4 text-primary" />
+                                          <p className="text-md">
+                                            {p.eventTime}
+                                          </p>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                   <p className="text-xl font-bold text-indigo-700">
@@ -220,7 +231,18 @@ const Cart = () => {
               </div>
             </div>
 
-            <div className="w-[405px] flex flex-col">
+            <OrderSummary isCheckout={false} />
+          </div>
+        </PageContainer>
+      )}
+    </>
+  );
+};
+
+export default Cart;
+
+{
+  /* <div className="w-[405px] flex flex-col">
               {selectedCartList.length > 0 && (
                 <div className="rounded w-full rounded-t-2xl h-[109px] px-4 py-8  relative overflow-hidden z-10">
                   <div className="relative z-20">
@@ -299,12 +321,5 @@ const Cart = () => {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </PageContainer>
-      )}
-    </>
-  );
-};
-
-export default Cart;
+            </div> */
+}

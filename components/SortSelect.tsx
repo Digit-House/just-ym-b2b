@@ -40,7 +40,7 @@ export default function SortSelect({
     options.find((o) => o.value === value)?.label || placeholder;
 
   return (
-    <div className={`relative `} ref={ref}>
+    <div className={`relative border rounded-sm `} ref={ref}>
       {/* Trigger */}
       <button
         type="button"
