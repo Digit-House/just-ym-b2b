@@ -29,15 +29,13 @@ const Login = () => {
     try {
       const res: any = await login(data.email, data.password);
       if (res.data.login.requiresTwoFactor) {
-        // Store the twoFactorToken for 2FA verification
         setTwoFactorToken(res.data.login.twoFactorToken);
         setRequiresTwoFactor(true);
-        setErrMsg(""); // Clear any previous errors
+        setErrMsg("");
         return;
       }
-      
+
       if (res.data.login.accessToken) {
-        // Regular login without 2FA
         setToken(res.data.login.accessToken);
         navigate("/", { replace: true });
       }
@@ -53,19 +51,17 @@ const Login = () => {
     setErrMsg("");
   };
 
-  // Show 2FA verification if required
   if (requiresTwoFactor) {
     return (
-      <TwoFactorLogin 
-        twoFactorToken={twoFactorToken} 
-        onBack={handleBackToLogin} 
+      <TwoFactorLogin
+        twoFactorToken={twoFactorToken}
+        onBack={handleBackToLogin}
       />
     );
   }
 
-  // Show regular login form
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gray-50">
+    <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center px-4 py-8">
       {/* Background */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center"
@@ -74,9 +70,9 @@ const Login = () => {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
       </div>
 
-      {/* Form */}
-      <div className="fixed bottom-50 right-50 z-10 w-full max-w-md px-4">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+      {/* Form Card */}
+      <div className="relative z-10 w-full max-w-md">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/20">
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -105,7 +101,7 @@ const Login = () => {
               {...register("email")}
             />
 
-            {/* Password (eye toggle auto works) */}
+            {/* Password */}
             <InputField
               label="Password"
               type="password"

@@ -1,39 +1,37 @@
-import { useState} from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { ProductT } from "@/types/product.type";
-import {
-    createNewProduct,
-} from "@/graphql/product";
-import { getErrMsg} from "@/util/initData";
+import { createNewProduct } from "@/graphql/product";
+import { getErrMsg } from "@/util/initData";
 import ModalWrapper from "@/components/ModalWrapper";
 import InputField from "@/components/InputField";
 import { toast } from "sonner";
 
-// Zod schema
+// ✅ Zod schema (string-based)
 const schema = z.object({
   ticketId: z
     .string()
     .min(1, "Ticket ID is required")
-    .min(3, "Ticket ID must be at least 3 characters"),
+    .min(3, "Ticket ID must be at least 3 characters")
+    .regex(/^\d+$/, "Ticket ID must contain only numbers"),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 interface Props {
-  open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const CreateNewProductDialog = ({ open, onOpenChange }: Props) => {
+const CreateNewProductDialog = ({ onOpenChange }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors,isDirty },
+    formState: { errors, isDirty },
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -41,13 +39,16 @@ const CreateNewProductDialog = ({ open, onOpenChange }: Props) => {
     },
   });
 
-
   const onSubmit = async (data: FormValues) => {
     try {
       setIsSubmitting(true);
-      await createNewProduct(data.ticketId);
+
+      // ✅ convert to number for API
+      await createNewProduct(Number(data.ticketId));
+
       toast.success("Ticket successfully created !");
       onOpenChange(false);
+      reset(); // clear form after success
     } catch (error) {
       toast.error(getErrMsg(error, "message"));
     } finally {
@@ -55,13 +56,14 @@ const CreateNewProductDialog = ({ open, onOpenChange }: Props) => {
     }
   };
 
+  const handleClose = () => {
+    onOpenChange(false);
+    reset(); // reset when closing
+  };
+
   const footer = (
     <div className="flex justify-end space-x-3 pt-4">
-      <Button
-        variant="outline"
-        onClick={() => onOpenChange(false)}
-        disabled={isSubmitting}
-      >
+      <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
         Cancel
       </Button>
       <Button
@@ -76,7 +78,7 @@ const CreateNewProductDialog = ({ open, onOpenChange }: Props) => {
   return (
     <ModalWrapper
       title="Sort Recommended Tickets"
-      onClose={() => onOpenChange(false)}
+      onClose={handleClose}
       footer={footer}
       width="lg"
     >
@@ -84,11 +86,11 @@ const CreateNewProductDialog = ({ open, onOpenChange }: Props) => {
         <InputField
           label="Ticket ID"
           placeholder="Enter ticket ID"
+          inputMode="numeric"
           {...register("ticketId")}
           errMsg={errors.ticketId?.message}
           isRequired
         />
-
       </div>
     </ModalWrapper>
   );

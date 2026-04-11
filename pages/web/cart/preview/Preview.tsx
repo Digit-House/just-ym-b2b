@@ -278,7 +278,10 @@ const Preview = () => {
                       >
                         {truncateDescription(data.productName, 10)}
                       </p>
-                      <p className="text-xs text-[#64748B]">
+                      <p
+                        title={data.productOptionName}
+                        className="text-xs text-[#64748B]"
+                      >
                         {truncateDescription(data.productOptionName, 20)}
                       </p>
                     </TableCell>

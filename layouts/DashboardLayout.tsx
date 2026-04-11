@@ -15,9 +15,9 @@ import { getAddToCartCount } from "@/graphql/product";
 
 const DashboardLayout = () => {
   const { setUser, fetchWallet } = useUser();
-  const { setCreditInfo} = useWalletStore();
+  const { setCreditInfo } = useWalletStore();
   const { setAddToCartCount } = useCartStore();
-  const { isCollapsed } = useSidebarStore();
+  const { isOpen } = useSidebarStore();
   const [loading, setLoading] = React.useState(true);
 
   const fetchMe = async () => {
@@ -48,7 +48,7 @@ const DashboardLayout = () => {
         setAddToCartCount(res.data.myCart.itemsCount);
       }
     } catch (err) {
-       toast.error(getErrMsg(err, "message"));
+      toast.error(getErrMsg(err, "message"));
     }
   };
 
@@ -67,9 +67,13 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      {isOpen && <Sidebar />}
       <Header />
-      <main className={`flex-1 transition-all duration-300 ease-in-out p-8 mt-10 ${isCollapsed ? 'ml-20' : 'ml-58'}`}>
+      <main
+        className={`flex-1 transition-all duration-300 ease-in-out p-8 mt-10 ${
+          isOpen ? "ml-58" : "ml-0"
+        }`}
+      >
         <Outlet />
       </main>
     </div>

@@ -299,7 +299,7 @@ export const seedProduct = async (productId: string) => {
   }
 };
 
-export const createNewProduct = async (globaltixProductId: string) => {
+export const createNewProduct = async (globaltixProductId: number) => {
   try {
     const res = await client.mutate({
       mutation: warpGql(CREATE_NEW_PRODUCT),

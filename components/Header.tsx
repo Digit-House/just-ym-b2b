@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronRight, ShoppingBag, Wallet } from "lucide-react";
+import { ChevronRight, Menu, ShoppingBag, Wallet } from "lucide-react";
 import { useUser } from "@/provider/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/useCartStore";
@@ -10,85 +10,91 @@ const Header: React.FC = () => {
   const { user } = useUser();
   const { addToCartCount } = useCartStore();
   const { creditInfo } = useWalletStore();
-  const { isCollapsed } = useSidebarStore();
+  const { isOpen, toggleSidebar } = useSidebarStore();
   const navigate = useNavigate();
 
   return (
     <header
       className={`flex fixed z-30 bg-white top-0 right-0 justify-between items-center w-full  py-2 px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
-        isCollapsed ? "max-w-[calc(100vw-80px)]" : "max-w-[calc(100vw-232px)]"
+        isOpen ? "max-w-[calc(100vw-232px)]" : "w-full"
       }`}
     >
-      {/* UPDATED WALLET UI */}
-      <div className="p-2 rounded-[8px] flex items-center gap-4 bg-indigo-700 text-white shadow-md shadow-indigo-700/20">
-        {/* Main Balance Section */}
-        <div className="flex items-center gap-3 pr-4 border-r border-indigo-500/50">
-          <div className="p-1.5 bg-white/10 rounded-md">
-            <Wallet className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <p className="text-[10px] font-medium text-indigo-200 uppercase tracking-wider">
-              Available Credits
-            </p>
-            <p className="text-sm font-bold leading-tight">
-              {creditInfo?.currency}{" "}
-              {creditInfo?.balance?.toLocaleString("en-US") || "0"}
-            </p>
-          </div>
+      <div className="flex gap-5 items-center">
+        <div className="hover:bg-gray-300" onClick={() => {toggleSidebar()}}>
+          <Menu size={20} className="cursor-pointer"  />
         </div>
-
-        {/* Owner Specific Section */}
-        {user.type == "OWNER" && (
-          <div className="flex items-center gap-5">
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] font-medium text-indigo-200 uppercase">
-                GT Bal
-              </span>
-              <span className="text-xs font-bold">
-                THB {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
-              </span>
+        {/* UPDATED WALLET UI */}
+        <div className="p-2 rounded-[8px] flex items-center gap-4 bg-indigo-700 text-white shadow-md shadow-indigo-700/20">
+          {/* Main Balance Section */}
+          <div className="flex items-center gap-3 pr-4 border-r border-indigo-500/50">
+            <div className="p-1.5 bg-white/10 rounded-md">
+              <Wallet className="w-4 h-4 text-white" />
             </div>
-
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] font-medium text-indigo-200 uppercase">
-                GT Main
-              </span>
-              <span className="text-xs font-bold">
-                THB {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
-              </span>
-            </div>
-
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] font-medium text-indigo-200 uppercase">
-                Cust Bal
-              </span>
-              <span className="text-xs font-bold">
-                THB{" "}
-                {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
-              </span>
+            <div>
+              <p className="text-[10px] font-medium text-indigo-200 uppercase tracking-wider">
+                Available Credits
+              </p>
+              <p className="text-sm font-bold leading-tight">
+                {creditInfo?.currency}{" "}
+                {creditInfo?.balance?.toLocaleString("en-US") || "0"}
+              </p>
             </div>
           </div>
-        )}
+
+          {/* Owner Specific Section */}
+          {user.type == "OWNER" && (
+            <div className="flex items-center gap-5">
+              <div className="flex flex-col justify-center">
+                <span className="text-[10px] font-medium text-indigo-200 uppercase">
+                  GT Bal
+                </span>
+                <span className="text-xs font-bold">
+                  THB {creditInfo?.gtBalance?.toLocaleString("en-US") || "0"}
+                </span>
+              </div>
+
+              <div className="flex flex-col justify-center">
+                <span className="text-[10px] font-medium text-indigo-200 uppercase">
+                  GT Main
+                </span>
+                <span className="text-xs font-bold">
+                  THB{" "}
+                  {creditInfo?.gtBalanceMain?.toLocaleString("en-US") || "0"}
+                </span>
+              </div>
+
+              <div className="flex flex-col justify-center">
+                <span className="text-[10px] font-medium text-indigo-200 uppercase">
+                  Cust Bal
+                </span>
+                <span className="text-xs font-bold">
+                  THB{" "}
+                  {creditInfo?.customerBalance?.toLocaleString("en-US") || "0"}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
-            <button
-              onClick={() => navigate("/cart")}
-              className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
-              aria-label="Cart"
-            >
-              <ShoppingBag
-                size={20}
-                className="group-hover:text-indigo-600 transition-colors"
-              />
-              {addToCartCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 flex items-center justify-center bg-indigo-600 text-white text-[10px] font-bold rounded-full shadow-sm ring-2 ring-white">
-                  {addToCartCount}
-                </span>
-              )}
-            </button>
-          </div>
+        <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
+          <button
+            onClick={() => navigate("/cart")}
+            className="relative p-2.5 rounded-full hover:bg-white hover:shadow-sm transition-all duration-200 text-gray-600 group"
+            aria-label="Cart"
+          >
+            <ShoppingBag
+              size={20}
+              className="group-hover:text-indigo-600 transition-colors"
+            />
+            {addToCartCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 flex items-center justify-center bg-indigo-600 text-white text-[10px] font-bold rounded-full shadow-sm ring-2 ring-white">
+                {addToCartCount}
+              </span>
+            )}
+          </button>
+        </div>
         <div
           onClick={() => navigate("/settings/general")}
           className="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer group pr-2 py-1  hover:bg-gray-50 transition-colors"

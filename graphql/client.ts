@@ -121,7 +121,7 @@ const errorLink = new ErrorLink(({ error }) => {
   /* ---------------- NETWORK ERRORS ---------------- */
   if (ServerError.is(error)) {
     
-    const statusCode = error.statusCode; // ✅ REAL HTTP status
+    const statusCode = error.statusCode; 
 
     if (statusCode === 401) {
       handleUnauthorized();
