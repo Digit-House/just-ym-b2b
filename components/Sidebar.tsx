@@ -18,10 +18,18 @@ const Sidebar = () => {
   const isDesktop = useResize();
   const TYPE = user.type as USER_TYPE;
 
-  const isActive = (path: string) =>
-    path === "/"
-      ? location.pathname === "/"
-      : location.pathname.startsWith(path);
+  const isActive = (path: string) => {
+    const active =
+      location.pathname === path ||
+      (path === "/" && location.pathname === "") ||
+      (path !== "/" && location.pathname.startsWith(path));
+
+    return active;
+  };
+
+  // path === "/"
+  //   ? location.pathname === "/"
+  //   : location.pathname.startsWith(path);
 
   const navItemClass = (path: string) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg text-md transition-colors ${

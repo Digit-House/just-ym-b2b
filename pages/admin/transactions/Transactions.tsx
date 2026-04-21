@@ -207,7 +207,7 @@ const Transactions = () => {
                     </td>
 
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-nowrap text-xs rounded-full">
                         {getActionTypeLabel(transaction.actionLog.type)}
                       </span>
                     </td>

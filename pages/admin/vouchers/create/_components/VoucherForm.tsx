@@ -159,10 +159,10 @@ const VoucherForm = ({ data }: Props) => {
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-2 gap-6 items-start"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
       >
         {/* Active */}
-        <div className="flex items-center justify-between col-span-2 rounded-lg border p-4">
+        <div className="flex items-center justify-between  rounded-lg border p-4">
           <div>
             <p className="text-sm font-medium">Active</p>
             <p className="text-xs text-muted-foreground">
@@ -344,7 +344,7 @@ const VoucherForm = ({ data }: Props) => {
         </div>
 
         {/* select special day */}
-        <div className="w-full flex flex-col gap-2 col-span-2">
+        <div className="w-full flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">
               Special Day (Optional)
@@ -480,20 +480,11 @@ const VoucherForm = ({ data }: Props) => {
           </div>
         )}
 
-        <div className="col-span-2 flex justify-end">
+        <div className="flex justify-end">
           <Button type="submit" size="lg" disabled={loading}>
             {loading ? "Loading..." : data ? "Update" : "Submit"}
           </Button>
         </div>
-
-        {/* <div className="col-span-2">
-          <button
-            type="submit"
-            className="w-full bg-primary text-white py-2 rounded"
-          >
-            Submit
-          </button>
-        </div> */}
       </form>
     </div>
   );

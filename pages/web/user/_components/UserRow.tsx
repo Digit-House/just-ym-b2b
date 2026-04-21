@@ -20,7 +20,7 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
     <tr className="hover:bg-slate-50/50 transition-colors group">
       <td className="px-6 py-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-300">
+          <div className="min-w-6 min-h-6 md:min-w-10 md:min-h-10 rounded-full flex items-center justify-center font-bold bg-gray-300">
             {user?.username?.charAt(0).toUpperCase()}
           </div>
           <div>

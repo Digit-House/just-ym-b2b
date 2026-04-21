@@ -26,7 +26,7 @@ import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
 import { confirmBooking } from "@/graphql/booking";
 import { toast } from "sonner";
-import { truncateDescription } from "@/lib/utils";
+
 
 const Preview = () => {
   const { id } = useParams();
