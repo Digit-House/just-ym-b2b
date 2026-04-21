@@ -71,13 +71,13 @@ const ProductionOptionSelecter = ({
           >
             {/* title */}
             <div
-              className={`flex flex-col gap-3 p-4 ${
+              className={`flex flex-col gap-5 p-4 ${
                 selectedProductOption?.id === item.id
                   ? "bg-indigo-100"
                   : "bg-transparent"
               }`}
             >
-              <div className="flex items-start justify-between w-full gap-3">
+              <div className="flex flex-col md:flex-row items-start justify-between w-full gap-3">
                 <div className="flex flex-col items-start flex-1 gap-2">
                   <p className="text-[#0F172B] font-bold text-base">
                     {item.name}
@@ -103,7 +103,8 @@ const ProductionOptionSelecter = ({
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-6 h-6 text-[#0F172B]" />
                   <p className="text-sm text-[#0F172B]">
@@ -120,7 +121,7 @@ const ProductionOptionSelecter = ({
                 )}
               </div>
 
-              <div className="flex gap-2 items-center">
+              <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
                 <div className="flex items-center gap-2">
                   {isManual ? (
                     <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-[#FEF3C6]">

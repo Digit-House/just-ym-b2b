@@ -53,9 +53,50 @@ const SevenDayPicker = ({
   }, [product]);
 
   return (
-    <div className="w-full ">
+    // <div className="w-full ">
+    //   <h5 className="mb-3">Select Date</h5>
+    //   <div className="grid grid-cols-8 w-full gap-5 ">
+    //     {dayList.map((d, i) => {
+    //       const isSelected =
+    //         pickedDate &&
+    //         format(pickedDate, "yyyy-MM-dd") === format(d, "yyyy-MM-dd");
+
+    //       const isDisable = blockedDate.some((b) => isSameDay(b, d));
+    //       return (
+    //         <button
+    //           key={i}
+    //           className={`w-full h-full col-span-1 flex flex-col items-center justify-center text-center gap-3 py-4 rounded-2xl text-sm ${
+    //             isSelected
+    //               ? "bg-[#F0EBF8] border border-[#673AB7] "
+    //               : isDisable
+    //               ? " text-[#21212140]/25"
+    //               : " text-gray-600"
+    //           }`}
+    //           onClick={() => setPickedDate(d)}
+    //         >
+    //           <span>{format(d, "EEE")}</span>
+    //           <span>{format(d, "MMM d")}</span>
+    //           <span
+    //             className={`px-3 py-0.5 rounded-2xl   ${
+    //               isDisable ? "bg-[#21212108]/30" : " bg-[#C4E9C7]"
+    //             }`}
+    //           >
+    //             {format(d, "yyyy")}
+    //           </span>
+    //         </button>
+    //       );
+    //     })}
+    //     <DatePicker
+    //       selectedDate={selectedDate}
+    //       setSelectedDate={setSelectedDate}
+    //       ticketDetail={product}
+    //       setPickedDate={setPickedDate}
+    //     />
+    //   </div>
+    // </div>
+    <div className="w-full">
       <h5 className="mb-3">Select Date</h5>
-      <div className="grid grid-cols-8 w-full gap-5 ">
+      <div className="flex overflow-x-auto gap-2 sm:gap-3 pb-2 scrollbar-hide">
         {dayList.map((d, i) => {
           const isSelected =
             pickedDate &&
@@ -65,20 +106,20 @@ const SevenDayPicker = ({
           return (
             <button
               key={i}
-              className={`w-full h-full col-span-1 flex flex-col items-center justify-center text-center gap-3 py-4 rounded-2xl text-sm ${
+              className={`flex-shrink-0 flex flex-col items-center justify-center text-center gap-1.5 sm:gap-2 w-16 sm:w-20 py-3 sm:py-4 rounded-2xl text-xs sm:text-sm ${
                 isSelected
-                  ? "bg-[#F0EBF8] border border-[#673AB7] "
+                  ? "bg-[#F0EBF8] border border-[#673AB7]"
                   : isDisable
-                  ? " text-[#21212140]/25"
-                  : " text-gray-600"
+                  ? "text-[#21212140]/25"
+                  : "text-gray-600"
               }`}
               onClick={() => setPickedDate(d)}
             >
-              <span>{format(d, "EEE")}</span>
+              <span className="font-medium">{format(d, "EEE")}</span>
               <span>{format(d, "MMM d")}</span>
               <span
-                className={`px-3 py-0.5 rounded-2xl   ${
-                  isDisable ? "bg-[#21212108]/30" : " bg-[#C4E9C7]"
+                className={`px-2 py-0.5 rounded-2xl text-xs ${
+                  isDisable ? "bg-[#21212108]/30" : "bg-[#C4E9C7]"
                 }`}
               >
                 {format(d, "yyyy")}
@@ -86,12 +127,14 @@ const SevenDayPicker = ({
             </button>
           );
         })}
-        <DatePicker
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          ticketDetail={product}
-          setPickedDate={setPickedDate}
-        />
+        <div className="flex-shrink-0">
+          <DatePicker
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            ticketDetail={product}
+            setPickedDate={setPickedDate}
+          />
+        </div>
       </div>
     </div>
   );
