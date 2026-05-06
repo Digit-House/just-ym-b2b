@@ -24,18 +24,27 @@ export type PAYMENT_DETAIL_TYPE = {
   method: string;
   stripeCSId: string;
   stripeClientSecret: string;
-  amount:string;
+  amount: string;
 };
 
 export type VISIT_DATE_TYPE = {
   productId: string;
-  value: Date;
+  value: Date | string;
 };
 
 export interface FindAllTransactionsT {
   total: number;
   data: MY_BOOKING_DATA_TYPE[];
 }
+
+export type PACKAGE_ITEM_META_TYPE = {
+  attractionId: string;
+  attractionName: string;
+  id: string;
+  name: string;
+  quantity: number;
+  ticketTypeName: string;
+};
 
 export type MY_BOOKING_PRODUCT_DATA_TYPE = {
   code: string;
@@ -57,6 +66,7 @@ export type MY_BOOKING_PRODUCT_DATA_TYPE = {
   ticketTypeName: string;
   visitDate: Date;
   visitDateSettings: VISIT_DATE_TYPE[];
+  packageItemsMeta: PACKAGE_ITEM_META_TYPE[];
 };
 
 export type MY_BOOKING_DATA_TYPE = {

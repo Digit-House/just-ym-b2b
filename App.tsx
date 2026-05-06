@@ -41,8 +41,12 @@ import Vouchers from "./pages/admin/vouchers/Vouchers";
 import CreateVoucher from "./pages/admin/vouchers/create/CreateVoucher";
 import EditVoucher from "./pages/admin/vouchers/edit/EditPage";
 import ErrorPage from "./pages/web/ErrorPage";
-import { shouldRedirectToErrorPage, setErrorRedirected } from "@/util/errorHandler";
+import {
+  shouldRedirectToErrorPage,
+  setErrorRedirected,
+} from "@/util/errorHandler";
 import Transactions from "./pages/admin/transactions/Transactions";
+import PackageUserInfo from "./pages/web/ticket/userInfo/PackageUserInfo";
 
 // Error Redirect Component - checks if we should redirect to error page
 const ErrorRedirectHandler = () => {
@@ -78,6 +82,10 @@ const App = () => {
               <Route path="tickets" element={<UserTickets />} />
               <Route path="tickets/:id" element={<TicketDetailPage />} />
               <Route path="tickets/user-info" element={<UserInfoPage />} />
+              <Route
+                path="tickets/package-user-info"
+                element={<PackageUserInfo />}
+              />
               <Route path="bookings" element={<Bookings />} />
               <Route path="users" element={<UsersManagement />} />
               <Route path="bookings/:id" element={<BookingDetail />} />
@@ -103,7 +111,7 @@ const App = () => {
               <Route path="roles" element={<Roles />} />
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />
-             
+
               <Route path="vouchers" element={<Vouchers />} />
               <Route path="admin-vouchers/create" element={<CreateVoucher />} />
               <Route path="admin-vouchers/:id" element={<EditVoucher />} />

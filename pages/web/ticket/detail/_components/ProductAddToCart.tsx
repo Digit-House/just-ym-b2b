@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/provider/UserProvider";
-
+import usePackageStore from "@/store/usePackageStore";
 
 type Props = {
   title: string;
@@ -31,6 +31,7 @@ const ProductAddToCart = ({
   } = useCartStore();
   const { user } = useUser();
   const [variant, setVariant] = useState<TicketTypeT[]>([]);
+  const { setPackageList } = usePackageStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,6 +109,60 @@ const ProductAddToCart = ({
       navigate("/tickets/user-info");
     }
   };
+
+  const handlePackageAdded = () => {
+    if (!selectedProductOption) return;
+    const selectedNewPackage: SelectedProductOptionT = {
+      ...selectedProductOption,
+      ticketType: selectedProductOption?.ticketType.filter(
+        (data: any) => data.quantity > 0
+      ),
+    };
+    const newPackage: any = selectedNewPackage?.ticketType.map((data) => ({
+      ticketTypeId: data.id,
+      visitDate: null,
+      cartItemId: null,
+      eventId: null,
+      eventTime: null,
+      quantity: data.quantity,
+      variantName: data.name,
+      packageItems: data.packageItems.map((item) => {
+        return {
+          name: item.name,
+          questions: item.questions,
+          isCapacity: item.isCapacity,
+          id: item.globaltixId,
+          ageFrom: data.ageFrom,
+          ageTo: data.ageTo,
+          questionList: Array.from({ length: data.quantity || 0 }, () =>
+            item.questions.map((question) => ({
+              answer: "",
+              id: question.globaltixId,
+            }))
+          ),
+          visitDateSettings:
+            item.visitDate.required || item.visitDate.request
+              ? {
+                  productId: item.globaltixId,
+                  value: "",
+                }
+              : null,
+          isVisitDate:
+            item.visitDate.required || item.visitDate.request || false,
+          eventTime: item.isCapacity
+            ? {
+                eventId: "",
+                eventTime: "",
+                id: "",
+              }
+            : null,
+          eventList: [],
+        };
+      }),
+    }));
+    setPackageList(newPackage);
+    navigate("/tickets/package-user-info");
+  };
   return (
     <div
       className="w-full px-4 py-6 rounded-2xl border border-[#d9d9d9]"
@@ -171,7 +226,13 @@ const ProductAddToCart = ({
           <div className="flex flex-col gap-4">
             <Button
               disabled={eventLoading}
-              onClick={handleAdded}
+              onClick={() => {
+                if (selectedProductOption.type === "Package") {
+                  handlePackageAdded();
+                } else {
+                  handleAdded();
+                }
+              }}
               className="w-full py-3 font-normal disabled:cursor-not-allowed"
             >
               Continue
