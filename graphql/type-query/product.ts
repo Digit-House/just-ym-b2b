@@ -168,6 +168,7 @@ query Query($productId: String!, $date: String, $isPublished: Boolean) {
         minute
         required
       }
+      type
       availability
       createdAt
       currency
@@ -208,6 +209,39 @@ query Query($productId: String!, $date: String, $isPublished: Boolean) {
         updatedAt
         useBin
         globaltixId
+        packageItems {
+        applyToAllQna
+        attractionId
+        attractionName
+        currency
+        globaltixId
+        isCapacity
+        name
+        originalPrice
+        quantity
+        sku
+        ticketTypeName
+        visitDate {
+          required
+          request
+          isOpenDated
+        }
+        questions {
+          globaltixId
+          id
+          isAnswerLater
+          optionCode
+          optionList {
+            value
+            key
+          }
+          optional
+          options
+          question
+          questionCode
+          type
+        }
+      }
       }
       ticketValidity
       timeSlot
@@ -254,7 +288,7 @@ mutation CreateNewProduct($globaltixProductId: Float!) {
 export interface TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE {
   dateFrom: string;
   dateTo: string;
-  globalTixTicketTypeID: number;
+  globalTixTicketTypeID: number | string;
 }
 
 export interface GUEST_USER_INFO_TYPE {

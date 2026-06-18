@@ -4,7 +4,14 @@ import {
   TicketTypeT,
 } from "@/types/product.type";
 import { format } from "date-fns";
-import { Calendar, Check, CheckIcon, ChevronDown, Clock,  XIcon } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  CheckIcon,
+  ChevronDown,
+  Clock,
+  XIcon,
+} from "lucide-react";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import VariantSelecter from "./VariantSelecter";
@@ -50,11 +57,14 @@ const ProductionOptionSelecter = ({
       visitDate: item.visitDate,
       questions: item.questions,
       isCapacity: item.isCapacity,
+      type: item.type,
     };
     setSelectedProductOption(selectedData);
   };
 
   if (loading) return <div>Loading...</div>;
+
+  console.log(selectedProductOption);
 
   return (
     <div className="w-full">
@@ -96,7 +106,10 @@ const ProductionOptionSelecter = ({
                       >
                         <p className="text-[#050505] capitalize text-sm">{`${ticket.name.toLowerCase()}:`}</p>
                         <p className=" text-indigo-700 font-bold">
-                          ฿{user.type === "OWNER" ? ticket.dhSellingPrice.toFixed(2) : ticket.dhNetPrice.toFixed(2)}
+                          ฿
+                          {user.type === "OWNER"
+                            ? ticket.dhSellingPrice.toFixed(2)
+                            : ticket.dhNetPrice.toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -149,7 +162,7 @@ const ProductionOptionSelecter = ({
                 <div>
                   {item.isPublished ? (
                     <div className="flex items-center gap-2 px-2 py-1 rounded-[8px] bg-green-200">
-                      <CheckIcon  className="w-4 h-4 text-green-500" />
+                      <CheckIcon className="w-4 h-4 text-green-500" />
 
                       <p className="text-green-400 text-xs font-bold">
                         Published
@@ -251,7 +264,14 @@ const ProductionOptionSelecter = ({
                     : "bg-[#F1F5F9] text-[#314158] hover:bg-[#F1F5F9]/80"
                 }`}
               >
-                {selectedProductOption?.id === item.id  && selectedProductOption?.ticketType.some((ticket) => ticket.quantity > 0) ? "UnSelect" : selectedProductOption?.id === item.id ? "Selected" : "Select"}
+                {selectedProductOption?.id === item.id &&
+                selectedProductOption?.ticketType.some(
+                  (ticket) => ticket.quantity > 0
+                )
+                  ? "UnSelect"
+                  : selectedProductOption?.id === item.id
+                  ? "Selected"
+                  : "Select"}
                 {/* <p>
                   {selectedProductOption?.id === item.id
                     ? "selected"

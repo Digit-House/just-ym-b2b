@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { confirmBooking } from "@/graphql/booking";
 import { toast } from "sonner";
 
-
 const Preview = () => {
   const { id } = useParams();
   const {
@@ -80,24 +79,36 @@ const Preview = () => {
     const shouldTruncate = text.length > maxLength;
 
     return (
-      <div className="flex items-center gap-1.5 group relative max-w-full">
+      <div className="flex items-center gap-1.5 relative max-w-full group">
         <span className="truncate" title={shouldTruncate ? text : undefined}>
           {shouldTruncate ? text.substring(0, maxLength) + "..." : text}
         </span>
 
         {shouldTruncate && (
-          <>
+          <div className="relative flex items-center">
+            {/* ICON */}
             <Info
               size={14}
               className="text-indigo-400 cursor-help shrink-0 hover:text-indigo-600 transition-colors"
             />
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-              <p className="break-words leading-relaxed">{text}</p>
-              {/* Tooltip Arrow */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+
+            {/* TOOLTIP */}
+            <div
+              className="
+          absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2
+          w-64 p-2 rounded bg-gray-900 text-white text-xs shadow-lg
+          opacity-0 invisible
+          group-hover:opacity-100 group-hover:visible
+          transition-all duration-200
+          pointer-events-auto
+        "
+            >
+              <p className="break-words leading-relaxed text-wrap">{text}</p>
+
+              {/* Arrow */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
             </div>
-          </>
+          </div>
         )}
       </div>
     );
@@ -330,15 +341,25 @@ const Preview = () => {
 
                     {/* Product Info - Updated with Info Icon */}
                     <TableCell className="max-w-[250px]">
-                      <div className="flex flex-col gap-1">
-                        <InfoText text={data.productName} maxLength={20} />
-                        <div className="text-xs text-[#64748B] pl-1">
-                          <InfoText
-                            text={data.productOptionName}
-                            maxLength={25}
-                          />
+                      {data.packageItemsMeta.length > 0 ? (
+                        <ul className="flex flex-col gap-1 list-disc">
+                          {data.packageItemsMeta.map((item) => (
+                            <li key={item.id}>
+                              <InfoText text={item.name} maxLength={20} />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          <InfoText text={data.productName} maxLength={20} />
+                          <div className="text-xs text-[#64748B] pl-1">
+                            <InfoText
+                              text={data.productOptionName}
+                              maxLength={25}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </TableCell>
 
                     {/* Ticket Type */}

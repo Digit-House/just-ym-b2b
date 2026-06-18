@@ -1,5 +1,9 @@
 import * as React from "react";
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -22,48 +26,59 @@ function Calendar({
         ...defaultClassNames,
         months: "relative flex flex-col gap-4",
         month: "space-y-4",
-        // CAPTION: Contains the dropdowns. 
+        // CAPTION: Contains the dropdowns.
         // We use relative and a height to ensure it doesn't overlap the grid below.
         month_caption: "flex justify-center h-8 items-center relative mb-4",
-        caption_label: cn("text-sm font-medium", captionLayout !== "label" && "hidden"),
-        
+        caption_label: cn(
+          "text-sm font-medium",
+          captionLayout !== "label" && "hidden"
+        ),
+
         // DROPDOWNS: Ensure they don't have huge invisible hitboxes
         caption_dropdowns: "flex justify-center gap-1 font-medium z-30",
         dropdown_container: "relative flex items-center px-1",
-        dropdown: "appearance-none bg-transparent py-1 pl-2 pr-6 border-none hover:bg-slate-100 rounded cursor-pointer outline-none text-sm font-semibold",
-        
-        // NAVIGATION: Use pointer-events-none on the container 
+        dropdown:
+          "appearance-none bg-transparent py-1 pl-2 pr-6 border-none hover:bg-slate-100 rounded cursor-pointer outline-none text-sm font-semibold",
+
+        // NAVIGATION: Use pointer-events-none on the container
         // and pointer-events-auto on buttons so they don't block the grid.
         nav: "flex items-center justify-between absolute w-full top-0 left-0 pointer-events-none z-10",
         button_previous: cn(
-          buttonVariants({ variant: "outline" }), 
+          buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-white p-0 opacity-50 hover:opacity-100 pointer-events-auto"
         ),
         button_next: cn(
-          buttonVariants({ variant: "outline" }), 
+          buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-white p-0 opacity-50 hover:opacity-100 pointer-events-auto"
         ),
 
         // GRID: Corrected spacing to prevent overlap
         month_grid: "w-full border-collapse space-y-1",
-        weekdays: "flex w-full mb-2", 
-        weekday: "text-muted-foreground w-9 font-normal text-[0.8rem] flex-1 text-center",
+        weekdays: "flex w-full mb-2",
+        weekday:
+          "text-muted-foreground w-9 font-normal text-[0.8rem] flex-1 text-center",
         week: "flex w-full mt-1",
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 flex-1 flex items-center justify-center relative z-20"
         ),
-        selected: "bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
+        selected:
+          "bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
         outside: "text-muted-foreground opacity-50",
         today: "bg-accent text-accent-foreground",
+        disabled: "text-muted-foreground opacity-50",
         ...classNames,
       }}
       components={{
         Chevron: ({ orientation }) => {
-          if (orientation === "left") return <ChevronLeftIcon className="h-4 w-4" />;
-          if (orientation === "right") return <ChevronRightIcon className="h-4 w-4" />;
+          if (orientation === "left")
+            return <ChevronLeftIcon className="h-4 w-4" />;
+          if (orientation === "right")
+            return <ChevronRightIcon className="h-4 w-4" />;
           // This is the little arrow inside the dropdown
-          return <ChevronDownIcon className="h-3 w-3 ml-1 opacity-50 absolute right-1 pointer-events-none" />;
+          return (
+            <ChevronDownIcon className="h-3 w-3 ml-1 opacity-50 absolute right-1 pointer-events-none" />
+          );
         },
       }}
       {...props}

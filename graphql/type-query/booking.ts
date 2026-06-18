@@ -41,9 +41,10 @@ export const GET_BOOKING_DETAIL = `
 query GetTransactionDetailBy($data: FindBookingByInput!) {
   getTransactionDetailBy(data: $data) {
     alternateEmail
-    requiresManualConfirm
     isTicketConfirmed
-    isTicketReady
+    requiresManualConfirm
+    voucherDiscountAmount
+    expiresAt
     bookingTickets {
       code
       eventId
@@ -65,6 +66,14 @@ query GetTransactionDetailBy($data: FindBookingByInput!) {
         id
         questionId
         ticketIndex
+      }
+      packageItemsMeta {
+        attractionId
+        attractionName
+        id
+        name
+        quantity
+        ticketTypeName
       }
       ticketFormat
       ticketTypeId

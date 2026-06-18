@@ -9,8 +9,6 @@ export enum CART_ICON_ENUM {
   GUEST = "GUEST",
 }
 
-
-
 export type FindAllProductsT = {
   data: ProductT[];
   total: number;
@@ -40,7 +38,7 @@ export type ProductT = {
   category: string;
   city: string;
   description: string;
-  globaltixId:number;
+  globaltixId: number;
   dhSellingPrice: number;
   id: string;
   image: string;
@@ -214,6 +212,22 @@ export interface BlockedDateT {
   title: string;
 }
 
+export type PACKAGE_T = {
+  visitDate: VisitDateT;
+  ticketTypeName: string;
+  sku: string;
+  quantity: number;
+  originalPrice: number;
+  name: string;
+  isCapacity: boolean;
+  globaltixId: string;
+  currency: string;
+  attractionName: string;
+  attractionId: string;
+  applyToAllQna: boolean;
+  questions: ProductOptionQuestionT[];
+};
+
 export interface MediaFileT {
   extension: "jpeg" | "png" | null;
   isPublished: boolean | null;
@@ -253,6 +267,7 @@ export interface ProductOptionT {
   visitDate: VisitDateT;
   inclusions: string[];
   inclusions_mm: string[];
+  type: string;
 
   // createdAt: Date;
   // currency: string;
@@ -300,6 +315,7 @@ export interface TicketTypeT {
   ageFrom: number;
   updatedAt: string;
   globaltixId: string;
+  packageItems: PACKAGE_T[];
 
   // sku: string;
   // globaltixId: number;
@@ -339,8 +355,8 @@ export interface ProductOptionQuestionT {
 
 export interface VisitDateT {
   isOpenDated: boolean;
-  // request: boolean;
-  // required: boolean;
+  request: boolean;
+  required: boolean;
 }
 
 export interface OptionT {
@@ -370,6 +386,7 @@ export interface SelectedProductOptionT {
   questions: ProductOptionQuestionT[];
   visitDate: VisitDateT;
   isCapacity: boolean;
+  type: string;
 }
 
 export type QusetionT = {
