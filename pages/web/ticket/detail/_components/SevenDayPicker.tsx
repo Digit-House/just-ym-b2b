@@ -30,6 +30,16 @@ const SevenDayPicker = ({
     setDayList(days);
   }, [selectedDate]);
 
+  // Only re-center the 7-day window when the picked date falls outside
+  // the currently visible days; otherwise keep the window (and today) in view.
+  const handleWindowAnchor = (date: Date) => {
+    setSelectedDate((prev) => {
+      const currentWindow = Array.from({ length: 7 }, (_, i) => addDays(prev, i));
+      const alreadyVisible = currentWindow.some((d) => isSameDay(d, date));
+      return alreadyVisible ? prev : date;
+    });
+  };
+
   useEffect(() => {
     if (!product) return;
     const normalized =
@@ -59,16 +69,15 @@ const SevenDayPicker = ({
         return new Date(d.getFullYear(), d.getMonth(), d.getDate());
       }) ?? [];
 
-    // Find the first available day (not today, not blocked)
+    // Find the first available day (not blocked)
     let firstAvailable = startDay;
     const maxSearch = 30;
 
     for (let i = 0; i < maxSearch; i++) {
       const candidate = addDays(startDay, i);
-      const isToday = isSameDay(candidate, todayLocal);
       const isBlocked = normalizedBlocked.some((b) => isSameDay(b, candidate));
 
-      if (!isToday && !isBlocked) {
+      if (!isBlocked) {
         firstAvailable = candidate;
         break;
       }
@@ -89,8 +98,7 @@ const SevenDayPicker = ({
 
           const isDisable =
             blockedDate.some((b) => isSameDay(b, d)) ||
-            isBefore(d, todayLocal) ||
-            isSameDay(d, todayLocal);
+            isBefore(d, todayLocal);
 
           return (
             <button
@@ -120,7 +128,7 @@ const SevenDayPicker = ({
         <div className="flex-shrink-0">
           <DatePicker
             selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
+            setSelectedDate={handleWindowAnchor}
             ticketDetail={product}
             setPickedDate={setPickedDate}
           />

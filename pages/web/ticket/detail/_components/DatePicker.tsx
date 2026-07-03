@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 
 type Props = {
   selectedDate: Date;
-  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
+  setSelectedDate: (date: Date) => void;
   setPickedDate: React.Dispatch<React.SetStateAction<Date>>;
   ticketDetail: ProductInfoT | null;
 };
@@ -76,6 +76,9 @@ const DatePicker = ({
           selected={selectedDate}
           captionLayout="dropdown"
           fromDate={startDate}
+          classNames={{
+            disabled: "text-gray-300 opacity-50 cursor-not-allowed hover:bg-transparent",
+          }}
           disabled={[
             { before: startDate2 },
             (date) => blockedDate.some((b) => isSameDay(b, date)),
