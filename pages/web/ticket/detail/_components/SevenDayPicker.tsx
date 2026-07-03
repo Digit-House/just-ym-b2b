@@ -59,16 +59,15 @@ const SevenDayPicker = ({
         return new Date(d.getFullYear(), d.getMonth(), d.getDate());
       }) ?? [];
 
-    // Find the first available day (not today, not blocked)
+    // Find the first available day (not blocked)
     let firstAvailable = startDay;
     const maxSearch = 30;
 
     for (let i = 0; i < maxSearch; i++) {
       const candidate = addDays(startDay, i);
-      const isToday = isSameDay(candidate, todayLocal);
       const isBlocked = normalizedBlocked.some((b) => isSameDay(b, candidate));
 
-      if (!isToday && !isBlocked) {
+      if (!isBlocked) {
         firstAvailable = candidate;
         break;
       }
@@ -89,8 +88,7 @@ const SevenDayPicker = ({
 
           const isDisable =
             blockedDate.some((b) => isSameDay(b, d)) ||
-            isBefore(d, todayLocal) ||
-            isSameDay(d, todayLocal);
+            isBefore(d, todayLocal);
 
           return (
             <button
@@ -100,7 +98,7 @@ const SevenDayPicker = ({
                 isSelected
                   ? "bg-[#F0EBF8] border border-[#673AB7]"
                   : isDisable
-                  ? "text-[#21212140]/25"
+                  ? "text-[#21212140]/25 cursor-not-allowed"
                   : "text-gray-600"
               }`}
               onClick={() => setPickedDate(d)}
@@ -109,7 +107,7 @@ const SevenDayPicker = ({
               <span>{format(d, "MMM d")}</span>
               <span
                 className={`px-2 py-0.5 rounded-2xl text-xs ${
-                  isDisable ? "bg-[#21212108]/30" : "bg-[#C4E9C7]"
+                  isDisable ? "bg-[#21212114]" : "bg-[#C4E9C7]"
                 }`}
               >
                 {format(d, "yyyy")}
@@ -208,7 +206,7 @@ export default SevenDayPicker;
 //                 isSelected
 //                   ? "bg-[#F0EBF8] border border-[#673AB7]"
 //                   : isDisable
-//                   ? "text-[#21212140]/25"
+//                   ? "text-[#21212166]"
 //                   : "text-gray-600"
 //               }`}
 //               disabled={isDisable}

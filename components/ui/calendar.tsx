@@ -56,6 +56,8 @@ function Calendar({
         selected: "bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
         outside: "text-muted-foreground opacity-50",
         today: "bg-accent text-accent-foreground",
+        disabled:
+          "!text-gray-300 !bg-transparent !opacity-100 cursor-not-allowed line-through",
         ...classNames,
       }}
       components={{

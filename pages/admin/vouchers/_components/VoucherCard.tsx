@@ -4,7 +4,6 @@ import {
 } from "@/types/voucher.type";
 import { formatDate } from "date-fns";
 import { Calendar, CircleAlert, CircleCheckBig, Pen } from "lucide-react";
-import React from "react";
 import { Link } from "react-router-dom";
 
 type Props = {

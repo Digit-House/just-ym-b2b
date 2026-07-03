@@ -25,8 +25,12 @@ const DatePicker = ({
   const [open, setOpen] = useState(false);
   const today = new Date();
   const [blockedDate, setBlockedDate] = React.useState<Date[]>([]);
-  const [startDate, setStartDate] = React.useState<Date>(today);
   const [startDate2, setStartDate2] = React.useState<Date>(today);
+  const [month, setMonth] = React.useState<Date>(selectedDate);
+
+  useEffect(() => {
+    setMonth(selectedDate);
+  }, [selectedDate]);
 
   React.useEffect(() => {
     if (!ticketDetail) return;
@@ -38,11 +42,6 @@ const DatePicker = ({
         return new Date(d.getFullYear(), d.getMonth(), d.getDate());
       }) ?? [];
 
-    let date = today;
-    while (normalized.some((b) => isSameDay(b, date))) {
-      date = addDays(date, 0);
-    }
-    setStartDate(date);
     setBlockedDate(normalized);
   }, [ticketDetail]);
 
@@ -74,8 +73,9 @@ const DatePicker = ({
         <Calendar
           mode="single"
           selected={selectedDate}
+          month={month}
+          onMonthChange={setMonth}
           captionLayout="dropdown"
-          fromDate={startDate}
           disabled={[
             { before: startDate2 },
             (date) => blockedDate.some((b) => isSameDay(b, date)),
