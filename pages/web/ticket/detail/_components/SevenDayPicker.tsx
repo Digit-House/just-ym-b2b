@@ -30,6 +30,16 @@ const SevenDayPicker = ({
     setDayList(days);
   }, [selectedDate]);
 
+  // Only re-center the 7-day window when the picked date falls outside
+  // the currently visible days; otherwise keep the window (and today) in view.
+  const handleWindowAnchor = (date: Date) => {
+    setSelectedDate((prev) => {
+      const currentWindow = Array.from({ length: 7 }, (_, i) => addDays(prev, i));
+      const alreadyVisible = currentWindow.some((d) => isSameDay(d, date));
+      return alreadyVisible ? prev : date;
+    });
+  };
+
   useEffect(() => {
     if (!product) return;
     const normalized =
@@ -118,7 +128,7 @@ const SevenDayPicker = ({
         <div className="flex-shrink-0">
           <DatePicker
             selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
+            setSelectedDate={handleWindowAnchor}
             ticketDetail={product}
             setPickedDate={setPickedDate}
           />

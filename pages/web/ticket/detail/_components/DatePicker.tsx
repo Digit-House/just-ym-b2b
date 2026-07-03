@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 
 type Props = {
   selectedDate: Date;
-  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
+  setSelectedDate: (date: Date) => void;
   setPickedDate: React.Dispatch<React.SetStateAction<Date>>;
   ticketDetail: ProductInfoT | null;
 };
