@@ -72,11 +72,20 @@ const VoucherForm = ({ data }: Props) => {
       specialDay: data?.specialDay || undefined,
       description_mm: data?.description_mm || "",
       name_mm: data?.name_mm || "",
+      isCodeOnly: data?.isCodeOnly || false,
+      codePrefix: data?.codePrefix || "",
+      // `codes` on `data` is the list of already-generated codes, not a
+      // batch request — there's nothing to prefill here.
+      codes: {
+        comment: "",
+        count: undefined,
+      },
     },
   });
 
   const specialDay = watch("specialDay");
   const startDate = watch("startDate");
+  const isCodeOnly = watch("isCodeOnly");
 
   const onSubmit = async (values: VoucherFormValues) => {
     setLoading(true);
@@ -100,6 +109,17 @@ const VoucherForm = ({ data }: Props) => {
         name_mm: values.name_mm,
         description_mm: values.description_mm,
         id: data.id,
+        isCodeOnly: values.isCodeOnly,
+        codePrefix: values.isCodeOnly ? values.codePrefix || null : null,
+        codes: values.isCodeOnly
+          ? {
+              comment: values.codes?.comment || null,
+              count:
+                typeof values.codes?.count === "number"
+                  ? values.codes.count
+                  : null,
+            }
+          : null,
       };
       try {
         const res = await updateVoucher(updateData);
@@ -108,7 +128,7 @@ const VoucherForm = ({ data }: Props) => {
           reset();
           navigate("/vouchers");
         }
-      } catch (err) {
+      } catch (err: any) {
         toast.error(getErrMsg(err, "message"));
       } finally {
         setLoading(false);
@@ -132,6 +152,17 @@ const VoucherForm = ({ data }: Props) => {
         name_mm: values.name_mm,
         description_mm: values.description_mm,
         specialDay: values.specialDay || null,
+        isCodeOnly: values.isCodeOnly,
+        codePrefix: values.isCodeOnly ? values.codePrefix || null : null,
+        codes: values.isCodeOnly
+          ? {
+              comment: values.codes?.comment || null,
+              count:
+                typeof values.codes?.count === "number"
+                  ? values.codes.count
+                  : null,
+            }
+          : null,
       };
       try {
         const res = await submitVoucher(data);
@@ -140,7 +171,7 @@ const VoucherForm = ({ data }: Props) => {
           reset();
           navigate("/vouchers");
         }
-      } catch (err) {
+      } catch (err: any) {
         toast.error(getErrMsg(err, "message"));
       } finally {
         setLoading(false);
@@ -178,6 +209,25 @@ const VoucherForm = ({ data }: Props) => {
             )}
           />
         </div>
+
+        {/* Is Code Only */}
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div>
+            <p className="text-sm font-medium">Code Only</p>
+            <p className="text-xs text-muted-foreground">
+              Generate unique codes for this voucher
+            </p>
+          </div>
+
+          <Controller
+            control={control}
+            name="isCodeOnly"
+            render={({ field }) => (
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            )}
+          />
+        </div>
+
         {/* Name */}
         <InputField
           label="Name"
@@ -396,7 +446,7 @@ const VoucherForm = ({ data }: Props) => {
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left border rounded-md px-3 py-2 text-sm",
-                        !field.value && "text-muted-foreground"
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? format(field.value, "PPP") : "Pick a date"}
@@ -446,7 +496,7 @@ const VoucherForm = ({ data }: Props) => {
                       disabled={!startDate}
                       className={cn(
                         "w-full justify-start text-left border rounded-md px-3 py-2 text-sm",
-                        !field.value && "text-muted-foreground"
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? format(field.value, "PPP") : "Pick a date"}
@@ -480,7 +530,39 @@ const VoucherForm = ({ data }: Props) => {
           </div>
         )}
 
-        <div className="flex justify-end">
+        {/* Code Prefix + Codes */}
+        {isCodeOnly && (
+          <>
+            <InputField
+              label="Code Prefix"
+              placeholder="Enter code prefix"
+              {...register("codePrefix")}
+              errMsg={errors.codePrefix?.message}
+              isRequired
+            />
+
+            <InputField
+              label="Code Comment"
+              placeholder="Enter code comment"
+              {...register("codes.comment")}
+              errMsg={errors.codes?.comment?.message}
+              isRequired
+            />
+
+            <InputField
+              type="number"
+              label="Code Count"
+              placeholder="Enter code count"
+              {...register("codes.count", {
+                valueAsNumber: true,
+              })}
+              errMsg={errors.codes?.count?.message}
+              isRequired
+            />
+          </>
+        )}
+
+        <div className="flex justify-end col-span-2">
           <Button type="submit" size="lg" disabled={loading}>
             {loading ? "Loading..." : data ? "Update" : "Submit"}
           </Button>

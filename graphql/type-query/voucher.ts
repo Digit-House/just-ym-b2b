@@ -17,10 +17,16 @@ export interface GET_VOUCHER_LIST_DATA_TYPE {
 
 export interface VoucherCreateInputDTO {
   active: boolean;
+  codePrefix: string | null;
+  codes: {
+    comment: string | null;
+    count: number | null;
+  } | null;
   description: string;
   discountType: VOUCHER_DISCOUNT_TYPE_ENUM;
   discountValue: number;
   endDate: string | null;
+  isCodeOnly: boolean;
   maximumAmount: number | null;
   minPurchase: number;
   minQuantity: number;
@@ -34,10 +40,16 @@ export interface VoucherCreateInputDTO {
 
 export interface VoucherUpdateInputDTO {
   active: boolean;
+  codePrefix: string | null;
+  codes: {
+    comment: string | null;
+    count: number | null;
+  } | null;
   description: string;
   discountType: VOUCHER_DISCOUNT_TYPE_ENUM;
   discountValue: number;
   endDate: string | null;
+  isCodeOnly: boolean;
   maximumAmount: number | null;
   minPurchase: number;
   minQuantity: number;
@@ -51,12 +63,73 @@ export interface VoucherUpdateInputDTO {
 }
 
 export const GET_VOUCHER_LIST = `
-query Query($params: VoucherPagedParam!) {
+query FindAllVouchers($params: VoucherPagedParam!) {
   findAllVouchers(params: $params) {
     total
     data {
       active
       available
+      claims {
+        createdAt
+        id
+        transactionId
+        userId
+        voucherId
+        year
+      }
+      codePrefix
+      codes {
+        voucherId
+        voucher {
+          active
+          claims {
+            createdAt
+            id
+            transactionId
+          }
+          codePrefix
+          createdAt
+          description
+          description_mm
+          discountValue
+          discountType
+          endDate
+          id
+          isCodeOnly
+          maximumAmount
+          minPurchase
+          minQuantity
+          name
+          name_mm
+          specialDay
+          startDate
+          usageLimit
+          updatedAt
+          codes {
+            voucherId
+            active
+            code
+            comment
+            createdAt
+            id
+            redeemedAt
+            redeemedByUserId
+            reservedByTransactionId
+            transactionId
+            updatedAt
+          }
+        }
+        updatedAt
+        transactionId
+        reservedByTransactionId
+        redeemedByUserId
+        redeemedAt
+        id
+        createdAt
+        comment
+        code
+        active
+      }
       createdAt
       description
       description_mm
@@ -64,6 +137,7 @@ query Query($params: VoucherPagedParam!) {
       discountValue
       endDate
       id
+      isCodeOnly
       maximumAmount
       minPurchase
       minQuantity
@@ -92,6 +166,68 @@ export const GET_VOUCHER_DETAIL_QUERY = `
 query Query($findOneVoucherId: String!) {
   findOneVoucher(id: $findOneVoucherId) {
     active
+    available
+    claims {
+      createdAt
+      id
+      transactionId
+      userId
+      voucherId
+      year
+    }
+    codePrefix
+    codes {
+      voucherId
+      voucher {
+        active
+        claims {
+          createdAt
+          id
+          transactionId
+        }
+        codePrefix
+        createdAt
+        description
+        description_mm
+        discountValue
+        discountType
+        endDate
+        id
+        isCodeOnly
+        maximumAmount
+        minPurchase
+        minQuantity
+        name
+        name_mm
+        specialDay
+        startDate
+        usageLimit
+        updatedAt
+        codes {
+          voucherId
+          active
+          code
+          comment
+          createdAt
+          id
+          redeemedAt
+          redeemedByUserId
+          reservedByTransactionId
+          transactionId
+          updatedAt
+        }
+      }
+      updatedAt
+      transactionId
+      reservedByTransactionId
+      redeemedByUserId
+      redeemedAt
+      id
+      createdAt
+      comment
+      code
+      active
+    }
     createdAt
     description
     description_mm
@@ -99,6 +235,7 @@ query Query($findOneVoucherId: String!) {
     discountValue
     endDate
     id
+    isCodeOnly
     maximumAmount
     minPurchase
     minQuantity

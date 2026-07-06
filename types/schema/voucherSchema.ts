@@ -46,10 +46,54 @@ export const voucherSchema = z
 
     // ✅ optional
     specialDay: z.string().optional().nullable(),
+
+    isCodeOnly: z.boolean(),
+
+    codePrefix: z.string().optional().nullable(),
+
+    codes: z.object({
+      comment: z.string().optional().nullable(),
+      count: z.number().int().positive().optional(),
+    }),
   })
   .superRefine((data, ctx) => {
-    const { startDate, endDate, discountType, discountValue, maximumAmount } =
-      data;
+    const {
+      startDate,
+      endDate,
+      discountType,
+      discountValue,
+      maximumAmount,
+      isCodeOnly,
+      codePrefix,
+      codes,
+    } = data;
+
+    // ✅ codePrefix/codes.count required only when isCodeOnly is enabled
+    if (isCodeOnly) {
+      if (!codePrefix) {
+        ctx.addIssue({
+          path: ["codePrefix"],
+          message: "Code prefix is required",
+          code: z.ZodIssueCode.custom,
+        });
+      }
+
+      if (codes.count == null) {
+        ctx.addIssue({
+          path: ["codes", "count"],
+          message: "Code count is required",
+          code: z.ZodIssueCode.custom,
+        });
+      }
+
+      if (!codes.comment) {
+        ctx.addIssue({
+          path: ["codes", "comment"],
+          message: "Code comment is required",
+          code: z.ZodIssueCode.custom,
+        });
+      }
+    }
 
     // ✅ Only validate if BOTH dates exist
     if (startDate && endDate && endDate <= startDate) {
