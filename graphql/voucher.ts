@@ -17,13 +17,16 @@ import {
 
 export const getVoucherList = async (data: GET_VOUCHER_LIST_DATA_TYPE) => {
   try {
-    const res: VoucherListInfoT = await client.query({
+    const res = await client.query<VoucherListInfoT["data"]>({
       query: warpGql(GET_VOUCHER_LIST),
       variables: {
         params: data,
       },
       fetchPolicy: "no-cache",
     });
+    if (!res.data) {
+      throw new Error("No voucher list data returned");
+    }
     return res.data.findAllVouchers;
   } catch (err) {
     throw err;
@@ -38,6 +41,9 @@ export const fetchVoucherList = async ({ pageParam = 1, queryKey }: any) => {
     page: pageParam,
     orderBy: { dir: sort },
     status: status,
+    totalQuantity: null,
+    totalAmount: null,
+    cartItemIds: [],
   };
 
   const res = await getVoucherList(filter);
@@ -63,13 +69,16 @@ export const submitVoucher = async (data: VoucherCreateInputDTO) => {
 
 export const getVoucherDetail = async (id: string) => {
   try {
-    const res: VoucherDetailResponse = await client.query({
+    const res = await client.query<VoucherDetailResponse["data"]>({
       query: warpGql(GET_VOUCHER_DETAIL_QUERY),
       variables: {
         findOneVoucherId: id,
       },
       fetchPolicy: "no-cache",
     });
+    if (!res.data) {
+      throw new Error("No voucher detail data returned");
+    }
     return res.data.findOneVoucher;
   } catch (err) {
     throw err;

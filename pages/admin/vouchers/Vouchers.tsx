@@ -57,6 +57,8 @@ const Vouchers = () => {
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage]);
+
+  console.log("vouchers", vouchers);
   return (
     <PageContainer>
       <PageHeader
