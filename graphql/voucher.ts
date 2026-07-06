@@ -41,6 +41,9 @@ export const fetchVoucherList = async ({ pageParam = 1, queryKey }: any) => {
     page: pageParam,
     orderBy: { dir: sort },
     status: status,
+    totalQuantity: null,
+    totalAmount: null,
+    cartItemIds: [],
   };
 
   const res = await getVoucherList(filter);

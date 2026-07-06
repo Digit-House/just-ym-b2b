@@ -26,39 +26,17 @@ export interface VoucherListInfoT {
 
 export interface VoucherDetailResponse {
   data: {
-    findOneVoucher: VOUCHER_DATA_TYPE;
+    findOneVoucher: VOUCHER_DETAIL_DATA_TYPE;
   };
 }
 
-export interface VoucherClaimT {
-  createdAt: string;
-  id: string;
-  transactionId: string;
-  userId: string;
-  voucherId: string;
-  year: number;
-}
-
-export interface VoucherCodeT {
-  voucherId: string;
+export interface VOUCHER_DATA_TYPE {
   active: boolean;
-  code: string;
-  comment: string | null;
-  createdAt: string;
-  id: string;
-  redeemedAt: string | null;
-  redeemedByUserId: string | null;
-  reservedByTransactionId: string | null;
-  transactionId: string | null;
-  updatedAt: string;
-}
-
-// The voucher nested inside each code entry (one level deep, no further nesting)
-export interface VoucherNestedT {
-  active: boolean;
-  claims: Pick<VoucherClaimT, "createdAt" | "id" | "transactionId">[];
+  available: boolean;
   codePrefix: string | null;
-  codes: VoucherCodeT[];
+  codesCount: number;
+  // findAllVouchers' codes selection omits transactionId (findOneVoucher includes it).
+  codes: Omit<VoucherCodeT, "transactionId">[];
   createdAt: string;
   description: string;
   description_mm: string;
@@ -68,6 +46,7 @@ export interface VoucherNestedT {
   id: string;
   isCodeOnly: boolean;
   maximumAmount: number;
+  message: string | null;
   minPurchase: number;
   minQuantity: number;
   name: string;
@@ -76,18 +55,29 @@ export interface VoucherNestedT {
   startDate: string;
   updatedAt: string;
   usageLimit: number;
+  usedCount: number;
 }
 
-export interface VoucherCodeWithVoucherT extends VoucherCodeT {
-  voucher: VoucherNestedT;
-}
-
-export interface VOUCHER_DATA_TYPE {
+export interface VoucherCodeT {
   active: boolean;
-  available: boolean;
-  claims: VoucherClaimT[];
+  code: string;
+  comment: string | null;
+  createdAt: string;
+  id: string;
+  redeemedAt: string | null;
+  redeemedByUserId: string | null;
+  reservedByTransactionId: string | null;
+  updatedAt: string;
+  transactionId: string | null;
+  voucherId: string;
+}
+
+// findOneVoucher returns the individual generated codes instead of the
+// codesCount/usedCount/message/available summary fields findAllVouchers uses.
+export interface VOUCHER_DETAIL_DATA_TYPE {
+  active: boolean;
   codePrefix: string | null;
-  codes: VoucherCodeWithVoucherT[];
+  codes: VoucherCodeT[];
   createdAt: string;
   description: string;
   description_mm: string;

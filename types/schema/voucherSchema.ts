@@ -55,6 +55,23 @@ export const voucherSchema = z
       comment: z.string().optional().nullable(),
       count: z.number().int().positive().optional(),
     }),
+
+    // Tracks whether the "Add Coupon Code" panel has been opened (edit mode
+    // only) — new codes.comment/count are only required once it has.
+    addCodeRequested: z.boolean().optional(),
+
+    // Edits to already-generated codes (edit mode only).
+    codeUpdates: z
+      .array(
+        z.object({
+          id: z.string(),
+          code: z.string().optional(),
+          redeemedAt: z.string().optional().nullable(),
+          active: z.boolean(),
+          comment: z.string().optional().nullable(),
+        })
+      )
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const {
@@ -66,9 +83,10 @@ export const voucherSchema = z
       isCodeOnly,
       codePrefix,
       codes,
+      addCodeRequested,
     } = data;
 
-    // ✅ codePrefix/codes.count required only when isCodeOnly is enabled
+    // ✅ codePrefix required whenever isCodeOnly is enabled
     if (isCodeOnly) {
       if (!codePrefix) {
         ctx.addIssue({
@@ -78,20 +96,24 @@ export const voucherSchema = z
         });
       }
 
-      if (codes.count == null) {
-        ctx.addIssue({
-          path: ["codes", "count"],
-          message: "Code count is required",
-          code: z.ZodIssueCode.custom,
-        });
-      }
+      // codes.comment/count are only required once the "Add Coupon Code"
+      // panel is active (always true on create, opt-in on edit).
+      if (addCodeRequested) {
+        if (codes.count == null) {
+          ctx.addIssue({
+            path: ["codes", "count"],
+            message: "Code count is required",
+            code: z.ZodIssueCode.custom,
+          });
+        }
 
-      if (!codes.comment) {
-        ctx.addIssue({
-          path: ["codes", "comment"],
-          message: "Code comment is required",
-          code: z.ZodIssueCode.custom,
-        });
+        if (!codes.comment) {
+          ctx.addIssue({
+            path: ["codes", "comment"],
+            message: "Code comment is required",
+            code: z.ZodIssueCode.custom,
+          });
+        }
       }
     }
 

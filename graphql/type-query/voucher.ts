@@ -13,6 +13,7 @@ export interface GET_VOUCHER_LIST_DATA_TYPE {
   page: number;
   totalAmount?: number | null;
   totalQuantity?: number | null;
+  cartItemIds?: string[];
 }
 
 export interface VoucherCreateInputDTO {
@@ -41,6 +42,11 @@ export interface VoucherCreateInputDTO {
 export interface VoucherUpdateInputDTO {
   active: boolean;
   codePrefix: string | null;
+  codeUpdates: {
+    active: boolean | null;
+    comment: string | null;
+    id: string;
+  }[];
   codes: {
     comment: string | null;
     count: number | null;
@@ -63,64 +69,17 @@ export interface VoucherUpdateInputDTO {
 }
 
 export const GET_VOUCHER_LIST = `
-query FindAllVouchers($params: VoucherPagedParam!) {
+query Query($params: VoucherPagedParam!) {
   findAllVouchers(params: $params) {
     total
     data {
       active
       available
-      claims {
-        createdAt
-        id
-        transactionId
-        userId
-        voucherId
-        year
-      }
       codePrefix
+      codesCount
       codes {
         voucherId
-        voucher {
-          active
-          claims {
-            createdAt
-            id
-            transactionId
-          }
-          codePrefix
-          createdAt
-          description
-          description_mm
-          discountValue
-          discountType
-          endDate
-          id
-          isCodeOnly
-          maximumAmount
-          minPurchase
-          minQuantity
-          name
-          name_mm
-          specialDay
-          startDate
-          usageLimit
-          updatedAt
-          codes {
-            voucherId
-            active
-            code
-            comment
-            createdAt
-            id
-            redeemedAt
-            redeemedByUserId
-            reservedByTransactionId
-            transactionId
-            updatedAt
-          }
-        }
         updatedAt
-        transactionId
         reservedByTransactionId
         redeemedByUserId
         redeemedAt
@@ -147,6 +106,7 @@ query FindAllVouchers($params: VoucherPagedParam!) {
       startDate
       updatedAt
       usageLimit
+      usedCount
     }
   }
 }`;
@@ -165,68 +125,24 @@ mutation Mutation($data: VoucherCreateInputDTO!) {
 export const GET_VOUCHER_DETAIL_QUERY = `
 query Query($findOneVoucherId: String!) {
   findOneVoucher(id: $findOneVoucherId) {
+    usageLimit
+    updatedAt
+    startDate
+    specialDay
     active
-    available
-    claims {
-      createdAt
-      id
-      transactionId
-      userId
-      voucherId
-      year
-    }
     codePrefix
     codes {
-      voucherId
-      voucher {
-        active
-        claims {
-          createdAt
-          id
-          transactionId
-        }
-        codePrefix
-        createdAt
-        description
-        description_mm
-        discountValue
-        discountType
-        endDate
-        id
-        isCodeOnly
-        maximumAmount
-        minPurchase
-        minQuantity
-        name
-        name_mm
-        specialDay
-        startDate
-        usageLimit
-        updatedAt
-        codes {
-          voucherId
-          active
-          code
-          comment
-          createdAt
-          id
-          redeemedAt
-          redeemedByUserId
-          reservedByTransactionId
-          transactionId
-          updatedAt
-        }
-      }
+      active
+      code
+      comment
+      createdAt
+      id
+      redeemedAt
+      redeemedByUserId
+      reservedByTransactionId
       updatedAt
       transactionId
-      reservedByTransactionId
-      redeemedByUserId
-      redeemedAt
-      id
-      createdAt
-      comment
-      code
-      active
+      voucherId
     }
     createdAt
     description
@@ -241,10 +157,6 @@ query Query($findOneVoucherId: String!) {
     minQuantity
     name
     name_mm
-    specialDay
-    startDate
-    updatedAt
-    usageLimit
   }
 }`;
 
