@@ -3,7 +3,7 @@
 import InputField from "@/components/InputField";
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { CalendarIcon, Copy, Plus } from "lucide-react";
 
 import {
@@ -65,7 +65,7 @@ const VoucherForm = ({ data }: Props) => {
       discountValue: data?.discountValue || undefined,
       startDate: data?.startDate ? new Date(data?.startDate) : undefined,
       endDate: data?.endDate ? new Date(data?.endDate) : undefined,
-      minPurchase: data?.minPurchase || undefined,
+      minPurchase: typeof data?.minPurchase === "number" ? data.minPurchase : undefined,
       minQuantity: data?.minQuantity || undefined,
       maximumAmount: data?.maximumAmount || undefined,
       usageLimit: data?.usageLimit || undefined,
@@ -258,7 +258,11 @@ const VoucherForm = ({ data }: Props) => {
             control={control}
             name="isCodeOnly"
             render={({ field }) => (
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                disabled={!!data}
+              />
             )}
           />
         </div>
@@ -533,7 +537,7 @@ const VoucherForm = ({ data }: Props) => {
                         field.onChange(date);
                         setOpenStartDate(false);
                       }}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => date < startOfDay(new Date())}
                       initialFocus
                     />
                   </PopoverContent>
