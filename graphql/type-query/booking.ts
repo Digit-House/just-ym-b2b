@@ -117,6 +117,45 @@ mutation Mutation($data: ResendBookingEmailInput!) {
   }
 }`;
 
+export const MY_BOOKINGS_QUERY = `
+query MyBookings($params: BookingSummaryFindInput!) {
+  myBookings(params: $params) {
+    total
+    data {
+      id
+      kind
+      bucket
+      title
+      thumbnail
+      amount
+      currencyCode
+      quantity
+      customerName
+      customerEmail
+      customerPhone
+      paymentStatus
+      fulfillmentStatus
+      purchasedAt
+      relevantDate
+      expiresAt
+      referenceNumber
+      voucherDiscountAmount
+      hotelDetail {
+        id
+        checkin
+        checkout
+        nights
+        roomName
+      }
+      ticketDetail {
+        eTicketUrl
+        viewTicketUrl
+        isTicketReady
+      }
+    }
+  }
+}`;
+
 export const GET_MY_BOOKING_QUERY = `
 query Query($params: BookingTransactionsInput!) {
   findAllTransactions(params: $params) {

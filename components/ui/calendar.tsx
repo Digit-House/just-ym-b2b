@@ -20,7 +20,7 @@ function Calendar({
       className={cn("p-3 bg-white border rounded-md shadow-md", className)}
       classNames={{
         ...defaultClassNames,
-        months: "relative flex flex-col gap-4",
+        months: "relative flex flex-row gap-4",
         month: "space-y-4",
         // CAPTION: Contains the dropdowns. 
         // We use relative and a height to ensure it doesn't overlap the grid below.
@@ -53,9 +53,16 @@ function Calendar({
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 flex-1 flex items-center justify-center relative z-20"
         ),
-        selected: "bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
+        selected:
+          "rounded-full bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
+        range_start:
+          "rounded-full bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
+        range_end:
+          "rounded-full bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
+        range_middle:
+          "rounded-none bg-gray-200 text-gray-900 hover:bg-gray-200",
         outside: "text-muted-foreground opacity-50",
-        today: "bg-accent text-accent-foreground",
+        today: "bg-accent text-accent-foreground font-semibold",
         disabled:
           "!text-gray-300 !bg-transparent !opacity-100 cursor-not-allowed line-through",
         ...classNames,
