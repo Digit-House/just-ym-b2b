@@ -63,7 +63,7 @@ const BookingCard = ({ data }: Props) => {
     ? data.hotelDetail
       ? `Stay: ${format(parseISO(data.hotelDetail.checkin), "dd MMM yyyy")} – ${format(
           parseISO(data.hotelDetail.checkout),
-          "dd MMM yyyy"
+          "dd MMM yyyy",
         )}`
       : `Check-in: ${format(parseISO(data.relevantDate), "dd MMM yyyy")}`
     : `Visit: ${format(parseISO(data.relevantDate), "dd MMM yyyy")}`;
@@ -72,7 +72,7 @@ const BookingCard = ({ data }: Props) => {
     navigate(
       isHotel
         ? `/bookings/hotel/${data.hotelDetail?.id ?? data.id}`
-        : `/bookings/${data.id}`
+        : `/cart/preview/${data.id}`,
     );
 
   return (
@@ -103,7 +103,7 @@ const BookingCard = ({ data }: Props) => {
                   "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider",
                   isHotel
                     ? "bg-indigo-50 text-indigo-700 border-indigo-100"
-                    : "bg-slate-50 text-slate-600 border-slate-200"
+                    : "bg-slate-50 text-slate-600 border-slate-200",
                 )}
               >
                 {isHotel ? (
@@ -116,7 +116,7 @@ const BookingCard = ({ data }: Props) => {
               <span
                 className={cn(
                   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider transition-colors",
-                  getStatusStyles(data.paymentStatus)
+                  getStatusStyles(data.paymentStatus),
                 )}
               >
                 {data.paymentStatus}
