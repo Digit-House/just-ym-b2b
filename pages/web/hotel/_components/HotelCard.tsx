@@ -43,7 +43,7 @@ const HotelCard = ({ hotel, handleNavigate }: Props) => {
       toast.success(
         checked ? "Marked as recommended" : "Removed from recommended",
       );
-    } catch (err) {
+    } catch (err: any) {
       setRecommended(!checked);
       toast.error(getErrMsg(err, "message"));
     } finally {
