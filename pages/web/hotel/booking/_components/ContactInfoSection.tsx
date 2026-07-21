@@ -16,9 +16,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { useHotelBookingStore } from "@/store/useHotelBookingStore";
 import { useUser } from "@/provider/UserProvider";
 import { useCartStore } from "@/store/useCartStore";
+import { NATIONALITIES } from "../../nationalities";
 
 const ARRIVAL_TIMES = Array.from({ length: 24 }, (_, h) => {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -46,6 +54,12 @@ const ContactInfoSection = ({ open, setOpen, onDone }: Props) => {
   const { user } = useUser();
   const { userInfo } = useCartStore();
 
+  const [nationalityOpen, setNationalityOpen] = useState(false);
+  const [nationality, setNationality] = useState(() => {
+    const code = contactInfo?.nationality || selection?.residency;
+    return NATIONALITIES.find((n) => n.code === code) ?? null;
+  });
+
   const [arrivalTimeOpen, setArrivalTimeOpen] = useState(false);
   const [arrivalTime, setArrivalTime] = useState(
     contactInfo?.arrivalTime ?? "",
@@ -63,9 +77,8 @@ const ContactInfoSection = ({ open, setOpen, onDone }: Props) => {
   const onSubmit = (data: ContactFormData) => {
     setContactInfo({
       ...data,
-      // No picker here — nationality carries over from the availability bar's residency.
-      nationality: selection?.residency ?? "",
-      nationalityLabel: selection?.residencyLabel ?? "",
+      nationality: nationality?.code ?? "",
+      nationalityLabel: nationality?.name ?? "",
       arrivalTime,
     });
     onDone();
@@ -104,6 +117,54 @@ const ContactInfoSection = ({ open, setOpen, onDone }: Props) => {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <PhoneNumberInput name="phone" label="Phone Number" required />
+
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex gap-x-1">
+                    <p className="text-sm">Guest's Citizenship</p>
+                    <span className="text-red-500">*</span>
+                  </div>
+                  <Popover
+                    open={nationalityOpen}
+                    onOpenChange={setNationalityOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <button type="button" className={inputBase}>
+                        <span
+                          className={
+                            nationality
+                              ? "text-gray-900"
+                              : "text-gray-400 text-sm"
+                          }
+                        >
+                          {nationality
+                            ? nationality.name
+                            : "Select your country"}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-72" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search country..." />
+                        <CommandList className="max-h-52">
+                          <CommandEmpty>No country found.</CommandEmpty>
+                          {NATIONALITIES.map((n) => (
+                            <CommandItem
+                              key={n.code}
+                              value={n.name}
+                              onSelect={() => {
+                                setNationality(n);
+                                setNationalityOpen(false);
+                              }}
+                            >
+                              {n.name}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
