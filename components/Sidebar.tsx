@@ -16,7 +16,7 @@ const Sidebar = () => {
   const { isOpen, toggleSidebar } = useSidebarStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const isDesktop = useResize();
-  const TYPE = user.type as USER_TYPE;
+  const TYPE = user?.type as USER_TYPE;
 
   const isActive = (path: string) => {
     const active =
@@ -109,7 +109,7 @@ const Sidebar = () => {
                           >
                             {sub.label}
                           </NavLink>
-                        )
+                        ),
                     )}
                 </div>
               );
