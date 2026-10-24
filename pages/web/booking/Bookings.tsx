@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import PageContainer from "@/components/PageContainer";
+import { BOOKING_STATUS_ENUM } from "@/types/booking.type";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchMyBookings } from "@/graphql/booking";
+import { fetchMyBookingList } from "@/graphql/booking";
 import BookingCard from "./_component/BookingCard";
 import NotFoundComponent from "@/components/NotFoundComponent";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useUser } from "@/provider/UserProvider";
 import MainSearch from "@/components/MainSearch";
 
 const SORT_OPTION: SortOption[] = [
@@ -16,17 +18,19 @@ const SORT_OPTION: SortOption[] = [
   { label: "Oldest", value: "asc" },
 ];
 
-const BUCKET_OPTIONS: SortOption[] = [
-  { label: "All", value: "ALL" },
-  { label: "Upcoming", value: "UPCOMING" },
-  { label: "Completed", value: "COMPLETED" },
-  { label: "Cancelled", value: "CANCELLED" },
-];
-
-const KIND_OPTIONS: SortOption[] = [
-  { label: "All", value: "ALL" },
-  { label: "Tickets", value: "TICKET" },
-  { label: "Hotels", value: "HOTEL" },
+const STATUS_OPTIONS: SortOption[] = [
+  {
+    label: "Paid",
+    value: BOOKING_STATUS_ENUM.PAID,
+  },
+  {
+    label: "Pending",
+    value: BOOKING_STATUS_ENUM.PENDING,
+  },
+  {
+    label: "Failed",
+    value: BOOKING_STATUS_ENUM.FAILED,
+  },
 ];
 
 export default function Bookings() {
@@ -44,22 +48,25 @@ export default function Bookings() {
 
   const storedFilters = getStoredFilters();
 
-  const [sort, setSort] = useState(storedFilters?.sort || "desc");
-  const [bucket, setBucket] = useState<string>(storedFilters?.bucket || "ALL");
-  const [kind, setKind] = useState<string>(storedFilters?.kind || "ALL");
+  const initialSort = storedFilters?.sort || "desc";
+  const initialStatus = storedFilters?.status || BOOKING_STATUS_ENUM.PAID;
+
+  const [sort, setSort] = useState(initialSort);
+  const [status, setStatus] = useState<string>(initialStatus);
   const [search, setSearch] = useState(storedFilters?.search || "");
+  const [requireManualConfirm, setRequireManualConfirm] = useState(false);
+  const { user } = useUser();
 
   const debouncedSearch = useDebounce(search, 2000);
 
   useEffect(() => {
     const filtersToStore = {
       sort,
-      bucket,
-      kind,
+      status,
       search,
     };
     localStorage.setItem("bookingFilters", JSON.stringify(filtersToStore));
-  }, [sort, bucket, kind, search]);
+  }, [sort, status, search]);
 
   const {
     data,
@@ -74,13 +81,14 @@ export default function Bookings() {
     queryKey: [
       "bookings",
       {
-        bucket: bucket === "ALL" ? undefined : bucket,
-        kind,
+        status,
         sort,
         search: debouncedSearch,
+        requireManualConfirm:
+          user.type === "OWNER" ? requireManualConfirm : null,
       },
     ],
-    queryFn: fetchMyBookings,
+    queryFn: fetchMyBookingList,
     gcTime: 0,
     staleTime: 0,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
@@ -102,14 +110,16 @@ export default function Bookings() {
 
   const handleResetFilters = () => {
     setSort("desc");
-    setBucket("UPCOMING");
-    setKind("ALL");
+    setStatus("PAID");
     setSearch("");
     localStorage.removeItem("bookingFilters");
   };
 
   const filtersChanged =
-    sort !== "desc" || bucket !== "UPCOMING" || kind !== "ALL" || search !== "";
+    sort !== "desc" ||
+    status !== "PAID" ||
+    search !== "" ||
+    requireManualConfirm !== false;
 
   return (
     <PageContainer>
@@ -129,17 +139,22 @@ export default function Bookings() {
       <div className="flex flex-col md:flex-row md:items-center justify-between my-10 gap-4 border border-[#21212124] py-2 px-4">
         <div className="flex flex-col md:flex-row gap-5 md:items-center">
           <SortSelect
-            options={BUCKET_OPTIONS}
-            value={bucket}
-            onChange={setBucket}
-            label="Show:"
+            options={STATUS_OPTIONS}
+            value={status}
+            onChange={setStatus}
+            label="Status:"
           />
-          <SortSelect
-            options={KIND_OPTIONS}
-            value={kind}
-            onChange={setKind}
-            label="Type:"
-          />
+          {user?.type === "OWNER" && status === BOOKING_STATUS_ENUM.PAID && (
+            <SortSelect
+              label="Manual Confirm:"
+              value={requireManualConfirm ? "YES" : "NO"}
+              options={[
+                { label: "Required", value: "YES" },
+                { label: "Not Required", value: "NO" },
+              ]}
+              onChange={(val) => setRequireManualConfirm(val === "YES")}
+            />
+          )}
         </div>
         <div className="flex items-center gap-2">
           <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />

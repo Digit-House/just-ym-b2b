@@ -37,7 +37,7 @@ const DashboardLayout = () => {
     try {
       const res: any = await getCredictInfo();
       setCreditInfo(res.data.getCreditInfo);
-    } catch (err: any) {
+    } catch (err) {
       toast.error(getErrMsg(err, "message"));
     }
   };
@@ -48,7 +48,7 @@ const DashboardLayout = () => {
       if (res.data) {
         setAddToCartCount(res.data.myCart.itemsCount);
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.error(getErrMsg(err, "message"));
     }
   };

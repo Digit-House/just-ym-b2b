@@ -7,7 +7,6 @@ import { USER_TYPE } from "@/types/role.type";
 import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { logoutSession } from "@/graphql/session";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -17,7 +16,7 @@ const Sidebar = () => {
   const { isOpen, toggleSidebar } = useSidebarStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const isDesktop = useResize();
-  const TYPE = user?.type as USER_TYPE;
+  const TYPE = user.type as USER_TYPE;
 
   const isActive = (path: string) => {
     const active =
@@ -110,7 +109,7 @@ const Sidebar = () => {
                           >
                             {sub.label}
                           </NavLink>
-                        ),
+                        )
                     )}
                 </div>
               );
@@ -132,9 +131,7 @@ const Sidebar = () => {
         {/* LOGOUT */}
         <div className="p-4 border-t">
           <button
-            onClick={async () => {
-              // revoke the server-side session; still sign out locally if the call fails
-              await logoutSession().catch(() => {});
+            onClick={() => {
               setToken("");
               navigate("/login");
             }}
