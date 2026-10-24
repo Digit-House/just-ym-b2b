@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Laptop, Smartphone, MapPin, Clock, LogOut, RefreshCw, MonitorSmartphone } from "lucide-react";
+import { Laptop, Smartphone, MapPin, Clock, LogOut, RefreshCw, MonitorSmartphone, ChevronDown, History } from "lucide-react";
 import { toast } from "sonner";
 import { getMySessions, logoutAllSessions, revokeSession, SessionT } from "@/graphql/session";
 
@@ -12,6 +12,10 @@ const sessionTitle = (s: SessionT) =>
 const sessionSubtitle = (s: SessionT) =>
   [s.deviceType, s.osVersion, s.appVersion && `v${s.appVersion}`].filter(Boolean).join(" · ");
 
+const HISTORY_COLLAPSED_ROWS = 3;
+
+const lastActivity = (s: SessionT) => new Date(s.lastSeenAt ?? s.createdAt).getTime();
+
 const ActiveSessions: React.FC = () => {
   const [sessions, setSessions] = useState<SessionT[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,17 +24,21 @@ const ActiveSessions: React.FC = () => {
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
   const [revokingAll, setRevokingAll] = useState(false);
+  const [history, setHistory] = useState<SessionT[]>([]);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await getMySessions("ACTIVE");
-      const list = [...(res.data?.mySessions ?? [])].sort(
-        (a, b) => Number(b.isCurrent) - Number(a.isCurrent) ||
-          new Date(b.lastSeenAt ?? b.createdAt).getTime() - new Date(a.lastSeenAt ?? a.createdAt).getTime()
+      const res = await getMySessions("ALL");
+      const all = res.data?.mySessions ?? [];
+      setSessions(
+        all
+          .filter((s) => s.status === "ACTIVE")
+          .sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent) || lastActivity(b) - lastActivity(a))
       );
-      setSessions(list);
+      setHistory(all.filter((s) => s.status !== "ACTIVE").sort((a, b) => lastActivity(b) - lastActivity(a)));
     } catch {
       setError(true);
     } finally {
@@ -46,9 +54,11 @@ const ActiveSessions: React.FC = () => {
     setPendingId(id);
     setConfirmId(null);
     const previous = sessions;
+    const revoked = sessions.find((s) => s.id === id);
     setSessions((list) => list.filter((s) => s.id !== id));
     try {
       await revokeSession(id);
+      if (revoked) setHistory((list) => [{ ...revoked, status: "REVOKED" }, ...list]);
       toast.success("Device signed out");
     } catch {
       setSessions(previous);
@@ -63,6 +73,8 @@ const ActiveSessions: React.FC = () => {
     try {
       const res = await logoutAllSessions(false);
       const count = res.data?.logoutAllSessions ?? 0;
+      const revoked = sessions.filter((s) => !s.isCurrent).map((s) => ({ ...s, status: "REVOKED" as const }));
+      setHistory((list) => [...revoked, ...list]);
       setSessions((list) => list.filter((s) => s.isCurrent));
       toast.success(count ? `Signed out of ${count} other device${count > 1 ? "s" : ""}` : "No other devices to sign out");
     } catch {
@@ -209,6 +221,70 @@ const ActiveSessions: React.FC = () => {
         <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 flex flex-col items-center gap-2">
           <MonitorSmartphone size={20} className="text-gray-400" />
           No active sessions found.
+        </div>
+      )}
+
+      {!error && history.length > 0 && (
+        <div className="pt-2">
+          <button
+            onClick={() => setHistoryExpanded((v) => !v)}
+            aria-expanded={historyExpanded}
+            aria-controls="session-history"
+            className="w-full flex items-center justify-between gap-2 py-2 text-left"
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold text-gray-500">
+              <History size={16} className="text-gray-400" />
+              Previous sessions
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500">{history.length}</span>
+            </span>
+            {history.length > HISTORY_COLLAPSED_ROWS && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-indigo-600 whitespace-nowrap">
+                {historyExpanded ? "Show less" : `Show all`}
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform duration-200 motion-reduce:transition-none ${historyExpanded ? "rotate-180" : ""}`}
+                />
+              </span>
+            )}
+          </button>
+          <ul id="session-history" className="mt-2 divide-y divide-gray-100 rounded-xl border border-gray-100 bg-gray-50/60">
+            {(historyExpanded ? history : history.slice(0, HISTORY_COLLAPSED_ROWS)).map((s) => {
+              const Icon = s.platform === "WEB" ? Laptop : Smartphone;
+              const location = [s.city, s.country].filter(Boolean).join(", ");
+              return (
+                <li key={s.id} className="px-4 py-3 flex items-center justify-between gap-3 text-gray-500">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="h-9 w-9 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <Icon size={16} className="text-gray-400" />
+                    </div>
+                    <div className="min-w-0 space-y-0.5">
+                      <p className="text-sm font-medium text-gray-600 truncate">{sessionTitle(s)}</p>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
+                        {location && (
+                          <span className="flex items-center gap-1">
+                            <MapPin size={12} /> {location}
+                          </span>
+                        )}
+                        <span>Signed in {formatDate(s.createdAt)}</span>
+                        <span>Last active {formatDate(s.lastSeenAt ?? s.createdAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="shrink-0 whitespace-nowrap rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-gray-500">
+                    {s.status === "REVOKED" ? "Signed out" : "Expired"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {!historyExpanded && history.length > HISTORY_COLLAPSED_ROWS && (
+            <button
+              onClick={() => setHistoryExpanded(true)}
+              className="mt-2 text-xs font-semibold text-indigo-600 hover:underline"
+            >
+              Show {history.length - HISTORY_COLLAPSED_ROWS} more
+            </button>
+          )}
         </div>
       )}
     </div>
