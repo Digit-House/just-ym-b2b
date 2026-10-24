@@ -7,21 +7,30 @@ import {
   GET_BOOKING_DETAIL,
   GET_MY_BOOKING_QUERY,
   GET_MY_BOOKING_QUERY_DATA_TYPE,
+  MY_BOOKINGS_QUERY,
 } from "./type-query/booking";
 import { RESEND_EMAIL_MUTATION } from "./type-query/product";
-import { FilterBookingListT, FindAllTransactionsT } from "@/types/booking.type";
+import {
+  BookingSummaryFindInputT,
+  BookingSummaryPagedOutputT,
+  FilterBookingListT,
+  FindAllTransactionsT,
+} from "@/types/booking.type";
 
 export const createBookingWithCart = async (
-  data: BOOKING_CREATE_MUTATION_DATA_TYPE
+  data: BOOKING_CREATE_MUTATION_DATA_TYPE,
 ) => {
-  return client.mutate({
-    mutation: warpGql(BOOKING_CREATE_MUTATION),
-    variables: {
-      data: data,
-    },
-  }).then((res) => res).catch((err) => {
-    throw err;
-  })
+  return client
+    .mutate({
+      mutation: warpGql(BOOKING_CREATE_MUTATION),
+      variables: {
+        data: data,
+      },
+    })
+    .then((res) => res)
+    .catch((err) => {
+      throw err;
+    });
 };
 
 export const getBookingDetail = (id: string) => {
@@ -63,6 +72,36 @@ export const getMyBookingList = async (data: FilterBookingListT) => {
   } catch (err) {
     throw err;
   }
+};
+
+// Unified ticket + hotel booking list (myBookings query)
+export const getMyBookings = async (
+  params: BookingSummaryFindInputT,
+): Promise<BookingSummaryPagedOutputT> => {
+  const res: any = await client.query({
+    query: warpGql(MY_BOOKINGS_QUERY),
+    variables: { params },
+    fetchPolicy: "no-cache",
+  });
+  return res.data.myBookings;
+};
+
+export const fetchMyBookings = async ({ pageParam = 1, queryKey }: any) => {
+  const [, { bucket, kind, sort, search }] = queryKey;
+  const limit = 10;
+  const res = await getMyBookings({
+    page: pageParam,
+    limit,
+    orderBy: { dir: sort },
+    bucket: bucket || undefined,
+    kind: kind === "ALL" ? undefined : kind,
+    search: search || undefined,
+  });
+  return {
+    data: res.data,
+    total: res.total,
+    nextPage: pageParam * limit < res.total ? pageParam + 1 : null,
+  };
 };
 
 export const fetchMyBookingList = async ({ pageParam = 1, queryKey }: any) => {

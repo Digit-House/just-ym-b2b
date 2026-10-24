@@ -12,6 +12,7 @@ import PageContainer from "@/components/PageContainer";
 import ModalWrapper from "@/components/ModalWrapper";
 import ChangePasswordForm from "./_components/ChangePasswordForm";
 import TwoFactorAuth from "./_components/TwoFactorAuth";
+import ActiveSessions from "./_components/ActiveSessions";
 
 
 const Settings: React.FC = () => {
@@ -210,6 +211,8 @@ const Settings: React.FC = () => {
             </button>
           </div>
             }
+
+            <ActiveSessions />
           </div>
         </div>
 

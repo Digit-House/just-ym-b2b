@@ -9,6 +9,7 @@ import {
   FileText,
   HatGlasses,
   Home,
+  Hotel,
   LayoutGrid,
   Settings,
   Ticket,
@@ -56,6 +57,12 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Tickets",
     path: "/tickets",
     icon: Ticket,
+    types: "ALL",
+  },
+  {
+    label: "Hotels",
+    path: "/hotels",
+    icon: Hotel,
     types: "ALL",
   },
   {
