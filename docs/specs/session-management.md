@@ -42,3 +42,9 @@ Last Updated: 2026-10-24
 - Success and error feedback via sonner toasts.
 - `motion-reduce` variants on transitions.
 - `aria-label`s on icon-only buttons and row actions.
+
+## Previous sessions (history)
+- `mySessions(status: ALL)` is fetched once and split: `ACTIVE` rows go to the main list, `EXPIRED`/`REVOKED` rows to "Previous sessions", sorted by last activity (newest first).
+- History rows are greyed out (gray-50 background, muted text and icon) with a status pill, "Signed out" (REVOKED) or "Expired", and no actions.
+- Collapsed by default to the 3 newest rows (`HISTORY_COLLAPSED_ROWS`); "Show N more"/"Show all" expands, "Show less" collapses. The header button carries `aria-expanded`.
+- Revoking a device, or "Sign out other devices", moves those rows into history straight away as `REVOKED`.
