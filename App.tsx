@@ -17,10 +17,16 @@ import Login from "./pages/auth/Login";
 import Reports from "./pages/web/Reports";
 import KYCWizard from "./pages/web/KYCWizard";
 import UserTickets from "./pages/web/ticket/Tickets";
+import Hotels from "./pages/web/hotel/Hotels";
+import HotelDetail from "./pages/web/hotel/detail/HotelDetail";
+import HotelBooking from "./pages/web/hotel/booking/HotelBooking";
+import HotelCheckout from "./pages/web/hotel/checkout/HotelCheckout";
+import HotelBookingConfirmation from "./pages/web/hotel/checkout/HotelBookingConfirmation";
 import Settings from "./pages/web/Settings";
 import TicketDetailPage from "./pages/web/ticket/detail/TicketDetail";
 import Bookings from "./pages/web/booking/Bookings";
 import BookingDetail from "./pages/web/booking/detail/BookingDetail";
+import HotelBookingDetail from "./pages/web/booking/hotelDetail/HotelBookingDetail";
 import UsersManagement from "./pages/web/user/Users";
 import Cart from "./pages/web/cart/Cart";
 import Countries from "./pages/admin/countries/Countries";
@@ -78,9 +84,21 @@ const App = () => {
               <Route path="tickets" element={<UserTickets />} />
               <Route path="tickets/:id" element={<TicketDetailPage />} />
               <Route path="tickets/user-info" element={<UserInfoPage />} />
+              <Route path="hotels" element={<Hotels />} />
+              <Route path="hotels/:id" element={<HotelDetail />} />
+              <Route path="hotels/:id/booking" element={<HotelBooking />} />
+              <Route path="hotels/:id/checkout" element={<HotelCheckout />} />
+              <Route
+                path="hotels/booking/confirmation/:id"
+                element={<HotelBookingConfirmation />}
+              />
               <Route path="bookings" element={<Bookings />} />
               <Route path="users" element={<UsersManagement />} />
               <Route path="bookings/:id" element={<BookingDetail />} />
+              <Route
+                path="bookings/hotel/:id"
+                element={<HotelBookingDetail />}
+              />
               <Route path="cart" element={<Cart />} />
               <Route path="cart/checkout" element={<Checkout />} />
               <Route path="cart/preview/:id" element={<Preview />} />

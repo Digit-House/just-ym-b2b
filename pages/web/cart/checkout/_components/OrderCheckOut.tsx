@@ -27,7 +27,7 @@ const OrderCheckOut = () => {
 
   const total = selectedCartList.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
 
   const handleCheckout = async () => {
@@ -35,7 +35,7 @@ const OrderCheckOut = () => {
       toast.error("something went wrong");
       return;
     }
-    if (user.type === "OWNER" && user.twoFactorEnabled && code.length !== 6) {
+    if (user?.type === "OWNER" && user.twoFactorEnabled && code.length !== 6) {
       setCodeError("Please enter a valid 6-digit code");
       return;
     }
@@ -43,7 +43,7 @@ const OrderCheckOut = () => {
     try {
       const data: BOOKING_CREATE_MUTATION_DATA_TYPE = {
         cartItemIds: selectedCartList.map(
-          (item: ADD_TO_CART_ITEM_DATA_TYPE) => item.id
+          (item: ADD_TO_CART_ITEM_DATA_TYPE) => item.id,
         ),
         customerName: userInfo?.leaderName || "Guest",
         email: userInfo?.leaderEmail || "",
@@ -56,27 +56,27 @@ const OrderCheckOut = () => {
         remarks: null,
         returnUri: `${window.location.origin}/bookings`,
         twoFactorCode:
-          user.type === "OWNER" && user.twoFactorEnabled ? code : null,
+          user?.type === "OWNER" && user.twoFactorEnabled ? code : null,
       };
       const res: any = await createBookingWithCart(data);
       if (res.data) {
         setSelectedCartList([]);
-        fetchAddToCartCount();  
-        if (user.type !== "OWNER") {
+        fetchAddToCartCount();
+        if (user?.type !== "OWNER") {
           setCreditInfo({
             ...creditInfo,
             balance: creditInfo.balance - total,
           });
         }
         navigate(
-          `/cart/preview/${res.data.createBookingWithCart.transactionId}`
+          `/cart/preview/${res.data.createBookingWithCart.transactionId}`,
         );
         toast.success("Booking created successfully");
-      }else{
+      } else {
         toast.error("Failed to create booking");
       }
-    } catch (err) {
-      toast.error(getErrMsg(err,"message"));
+    } catch (err: any) {
+      toast.error(getErrMsg(err, "message"));
     } finally {
       setLoading(false);
     }
@@ -88,14 +88,14 @@ const OrderCheckOut = () => {
       if (res.data) {
         setAddToCartCount(res.data.myCart.itemsCount);
       }
-    } catch (err) {
+    } catch (err: any) {
       toast.error(getErrMsg(err, "message"));
     }
   };
 
   return (
     <div className="w-full space-y-6">
-      {user.type === "OWNER" && user.twoFactorEnabled && (
+      {user?.type === "OWNER" && user.twoFactorEnabled && (
         <div className="space-y-4">
           <p className="text-gray-500">
             Enter the 6-digit code from your authenticator app to complete
