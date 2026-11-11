@@ -7,6 +7,7 @@ import {
   Calendar,
   CircleAlert,
   CircleCheckBig,
+  Clock,
   Copy,
   Pen,
   Ticket,
@@ -29,8 +30,26 @@ const handleCopyCode = async (code: string) => {
   }
 };
 
+const STATUS_STYLE = {
+  ACTIVE: { label: "Active", bg: "bg-[#E8F5E9]", text: "text-[#4CAF50]", Icon: CircleCheckBig },
+  INACTIVE: { label: "Inactive", bg: "bg-[#FFEBEE]", text: "text-[#D32F2F]", Icon: CircleAlert },
+  EXPIRED: { label: "Expired", bg: "bg-[#F5F5F5]", text: "text-[#757575]", Icon: CircleAlert },
+  SCHEDULED: { label: "Scheduled", bg: "bg-[#E3F2FD]", text: "text-[#1976D2]", Icon: Clock },
+} as const;
+
+// `active` is only the admin on/off switch — a switched-on voucher outside its
+// start/end window is not usable, so derive the shown status from both.
+const getVoucherStatus = (data: VOUCHER_DATA_TYPE): keyof typeof STATUS_STYLE => {
+  if (!data.active) return "INACTIVE";
+  const now = Date.now();
+  if (data.startDate && new Date(data.startDate).getTime() > now) return "SCHEDULED";
+  if (data.endDate && new Date(data.endDate).getTime() < now) return "EXPIRED";
+  return "ACTIVE";
+};
+
 const VoucherCard = ({ data }: Props) => {
   const [showCodes, setShowCodes] = useState(false);
+  const status = STATUS_STYLE[getVoucherStatus(data)];
 
   return (
     <div className="w-full bg-white border-2 border-[#F5F5F5] p-6 rounded-2xl flex flex-col gap-4">
@@ -76,7 +95,7 @@ const VoucherCard = ({ data }: Props) => {
           <div className="flex flex-col gap-1">
             <h5 className="text-sm text-gray-500">Valid Date</h5>
             <p className="font-bold text-base">
-              {formatDate(data.endDate, "dd/MM/yyyy")}
+              {data.endDate ? formatDate(data.endDate, "dd/MM/yyyy") : "-"}
             </p>
           </div>
         )}
@@ -84,22 +103,10 @@ const VoucherCard = ({ data }: Props) => {
 
       <div className="py-2 border-t border-[#E0E0E0] flex gap-4 items-center">
         <div
-          className={`flex items-center gap-1 py-1 px-3 rounded-full ${
-            data.active ? "bg-[#E8F5E9]" : "bg-[#FFEBEE]"
-          }`}
+          className={`flex items-center gap-1 py-1 px-3 rounded-full ${status.bg}`}
         >
-          {data.active ? (
-            <CircleCheckBig size={12} className="text-[#4CAF50]" />
-          ) : (
-            <CircleAlert size={12} className="text-[#D32F2F]" />
-          )}
-          <p
-            className={`text-sm font-bold ${
-              data.active ? "text-[#4CAF50]" : "text-[#D32F2F]"
-            }`}
-          >
-            {data.active ? "Active" : "Inactive"}
-          </p>
+          <status.Icon size={12} className={status.text} />
+          <p className={`text-sm font-bold ${status.text}`}>{status.label}</p>
         </div>
         {data.specialDay && (
           <div className="flex items-center gap-1 py-1 px-3 rounded-full bg-[#FFF3E0]">
