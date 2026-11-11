@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { Hotel, LayoutGrid, RotateCcw, Ticket } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import PageContainer from "@/components/PageContainer";
@@ -23,10 +23,10 @@ const BUCKET_OPTIONS: SortOption[] = [
   { label: "Cancelled", value: "CANCELLED" },
 ];
 
-const KIND_OPTIONS: SortOption[] = [
-  { label: "All", value: "ALL" },
-  { label: "Tickets", value: "TICKET" },
-  { label: "Hotels", value: "HOTEL" },
+const KIND_TAGS = [
+  { label: "All", value: "ALL", icon: LayoutGrid },
+  { label: "Tickets", value: "TICKET", icon: Ticket },
+  { label: "Hotels", value: "HOTEL", icon: Hotel },
 ];
 
 export default function Bookings() {
@@ -102,14 +102,14 @@ export default function Bookings() {
 
   const handleResetFilters = () => {
     setSort("desc");
-    setBucket("UPCOMING");
+    setBucket("ALL");
     setKind("ALL");
     setSearch("");
     localStorage.removeItem("bookingFilters");
   };
 
   const filtersChanged =
-    sort !== "desc" || bucket !== "UPCOMING" || kind !== "ALL" || search !== "";
+    sort !== "desc" || bucket !== "ALL" || kind !== "ALL" || search !== "";
 
   return (
     <PageContainer>
@@ -126,19 +126,36 @@ export default function Bookings() {
         }}
       />
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between my-10 gap-4 border border-[#21212124] py-2 px-4">
+      <div className="flex flex-wrap gap-2 mt-8" role="tablist">
+        {KIND_TAGS.map(({ label, value, icon: Icon }) => {
+          const active = kind === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setKind(value)}
+              className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                active
+                  ? "border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "border-[#21212124] bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+              }`}
+            >
+              <Icon size={16} />
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between mt-4 mb-10 gap-4 border border-[#21212124] py-2 px-4">
         <div className="flex flex-col md:flex-row gap-5 md:items-center">
           <SortSelect
             options={BUCKET_OPTIONS}
             value={bucket}
             onChange={setBucket}
             label="Show:"
-          />
-          <SortSelect
-            options={KIND_OPTIONS}
-            value={kind}
-            onChange={setKind}
-            label="Type:"
           />
         </div>
         <div className="flex items-center gap-2">
