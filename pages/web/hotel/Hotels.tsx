@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { BedDouble, ChevronRight } from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import PageContainer from "@/components/PageContainer";
@@ -52,10 +53,16 @@ export default function Hotels() {
   });
 
   const total = data?.pages[0]?.total_hotels || 0;
-  const hotels = useMemo(
-    () => data?.pages.flatMap((p) => p.hotels) ?? [],
-    [data]
-  );
+  // A hotel picked in the search box is listed first when it's in the results.
+  const pinnedId = search.selectedHotel?.id ?? null;
+  const hotels = useMemo(() => {
+    const all = data?.pages.flatMap((p) => p.hotels) ?? [];
+    if (!pinnedId) return all;
+    return [
+      ...all.filter((h) => h.id === pinnedId),
+      ...all.filter((h) => h.id !== pinnedId),
+    ];
+  }, [data, pinnedId]);
 
   const loaderRef = useInfiniteScroll(
     hasNextPage,
@@ -111,6 +118,26 @@ export default function Hotels() {
         )}
       </p>
 
+      {search.selectedHotel && !!search.regionId && (
+        <button
+          type="button"
+          onClick={(e) => handleNavigate(e, `/hotels/${search.selectedHotel!.id}`)}
+          className="mb-6 flex w-full items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-left transition-colors hover:bg-indigo-100"
+        >
+          <BedDouble className="w-5 h-5 shrink-0 text-indigo-600" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs text-gray-500">Your hotel</span>
+            <span className="block truncate text-sm font-semibold text-gray-900">
+              {search.selectedHotel.name}
+            </span>
+          </span>
+          <span className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-indigo-600">
+            View rooms
+            <ChevronRight className="w-4 h-4" />
+          </span>
+        </button>
+      )}
+
       {isPending && !!search.regionId && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -128,11 +155,16 @@ export default function Hotels() {
       {!isPending && !!hotels.length && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {hotels.map((hotel) => (
-            <HotelCard
+            <div
               key={hotel.id}
-              hotel={hotel}
-              handleNavigate={handleNavigate}
-            />
+              className={
+                hotel.id === pinnedId
+                  ? "rounded-2xl ring-2 ring-indigo-600 ring-offset-2"
+                  : undefined
+              }
+            >
+              <HotelCard hotel={hotel} handleNavigate={handleNavigate} />
+            </div>
           ))}
         </div>
       )}

@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { differenceInCalendarDays, format, parseISO, startOfDay } from "date-fns";
 import {
+  BedDouble,
   Check,
   CalendarIcon,
+  Loader2,
   MapPin,
   Minus,
   Plus,
@@ -35,7 +38,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/useDebounce";
 import { searchHotelDestinations } from "@/graphql/hotel";
-import { HotelSearchState } from "@/types/hotel.type";
+import {
+  HotelSearchState,
+  HotelSuggestionHotelT,
+  HotelSuggestionRegionT,
+} from "@/types/hotel.type";
 import { useDateRangeDraft } from "../useDateRangeDraft";
 import { useGuestsDraft } from "../useGuestsDraft";
 import { NATIONALITIES } from "../nationalities";
@@ -45,42 +52,138 @@ type Props = {
   setSearch: React.Dispatch<React.SetStateAction<HotelSearchState>>;
 };
 
+// Criteria edited in the bar are a draft until Search is pressed (trip.com's flow, as in
+// Digit-House/just-ym-hotel-ticket), so the results don't reload on every field change.
+type SearchDraft = Pick<
+  HotelSearchState,
+  | "destinationLabel"
+  | "regionId"
+  | "selectedHotel"
+  | "checkin"
+  | "checkout"
+  | "guests"
+  | "residency"
+  | "residencyLabel"
+>;
+
+const toDraft = (s: HotelSearchState): SearchDraft => ({
+  destinationLabel: s.destinationLabel,
+  regionId: s.regionId,
+  selectedHotel: s.selectedHotel ?? null,
+  checkin: s.checkin,
+  checkout: s.checkout,
+  guests: s.guests,
+  residency: s.residency,
+  residencyLabel: s.residencyLabel,
+});
+
 const HotelSearchBar = ({ search, setSearch }: Props) => {
+  const navigate = useNavigate();
+  const [draft, setDraft] = useState<SearchDraft>(() => toDraft(search));
   const [destinationOpen, setDestinationOpen] = useState(false);
+  const [destinationQuery, setDestinationQuery] = useState("");
+  const [destinationError, setDestinationError] = useState("");
   const [dateOpen, setDateOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [nationalityOpen, setNationalityOpen] = useState(false);
-  const [destinationQuery, setDestinationQuery] = useState("");
   const debouncedDestinationQuery = useDebounce(destinationQuery, 400);
+
+  // Re-sync when the committed search changes from outside (e.g. reset, restore).
+  const committedKey = JSON.stringify(toDraft(search));
+  useEffect(() => {
+    setDraft(toDraft(search));
+  }, [committedKey]);
 
   const { draftRange, seedDraft, clearDraft, handleSelect } = useDateRangeDraft({
     onCommit: (checkin, checkout) => {
-      setSearch((s) => ({ ...s, checkin, checkout }));
+      setDraft((d) => ({ ...d, checkin, checkout }));
       setDateOpen(false);
     },
   });
 
   const guestsDraft = useGuestsDraft({
-    guests: search.guests,
+    guests: draft.guests,
     open: guestsOpen,
     onCommit: (guests) => {
-      setSearch((s) => ({ ...s, guests }));
+      setDraft((d) => ({ ...d, guests }));
       setGuestsOpen(false);
     },
   });
 
+  const queryReady = debouncedDestinationQuery.trim().length >= 2;
   const { data: suggestions, isFetching: isSuggesting } = useQuery({
     queryKey: ["hotelMulticomplete", debouncedDestinationQuery],
     queryFn: () => searchHotelDestinations(debouncedDestinationQuery),
-    enabled: destinationOpen && debouncedDestinationQuery.trim().length >= 2,
+    enabled: destinationOpen && queryReady,
     staleTime: 60_000,
   });
+  const hasSuggestions =
+    !!suggestions?.regions?.length || !!suggestions?.hotels?.length;
 
-  const checkinDate = parseISO(search.checkin);
-  const checkoutDate = parseISO(search.checkout);
+  const checkinDate = parseISO(draft.checkin);
+  const checkoutDate = parseISO(draft.checkout);
 
-  const totalAdults = search.guests.reduce((s, r) => s + r.adults, 0);
-  const totalChildren = search.guests.reduce(
+  const openDates = () => {
+    seedDraft(checkinDate, checkoutDate);
+    setDateOpen(true);
+  };
+
+  const selectRegion = (region: HotelSuggestionRegionT) => {
+    const label = region.country_name
+      ? `${region.name}, ${region.country_name}`
+      : region.name;
+    setDraft((d) => ({
+      ...d,
+      regionId: region.id,
+      destinationLabel: label,
+      selectedHotel: null,
+    }));
+    setDestinationError("");
+    setDestinationOpen(false);
+    openDates();
+  };
+
+  const selectHotel = (hotel: HotelSuggestionHotelT) => {
+    setDestinationOpen(false);
+    setDestinationError("");
+    if (!hotel.region_id) {
+      // No city to list it in — open the hotel itself with the drafted criteria.
+      setSearch((s) => ({ ...s, ...draft }));
+      navigate(`/hotels/${hotel.id}`, {
+        state: {
+          checkin: draft.checkin,
+          checkout: draft.checkout,
+          guests: draft.guests,
+          residency: draft.residency,
+          residencyLabel: draft.residencyLabel,
+        },
+      });
+      return;
+    }
+    // The hotel's city becomes the search area and the hotel is listed first.
+    setDraft((d) => ({
+      ...d,
+      regionId: hotel.region_id,
+      destinationLabel: [hotel.city_name, hotel.country_name]
+        .filter(Boolean)
+        .join(", "),
+      selectedHotel: { id: hotel.id, name: hotel.name },
+    }));
+    openDates();
+  };
+
+  const handleSearch = () => {
+    if (!draft.regionId) {
+      setDestinationError("Please select a destination");
+      setDestinationOpen(true);
+      return;
+    }
+    setDestinationError("");
+    setSearch((s) => ({ ...s, ...draft }));
+  };
+
+  const totalAdults = draft.guests.reduce((s, r) => s + r.adults, 0);
+  const totalChildren = draft.guests.reduce(
     (s, r) => s + r.children.length,
     0
   );
@@ -92,58 +195,107 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
   return (
     <div className="w-full mt-0 relative z-10 bg-gray-200 p-4">
       <div className="m-auto w-[95%] lg:w-[85%] flex flex-col md:flex-row items-stretch gap-3 bg-white rounded-2xl md:rounded-full border border-slate-100 shadow-sm p-2">
-        {/* Destination */}
+        {/* Destination — regions and hotels, as in just-ym-hotel-ticket's SearchForm */}
         <Popover open={destinationOpen} onOpenChange={setDestinationOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="flex-[1.2_0_0] flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-slate-50 text-left transition-colors"
-            >
-              <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="truncate text-sm font-medium text-slate-700">
-                {search.destinationLabel || "Where are you going?"}
-              </span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[320px] p-0" align="start">
+          <div className="relative flex-[1.2_0_0] min-w-0 flex">
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={`w-full flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-slate-50 text-left transition-colors ${
+                  destinationError ? "ring-1 ring-red-400" : ""
+                }`}
+              >
+                {draft.selectedHotel ? (
+                  <BedDouble className="w-4 h-4 text-slate-400 shrink-0" />
+                ) : (
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                )}
+                <span
+                  className={`truncate text-sm font-medium ${
+                    draft.regionId ? "text-slate-700" : "text-slate-400"
+                  }`}
+                >
+                  {draft.selectedHotel?.name ||
+                    draft.destinationLabel ||
+                    "Where are you going?"}
+                </span>
+              </button>
+            </PopoverTrigger>
+            {destinationError && !destinationOpen && (
+              <p className="absolute left-4 top-full mt-1 text-xs font-medium text-red-500">
+                {destinationError}
+              </p>
+            )}
+          </div>
+          <PopoverContent className="w-[360px] p-0" align="start">
             <Command shouldFilter={false}>
               <CommandInput
-                placeholder="Search city or region..."
+                placeholder="Search city, region or hotel..."
                 value={destinationQuery}
                 onValueChange={setDestinationQuery}
               />
-              <CommandList>
-                {debouncedDestinationQuery.trim().length < 2 && (
+              <CommandList className="max-h-80 scrollbar-hide">
+                {!queryReady && (
                   <CommandEmpty>Type at least 2 characters</CommandEmpty>
                 )}
-                {debouncedDestinationQuery.trim().length >= 2 &&
-                  !isSuggesting &&
-                  !suggestions?.regions?.length && (
-                    <CommandEmpty>No destinations found</CommandEmpty>
-                  )}
-                {!!suggestions?.regions?.length && (
-                  <CommandGroup heading="Destinations">
+                {queryReady && isSuggesting && (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                  </div>
+                )}
+                {queryReady && !isSuggesting && !hasSuggestions && (
+                  <CommandEmpty>No destinations found</CommandEmpty>
+                )}
+                {!isSuggesting && !!suggestions?.regions?.length && (
+                  <CommandGroup heading="Regions">
                     {suggestions.regions.map((region) => (
                       <CommandItem
-                        key={region.id}
-                        value={String(region.id)}
-                        onSelect={() => {
-                          setSearch((s) => ({
-                            ...s,
-                            regionId: region.id,
-                            destinationLabel: region.country_name
-                              ? `${region.name}, ${region.country_name}`
-                              : region.name,
-                          }));
-                          setDestinationOpen(false);
-                        }}
+                        key={`r-${region.id}`}
+                        value={`r-${region.id}`}
+                        onSelect={() => selectRegion(region)}
+                        className="gap-3"
                       >
-                        <MapPin className="w-4 h-4 text-slate-400" />
-                        {region.name}
-                        {region.country_name && (
-                          <span className="text-slate-400">
-                            , {region.country_name}
+                        <MapPin className="w-4 h-4 shrink-0 text-slate-400" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-slate-700">
+                            {region.name}
                           </span>
+                          {region.country_name && (
+                            <span className="block truncate text-xs text-slate-400">
+                              {region.country_name}
+                            </span>
+                          )}
+                        </span>
+                        {draft.regionId === region.id &&
+                          !draft.selectedHotel && (
+                            <Check className="w-4 h-4 shrink-0 text-indigo-600" />
+                          )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+                {!isSuggesting && !!suggestions?.hotels?.length && (
+                  <CommandGroup heading="Hotels">
+                    {suggestions.hotels.map((hotel) => (
+                      <CommandItem
+                        key={`h-${hotel.id}`}
+                        value={`h-${hotel.id}`}
+                        onSelect={() => selectHotel(hotel)}
+                        className="gap-3"
+                      >
+                        <BedDouble className="w-4 h-4 shrink-0 text-slate-400" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-slate-700">
+                            {hotel.name}
+                          </span>
+                          <span className="block truncate text-xs text-slate-400">
+                            {[hotel.city_name, hotel.country_name]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </span>
+                        </span>
+                        {draft.selectedHotel?.id === hotel.id && (
+                          <Check className="w-4 h-4 shrink-0 text-indigo-600" />
                         )}
                       </CommandItem>
                     ))}
@@ -233,14 +385,14 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
               className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-slate-50 text-left transition-colors"
             >
               <span className="truncate text-sm font-medium text-slate-700">
-                {search.residencyLabel || "Nationality"}
+                {draft.residencyLabel || "Nationality"}
               </span>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-[300px] p-0" align="start">
             <Command>
               <CommandInput placeholder="Search nationality..." />
-              <CommandList>
+              <CommandList className="scrollbar-hide">
                 <CommandEmpty>No country found</CommandEmpty>
                 <CommandGroup>
                   {NATIONALITIES.map((n) => (
@@ -248,8 +400,8 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
                       key={n.code}
                       value={n.name}
                       onSelect={() => {
-                        setSearch((s) => ({
-                          ...s,
+                        setDraft((d) => ({
+                          ...d,
                           residency: n.code,
                           residencyLabel: n.name,
                         }));
@@ -258,7 +410,7 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
                       className="flex items-center justify-between"
                     >
                       {n.name}
-                      {n.code === search.residency && (
+                      {n.code === draft.residency && (
                         <Check className="w-4 h-4" />
                       )}
                     </CommandItem>
@@ -417,8 +569,7 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
         <Button
           size="lg"
           className="rounded-full gap-2 shrink-0"
-          disabled={!search.regionId}
-          onClick={() => setDestinationOpen(false)}
+          onClick={handleSearch}
         >
           <Search className="w-4 h-4" />
           Search
