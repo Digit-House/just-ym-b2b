@@ -24,8 +24,8 @@ import {
 
 // Seed value only — the actual residency used in requests always comes from HotelSearchState,
 // set via the nationality picker in HotelSearchBar.
-export const DEFAULT_HOTEL_RESIDENCY = "th";
-export const DEFAULT_HOTEL_RESIDENCY_LABEL = "Thailand";
+export const DEFAULT_HOTEL_RESIDENCY = "mm";
+export const DEFAULT_HOTEL_RESIDENCY_LABEL = "Myanmar";
 
 // ETG/worldota CDN URLs come back as templates, e.g. https://cdn.worldota.net/t/{size}/content/...jpeg
 // The `{size}` token must be replaced with a concrete WxH before the URL is usable as an <img src>.

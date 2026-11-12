@@ -171,6 +171,8 @@ export type HotelPageV2ResultT = {
 export type HotelSearchState = {
   destinationLabel: string;
   regionId: number | null;
+  // Hotel picked in the destination box: its city is searched and it's listed first.
+  selectedHotel?: { id: string; name: string } | null;
   checkin: string; // yyyy-MM-dd
   checkout: string; // yyyy-MM-dd
   guests: HotelGuestInput[]; // one entry per room; children = array of ages
