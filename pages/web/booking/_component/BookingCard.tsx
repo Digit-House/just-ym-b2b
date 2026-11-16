@@ -56,6 +56,20 @@ const BookingCard = ({ data }: Props) => {
 
   const isHotel = data.kind === "HOTEL";
 
+  // Admin: the status line shows the payment status and the badge below shows the
+  // supplier result, so the two never repeat each other. Other roles keep fulfillment.
+  const isAdmin = user?.type === "OWNER";
+  const statusLine: BookingFulfillmentStatus = isAdmin
+    ? data.paymentStatus === "PAID"
+      ? "CONFIRMED"
+      : data.paymentStatus === "PENDING"
+        ? "PENDING"
+        : "FAILED"
+    : data.fulfillmentStatus;
+  const statusLabel: string = isAdmin
+    ? String(data.paymentStatus)
+    : data.fulfillmentStatus;
+
   const thumbSrc = isHotel
     ? resolveHotelImageUrl(data.thumbnail, "240x240") || HOTEL_IMAGE_PLACEHOLDER
     : data.thumbnail
@@ -176,9 +190,9 @@ const BookingCard = ({ data }: Props) => {
               Status
             </div>
             <div className="flex items-center gap-1.5 text-xs">
-              {FULFILLMENT_ICONS[data.fulfillmentStatus]}
+              {FULFILLMENT_ICONS[statusLine]}
               <span className="text-slate-600 capitalize">
-                {data.fulfillmentStatus.toLowerCase()}
+                {statusLabel.toLowerCase()}
               </span>
             </div>
             {user?.type === "OWNER" && (
