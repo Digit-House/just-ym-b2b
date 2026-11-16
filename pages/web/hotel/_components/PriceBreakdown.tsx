@@ -68,7 +68,7 @@ const PriceBreakdown = ({ payment, nights, rooms, isOwner }: Props) => {
                   key={`${t.name}-${i}`}
                   className="flex items-start justify-between gap-2 text-gray-500"
                 >
-                  <span>+ {taxLabel(t.name)}</span>
+                  <span>{taxLabel(t.name)}</span>
                   <span className="shrink-0 text-gray-800">
                     {formatPrice(t.amount, currency)}
                   </span>
@@ -80,7 +80,7 @@ const PriceBreakdown = ({ payment, nights, rooms, isOwner }: Props) => {
                   className="flex items-start justify-between gap-2 text-gray-500"
                 >
                   <span>
-                    + {taxLabel(t.name)} <span className="text-xs">(incl.)</span>
+                    {taxLabel(t.name)} <span className="text-xs">(incl.)</span>
                   </span>
                   <span className="shrink-0 text-gray-800">
                     {formatPrice(t.amount, t.currency_code)}
