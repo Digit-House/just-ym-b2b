@@ -168,8 +168,8 @@ export default function Hotels() {
               key={hotel.id}
               className={
                 hotel.id === pinnedId
-                  ? "rounded-2xl ring-2 ring-indigo-600 ring-offset-2"
-                  : undefined
+                  ? "h-full rounded-2xl ring-2 ring-indigo-600 ring-offset-2"
+                  : "h-full"
               }
             >
               <HotelCard

@@ -68,7 +68,7 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
   return (
     <div
       onClick={(e) => handleNavigate(e, `/hotels/${hotel.id}`)}
-      className="bg-white rounded-2xl min-h-[420px] border overflow-hidden cursor-pointer flex flex-col shadow-[0px_1px_4px_0px_rgba(0,0,0,0.04),0px_4px_10px_0px_rgba(0,0,0,0.08)]"
+      className="bg-white rounded-2xl h-full min-h-[420px] border overflow-hidden cursor-pointer flex flex-col shadow-[0px_1px_4px_0px_rgba(0,0,0,0.04),0px_4px_10px_0px_rgba(0,0,0,0.08)]"
     >
       <div className="aspect-[4/3] overflow-hidden">
         <ImageFallback
