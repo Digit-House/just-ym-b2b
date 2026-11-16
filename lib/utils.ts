@@ -29,6 +29,25 @@ export const currencyFormat = (
 };
 
 /**
+ * Price as the client site shows it: "฿ 3,195" (THB), "152,632 MMK", "USD 1,234". Whole baht rounded up, as the
+ * backend charges; a missing currency is THB. The no-break space keeps symbol and amount on one line.
+ */
+export const formatPrice = (
+  value: number | string | null | undefined,
+  currency: string | null | undefined = "THB"
+) => {
+  const code = (currency || "THB").toUpperCase();
+  // The epsilon stops float noise like 1150.0000001 from rounding up to 1,151.
+  const amount = (Math.ceil((Number(value) || 0) - 1e-9) || 0).toLocaleString("en-US");
+  const NBSP = " ";
+  return code === "THB"
+    ? `฿${NBSP}${amount}`
+    : code === "MMK"
+      ? `${amount}${NBSP}MMK`
+      : `${code}${NBSP}${amount}`;
+};
+
+/**
  * Converts an amount from one currency to another based on the exchange rate
  * @param amount The amount to convert
  * @param fromCurrency The source currency

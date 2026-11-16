@@ -17,6 +17,7 @@ import {
 import { getErrMsg } from "@/util/initData";
 import { HotelSearchResultT } from "@/types/hotel.type";
 import { useUser } from "@/provider/UserProvider";
+import { formatPrice } from "@/lib/utils";
 
 type Props = {
   hotel: HotelSearchResultT;
@@ -28,7 +29,7 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
   const { user } = useUser();
   const bestRate = hotel.rates?.[0];
   const hasFreeCancellation = !!bestRate?.free_cancellation_before;
-  const currency = bestRate?.show_currency_code;
+  const currency = bestRate?.show_currency_code ?? "USD";
   // Per-night price like the client site: backend value, else stay total / nights.
   const perNight =
     Number(bestRate?.show_amount_per_night) > 0
@@ -137,24 +138,31 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
             {perNight !== null && (
               <>
                 <p className="text-lg font-bold text-gray-900">
-                  {perNight.toLocaleString()} {currency}
+                  {formatPrice(perNight, currency)}
                 </p>
                 <p className="text-xs text-gray-400">per night</p>
                 {nights > 1 && stayTotal > 0 && (
                   <p className="text-xs text-gray-500">
-                    {stayTotal.toLocaleString()} {currency} total · {nights}{" "}
-                    nights
+                    {formatPrice(stayTotal, currency)} total · {nights} nights
                   </p>
                 )}
                 {user?.type === "OWNER" && bestRate?.etg_amount_per_night && (
                   <p className="text-xs text-gray-400">
                     Supplier price:{" "}
-                    {Number(bestRate.etg_amount_per_night).toLocaleString()}{" "}
-                    {bestRate.etg_currency_code} / night
+                    {formatPrice(
+                      bestRate.etg_amount_per_night,
+                      bestRate.etg_currency_code,
+                    )}{" "}
+                    / night
                     {nights > 1 && supplierTotal > 0 && (
                       <>
                         {" "}
-                        · {supplierTotal.toLocaleString()} total
+                        ·{" "}
+                        {formatPrice(
+                          supplierTotal,
+                          bestRate.etg_currency_code,
+                        )}{" "}
+                        total
                       </>
                     )}
                   </p>
