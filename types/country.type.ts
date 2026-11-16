@@ -18,6 +18,7 @@ export type CurrencyT = {
 
 export type CountryT = {
   id: string;
+  globaltixId?: number | null;
   code: string;
   name: string;
   mobilePrefix: string;

@@ -16,6 +16,7 @@ import {
 } from "@/graphql/hotel";
 import { getErrMsg } from "@/util/initData";
 import { HotelSearchResultT } from "@/types/hotel.type";
+import { useUser } from "@/provider/UserProvider";
 
 type Props = {
   hotel: HotelSearchResultT;
@@ -23,6 +24,7 @@ type Props = {
 };
 
 const HotelCard = ({ hotel, handleNavigate }: Props) => {
+  const { user } = useUser();
   const bestRate = hotel.rates?.[0];
   const hasFreeCancellation = !!bestRate?.free_cancellation_before;
   const photoSrc = getHotelPhotoSrc(hotel.images, "828x560");
@@ -129,6 +131,13 @@ const HotelCard = ({ hotel, handleNavigate }: Props) => {
                     {bestRate.show_currency_code} / night
                   </span>
                 </p>
+                {user?.type === "OWNER" && bestRate.etg_amount_per_night && (
+                  <p className="text-xs text-gray-400">
+                    Original:{" "}
+                    {Number(bestRate.etg_amount_per_night).toLocaleString()}{" "}
+                    {bestRate.etg_currency_code} / night
+                  </p>
+                )}
                 <p className="text-[11px] text-gray-400">
                   Price for selected dates
                 </p>

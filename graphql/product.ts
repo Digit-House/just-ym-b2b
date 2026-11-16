@@ -12,6 +12,7 @@ import {
   GET_PRODUCT_OPTIONS,
   GET_TICKET_TYPE_EVENT_AVAILABLE,
   SEED_PRODUCT_MUTATION,
+  SEED_PRODUCT_BY_COUNTRY_MUTATION,
   TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE,
   UPDATE_PRODUCT_MUTATION,
   UPDATE_PRODUCT_POSITION,
@@ -331,4 +332,13 @@ export const exportProductsReport = async (data: ProductReportInput) => {
   } catch (err) {
     throw err;
   }
+};
+
+export const seedProductByCountry = async (globaltixCountryID: number) => {
+  const res: any = await client.mutate({
+    mutation: warpGql(SEED_PRODUCT_BY_COUNTRY_MUTATION),
+    variables: { globaltixCountryID },
+    fetchPolicy: "no-cache",
+  });
+  return res.data.seedProductByCountry as { status: number; message: string };
 };

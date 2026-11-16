@@ -103,6 +103,7 @@ export type BookingSummaryFindInputT = {
     field?: string;
   };
   bucket?: BookingListBucket;
+  status?: "PAID" | "PENDING" | "FAILED" | "EXPIRED" | "UPCOMING" | "COMPLETED";
   kind?: BookingKind;
   search?: string;
 };

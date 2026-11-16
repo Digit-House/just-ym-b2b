@@ -36,6 +36,12 @@ const TicketCard = ({ user, p, handleNavigate }: Props) => {
           </p>
         )}
 
+        {user?.type === "OWNER" && p.nettPrice != null && (
+          <p className="text-xs text-gray-400">
+            Original: ฿ {Number(p.nettPrice).toFixed(2)}
+          </p>
+        )}
+
         <button
           onClick={(e) => handleNavigate(e, `/tickets/${p.id}`)}
           className="flex items-center text-indigo-600 text-sm font-medium mb-6 hover:text-indigo-800 transition-colors"

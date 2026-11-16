@@ -51,6 +51,7 @@ export type ProductT = {
   name: string;
   originalPrice: number;
   price: number;
+  nettPrice?: number | null; // OWNER-only; null for others
 };
 
 export interface ProductInfoResponse {

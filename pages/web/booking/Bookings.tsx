@@ -23,6 +23,17 @@ const BUCKET_OPTIONS: SortOption[] = [
   { label: "Cancelled", value: "CANCELLED" },
 ];
 
+// Sent as the myBookings `status` input; the API ignores ALL and lets it win over bucket.
+const STATUS_OPTIONS: SortOption[] = [
+  { label: "Paid", value: "PAID" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Upcoming", value: "UPCOMING" },
+  { label: "Completed", value: "COMPLETED" },
+  { label: "Expired", value: "EXPIRED" },
+  { label: "Failed", value: "FAILED" },
+  { label: "All", value: "ALL" },
+];
+
 const KIND_TAGS = [
   { label: "All", value: "ALL", icon: LayoutGrid },
   { label: "Tickets", value: "TICKET", icon: Ticket },
@@ -46,6 +57,7 @@ export default function Bookings() {
 
   const [sort, setSort] = useState(storedFilters?.sort || "desc");
   const [bucket, setBucket] = useState<string>(storedFilters?.bucket || "ALL");
+  const [status, setStatus] = useState<string>(storedFilters?.status || "PAID");
   const [kind, setKind] = useState<string>(storedFilters?.kind || "ALL");
   const [search, setSearch] = useState(storedFilters?.search || "");
 
@@ -55,11 +67,12 @@ export default function Bookings() {
     const filtersToStore = {
       sort,
       bucket,
+      status,
       kind,
       search,
     };
     localStorage.setItem("bookingFilters", JSON.stringify(filtersToStore));
-  }, [sort, bucket, kind, search]);
+  }, [sort, bucket, status, kind, search]);
 
   const {
     data,
@@ -75,6 +88,7 @@ export default function Bookings() {
       "bookings",
       {
         bucket: bucket === "ALL" ? undefined : bucket,
+        status,
         kind,
         sort,
         search: debouncedSearch,
@@ -103,13 +117,18 @@ export default function Bookings() {
   const handleResetFilters = () => {
     setSort("desc");
     setBucket("ALL");
+    setStatus("PAID");
     setKind("ALL");
     setSearch("");
     localStorage.removeItem("bookingFilters");
   };
 
   const filtersChanged =
-    sort !== "desc" || bucket !== "ALL" || kind !== "ALL" || search !== "";
+    sort !== "desc" ||
+    bucket !== "ALL" ||
+    status !== "PAID" ||
+    kind !== "ALL" ||
+    search !== "";
 
   return (
     <PageContainer>
@@ -154,8 +173,20 @@ export default function Bookings() {
           <SortSelect
             options={BUCKET_OPTIONS}
             value={bucket}
-            onChange={setBucket}
+            onChange={(v: string) => {
+              setBucket(v);
+              if (v !== "ALL") setStatus("ALL");
+            }}
             label="Show:"
+          />
+          <SortSelect
+            options={STATUS_OPTIONS}
+            value={status}
+            onChange={(v: string) => {
+              setStatus(v);
+              if (v !== "ALL") setBucket("ALL");
+            }}
+            label="Status:"
           />
         </div>
         <div className="flex items-center gap-2">

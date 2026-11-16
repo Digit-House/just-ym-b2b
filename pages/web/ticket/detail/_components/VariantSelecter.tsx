@@ -137,9 +137,16 @@ const VariantSelecter = ({
 
             {/* Price */}
             <div className="flex gap-4 col-span-1 justify-end items-center">
-              <p className="font-medium">
-                ฿ {getItemPrice(item).toFixed(2)}
-              </p>
+              <div className="text-right">
+                <p className="font-medium">
+                  ฿ {getItemPrice(item).toFixed(2)}
+                </p>
+                {user.type === "OWNER" && item.nettPrice != null && (
+                  <p className="text-xs text-gray-400">
+                    Original: ฿ {Number(item.nettPrice).toFixed(2)}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         ))}
