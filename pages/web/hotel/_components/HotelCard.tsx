@@ -141,9 +141,10 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
                   {formatPrice(perNight, currency)}
                 </p>
                 <p className="text-xs text-gray-400">per night</p>
-                {nights > 1 && stayTotal > 0 && (
+                {stayTotal > 0 && (
                   <p className="text-xs text-gray-500">
-                    {formatPrice(stayTotal, currency)} total · {nights} nights
+                    {formatPrice(stayTotal, currency)} total · {nights}{" "}
+                    {nights === 1 ? "night" : "nights"}
                   </p>
                 )}
                 {user?.type === "OWNER" && bestRate?.etg_amount_per_night && (
@@ -154,7 +155,7 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
                       bestRate.etg_currency_code,
                     )}{" "}
                     / night
-                    {nights > 1 && supplierTotal > 0 && (
+                    {supplierTotal > 0 && (
                       <>
                         {" "}
                         ·{" "}

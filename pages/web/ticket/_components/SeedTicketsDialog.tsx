@@ -29,8 +29,9 @@ const SeedTicketsDialog = ({ onOpenChange, onSeeded }: Props) => {
     limit: 250,
     page: 1,
     orderBy: { dir: "asc" },
-    isPublished: null,
-    search: null,
+    // undefined, not null: the API turns null into "isPublished IS NULL" (no rows).
+    isPublished: undefined,
+    search: undefined,
   });
   // Seed needs the supplier country id; countries without one cannot be seeded.
   const countries = useMemo(
