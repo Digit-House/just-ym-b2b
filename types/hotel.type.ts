@@ -1,3 +1,5 @@
+import type { HotelTaxItem } from "@/lib/hotelPriceBreakdown";
+
 // Mirrors the backend's Etg* GraphQL schema (hotelSearchByRegion / hotelMulticomplete / hotelpageV2)
 
 export type HotelSortBy =
@@ -138,6 +140,14 @@ export type HotelRoomRatePaymentTypeT = {
   show_currency_code?: string;
   etg_amount?: string | null; // OWNER-only supplier price
   etg_currency_code?: string | null;
+  bar_show_amount?: string | null; // hotel public price in THB; null unless above show_amount
+  // OWNER-only; null for others. settlement + markup == show_amount.
+  settlement_show_amount?: string | null;
+  markup_show_amount?: string | null;
+  markup_percent?: number | null;
+  tax_data?: {
+    taxes?: HotelTaxItem[] | null;
+  } | null;
   cancellation_penalties?: { free_cancellation_before?: string | null } | null;
 };
 
@@ -145,6 +155,7 @@ export type HotelRoomDataTransT = {
   main_name?: string;
   bedding_type?: string | null;
   main_room_type?: string;
+  beds?: { bed: string; count: number }[] | null;
 };
 
 export type HotelRoomRateT = {
@@ -206,6 +217,8 @@ export type HotelBookingSelectionT = {
   guests: HotelGuestInput[]; // one entry per room; children = array of ages
   amount?: string;
   currency?: string;
+  // Full price block of the chosen rate, for the checkout breakdown.
+  payment?: HotelRoomRatePaymentTypeT;
 };
 
 export type HotelBookingGuestT = {
