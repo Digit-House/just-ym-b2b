@@ -351,6 +351,7 @@ const HotelDetail = () => {
                 guests: activeSearch.guests,
                 amount: payment?.show_amount,
                 currency: payment?.show_currency_code,
+                payment,
               });
               navigate(`/hotels/${id}/booking`);
             }}

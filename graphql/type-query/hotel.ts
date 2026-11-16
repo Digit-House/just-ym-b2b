@@ -216,6 +216,10 @@ query HotelRooms($input: EtgHotelpageInput!) {
             main_name
             bedding_type
             main_room_type
+            beds {
+              bed
+              count
+            }
           }
           meal_data {
             has_breakfast
@@ -227,6 +231,18 @@ query HotelRooms($input: EtgHotelpageInput!) {
             show_currency_code
             etg_amount
             etg_currency_code
+            bar_show_amount
+            settlement_show_amount
+            markup_show_amount
+            markup_percent
+            tax_data {
+              taxes {
+                name
+                included_by_supplier
+                amount
+                currency_code
+              }
+            }
             cancellation_penalties {
               free_cancellation_before
             }

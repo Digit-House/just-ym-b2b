@@ -1,4 +1,5 @@
 import { UserT } from "@/types/user.type";
+import { useHotelBookingStore } from "@/store/useHotelBookingStore";
 import React, { createContext, useContext, useState, ReactNode, Dispatch } from "react";
 
 type UserContextType = {
@@ -18,6 +19,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token"); 
+    // OWNER cost fields live in the persisted hotel store; reset() keeps lastReservation, so clear it too.
+    useHotelBookingStore.getState().reset();
+    useHotelBookingStore.getState().setLastReservation(null);
   };
 
   return (

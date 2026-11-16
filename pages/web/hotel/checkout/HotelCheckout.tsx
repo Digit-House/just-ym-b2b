@@ -19,6 +19,8 @@ import { useUser } from "@/provider/UserProvider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useWalletStore } from "@/store/useWalletStore";
+import PriceBreakdown from "../_components/PriceBreakdown";
+import { stayNights } from "@/lib/hotelPriceBreakdown";
 import Model from "../../cart/checkout/_components/Model";
 
 const HotelCheckout = () => {
@@ -267,24 +269,18 @@ const HotelCheckout = () => {
 
         <div className="w-full lg:w-[340px] shrink-0 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm h-fit sticky top-20">
           <p className="font-bold text-gray-900 mb-4">Order Summary</p>
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>Room rate</span>
-            <span>
-              {selection.currency}{" "}
-              {selection.amount
-                ? Number(selection.amount).toLocaleString()
-                : "—"}
-            </span>
-          </div>
-          <div className="border-t border-gray-100 mt-4 pt-4 flex items-center justify-between font-bold text-gray-900">
-            <span>Total</span>
-            <span>
-              {selection.currency}{" "}
-              {selection.amount
-                ? Number(selection.amount).toLocaleString()
-                : "—"}
-            </span>
-          </div>
+          <PriceBreakdown
+            payment={
+              selection.payment ?? {
+                type: "",
+                show_amount: selection.amount,
+                show_currency_code: selection.currency,
+              }
+            }
+            nights={stayNights(selection.checkin, selection.checkout)}
+            rooms={Math.max(1, selection.guests.length)}
+            isOwner={user?.type === "OWNER"}
+          />
         </div>
       </div>
     </PageContainer>
