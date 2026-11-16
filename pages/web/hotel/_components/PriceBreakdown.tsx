@@ -32,6 +32,9 @@ const PriceBreakdown = ({ payment, nights, rooms, isOwner }: Props) => {
         taxes: payment?.tax_data?.taxes,
       })
     : null;
+  const nightsRooms = b
+    ? `${b.nights} night${b.nights !== 1 ? "s" : ""} × ${b.rooms} room${b.rooms !== 1 ? "s" : ""}`
+    : "";
   const showOwner =
     isOwner &&
     payment?.settlement_show_amount != null &&
@@ -49,27 +52,58 @@ const PriceBreakdown = ({ payment, nights, rooms, isOwner }: Props) => {
               </span>
             </div>
           )}
-          <div className="flex items-start justify-between gap-2">
-            <span className="text-gray-500">
-              {formatPrice(b.avgPerNight, currency)} avg/night × {b.nights} night
-              {b.nights !== 1 ? "s" : ""} × {b.rooms} room
-              {b.rooms !== 1 ? "s" : ""}
-            </span>
-            <span className="text-gray-800 shrink-0">
-              {formatPrice(total, currency)}
-            </span>
-          </div>
-          {b.includedTaxes.map((t, i) => (
-            <div
-              key={`${t.name}-${i}`}
-              className="flex items-start justify-between gap-2 text-xs text-gray-400"
-            >
-              <span>Includes taxes: {taxLabel(t.name)}</span>
-              <span className="shrink-0">
-                {formatPrice(t.amount, t.currency_code)}
-              </span>
-            </div>
-          ))}
+          {b.roomAmount !== null ? (
+            <>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col">
+                  <span className="text-gray-800">Room price</span>
+                  <span className="text-xs text-gray-500">{nightsRooms}</span>
+                </div>
+                <span className="text-gray-800 shrink-0">
+                  {formatPrice(b.roomAmount, currency)}
+                </span>
+              </div>
+              {b.includedThbTaxes.map((t, i) => (
+                <div
+                  key={`${t.name}-${i}`}
+                  className="flex items-start justify-between gap-2 text-gray-500"
+                >
+                  <span>+ {taxLabel(t.name)}</span>
+                  <span className="shrink-0 text-gray-800">
+                    {formatPrice(t.amount, currency)}
+                  </span>
+                </div>
+              ))}
+              {b.includedOtherTaxes.map((t, i) => (
+                <div
+                  key={`${t.name}-${i}`}
+                  className="flex items-start justify-between gap-2 text-gray-500"
+                >
+                  <span>
+                    + {taxLabel(t.name)} <span className="text-xs">(incl.)</span>
+                  </span>
+                  <span className="shrink-0 text-gray-800">
+                    {formatPrice(t.amount, t.currency_code)}
+                  </span>
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              <span className="text-gray-500">{nightsRooms}</span>
+              {b.includedTaxes.map((t, i) => (
+                <div
+                  key={`${t.name}-${i}`}
+                  className="flex items-start justify-between gap-2 text-xs text-gray-400"
+                >
+                  <span>Includes taxes: {taxLabel(t.name)}</span>
+                  <span className="shrink-0">
+                    {formatPrice(t.amount, t.currency_code)}
+                  </span>
+                </div>
+              ))}
+            </>
+          )}
           {b.saving !== null && (
             <div>
               <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600">
