@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { differenceInCalendarDays, format, parseISO, startOfDay } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { format, parseISO } from "date-fns";
 import {
   BedDouble,
   Check,
-  CalendarIcon,
   Loader2,
   MapPin,
   Minus,
@@ -34,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/useDebounce";
 import { searchHotelDestinations } from "@/graphql/hotel";
@@ -43,7 +42,7 @@ import {
   HotelSuggestionHotelT,
   HotelSuggestionRegionT,
 } from "@/types/hotel.type";
-import { useDateRangeDraft } from "../useDateRangeDraft";
+import StayRangePicker from "./StayRangePicker";
 import { useGuestsDraft } from "../useGuestsDraft";
 import { NATIONALITIES } from "../nationalities";
 
@@ -94,12 +93,7 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
     setDraft(toDraft(search));
   }, [committedKey]);
 
-  const { draftRange, seedDraft, clearDraft, handleSelect } = useDateRangeDraft({
-    onCommit: (checkin, checkout) => {
-      setDraft((d) => ({ ...d, checkin, checkout }));
-      setDateOpen(false);
-    },
-  });
+  const [draftRange, setDraftRange] = useState<DateRange>();
 
   const guestsDraft = useGuestsDraft({
     guests: draft.guests,
@@ -124,7 +118,7 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
   const checkoutDate = parseISO(draft.checkout);
 
   const openDates = () => {
-    seedDraft(checkinDate, checkoutDate);
+    setDraftRange({ from: checkinDate, to: checkoutDate });
     setDateOpen(true);
   };
 
@@ -308,15 +302,23 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
 
         <div className="hidden md:block w-px bg-slate-100" />
 
-        {/* Dates — trip.com-style: two labeled fields sharing one range calendar. */}
-        <Popover
+        {/* Dates — guided check-in / check-out picker (same behaviour as the client site). */}
+        <StayRangePicker
           open={dateOpen}
           onOpenChange={(open) => {
             setDateOpen(open);
-            if (open) seedDraft(checkinDate, checkoutDate);
+            if (open) setDraftRange({ from: checkinDate, to: checkoutDate });
           }}
-        >
-          <PopoverTrigger asChild>
+          value={draftRange}
+          onSelect={setDraftRange}
+          onComplete={(range) => {
+            if (!range.from || !range.to) return;
+            const checkin = format(range.from, "yyyy-MM-dd");
+            const checkout = format(range.to, "yyyy-MM-dd");
+            setDraft((d) => ({ ...d, checkin, checkout }));
+            setDateOpen(false);
+          }}
+          trigger={
             <button
               type="button"
               className="flex-[1.6_0_0] flex items-stretch rounded-full hover:bg-slate-50 text-left transition-colors"
@@ -339,41 +341,8 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
                 </span>
               </span>
             </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <p className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                <CalendarIcon className="w-4 h-4 text-indigo-600" />
-                Select dates
-              </p>
-              {draftRange?.from && draftRange?.to && (
-                <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
-                  {differenceInCalendarDays(draftRange.to, draftRange.from)}{" "}
-                  night
-                  {differenceInCalendarDays(draftRange.to, draftRange.from) !== 1
-                    ? "s"
-                    : ""}
-                </span>
-              )}
-            </div>
-            <Calendar
-              mode="range"
-              numberOfMonths={2}
-              selected={draftRange}
-              disabled={{ before: startOfDay(new Date()) }}
-              onSelect={handleSelect}
-            />
-            <div className="flex items-center justify-end px-4 py-3 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={clearDraft}
-                className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                Clear
-              </button>
-            </div>
-          </PopoverContent>
-        </Popover>
+          }
+        />
 
         <div className="hidden md:block w-px bg-slate-100" />
 

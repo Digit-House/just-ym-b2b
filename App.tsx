@@ -42,7 +42,6 @@ import AdminTicketEdit from "./pages/admin/tickets/edit/[id]/TicketEdit";
 import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 import CurrencyRate from "./pages/admin/currencyRate/CurrencyRate";
 import HotelMarkup from "./pages/admin/hotelMarkup/HotelMarkup";
-import SeedTickets from "./pages/admin/seedTickets/SeedTickets";
 import Checkout from "./pages/web/cart/checkout/Checkout";
 import Preview from "./pages/web/cart/preview/Preview";
 import Vouchers from "./pages/admin/vouchers/Vouchers";
@@ -124,7 +123,6 @@ const App = () => {
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />
               <Route path="hotelMarkup" element={<HotelMarkup />} />
-              <Route path="seedTickets" element={<SeedTickets />} />
              
               <Route path="vouchers" element={<Vouchers />} />
               <Route path="admin-vouchers/create" element={<CreateVoucher />} />

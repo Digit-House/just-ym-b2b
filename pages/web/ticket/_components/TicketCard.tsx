@@ -38,7 +38,7 @@ const TicketCard = ({ user, p, handleNavigate }: Props) => {
 
         {user?.type === "OWNER" && p.nettPrice != null && (
           <p className="text-xs text-gray-400">
-            Original: ฿ {Number(p.nettPrice).toFixed(2)}
+            Supplier price: ฿ {Number(p.nettPrice).toFixed(2)}
           </p>
         )}
 

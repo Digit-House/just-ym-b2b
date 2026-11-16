@@ -6,9 +6,10 @@ import {
   RotateCcw,
   DownloadIcon,
   LayersPlusIcon,
+  DatabaseZap,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -43,6 +44,7 @@ import SingleSelect from "@/components/SingleSelect";
 import { useCities } from "@/hooks/useCities";
 import { toast } from "sonner";
 import CreateNewProductDialog from "./_components/CreateNewProductDialog";
+import SeedTicketsDialog from "./_components/SeedTicketsDialog";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Alphabet", value: "alphabet" },
@@ -59,6 +61,8 @@ export default function Tickets() {
 
   const [sortDialogOpen, setSortDialogOpen] = useState(false);
   const [newProductDialogOpen, setNewProductDialogOpen] = useState(false);
+  const [seedDialogOpen, setSeedDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: countryData } = useCountries({
     limit: 250,
@@ -328,6 +332,13 @@ export default function Tickets() {
                 <span>Create New Product</span>
               </button>
               <button
+                onClick={() => setSeedDialogOpen(true)}
+                className="w-full md:w-auto p-2.5 bg-violet-600 text-white rounded-md hover:bg-violet-700 transition-colors flex items-center justify-center gap-2 font-medium text-sm shadow-sm"
+              >
+                <DatabaseZap size={16} />
+                <span>Seed tickets</span>
+              </button>
+              <button
                 onClick={handleExportExcel}
                 className="w-full md:w-auto p-2.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 font-medium text-sm shadow-sm"
               >
@@ -379,6 +390,14 @@ export default function Tickets() {
       )}
       {newProductDialogOpen && (
         <CreateNewProductDialog onOpenChange={setNewProductDialogOpen} />
+      )}
+      {seedDialogOpen && user?.type === "OWNER" && (
+        <SeedTicketsDialog
+          onOpenChange={setSeedDialogOpen}
+          onSeeded={() =>
+            queryClient.invalidateQueries({ queryKey: ["products"] })
+          }
+        />
       )}
     </>
   );

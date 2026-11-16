@@ -21,12 +21,23 @@ import { useUser } from "@/provider/UserProvider";
 type Props = {
   hotel: HotelSearchResultT;
   handleNavigate: (e: React.MouseEvent, path: string) => void;
+  nights: number;
 };
 
-const HotelCard = ({ hotel, handleNavigate }: Props) => {
+const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
   const { user } = useUser();
   const bestRate = hotel.rates?.[0];
   const hasFreeCancellation = !!bestRate?.free_cancellation_before;
+  const currency = bestRate?.show_currency_code;
+  // Per-night price like the client site: backend value, else stay total / nights.
+  const perNight =
+    Number(bestRate?.show_amount_per_night) > 0
+      ? Number(bestRate?.show_amount_per_night)
+      : Number(bestRate?.show_amount) > 0
+        ? Math.round(Number(bestRate?.show_amount) / nights)
+        : null;
+  const stayTotal = Number(bestRate?.show_amount);
+  const supplierTotal = Number(bestRate?.etg_amount);
   const photoSrc = getHotelPhotoSrc(hotel.images, "828x560");
 
   const [recommended, setRecommended] = useState(!!hotel.isRecommended);
@@ -123,24 +134,31 @@ const HotelCard = ({ hotel, handleNavigate }: Props) => {
 
         <div className="mt-auto pt-4 flex items-end justify-between">
           <div>
-            {bestRate?.show_amount_per_night && (
+            {perNight !== null && (
               <>
                 <p className="text-lg font-bold text-gray-900">
-                  {Number(bestRate.show_amount_per_night).toLocaleString()}{" "}
-                  <span className="text-xs font-normal text-gray-500">
-                    {bestRate.show_currency_code} / night
-                  </span>
+                  {perNight.toLocaleString()} {currency}
                 </p>
-                {user?.type === "OWNER" && bestRate.etg_amount_per_night && (
-                  <p className="text-xs text-gray-400">
-                    Original:{" "}
-                    {Number(bestRate.etg_amount_per_night).toLocaleString()}{" "}
-                    {bestRate.etg_currency_code} / night
+                <p className="text-xs text-gray-400">per night</p>
+                {nights > 1 && stayTotal > 0 && (
+                  <p className="text-xs text-gray-500">
+                    {stayTotal.toLocaleString()} {currency} total · {nights}{" "}
+                    nights
                   </p>
                 )}
-                <p className="text-[11px] text-gray-400">
-                  Price for selected dates
-                </p>
+                {user?.type === "OWNER" && bestRate?.etg_amount_per_night && (
+                  <p className="text-xs text-gray-400">
+                    Supplier price:{" "}
+                    {Number(bestRate.etg_amount_per_night).toLocaleString()}{" "}
+                    {bestRate.etg_currency_code} / night
+                    {nights > 1 && supplierTotal > 0 && (
+                      <>
+                        {" "}
+                        · {supplierTotal.toLocaleString()} total
+                      </>
+                    )}
+                  </p>
+                )}
               </>
             )}
           </div>

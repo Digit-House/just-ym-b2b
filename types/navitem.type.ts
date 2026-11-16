@@ -5,7 +5,6 @@ import {
   ChartBarStacked,
   CreditCard,
   Currency,
-  DatabaseZap,
   DollarSign,
   FileText,
   HatGlasses,
@@ -101,12 +100,6 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Hotel Markup",
     path: "/hotelMarkup",
     icon: Percent,
-    types: ["OWNER"],
-  },
-  {
-    label: "Seed Tickets",
-    path: "/seedTickets",
-    icon: DatabaseZap,
     types: ["OWNER"],
   },
   {

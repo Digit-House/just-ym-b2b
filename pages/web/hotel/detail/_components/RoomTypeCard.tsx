@@ -154,7 +154,7 @@ const RoomTypeCard = ({ roomType, selectedBookHash, onSelect }: Props) => {
                       )}
                       {user?.type === "OWNER" && payment?.etg_amount && (
                         <p className="text-xs text-gray-400">
-                          Original: {payment.etg_currency_code}{" "}
+                          Supplier price: {payment.etg_currency_code}{" "}
                           {Number(payment.etg_amount).toLocaleString()}
                         </p>
                       )}
