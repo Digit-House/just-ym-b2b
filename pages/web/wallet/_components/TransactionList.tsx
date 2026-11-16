@@ -1,6 +1,6 @@
 import React from "react";
+import EmptyState from "@/components/EmptyState";
 import {
-  TrendingUp,
   CreditCard,
   User,
   CheckCircle,
@@ -53,13 +53,12 @@ const getStatusStyles = (status: string) => {
 const TransactionList: React.FC<TransactionListProps> = ({ topUpData }) => {
   if (!topUpData || topUpData.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-gray-200 text-gray-400">
-        <div className="p-3 bg-gray-50 rounded-full mb-4">
-          <TrendingUp size={24} className="opacity-50" />
-        </div>
-        <p className="font-medium text-gray-500">No transactions found</p>
-        <p className="text-xs mt-1">Top-up history will appear here</p>
-      </div>
+      <EmptyState
+        size={128}
+        className="py-12 bg-white rounded-2xl border border-dashed border-gray-200"
+        title="No transactions found"
+        description="Top-up history will appear here"
+      />
     );
   }
 

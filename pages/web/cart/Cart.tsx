@@ -13,6 +13,7 @@ import { preFixImg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import OrderSummary from "./checkout/_components/OrderSummary";
+import MascotLoader from "@/components/MascotLoader";
 
 const Cart = () => {
   const {
@@ -98,7 +99,8 @@ const Cart = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return <MascotLoader label="Loading your cart..." className="min-h-[60vh]" />;
 
   return (
     <>

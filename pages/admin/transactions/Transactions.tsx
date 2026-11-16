@@ -11,6 +11,7 @@ import { getErrMsg, PAGE_SIZE, SORT_OPTION } from "@/util/initData";
 import MultiSelect, { SelectOption } from "@/components/MultiSelect";
 import { RotateCcw, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import NotFoundComponent from "@/components/NotFoundComponent";
+import MascotLoader from "@/components/MascotLoader";
 
 const Transactions = () => {
   const [data, setData] = useState<TransactionT[]>([]);
@@ -169,7 +170,7 @@ const Transactions = () => {
               {loading && (
                 <tr>
                   <td colSpan={8} className="px-6 py-8 text-center">
-                    Loading transactions...
+                    <MascotLoader size={96} label="Loading transactions..." />
                   </td>
                 </tr>
               )}

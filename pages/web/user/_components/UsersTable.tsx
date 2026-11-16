@@ -1,5 +1,6 @@
 import { UserManagementT } from "@/types/user.type";
 import UserRow from "./UserRow";
+import EmptyState from "@/components/EmptyState";
 
 
 export default function UsersTable({
@@ -27,11 +28,8 @@ export default function UsersTable({
         <tbody>
           {users.length === 0 ? (
             <tr>
-              <td
-                colSpan={6}
-                className="px-6 py-10 text-center text-gray-500 text-sm"
-              >
-                No users found.
+              <td colSpan={6} className="px-6 py-10">
+                <EmptyState size={128} title="No users found" />
               </td>
             </tr>
           ) : (

@@ -20,6 +20,7 @@ import {
   disableTwoFactor 
 } from "@/graphql/2fa";
 import { useUser } from "@/provider/UserProvider";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 interface TwoFactorAuthProps {
   onClose: () => void;
@@ -220,6 +221,7 @@ Store these codes in a secure location. Each code can only be used once.`;
             disabled={loading}
             className="bg-indigo-600 hover:bg-indigo-700"
           >
+            {loading && <ButtonSpinner />}
             {loading ? "Setting up..." : "Start Setup"}
           </Button>
         </div>
@@ -331,6 +333,7 @@ Store these codes in a secure location. Each code can only be used once.`;
             disabled={loading || code.length !== 6}
             className="bg-indigo-600 hover:bg-indigo-700"
           >
+            {loading && <ButtonSpinner />}
             {loading ? "Verifying..." : "Verify & Enable"}
           </Button>
         </div>
@@ -472,6 +475,7 @@ Store these codes in a secure location. Each code can only be used once.`;
             variant="outline"
             className="w-full border-red-300 text-red-700 hover:bg-red-50"
           >
+            {loading && <ButtonSpinner />}
             {loading ? "Generating QR Code..." : "Generate New QR Code"}
           </Button>
         </div>
@@ -601,6 +605,7 @@ Store these codes in a secure location. Each code can only be used once.`;
             disabled={loading || code.length !== 6}
             variant="outline"
           >
+            {loading && <ButtonSpinner />}
             {loading ? "Disabling..." : "Disable 2FA"}
           </Button>
         </div>

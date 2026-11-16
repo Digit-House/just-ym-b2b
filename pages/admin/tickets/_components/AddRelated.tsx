@@ -12,7 +12,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import { useCities } from "@/hooks/useCities";
 import RelatedTicketCard from "./RelatedTicketCard";
-import SkeletonCard from "./SkeletonCard";
+import MascotLoader from "@/components/MascotLoader";
 import NotFoundComponent from "@/components/NotFoundComponent";
 import Pagination from "@/components/Pagination";
 import { RotateCcw } from "lucide-react";
@@ -314,11 +314,7 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
       </div>
 
       {isPending && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
+        <MascotLoader label="Loading products..." className="py-16" />
       )}
 
       {isError && (

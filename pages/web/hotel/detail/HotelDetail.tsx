@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import BackBtn from "@/components/BackBtn";
 import PageContainer from "@/components/PageContainer";
+import MascotLoader from "@/components/MascotLoader";
+import EmptyState from "@/components/EmptyState";
 import {
   filterValidHotelImages,
   getHotelInfo,
@@ -118,53 +120,25 @@ const HotelDetail = () => {
   if (infoPending) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-lg text-gray-600 font-medium">
-            Loading hotel details...
-          </p>
-        </div>
+        <MascotLoader label="Loading hotel details..." />
       </div>
     );
   }
 
   if (infoError || !hotelInfo) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-md">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-red-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Hotel Not Found
-            </h3>
-            <p className="text-gray-600 mb-4">
-              This hotel isn't available for the selected dates, or no longer
-              exists.
-            </p>
-          </div>
-          <Link
-            to="/hotels"
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-          >
-            Browse Hotels
-          </Link>
-        </div>
-      </div>
+      <EmptyState
+        className="min-h-[60vh]"
+        title="Hotel Not Found"
+        description="This hotel isn't available for the selected dates, or no longer exists."
+      >
+        <Link
+          to="/hotels"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+        >
+          Browse Hotels
+        </Link>
+      </EmptyState>
     );
   }
 
@@ -229,12 +203,11 @@ const HotelDetail = () => {
             </p>
 
             {roomsFetching && (
-              <div className="flex items-center justify-center gap-3 py-16">
-                <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-gray-500">
-                  Checking availability...
-                </p>
-              </div>
+              <MascotLoader
+                size={112}
+                label="Checking availability..."
+                className="py-10"
+              />
             )}
 
             {!roomsFetching && !!roomTypes.length && (
@@ -279,14 +252,12 @@ const HotelDetail = () => {
             )}
 
             {!roomsFetching && !roomTypes.length && (
-              <div className="flex flex-col items-center justify-center gap-2 py-16 bg-white border border-gray-100 rounded-2xl mb-8">
-                <p className="text-base font-semibold text-gray-700">
-                  No rooms available
-                </p>
-                <p className="text-sm text-gray-400">
-                  Try adjusting your dates or guest count.
-                </p>
-              </div>
+              <EmptyState
+                size={120}
+                className="py-10 bg-white border border-gray-100 rounded-2xl mb-8"
+                title="No rooms available"
+                description="Try adjusting your dates or guest count."
+              />
             )}
 
             {!!descriptionSections.length && (

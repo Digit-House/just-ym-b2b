@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import z from "zod";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 type Props = {
   open: boolean;
@@ -140,6 +141,7 @@ const ResendModel = ({ open, onClose, email, id }: Props) => {
                 />
                 <div className="w-full flex gap-4">
                   <Button className="flex-1" type="submit">
+                    {loading && <ButtonSpinner />}
                     {loading ? "Loading..." : "Resend"}
                   </Button>
                   <button

@@ -5,6 +5,7 @@ import ModalWrapper from "@/components/ModalWrapper";
 import CurrencyRateForm from "./_components/CurrencyRateForm";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 import { BASE_CURRENCY, currencyFormat } from "@/lib/utils";
+import MascotLoader from "@/components/MascotLoader";
 
 const CurrencyRate = () => {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -29,9 +30,7 @@ const CurrencyRate = () => {
           title="Currency Rate"
           des="Manage THB to MMK exchange rate."
         />
-        <div className="flex justify-center items-center h-64">
-          <p>Loading currency rate...</p>
-        </div>
+        <MascotLoader label="Loading currency rate..." className="h-64" />
       </PageContainer>
     );
   }

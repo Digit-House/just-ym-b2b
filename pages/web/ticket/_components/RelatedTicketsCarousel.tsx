@@ -5,6 +5,7 @@ import { relatedProducts } from "@/graphql/product";
 import { ProductT } from "@/types/product.type";
 import { UserT } from "@/types/user.type";
 import TicketCard from "./TicketCard";
+import MascotLoader from "@/components/MascotLoader";
 import { useUser } from "@/provider/UserProvider";
 
 interface RelatedTicketsCarouselProps {
@@ -111,12 +112,7 @@ const RelatedTicketsCarousel: React.FC<RelatedTicketsCarouselProps> = ({
 
         {loading ? (
           <div className="flex items-center justify-center py-5 min-h-[300px]">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-gray-500 text-sm font-medium animate-pulse">
-                Finding related tickets...
-              </p>
-            </div>
+            <MascotLoader size={120} label="Finding related tickets..." />
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-12 bg-red-50 rounded-xl border border-red-100">

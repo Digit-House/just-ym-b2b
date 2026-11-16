@@ -40,6 +40,7 @@ import { HotelGuestInput } from "@/types/hotel.type";
 import { useDateRangeDraft } from "../../useDateRangeDraft";
 import { useGuestsDraft } from "../../useGuestsDraft";
 import { NATIONALITIES } from "../../nationalities";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 export type AvailabilitySearch = {
   checkin: string;
@@ -384,6 +385,7 @@ const AvailabilityBar = ({
           }
           className="shrink-0"
         >
+          {loading && <ButtonSpinner />}
           {loading ? "Checking..." : "Check Availability"}
         </Button>
       </div>

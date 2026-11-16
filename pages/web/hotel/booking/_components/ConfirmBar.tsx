@@ -1,5 +1,6 @@
 import { StarsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 type Props = {
   disabled: boolean;
@@ -26,6 +27,7 @@ const ConfirmBar = ({ disabled, loading, onConfirm }: Props) => {
         onClick={onConfirm}
         className="w-full"
       >
+        {loading && <ButtonSpinner />}
         {loading ? "Processing..." : "Proceed to Payment"}
       </Button>
     </div>

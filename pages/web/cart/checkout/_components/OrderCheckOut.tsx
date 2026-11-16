@@ -13,6 +13,7 @@ import { getErrMsg } from "@/util/initData";
 import { useUser } from "@/provider/UserProvider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 const OrderCheckOut = () => {
   const [open, setOpen] = useState(false);
@@ -142,6 +143,7 @@ const OrderCheckOut = () => {
             }
           }}
         >
+          {loading && <ButtonSpinner />}
           {loading ? "Loading..." : "Checkout"}
         </Button>
       </div>

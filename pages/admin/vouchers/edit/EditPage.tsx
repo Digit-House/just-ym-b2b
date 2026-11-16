@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import VoucherForm from "../create/_components/VoucherForm";
 import BackBtn from "@/components/BackBtn";
+import MascotLoader from "@/components/MascotLoader";
 
 const EditVouchers = () => {
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,9 @@ const EditVouchers = () => {
   //ee
 
   if (isLoading) {
-    return <div>Loading vouchers...</div>;
+    return (
+      <MascotLoader label="Loading voucher..." className="min-h-[60vh]" />
+    );
   }
 
   if (isError || !data) {

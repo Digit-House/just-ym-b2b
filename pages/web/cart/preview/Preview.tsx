@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { confirmBooking } from "@/graphql/booking";
 import { toast } from "sonner";
 import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
+import MascotLoader from "@/components/MascotLoader";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 
 const Preview = () => {
@@ -107,9 +109,7 @@ const Preview = () => {
   if (loading || !bookingDetail) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-indigo-600 font-bold">
-          Loading...
-        </div>
+        <MascotLoader label="Loading booking..." />
       </div>
     );
   }
@@ -448,7 +448,7 @@ const Preview = () => {
                   disabled={resendLoading}
                   className="flex items-center gap-2"
                 >
-                  <Mail className="w-4 h-4" />
+                  {resendLoading ? <ButtonSpinner /> : <Mail className="w-4 h-4" />}
                   {resendLoading ? "Loading..." : "Resend Email"}
                 </Button>
                 <Button
@@ -470,6 +470,7 @@ const Preview = () => {
                   onClick={handleConfirm}
                   className="bg-green-600 hover:bg-green-700"
                 >
+                  {confirmLoading && <ButtonSpinner />}
                   {confirmLoading ? "Loading..." : "Confirm Booking"}
                 </Button>
               )}

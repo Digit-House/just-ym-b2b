@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useWalletStore } from "@/store/useWalletStore";
 import Model from "../../cart/checkout/_components/Model";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 const HotelCheckout = () => {
   const { id } = useParams();
@@ -256,6 +257,7 @@ const HotelCheckout = () => {
                     }
                   }}
                 >
+                  {loading && <ButtonSpinner />}
                   {loading ? "Loading..." : "Checkout"}
                 </Button>
               </div>

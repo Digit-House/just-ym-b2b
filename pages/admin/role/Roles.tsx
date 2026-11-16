@@ -17,6 +17,7 @@ import { getRoles, postRole, removeRole } from "@/graphql/role";
 import { RoleFormValues } from "@/types/schema/roleSchema";
 import { Button } from "@/components/ui/button";
 import DeleteModal from "@/components/DeleteModal";
+import MascotLoader from "@/components/MascotLoader";
 
 const Roles = () => {
   const [data, setData] = useState<RoleT[]>([]);
@@ -173,7 +174,7 @@ const Roles = () => {
               {loading && (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center">
-                    Loading resellers...
+                    <MascotLoader size={96} label="Loading roles..." />
                   </td>
                 </tr>
               )}
