@@ -11,6 +11,7 @@ import {
   Home,
   Hotel,
   LayoutGrid,
+  Percent,
   Settings,
   Ticket,
   UserPlus,
@@ -93,6 +94,12 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Currency Rate",
     path: "/currencyRate",
     icon: Currency,
+    types: ["OWNER"],
+  },
+  {
+    label: "Hotel Markup",
+    path: "/hotelMarkup",
+    icon: Percent,
     types: ["OWNER"],
   },
   {

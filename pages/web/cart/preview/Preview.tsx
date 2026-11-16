@@ -26,6 +26,7 @@ import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
 import { confirmBooking } from "@/graphql/booking";
 import { toast } from "sonner";
+import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
 
 
 const Preview = () => {
@@ -145,6 +146,12 @@ const Preview = () => {
                       {bookingDetail.status}
                     </p>
                   </div>
+                )}
+                {user?.type === "OWNER" && (
+                  <SupplierStatusBadge
+                    status={bookingDetail.supplierStatus}
+                    prefix="Supplier status:"
+                  />
                 )}
                 {bookingDetail.isTicketConfirmed && (
                   <div className="bg-blue-100 border border-blue-200 px-3 py-1 rounded-[4px]">

@@ -16,15 +16,29 @@ import {
 } from "@/graphql/hotel";
 import { getErrMsg } from "@/util/initData";
 import { HotelSearchResultT } from "@/types/hotel.type";
+import { useUser } from "@/provider/UserProvider";
+import { formatPrice } from "@/lib/utils";
 
 type Props = {
   hotel: HotelSearchResultT;
   handleNavigate: (e: React.MouseEvent, path: string) => void;
+  nights: number;
 };
 
-const HotelCard = ({ hotel, handleNavigate }: Props) => {
+const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
+  const { user } = useUser();
   const bestRate = hotel.rates?.[0];
   const hasFreeCancellation = !!bestRate?.free_cancellation_before;
+  const currency = bestRate?.show_currency_code ?? "USD";
+  // Per-night price like the client site: backend value, else stay total / nights.
+  const perNight =
+    Number(bestRate?.show_amount_per_night) > 0
+      ? Number(bestRate?.show_amount_per_night)
+      : Number(bestRate?.show_amount) > 0
+        ? Math.round(Number(bestRate?.show_amount) / nights)
+        : null;
+  const stayTotal = Number(bestRate?.show_amount);
+  const supplierTotal = Number(bestRate?.etg_amount);
   const photoSrc = getHotelPhotoSrc(hotel.images, "828x560");
 
   const [recommended, setRecommended] = useState(!!hotel.isRecommended);
@@ -54,7 +68,7 @@ const HotelCard = ({ hotel, handleNavigate }: Props) => {
   return (
     <div
       onClick={(e) => handleNavigate(e, `/hotels/${hotel.id}`)}
-      className="bg-white rounded-2xl min-h-[420px] border overflow-hidden cursor-pointer flex flex-col shadow-[0px_1px_4px_0px_rgba(0,0,0,0.04),0px_4px_10px_0px_rgba(0,0,0,0.08)]"
+      className="bg-white rounded-2xl h-full min-h-[420px] border overflow-hidden cursor-pointer flex flex-col shadow-[0px_1px_4px_0px_rgba(0,0,0,0.04),0px_4px_10px_0px_rgba(0,0,0,0.08)]"
     >
       <div className="aspect-[4/3] overflow-hidden">
         <ImageFallback
@@ -121,17 +135,39 @@ const HotelCard = ({ hotel, handleNavigate }: Props) => {
 
         <div className="mt-auto pt-4 flex items-end justify-between">
           <div>
-            {bestRate?.show_amount_per_night && (
+            {perNight !== null && (
               <>
                 <p className="text-lg font-bold text-gray-900">
-                  {Number(bestRate.show_amount_per_night).toLocaleString()}{" "}
-                  <span className="text-xs font-normal text-gray-500">
-                    {bestRate.show_currency_code} / night
-                  </span>
+                  {formatPrice(perNight, currency)}
                 </p>
-                <p className="text-[11px] text-gray-400">
-                  Price for selected dates
-                </p>
+                <p className="text-xs text-gray-400">per night</p>
+                {stayTotal > 0 && (
+                  <p className="text-xs text-gray-500">
+                    {formatPrice(stayTotal, currency)} total · {nights}{" "}
+                    {nights === 1 ? "night" : "nights"}
+                  </p>
+                )}
+                {user?.type === "OWNER" && bestRate?.etg_amount_per_night && (
+                  <p className="text-xs text-gray-400">
+                    Supplier price:{" "}
+                    {formatPrice(
+                      bestRate.etg_amount_per_night,
+                      bestRate.etg_currency_code,
+                    )}{" "}
+                    / night
+                    {supplierTotal > 0 && (
+                      <>
+                        {" "}
+                        ·{" "}
+                        {formatPrice(
+                          supplierTotal,
+                          bestRate.etg_currency_code,
+                        )}{" "}
+                        total
+                      </>
+                    )}
+                  </p>
+                )}
               </>
             )}
           </div>

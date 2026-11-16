@@ -53,6 +53,10 @@ export type HotelRateT = {
   show_amount?: string;
   show_amount_per_night?: string;
   show_currency_code?: string;
+  // OWNER-only supplier price; null for others
+  etg_amount?: string | null;
+  etg_amount_per_night?: string | null;
+  etg_currency_code?: string | null;
   room_amenities: string[];
 };
 
@@ -132,6 +136,8 @@ export type HotelRoomRatePaymentTypeT = {
   type: string;
   show_amount?: string;
   show_currency_code?: string;
+  etg_amount?: string | null; // OWNER-only supplier price
+  etg_currency_code?: string | null;
   cancellation_penalties?: { free_cancellation_before?: string | null } | null;
 };
 

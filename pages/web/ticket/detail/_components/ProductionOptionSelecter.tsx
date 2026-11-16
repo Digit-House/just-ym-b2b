@@ -95,9 +95,16 @@ const ProductionOptionSelecter = ({
                         }`}
                       >
                         <p className="text-[#050505] capitalize text-sm">{`${ticket.name.toLowerCase()}:`}</p>
-                        <p className=" text-indigo-700 font-bold">
-                          ฿{user.type === "OWNER" ? ticket.dhSellingPrice.toFixed(2) : ticket.dhNetPrice.toFixed(2)}
-                        </p>
+                        <div className="flex flex-col items-end">
+                          <p className=" text-indigo-700 font-bold">
+                            ฿{user.type === "OWNER" ? ticket.dhSellingPrice.toFixed(2) : ticket.dhNetPrice.toFixed(2)}
+                          </p>
+                          {user.type === "OWNER" && ticket.nettPrice != null && (
+                            <p className="text-xs text-gray-500">
+                              Supplier price: ฿{Number(ticket.nettPrice).toFixed(2)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

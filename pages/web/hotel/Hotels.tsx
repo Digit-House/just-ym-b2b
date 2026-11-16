@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BedDouble, ChevronRight } from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -51,6 +52,14 @@ export default function Hotels() {
     staleTime: 0,
     gcTime: 0,
   });
+
+  const nights = Math.max(
+    1,
+    differenceInCalendarDays(
+      parseISO(search.checkout),
+      parseISO(search.checkin),
+    ) || 1,
+  );
 
   const total = data?.pages[0]?.total_hotels || 0;
   // A hotel picked in the search box is listed first when it's in the results.
@@ -159,11 +168,15 @@ export default function Hotels() {
               key={hotel.id}
               className={
                 hotel.id === pinnedId
-                  ? "rounded-2xl ring-2 ring-indigo-600 ring-offset-2"
-                  : undefined
+                  ? "h-full rounded-2xl ring-2 ring-indigo-600 ring-offset-2"
+                  : "h-full"
               }
             >
-              <HotelCard hotel={hotel} handleNavigate={handleNavigate} />
+              <HotelCard
+                hotel={hotel}
+                handleNavigate={handleNavigate}
+                nights={nights}
+              />
             </div>
           ))}
         </div>

@@ -7,6 +7,7 @@ import {
   HOTEL_IMAGE_PLACEHOLDER,
 } from "@/graphql/hotel";
 import { HotelRoomRateT, HotelRoomTypeT } from "@/types/hotel.type";
+import { useUser } from "@/provider/UserProvider";
 
 type Props = {
   roomType: HotelRoomTypeT;
@@ -40,6 +41,7 @@ const getCancellationLabel = (rate: HotelRoomRateT) => {
 };
 
 const RoomTypeCard = ({ roomType, selectedBookHash, onSelect }: Props) => {
+  const { user } = useUser();
   const validImages = filterValidHotelImages(roomType.images);
   const thumbnail = validImages.length
     ? resolveHotelImageUrl(validImages[0], "640x400")
@@ -149,6 +151,12 @@ const RoomTypeCard = ({ roomType, selectedBookHash, onSelect }: Props) => {
                         <span className="text-xs text-gray-400">
                           Unavailable
                         </span>
+                      )}
+                      {user?.type === "OWNER" && payment?.etg_amount && (
+                        <p className="text-xs text-gray-400">
+                          Supplier price: {payment.etg_currency_code}{" "}
+                          {Number(payment.etg_amount).toLocaleString()}
+                        </p>
                       )}
                     </td>
                     <td className="px-4 py-3">

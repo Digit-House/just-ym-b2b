@@ -10,6 +10,7 @@ import BookingCard from "./_component/BookingCard";
 import NotFoundComponent from "@/components/NotFoundComponent";
 import { useDebounce } from "@/hooks/useDebounce";
 import MainSearch from "@/components/MainSearch";
+import { useUser } from "@/provider/UserProvider";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -23,6 +24,15 @@ const BUCKET_OPTIONS: SortOption[] = [
   { label: "Cancelled", value: "CANCELLED" },
 ];
 
+// OWNER-only payment status, sent as the myBookings `status` input (ALL = no filter).
+const STATUS_OPTIONS: SortOption[] = [
+  { label: "Paid", value: "PAID" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Failed", value: "FAILED" },
+  { label: "Expired", value: "EXPIRED" },
+  { label: "All", value: "ALL" },
+];
+
 const KIND_TAGS = [
   { label: "All", value: "ALL", icon: LayoutGrid },
   { label: "Tickets", value: "TICKET", icon: Ticket },
@@ -30,6 +40,9 @@ const KIND_TAGS = [
 ];
 
 export default function Bookings() {
+  const { user } = useUser();
+  const isAdmin = user?.type === "OWNER";
+
   const getStoredFilters = () => {
     const stored = localStorage.getItem("bookingFilters");
     if (stored) {
@@ -45,21 +58,32 @@ export default function Bookings() {
   const storedFilters = getStoredFilters();
 
   const [sort, setSort] = useState(storedFilters?.sort || "desc");
-  const [bucket, setBucket] = useState<string>(storedFilters?.bucket || "ALL");
+  // Stored values are validated: a stale value from another role or an old build must not leak into the query.
+  const [bucket, setBucket] = useState<string>(
+    BUCKET_OPTIONS.some((o) => o.value === storedFilters?.bucket)
+      ? storedFilters.bucket
+      : "ALL",
+  );
+  const [status, setStatus] = useState<string>(
+    STATUS_OPTIONS.some((o) => o.value === storedFilters?.status)
+      ? storedFilters.status
+      : "PAID",
+  );
   const [kind, setKind] = useState<string>(storedFilters?.kind || "ALL");
   const [search, setSearch] = useState(storedFilters?.search || "");
 
   const debouncedSearch = useDebounce(search, 2000);
 
   useEffect(() => {
+    // Persist only the control the current role can see.
     const filtersToStore = {
       sort,
-      bucket,
+      ...(isAdmin ? { status } : { bucket }),
       kind,
       search,
     };
     localStorage.setItem("bookingFilters", JSON.stringify(filtersToStore));
-  }, [sort, bucket, kind, search]);
+  }, [sort, bucket, status, kind, search, isAdmin]);
 
   const {
     data,
@@ -74,7 +98,8 @@ export default function Bookings() {
     queryKey: [
       "bookings",
       {
-        bucket: bucket === "ALL" ? undefined : bucket,
+        bucket: isAdmin || bucket === "ALL" ? undefined : bucket,
+        status: isAdmin ? status : undefined,
         kind,
         sort,
         search: debouncedSearch,
@@ -103,13 +128,17 @@ export default function Bookings() {
   const handleResetFilters = () => {
     setSort("desc");
     setBucket("ALL");
+    setStatus("PAID");
     setKind("ALL");
     setSearch("");
     localStorage.removeItem("bookingFilters");
   };
 
   const filtersChanged =
-    sort !== "desc" || bucket !== "ALL" || kind !== "ALL" || search !== "";
+    sort !== "desc" ||
+    (isAdmin ? status !== "PAID" : bucket !== "ALL") ||
+    kind !== "ALL" ||
+    search !== "";
 
   return (
     <PageContainer>
@@ -151,12 +180,21 @@ export default function Bookings() {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between mt-4 mb-10 gap-4 border border-[#21212124] py-2 px-4">
         <div className="flex flex-col md:flex-row gap-5 md:items-center">
-          <SortSelect
-            options={BUCKET_OPTIONS}
-            value={bucket}
-            onChange={setBucket}
-            label="Show:"
-          />
+          {isAdmin ? (
+            <SortSelect
+              options={STATUS_OPTIONS}
+              value={status}
+              onChange={setStatus}
+              label="Payment status:"
+            />
+          ) : (
+            <SortSelect
+              options={BUCKET_OPTIONS}
+              value={bucket}
+              onChange={setBucket}
+              label="Show:"
+            />
+          )}
         </div>
         <div className="flex items-center gap-2">
           <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />

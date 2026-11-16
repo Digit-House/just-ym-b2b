@@ -22,6 +22,7 @@ query FindAllProducts($params: UserProductsInput!) {
         type
       }
       name
+      nettPrice
       originalPrice
       price
     }
@@ -203,6 +204,7 @@ query Query($productId: String!, $date: String, $isPublished: Boolean) {
         minPurchaseQty
         name
         originalPrice
+        nettPrice
         similarTicketId
         sku
         updatedAt
@@ -371,6 +373,14 @@ export const UPDATE_PRODUCT_MUTATION = `mutation UpdateProduct($data: ProductUpd
 export const SEED_PRODUCT_MUTATION = `
 mutation Mutation($productId: String!) {
   seedProduct(productId: $productId) {
+    message
+    status
+  }
+}`;
+
+export const SEED_PRODUCT_BY_COUNTRY_MUTATION = `
+mutation SeedProductByCountry($globaltixCountryID: Float!) {
+  seedProductByCountry(globaltixCountryID: $globaltixCountryID) {
     message
     status
   }

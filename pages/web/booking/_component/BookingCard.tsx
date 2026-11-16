@@ -23,6 +23,8 @@ import { cn, truncateDescription } from "@/lib/utils";
 import ImageFallback from "@/components/ImageFallback";
 import { HOTEL_IMAGE_PLACEHOLDER, resolveHotelImageUrl } from "@/graphql/hotel";
 import { preFixImg } from "@/util/initData";
+import { useUser } from "@/provider/UserProvider";
+import SupplierStatusBadge from "./SupplierStatusBadge";
 
 type Props = {
   data: BookingSummaryT;
@@ -35,6 +37,7 @@ const FULFILLMENT_ICONS: Record<BookingFulfillmentStatus, ReactNode> = {
 };
 
 const BookingCard = ({ data }: Props) => {
+  const { user } = useUser();
   const navigate = useNavigate();
 
   // Helper to determine badge styles based on payment status
@@ -178,6 +181,12 @@ const BookingCard = ({ data }: Props) => {
                 {data.fulfillmentStatus.toLowerCase()}
               </span>
             </div>
+            {user?.type === "OWNER" && (
+              <SupplierStatusBadge
+                status={data.supplierStatus}
+                className="mt-1"
+              />
+            )}
             <div className="text-xs text-slate-500 mt-0.5">
               Qty: {data.quantity}
             </div>

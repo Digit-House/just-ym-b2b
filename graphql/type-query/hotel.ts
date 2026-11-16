@@ -127,6 +127,9 @@ query HotelSearchByRegion($input: EtgSearchRegionInput!) {
         show_amount
         show_amount_per_night
         show_currency_code
+        etg_amount
+        etg_amount_per_night
+        etg_currency_code
         room_amenities
       }
     }
@@ -222,6 +225,8 @@ query HotelRooms($input: EtgHotelpageInput!) {
             type
             show_amount
             show_currency_code
+            etg_amount
+            etg_currency_code
             cancellation_penalties {
               free_cancellation_before
             }

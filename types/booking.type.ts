@@ -79,6 +79,7 @@ export type MY_BOOKING_DATA_TYPE = {
   paymentMethod: string;
   remarks: string;
   status: BOOKING_STATUS_ENUM;
+  supplierStatus?: string | null; // OWNER-only
   transactionRefNumber: string;
   transactedAmount: number;
   transactedBy: string;
@@ -103,6 +104,7 @@ export type BookingSummaryFindInputT = {
     field?: string;
   };
   bucket?: BookingListBucket;
+  status?: "PAID" | "PENDING" | "FAILED" | "EXPIRED";
   kind?: BookingKind;
   search?: string;
 };
@@ -125,6 +127,7 @@ export type BookingSummaryT = {
   relevantDate: string;
   expiresAt?: string | null;
   referenceNumber: string;
+  supplierStatus?: string | null; // OWNER-only
   voucherDiscountAmount: number;
   hotelDetail?: {
     id: string; // ETG reservation id — what bookingItinerary(id) expects, not the summary id
