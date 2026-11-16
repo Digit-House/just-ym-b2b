@@ -17,6 +17,8 @@ import PageContainer from "@/components/PageContainer";
 import ImageFallback from "@/components/ImageFallback";
 import { Button } from "@/components/ui/button";
 import { useHotelBookingStore } from "@/store/useHotelBookingStore";
+import { useUser } from "@/provider/UserProvider";
+import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
 import ResendModel from "../../cart/preview/_component/ResendModal";
 import {
   filterValidHotelImages,
@@ -66,6 +68,7 @@ const HotelBookingConfirmation = ({
   const { id } = useParams();
   const navigate = useNavigate();
   const { contactInfo } = useHotelBookingStore();
+  const { user } = useUser();
   const [resendOpen, setResendOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -254,6 +257,14 @@ const HotelBookingConfirmation = ({
               </span>
             </div>
           </div>
+          {user?.type === "OWNER" && (
+            <div className="absolute top-4 right-4">
+              <SupplierStatusBadge
+                status={r.bookingStatus}
+                prefix="Supplier status:"
+              />
+            </div>
+          )}
         </div>
 
         {/* Property information */}

@@ -101,6 +101,7 @@ query GetTransactionDetailBy($data: FindBookingByInput!) {
     paymentMethod
     remarks
     status
+    supplierStatus
     transactedAmount
     transactedBy
     transactedTime
@@ -139,6 +140,7 @@ query MyBookings($params: BookingSummaryFindInput!) {
       relevantDate
       expiresAt
       referenceNumber
+      supplierStatus
       voucherDiscountAmount
       hotelDetail {
         id
