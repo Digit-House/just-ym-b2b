@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { DateRange } from "react-day-picker";
 import { format, parseISO } from "date-fns";
+import MascotLoader from "@/components/MascotLoader";
+import EmptyState from "@/components/EmptyState";
 import {
   BedDouble,
   Check,
-  Loader2,
   MapPin,
   Minus,
   Plus,
@@ -233,12 +234,21 @@ const HotelSearchBar = ({ search, setSearch }: Props) => {
                   <CommandEmpty>Type at least 2 characters</CommandEmpty>
                 )}
                 {queryReady && isSuggesting && (
-                  <div className="flex items-center justify-center py-6">
-                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
-                  </div>
+                  <MascotLoader
+                    size={80}
+                    label="Searching destinations..."
+                    className="py-4"
+                  />
                 )}
                 {queryReady && !isSuggesting && !hasSuggestions && (
-                  <CommandEmpty>No destinations found</CommandEmpty>
+                  <CommandEmpty className="py-4">
+                    <EmptyState
+                      compact
+                      size={80}
+                      title="No destinations found"
+                      description="Try another city, region or hotel name."
+                    />
+                  </CommandEmpty>
                 )}
                 {!isSuggesting && !!suggestions?.regions?.length && (
                   <CommandGroup heading="Regions">

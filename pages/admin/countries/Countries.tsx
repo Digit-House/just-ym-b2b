@@ -21,6 +21,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "sonner";
 import { putCountry } from "@/graphql/country";
 import { SortT } from "@/types/index.type";
+import MascotLoader from "@/components/MascotLoader";
 
 const Countries = () => {
   const [sort, setSort] = useState<SortT>("newest");
@@ -130,7 +131,7 @@ const Countries = () => {
               {isLoading && (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center">
-                    Loading countries...
+                    <MascotLoader size={96} label="Loading countries..." />
                   </td>
                 </tr>
               )}

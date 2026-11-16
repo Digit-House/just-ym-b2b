@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import DeleteModal from "@/components/DeleteModal";
+import MascotLoader from "@/components/MascotLoader";
 
 const PaymentMethods = () => {
   const [loading, setLoading] = useState(false);
@@ -173,7 +174,7 @@ const PaymentMethods = () => {
               {loading && (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center">
-                    Loading payment methods...
+                    <MascotLoader size={96} label="Loading payment methods..." />
                   </td>
                 </tr>
               )}

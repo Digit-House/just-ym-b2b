@@ -3,6 +3,8 @@ import { useTicketDetail } from "./useTicketDetail";
 import MediaCarousel from "./_components/MediaCarousel";
 import BackBtn from "@/components/BackBtn";
 import PageContainer from "@/components/PageContainer";
+import MascotLoader from "@/components/MascotLoader";
+import EmptyState from "@/components/EmptyState";
 import SevenDayPicker from "./_components/SevenDayPicker";
 import ProductionOptionSelecter from "./_components/ProductionOptionSelecter";
 import ProductAddToCart from "./_components/ProductAddToCart";
@@ -31,53 +33,25 @@ const TicketDetail = () => {
   if (loading && !product) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-lg text-gray-600 font-medium">
-            Loading ticket details...
-          </p>
-        </div>
+        <MascotLoader label="Loading ticket details..." />
       </div>
     );
   }
 
   if (!loading && !product) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-md">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-red-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Ticket Not Found
-            </h3>
-            <p className="text-gray-600 mb-4">
-              The ticket you're looking for doesn't exist or may have been
-              removed.
-            </p>
-          </div>
-          <Link
-            to="/tickets"
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-          >
-            Browse Tickets
-          </Link>
-        </div>
-      </div>
+      <EmptyState
+        className="min-h-[60vh]"
+        title="Ticket Not Found"
+        description="The ticket you're looking for doesn't exist or may have been removed."
+      >
+        <Link
+          to="/tickets"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+        >
+          Browse Tickets
+        </Link>
+      </EmptyState>
     );
   }
 

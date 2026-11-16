@@ -15,7 +15,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import NotFoundComponent from "@/components/NotFoundComponent";
-import SkeletonCard from "./_components/SkeletonCard";
+import MascotLoader from "@/components/MascotLoader";
 import RecommendedTicketsSortDialog from "@/components/RecommendedTicketsSortDialog";
 
 import {
@@ -350,11 +350,7 @@ export default function Tickets() {
         </div>
 
         {isPending && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
+          <MascotLoader label="Loading tickets..." className="py-16" />
         )}
 
         {isError && (
@@ -375,6 +371,8 @@ export default function Tickets() {
             ))}
           </div>
         )}
+
+        {isFetchingNextPage && <MascotLoader size={64} className="py-6" />}
 
         <div ref={loaderRef} className="h-10" />
 

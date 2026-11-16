@@ -13,6 +13,7 @@ import ModalWrapper from "@/components/ModalWrapper";
 import ChangePasswordForm from "./_components/ChangePasswordForm";
 import TwoFactorAuth from "./_components/TwoFactorAuth";
 import ActiveSessions from "./_components/ActiveSessions";
+import MascotLoader from "@/components/MascotLoader";
 
 
 const Settings: React.FC = () => {
@@ -20,7 +21,7 @@ const Settings: React.FC = () => {
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const { user } = useUser();
 
-  if (!user) return <div className="p-10 text-center">Loading...</div>;
+  if (!user) return <MascotLoader label="Loading settings..." className="min-h-[60vh]" />;
 
   return (
     <PageContainer className="space-y-8">

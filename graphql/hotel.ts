@@ -68,6 +68,8 @@ export const searchHotelsByRegion = async (
   return res.data.hotelSearchByRegion;
 };
 
+export const HOTEL_SEARCH_PAGE_LIMIT = 8;
+
 export const fetchHotelsByRegion = async ({
   pageParam = 1,
   queryKey,
@@ -107,7 +109,7 @@ export const fetchHotelsByRegion = async ({
     guests,
     residency,
     page: pageParam,
-    limit: 8,
+    limit: HOTEL_SEARCH_PAGE_LIMIT,
     sort_by: sort,
     filter: Object.keys(filter).length ? filter : undefined,
   };

@@ -15,6 +15,8 @@ import {
   SelectValue,
   Select,
 } from "@/components/ui/select";
+import MascotLoader from "@/components/MascotLoader";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -92,14 +94,7 @@ const Vouchers = () => {
       </div>
 
       {isPending && (
-        <div className="flex flex-col gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              className="animate-pulse bg-white rounded-2xl shadow-sm border border-gray-100 h-20"
-              key={i}
-            ></div>
-          ))}
-        </div>
+        <MascotLoader label="Loading vouchers..." className="py-16" />
       )}
 
       {isError && (
@@ -115,8 +110,9 @@ const Vouchers = () => {
           <button
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
           >
+            {isFetchingNextPage && <ButtonSpinner className="mr-2" />}
             {isFetchingNextPage ? "Loading..." : "Load More"}
           </button>
         </div>

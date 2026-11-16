@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/useDebounce";
 import NotFoundComponent from "@/components/NotFoundComponent";
+import MascotLoader from "@/components/MascotLoader";
 
 const Resellers = () => {
   const [data, setData] = useState<ResellerT[]>([]);
@@ -275,7 +276,7 @@ const Resellers = () => {
               {loading && (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center">
-                    Loading resellers...
+                    <MascotLoader size={96} label="Loading resellers..." />
                   </td>
                 </tr>
               )}

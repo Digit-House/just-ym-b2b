@@ -10,6 +10,7 @@ import {
   getHotelMarkupSetting,
   updateHotelMarkupSetting,
 } from "@/graphql/hotelMarkup";
+import MascotLoader from "@/components/MascotLoader";
 
 const QUERY_KEY = ["hotel-markup-setting"];
 
@@ -86,9 +87,7 @@ const HotelMarkup = () => {
       />
 
       {isLoading && (
-        <div className="flex justify-center items-center h-64">
-          <p>Loading hotel markup...</p>
-        </div>
+        <MascotLoader label="Loading hotel markup..." className="h-64" />
       )}
 
       {isError && (

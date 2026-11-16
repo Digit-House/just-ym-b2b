@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import VariantSelecter from "./VariantSelecter";
 import { useUser } from "@/provider/UserProvider";
+import MascotLoader from "@/components/MascotLoader";
 
 type Props = {
   loading: boolean;
@@ -54,7 +55,7 @@ const ProductionOptionSelecter = ({
     setSelectedProductOption(selectedData);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <MascotLoader size={72} label="Loading options..." className="py-4" />;
 
   return (
     <div className="w-full">

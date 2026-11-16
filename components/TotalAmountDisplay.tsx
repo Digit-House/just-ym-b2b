@@ -2,6 +2,7 @@ import { ArrowLeftRight } from "lucide-react";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 import { BASE_CURRENCY, convertCurrency, formatCurrency } from "@/lib/utils";
 import { PaymentMethodT } from "@/types/paymentMethod.type";
+import MascotLoader from "@/components/MascotLoader";
 
 interface TotalAmountDisplayProps {
   amount: number;
@@ -91,7 +92,7 @@ const TotalAmountDisplay = ({
     if (isLoading) {
       return (
         <WrapperCard title={title}>
-          <div className="text-center py-4">Calculating total amount...</div>
+          <MascotLoader size={72} label="Calculating total amount..." className="py-2" />
         </WrapperCard>
       );
     }

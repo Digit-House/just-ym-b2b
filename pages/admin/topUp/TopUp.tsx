@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useWalletStore } from "@/store/useWalletStore";
+import MascotLoader from "@/components/MascotLoader";
 
 type TopUpStatus = "CONFIRMED" | "PENDING" | "REJECTED";
 
@@ -199,7 +200,7 @@ const TopUp = () => {
               {loading && (
                 <tr>
                   <td colSpan={11} className="px-6 py-8 text-center">
-                    Loading top-up history...
+                    <MascotLoader size={96} label="Loading top-up history..." />
                   </td>
                 </tr>
               )}

@@ -37,6 +37,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getErrMsg } from "@/util/initData";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 type Props = {
   data?: VOUCHER_DETAIL_DATA_TYPE | null;
@@ -672,6 +673,7 @@ const VoucherForm = ({ data }: Props) => {
 
         <div className="flex justify-end col-span-2">
           <Button type="submit" size="lg" disabled={loading}>
+            {loading && <ButtonSpinner />}
             {loading ? "Loading..." : data ? "Update" : "Submit"}
           </Button>
         </div>

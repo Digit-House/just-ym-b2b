@@ -5,6 +5,7 @@ import {
   getOppositeCurrency,
 } from "@/lib/utils";
 import { ArrowLeftRight } from "lucide-react";
+import MascotLoader from "@/components/MascotLoader";
 
 interface CurrencyConverterProps {
   amount: number;
@@ -24,7 +25,7 @@ const CurrencyConverter = ({
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         </div>
         <div className="p-6">
-          <div className="text-center py-4">Loading exchange rate...</div>
+          <MascotLoader size={72} label="Loading exchange rate..." className="py-2" />
         </div>
       </div>
     );

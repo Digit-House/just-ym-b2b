@@ -6,7 +6,6 @@ import {
   CalendarX2,
   Download,
   ExternalLink,
-  Loader2,
   Mail,
   Phone,
   ShieldCheck,
@@ -14,6 +13,7 @@ import {
 
 import BackBtn from "@/components/BackBtn";
 import PageContainer from "@/components/PageContainer";
+import MascotLoader from "@/components/MascotLoader";
 import ImageFallback from "@/components/ImageFallback";
 import { Button } from "@/components/ui/button";
 import { useHotelBookingStore } from "@/store/useHotelBookingStore";
@@ -28,6 +28,7 @@ import {
   resolveHotelImageUrl,
   resolveHotelVoucherUrl,
 } from "@/graphql/hotel";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 const STAMP_STYLES: Record<string, string> = {
   PAID: "border-red-700 text-red-700",
@@ -103,9 +104,7 @@ const HotelBookingConfirmation = ({
   if (isLoading || !itinerary) {
     return (
       <PageContainer>
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-        </div>
+        <MascotLoader label="Loading your booking..." className="py-24" />
       </PageContainer>
     );
   }
@@ -212,13 +211,13 @@ const HotelBookingConfirmation = ({
                 onClick={() => downloadVoucher(r.voucherUrl!)}
                 className="flex items-center gap-2 bg-indigo-700 hover:bg-indigo-800"
               >
-                <Download className="w-4 h-4" />
+                {downloading ? <ButtonSpinner /> : <Download className="w-4 h-4" />}
                 {downloading ? "Downloading…" : "Download PDF"}
               </Button>
             </div>
           ) : (
             <div className="flex items-center gap-2 px-6 py-3 rounded-lg bg-gray-50 text-sm font-semibold text-gray-400 shrink-0 w-fit cursor-not-allowed">
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <ButtonSpinner />
               Preparing PDF…
             </div>
           )}

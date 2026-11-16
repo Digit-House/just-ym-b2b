@@ -15,6 +15,7 @@ import { CategoryFormValues } from "@/types/schema/categorySchema";
 import { toast } from "sonner";
 import { putCategory } from "@/graphql/category";
 import { SortT } from "@/types/index.type";
+import MascotLoader from "@/components/MascotLoader";
 
 const Categories = () => {
   const [sort, setSort] = useState<SortT>("newest");
@@ -103,7 +104,7 @@ const Categories = () => {
               {isLoading && (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center">
-                    Loading categories...
+                    <MascotLoader size={96} label="Loading categories..." />
                   </td>
                 </tr>
               )}

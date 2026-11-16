@@ -1,20 +1,24 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { BedDouble, ChevronRight } from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import NotFoundComponent from "@/components/NotFoundComponent";
+import EmptyState from "@/components/EmptyState";
+import TicketStubsLoader from "@/components/TicketStubsLoader";
 
-import { fetchHotelsByRegion } from "@/graphql/hotel";
+import { fetchHotelsByRegion, HOTEL_SEARCH_PAGE_LIMIT } from "@/graphql/hotel";
 import { useHotelSearch } from "./useHotelSearch";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import HotelSearchBar from "./_components/HotelSearchBar";
 import HotelFilters from "./_components/HotelFilters";
 import HotelCard from "./_components/HotelCard";
-import SkeletonCard from "./_components/SkeletonCard";
+import SelectedHotelCard from "./_components/SelectedHotelCard";
+import {
+  SearchError,
+  SearchPageLoader,
+} from "./_components/HotelSearchStates";
 
 export default function Hotels() {
   const navigate = useNavigate();
@@ -27,7 +31,8 @@ export default function Hotels() {
     isFetchingNextPage,
     isPending,
     isError,
-    error,
+    isFetching,
+    refetch,
   } = useInfiniteQuery({
     initialPageParam: 1,
     queryKey: [
@@ -62,16 +67,20 @@ export default function Hotels() {
   );
 
   const total = data?.pages[0]?.total_hotels || 0;
-  // A hotel picked in the search box is listed first when it's in the results.
+  // A hotel picked in the search box gets its own card above the grid (taken out of it when it's in the results).
   const pinnedId = search.selectedHotel?.id ?? null;
-  const hotels = useMemo(() => {
-    const all = data?.pages.flatMap((p) => p.hotels) ?? [];
-    if (!pinnedId) return all;
-    return [
-      ...all.filter((h) => h.id === pinnedId),
-      ...all.filter((h) => h.id !== pinnedId),
-    ];
-  }, [data, pinnedId]);
+  const hotels = useMemo(
+    () => data?.pages.flatMap((p) => p.hotels) ?? [],
+    [data],
+  );
+  const pinnedHotel = pinnedId
+    ? (hotels.find((h) => h.id === pinnedId) ?? null)
+    : null;
+  const gridHotels = pinnedHotel
+    ? hotels.filter((h) => h.id !== pinnedId)
+    : hotels;
+  // "Bangkok, Thailand" -> "Bangkok" for the loader's bubble.
+  const city = search.destinationLabel.split(",")[0].trim();
 
   const loaderRef = useInfiniteScroll(
     hasNextPage,
@@ -101,6 +110,9 @@ export default function Hotels() {
     });
   };
 
+  const searching = !!search.regionId;
+  const hasResults = searching && !isPending && !isError && !!hotels.length;
+
   return (
     <PageContainer className="w-full">
       <PageHeader
@@ -118,74 +130,79 @@ export default function Hotels() {
       />
 
       <p className="text-sm font-medium text-gray-600 mb-6">
-        {search.regionId ? (
+        {!searching ? (
+          "Choose a destination to start searching."
+        ) : isPending ? (
+          "Searching hotels..."
+        ) : (
           <>
             Total Hotels : <span className="font-bold text-gray-900">{total}</span>
           </>
-        ) : (
-          "Choose a destination to start searching."
         )}
       </p>
 
-      {search.selectedHotel && !!search.regionId && (
-        <button
-          type="button"
-          onClick={(e) => handleNavigate(e, `/hotels/${search.selectedHotel!.id}`)}
-          className="mb-6 flex w-full items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-left transition-colors hover:bg-indigo-100"
-        >
-          <BedDouble className="w-5 h-5 shrink-0 text-indigo-600" />
-          <span className="min-w-0 flex-1">
-            <span className="block text-xs text-gray-500">Your hotel</span>
-            <span className="block truncate text-sm font-semibold text-gray-900">
-              {search.selectedHotel.name}
-            </span>
-          </span>
-          <span className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-indigo-600">
-            View rooms
-            <ChevronRight className="w-4 h-4" />
-          </span>
-        </button>
+      {searching && isPending && <SearchPageLoader city={city} />}
+
+      {searching && isError && (
+        <SearchError retrying={isFetching} onRetry={() => refetch()} />
       )}
 
-      {isPending && !!search.regionId && (
+      {/* The hotel picked in the search box: its own horizontal card, out of the grid. While the search runs it
+          sits under the mascot with the price loader. */}
+      {search.selectedHotel && searching && !isError && (
+        <SelectedHotelCard
+          hotel={search.selectedHotel}
+          data={pinnedHotel}
+          pricePending={isPending}
+          noRooms={!isPending && !pinnedHotel && !hasNextPage}
+          nights={nights}
+          handleNavigate={handleNavigate}
+        />
+      )}
+
+      {hasResults && !!gridHotels.length && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonCard key={i} />
+          {gridHotels.map((hotel) => (
+            <HotelCard
+              key={hotel.id}
+              hotel={hotel}
+              handleNavigate={handleNavigate}
+              nights={nights}
+            />
           ))}
         </div>
       )}
 
-      {isError && (
-        <p className="text-center text-red-500 py-10">
-          {error instanceof Error ? error.message : "Something went wrong"}
+      <div ref={loaderRef} className="h-4" />
+
+      {isFetchingNextPage && (
+        <TicketStubsLoader
+          label={`Loading the next ${HOTEL_SEARCH_PAGE_LIMIT}…`}
+        />
+      )}
+
+      {hasResults && !hasNextPage && (
+        <p className="py-4 text-center text-sm text-gray-400">
+          You've seen all hotels
         </p>
       )}
 
-      {!isPending && !!hotels.length && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {hotels.map((hotel) => (
-            <div
-              key={hotel.id}
-              className={
-                hotel.id === pinnedId
-                  ? "h-full rounded-2xl ring-2 ring-indigo-600 ring-offset-2"
-                  : "h-full"
-              }
+      {searching && !isPending && !isError && !hotels.length && (
+        <EmptyState
+          className="py-16"
+          title="No hotels found"
+          description="Try adjusting your filters or search criteria"
+        >
+          {showReset && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="rounded-xl border border-indigo-600 px-4 py-2 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-50"
             >
-              <HotelCard
-                hotel={hotel}
-                handleNavigate={handleNavigate}
-                nights={nights}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div ref={loaderRef} className="h-10" />
-
-      {!!search.regionId && !hotels.length && !isPending && (
-        <NotFoundComponent message="No hotels found for these dates" />
+              Clear all filters
+            </button>
+          )}
+        </EmptyState>
       )}
     </PageContainer>
   );

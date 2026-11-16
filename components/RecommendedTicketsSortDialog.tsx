@@ -12,6 +12,8 @@ import {
   updateRecommendedProductPosition,
 } from "@/graphql/product";
 import ImageFallback from "@/components/ImageFallback";
+import MascotLoader from "@/components/MascotLoader";
+import EmptyState from "@/components/EmptyState";
 import { getErrMsg, preFixImg } from "@/util/initData";
 import ModalWrapper from "@/components/ModalWrapper";
 import { toast } from "sonner";
@@ -103,9 +105,7 @@ const RecommendedTicketsSortDialog = ({
     >
       <div className="py-4">
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
+          <MascotLoader size={112} className="py-4" />
         ) : (
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable
@@ -168,9 +168,12 @@ const RecommendedTicketsSortDialog = ({
         )}
 
         {!isLoading && recommendedTickets.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            No recommended tickets found
-          </div>
+          <EmptyState
+            compact
+            size={112}
+            className="py-4"
+            title="No recommended tickets found"
+          />
         )}
       </div>
     </ModalWrapper>

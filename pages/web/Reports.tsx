@@ -40,6 +40,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import ButtonSpinner from "@/components/ButtonSpinner";
 
 const ReportCard = ({ title, value }: { title: string; value: string }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
@@ -239,6 +240,7 @@ const Reports = () => {
           disabled={loading}
           className="bg-indigo-600 hover:bg-indigo-700"
         >
+          {loading && <ButtonSpinner />}
           {loading ? "Loading..." : "Export CSV"}
         </Button>
       </div>

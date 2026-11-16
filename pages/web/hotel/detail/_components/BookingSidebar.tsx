@@ -1,11 +1,44 @@
-import { CalendarClock, Users } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import {
+  BedDouble,
+  CalendarClock,
+  Info,
+  ShieldCheck,
+  Users,
+  UtensilsCrossed,
+} from "lucide-react";
+import { format, isAfter, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { HotelGuestInput, HotelRoomRateT } from "@/types/hotel.type";
+import { useUser } from "@/provider/UserProvider";
+import { stayNights } from "@/lib/hotelPriceBreakdown";
+import { formatEtgUtc } from "@/lib/etgTime";
+import PriceBreakdown from "../../_components/PriceBreakdown";
 
 export type SelectedRateT = {
   rate: HotelRoomRateT;
   roomTypeName: string;
+};
+
+const slugLabel = (slug: string) =>
+  slug.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+// No meal data -> no line (never guess "room only").
+const mealLabel = (meal: HotelRoomRateT["meal_data"]) => {
+  if (!meal) return null;
+  if (meal.has_breakfast) return "Breakfast included";
+  if (!meal.value || meal.value === "nomeal") return "Room only";
+  return slugLabel(meal.value);
+};
+
+const bedLabel = (rate: HotelRoomRateT) => {
+  const beds = rate.room_data_trans?.beds;
+  if (beds?.length) {
+    return beds
+      .map((b) => `${b.count} ${b.bed.replace(/[-_]/g, " ")} bed${b.count > 1 ? "s" : ""}`)
+      .join(", ");
+  }
+  const type = rate.room_data_trans?.bedding_type;
+  return type ? slugLabel(type) : null;
 };
 
 type Props = {
@@ -35,6 +68,17 @@ const BookingSidebar = ({
   const totalChildren = guests.reduce((s, r) => s + r.children.length, 0);
   const payment = selectedRate?.rate.payment_types?.[0];
   const isSmoking = !selectedRate?.rate.amenities_data?.includes("non-smoking");
+  const { user } = useUser();
+  const nights = stayNights(checkin, checkout);
+  const rooms = Math.max(1, guests.length);
+  const meal = selectedRate ? mealLabel(selectedRate.rate.meal_data) : null;
+  const bed = selectedRate ? bedLabel(selectedRate.rate) : null;
+  // UTC "Z" timestamp, shown in UTC like ETG sets it. Past or missing = non-refundable.
+  const freeUntil = payment?.cancellation_penalties?.free_cancellation_before;
+  const freeCancel =
+    freeUntil && isAfter(parseISO(freeUntil), new Date())
+      ? formatEtgUtc(freeUntil)
+      : null;
 
   return (
     <div className="w-full lg:w-[340px] shrink-0 sticky top-20 bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-5">
@@ -52,6 +96,18 @@ const BookingSidebar = ({
             {selectedRate && (
               <p className="text-xs text-gray-400 mt-0.5">
                 {isSmoking ? "Smoking allowed" : "Non-smoking"}
+              </p>
+            )}
+            {meal && (
+              <p className="mt-2 flex items-center gap-2 text-sm text-gray-700">
+                <UtensilsCrossed size={14} className="text-gray-400 shrink-0" />
+                {meal}
+              </p>
+            )}
+            {bed && (
+              <p className="mt-1 flex items-center gap-2 text-sm text-gray-700">
+                <BedDouble size={14} className="text-gray-400 shrink-0" />
+                {bed}
               </p>
             )}
           </div>
@@ -121,10 +177,11 @@ const BookingSidebar = ({
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
                   Guest
                 </p>
-                <p className="text-sm font-medium text-gray-700 truncate">
+                <p className="text-sm font-medium text-gray-700">
                   {totalAdults} Adult{totalAdults !== 1 ? "s" : ""}
                   {totalChildren > 0 &&
-                    `, ${totalChildren} Child(${totalChildren !== 1 ? "ren" : ""})`}
+                    `, ${totalChildren} ${totalChildren !== 1 ? "Children" : "Child"}`}
+                  {` · ${rooms} Room${rooms !== 1 ? "s" : ""} · ${nights} night${nights !== 1 ? "s" : ""}`}
                 </p>
               </div>
             </div>
@@ -137,14 +194,33 @@ const BookingSidebar = ({
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
-          <p className="font-semibold text-gray-900">Total Payment</p>
-          <p className="font-bold text-gray-900">
-            {payment?.show_amount
-              ? `${payment.show_currency_code} ${Number(payment.show_amount).toLocaleString()}`
-              : "—"}
-          </p>
+        <div className="border-t border-gray-100 pt-4">
+          <PriceBreakdown
+            payment={payment}
+            nights={nights}
+            rooms={rooms}
+            isOwner={user?.type === "OWNER"}
+          />
         </div>
+
+        {selectedRate && (
+          <ul className="border-t border-gray-100 pt-4 flex flex-col gap-2.5 text-sm">
+            <li
+              className={`flex items-start gap-2 ${freeCancel ? "text-green-600" : "text-red-600"}`}
+            >
+              <ShieldCheck size={16} className="mt-0.5 shrink-0" />
+              <span>
+                {freeCancel
+                  ? `Free cancellation until ${freeCancel}`
+                  : "Non-refundable"}
+              </span>
+            </li>
+            <li className="flex items-start gap-2 text-gray-500">
+              <Info size={16} className="mt-0.5 shrink-0" />
+              <span>No booking fee. Price confirmed before payment.</span>
+            </li>
+          </ul>
+        )}
       </div>
 
       <Button

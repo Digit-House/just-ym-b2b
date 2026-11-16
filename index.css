@@ -144,14 +144,86 @@
   box-shadow: none !important;
 }
 
-/* Custom animations for loading component */
-@keyframes progress {
-  0% { width: 0%; }
-  100% { width: 100%; }
+/* Loader motion shared with the consumer site (hotel listing design). */
+.jy-hop-dot {
+  animation: jy-hop 0.7s ease-in-out infinite;
 }
-
-.animate-progress {
-  animation: progress 2s ease-in-out infinite;
+.jy-stub {
+  animation: jy-pulse 1.2s infinite;
+}
+.jy-stub:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.jy-stub:nth-child(3) {
+  animation-delay: 0.5s;
+}
+/* Speech bubble with its tail on top; the tail's fill covers the border so both read as one shape. */
+.jy-bubble {
+  position: relative;
+}
+.jy-bubble::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 7px);
+  top: -9px;
+  width: 14px;
+  height: 14px;
+  background: var(--color-indigo-50);
+  border-left: 2px solid var(--color-indigo-600);
+  border-bottom: 2px solid var(--color-indigo-600);
+  transform: rotate(135deg);
+}
+/* Card price placeholder: the mascot's sunglasses, bobbing and blinking. */
+.jy-sunglasses {
+  animation: jy-bob 1.2s ease-in-out infinite;
+}
+.jy-lens {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: jy-blink 2.4s infinite;
+}
+@keyframes jy-bob {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes jy-blink {
+  0%,
+  90%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.15);
+  }
+}
+@keyframes jy-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes jy-pulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jy-hop-dot,
+  .jy-stub,
+  .jy-sunglasses,
+  .jy-lens {
+    animation: none;
+  }
 }
 
 /* Ensure smooth transitions for logo scaling */

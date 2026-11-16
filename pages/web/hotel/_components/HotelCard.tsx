@@ -1,20 +1,15 @@
-import { useEffect, useState } from "react";
 import {
-  ArrowRight,
   MapPin,
   ShieldCheck,
   Star,
   UtensilsCrossed,
 } from "lucide-react";
-import { toast } from "sonner";
 import ImageFallback from "@/components/ImageFallback";
-import { Switch } from "@/components/ui/switch";
 import {
   getHotelPhotoSrc,
   HOTEL_IMAGE_PLACEHOLDER,
-  updateHotel,
 } from "@/graphql/hotel";
-import { getErrMsg } from "@/util/initData";
+import RecommendedToggle from "./RecommendedToggle";
 import { HotelSearchResultT } from "@/types/hotel.type";
 import { useUser } from "@/provider/UserProvider";
 import { formatPrice } from "@/lib/utils";
@@ -40,30 +35,6 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
   const stayTotal = Number(bestRate?.show_amount);
   const supplierTotal = Number(bestRate?.etg_amount);
   const photoSrc = getHotelPhotoSrc(hotel.images, "828x560");
-
-  const [recommended, setRecommended] = useState(!!hotel.isRecommended);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setRecommended(!!hotel.isRecommended);
-  }, [hotel.isRecommended]);
-
-  // Optimistic toggle — flip immediately, revert if the mutation fails.
-  const handleToggleRecommended = async (checked: boolean) => {
-    setRecommended(checked);
-    setSaving(true);
-    try {
-      await updateHotel({ id: hotel.id, isRecommended: checked });
-      toast.success(
-        checked ? "Marked as recommended" : "Removed from recommended",
-      );
-    } catch (err: any) {
-      setRecommended(!checked);
-      toast.error(getErrMsg(err, "message"));
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div
@@ -121,16 +92,10 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
             Read More <ArrowRight size={16} className="ml-1" />
           </button> */}
           <span className="text-xs text-gray-500">Recommended</span>
-          <div
-            className="flex items-center gap-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Switch
-              checked={recommended}
-              disabled={saving}
-              onCheckedChange={handleToggleRecommended}
-            />
-          </div>
+          <RecommendedToggle
+            hotelId={hotel.id}
+            isRecommended={hotel.isRecommended}
+          />
         </div>
 
         <div className="mt-auto pt-4 flex items-end justify-between">

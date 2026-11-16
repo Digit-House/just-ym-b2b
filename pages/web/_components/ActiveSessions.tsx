@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Laptop, Smartphone, MapPin, Clock, LogOut, RefreshCw, MonitorSmartphone, ChevronDown, History } from "lucide-react";
+import { Laptop, Smartphone, MapPin, Clock, LogOut, RefreshCw, ChevronDown, History } from "lucide-react";
 import { toast } from "sonner";
+import EmptyState from "@/components/EmptyState";
 import { getMySessions, logoutAllSessions, revokeSession, SessionT } from "@/graphql/session";
+import MascotLoader from "@/components/MascotLoader";
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "---";
@@ -133,11 +135,7 @@ const ActiveSessions: React.FC = () => {
       </div>
 
       {loading && sessions.length === 0 && (
-        <div className="space-y-3">
-          {[0, 1].map((i) => (
-            <div key={i} className="h-[76px] rounded-xl bg-gray-100 animate-pulse motion-reduce:animate-none" />
-          ))}
-        </div>
+        <MascotLoader size={96} label="Loading sessions..." className="py-4" />
       )}
 
       {!loading && error && (
@@ -218,10 +216,12 @@ const ActiveSessions: React.FC = () => {
       )}
 
       {!loading && !error && sessions.length === 0 && (
-        <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 flex flex-col items-center gap-2">
-          <MonitorSmartphone size={20} className="text-gray-400" />
-          No active sessions found.
-        </div>
+        <EmptyState
+          compact
+          size={96}
+          className="rounded-xl border border-dashed border-gray-200 p-6"
+          title="No active sessions found"
+        />
       )}
 
       {!error && history.length > 0 && (
