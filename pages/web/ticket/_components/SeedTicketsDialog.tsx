@@ -33,11 +33,8 @@ const SeedTicketsDialog = ({ onOpenChange, onSeeded }: Props) => {
     isPublished: undefined,
     search: undefined,
   });
-  // Seed needs the supplier country id; countries without one cannot be seeded.
-  const countries = useMemo(
-    () => (data?.data ?? []).filter((c) => c.globaltixId != null),
-    [data],
-  );
+  // All countries are listed for seeding; the API seeds by our own country id.
+  const countries = useMemo(() => data?.data ?? [], [data]);
 
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -50,12 +47,12 @@ const SeedTicketsDialog = ({ onOpenChange, onSeeded }: Props) => {
   const selected = countries.find((c) => c.id === selectedId);
 
   const handleSeed = async () => {
-    if (!selected?.globaltixId) return;
+    if (!selected) return;
     setConfirmOpen(false);
     setRunning(true);
     setResult(null);
     try {
-      const res = await seedProductByCountry(selected.globaltixId);
+      const res = await seedProductByCountry(selected.id);
       setResult({ ok: true, message: `${selected.name}: ${res.message}` });
       onSeeded();
     } catch (err) {
