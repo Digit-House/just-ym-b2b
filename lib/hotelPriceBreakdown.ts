@@ -20,6 +20,12 @@ export type HotelPriceBreakdown = {
   savingPercent: number | null;
   includedTaxes: HotelTaxItem[];
   payAtHotelTaxes: HotelTaxItem[];
+  /** Included THB tax lines, each rounded up; subtracted from the total to get the room price. */
+  includedThbTaxes: { name: string; amount: number }[];
+  /** Included non-THB tax lines; shown as-is, never subtracted. */
+  includedOtherTaxes: HotelTaxItem[];
+  /** total - includedThbTaxes, so the lines sum to the total; null when that is <= 0. */
+  roomAmount: number | null;
 };
 
 export const stayNights = (checkin: string, checkout: string) =>
@@ -39,6 +45,13 @@ export const getPriceBreakdown = (opts: {
   const saving = barAmount === null ? null : barAmount - opts.total;
   // A tax with no positive amount is hidden, never shown as 0.
   const taxes = (opts.taxes ?? []).filter((t) => Number(t.amount) > 0);
+  const included = taxes.filter(
+    (t) => t.included_by_supplier && Number(t.amount) > 0,
+  );
+  const includedThbTaxes = included
+    .filter((t) => t.currency_code === "THB")
+    .map((t) => ({ name: t.name, amount: Math.ceil(Number(t.amount)) }));
+  const room = includedThbTaxes.reduce((left, t) => left - t.amount, opts.total);
   return {
     nights,
     rooms,
@@ -49,7 +62,10 @@ export const getPriceBreakdown = (opts: {
       barAmount === null || saving === null
         ? null
         : Math.round((saving / barAmount) * 100),
-    includedTaxes: taxes.filter((t) => t.included_by_supplier),
+    includedTaxes: included,
     payAtHotelTaxes: taxes.filter((t) => !t.included_by_supplier),
+    includedThbTaxes,
+    includedOtherTaxes: included.filter((t) => t.currency_code !== "THB"),
+    roomAmount: room > 0 ? room : null,
   };
 };
