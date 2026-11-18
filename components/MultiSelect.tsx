@@ -9,7 +9,7 @@ export interface SelectOption {
 interface Props {
   label?: string;
   placeholder?: string;
-  options: SelectOption[];
+  options?: SelectOption[];
   value: string[];
   onChange: (value: string[]) => void;
   width?: string; // tailwind width class e.g. "w-56"
@@ -70,7 +70,7 @@ export default function MultiSelect({
           )}
 
           <div className="space-y-5 h-[200px] overflow-scroll">
-            {options.map(option => (
+            {(options ?? []).map(option => (
               <label
                 key={option.id}
                 className="flex cursor-pointer items-center gap-3 text-sm text-gray-700"

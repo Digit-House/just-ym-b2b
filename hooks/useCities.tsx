@@ -37,10 +37,10 @@ export const useCities = ({
           fetchPolicy: "no-cache",
         });
 
-        return data?.cities || [];
+        return data?.cities ?? { data: [], total: 0 };
       } catch (err) {
         console.error("Error fetching cities:", err);
-        return [];
+        return { data: [], total: 0 };
       }
     },
     staleTime: Infinity,
