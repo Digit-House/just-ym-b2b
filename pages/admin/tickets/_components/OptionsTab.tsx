@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Control,
   FieldErrors,
@@ -10,12 +10,20 @@ import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Label } from "@/components/ui/label";
-import { NotebookIcon, Plus, Tag, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronDown,
+  NotebookIcon,
+  Plus,
+  Tag,
+  Trash2,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import TextareaField from "@/components/TextareaField";
 import ReadOnly from "@/components/ReadOnly";
 import { Button } from "@/components/ui/button";
 import { formatUtcDate } from "@/lib/dateFormat";
+import { AnimatePresence, motion } from "framer-motion";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -44,6 +52,40 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
     return () => clearTimeout(timer);
   }, [watchedProductOptions, trigger]);
+
+  // Fold state per package. Packages start collapsed.
+  const [openPackages, setOpenPackages] = useState<Set<number>>(new Set());
+  const optionCount = watchedProductOptions?.length ?? 0;
+
+  const togglePackage = (index: number) =>
+    setOpenPackages((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+
+  const expandAll = () =>
+    setOpenPackages(new Set(Array.from({ length: optionCount }, (_, i) => i)));
+  const collapseAll = () => setOpenPackages(new Set());
+
+  // Packages with validation errors open automatically so the errors are visible.
+  const errorIndexKey = useMemo(() => {
+    const optionErrors = errors.productOptions;
+    if (!optionErrors) return "";
+    return Array.from({ length: optionCount }, (_, i) => i)
+      .filter((i) => !!(optionErrors as any)[i])
+      .join(",");
+  }, [errors.productOptions, optionCount]);
+
+  useEffect(() => {
+    if (!errorIndexKey) return;
+    setOpenPackages((prev) => {
+      const next = new Set(prev);
+      errorIndexKey.split(",").forEach((i) => next.add(Number(i)));
+      return next;
+    });
+  }, [errorIndexKey]);
 
   const updateTicketType = (
     optionIndex: number,
@@ -214,356 +256,489 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h4 className="text-lg font-medium">Packages</h4>
+          {optionCount > 1 && (
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={expandAll}
+              >
+                Expand all
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={collapseAll}
+              >
+                Collapse all
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">
-          {watchedProductOptions?.map((option, optionIndex) => (
-            <div
-              key={option.id ?? `option-${optionIndex}`}
-              className="space-y-4 p-6 rounded-lg border bg-gray-50"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h4 className="text-lg font-semibold">
-                  Package {optionIndex + 1}
-                </h4>
-              </div>
+          {watchedProductOptions?.map((option, optionIndex) => {
+            const isOpen = openPackages.has(optionIndex);
+            const hasError = !!errors.productOptions?.[optionIndex];
+            const ticketTypeCount = option.ticketTypes?.length ?? 0;
 
-              <div className="grid grid-cols-1 gap-4 mb-6">
-                <InputField
-                  label="Package Name"
-                  value={option.name ?? ""}
-                  onChange={(e) =>
-                    updateProductOption(optionIndex, "name", e.target.value)
-                  }
-                  errMsg={errors.productOptions?.[optionIndex]?.name?.message}
-                />
-
-                <TextareaField
-                  label="Package Description"
-                  value={option.description ?? ""}
-                  onChange={(e) =>
-                    updateProductOption(
-                      optionIndex,
-                      "description",
-                      e.target.value
-                    )
-                  }
-                  errMsg={
-                    errors.productOptions?.[optionIndex]?.description?.message
-                  }
-                />
-              </div>
-
-              <ReadOnly label="Ticket Validity" value={option.ticketValidity} />
-
-              <ReadOnly
-                label="Redeem Start"
-                value={
-                  option.redeemStart ? formatUtcDate(option.redeemStart) : "---"
-                }
-              />
-
-              <ReadOnly
-                label="Redeem End"
-                value={
-                  option.redeemEnd ? formatUtcDate(option.redeemEnd) : "---"
-                }
-              />
-
-              <ReadOnly
-                label="Defined Duration"
-                value={option.definedDuration}
-              />
-
-              <ReadOnly
-                label="Visit Date"
-                value={option.visitDate.isOpenDated ? "True" : "False"}
-              />
-
-              <div className="mb-4">
-                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
-                  <Checkbox
-                    checked={option.thaiNationalOnly}
-                    onCheckedChange={(checked) =>
-                      updateProductOption(
-                        optionIndex,
-                        "thaiNationalOnly",
-                        checked
-                      )
-                    }
-                  />
-                  <Label>Thai National Only</Label>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <hr className="border-gray-200 mt-5" />
-                <div className="flex items-center gap-2 mb-4">
-                  <NotebookIcon className="h-5 w-5 text-red-500" />
-                  <h4 className="text-lg font-semibold text-gray-800">
-                    Inclusions
-                  </h4>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* English */}
-                  <div className="space-y-3">
-                    <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
-                      English
-                    </h5>
-                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                      {option.inclusions.map((item, index) => (
-                        <div key={index} className="relative group">
-                          <TextareaField
-                            label=""
-                            value={item}
-                            onChange={(e) =>
-                              updateInclusion(
-                                optionIndex,
-                                index,
-                                e.target.value,
-                                false
-                              )
-                            }
-                            placeholder="Enter inclusions"
-                            minHeight={60}
-                            maxHeight={150}
-                          />
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() =>
-                                removeInclusion(optionIndex, index, false)
-                              }
-                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        onClick={() => addInclusion(optionIndex, false)}
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <Plus className="h-4 w-4 mr-2" /> Add Inclusions
-                      </Button>
-                    </div>
+            return (
+              <div
+                key={option.id ?? `option-${optionIndex}`}
+                className={`rounded-lg border bg-gray-50 ${
+                  hasError ? "border-red-300" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => togglePackage(optionIndex)}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center gap-3 px-6 py-4 text-left cursor-pointer"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                      Package {optionIndex + 1}
+                    </p>
+                    <p className="truncate text-base font-semibold text-gray-900">
+                      {option.name || "Untitled package"}
+                    </p>
                   </div>
-
-                  {/* Myanmar */}
-                  <div className="space-y-3">
-                    <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
-                      Myanmar
-                    </h5>
-                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                      {option.inclusions_mm.map((item, index) => (
-                        <div key={index} className="relative group">
-                          <TextareaField
-                            label=""
-                            value={item}
-                            onChange={(e) =>
-                              updateInclusion(
-                                optionIndex,
-                                index,
-                                e.target.value,
-                                true
-                              )
-                            }
-                            placeholder="Enter inclusions (MM)"
-                            minHeight={60}
-                            maxHeight={150}
-                          />
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() =>
-                                removeInclusion(optionIndex, index, true)
-                              }
-                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        onClick={() => addInclusion(optionIndex, true)}
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <Plus className="h-4 w-4 mr-2" /> Add Inclusions MM
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
-                  <Checkbox
-                    checked={!!option.isPublished}
-                    onCheckedChange={(checked) =>
-                      updateProductOption(optionIndex, "isPublished", checked)
-                    }
-                  />
-                  <Label>Is Published</Label>
-                </div>
-              </div>
-
-              {/* Ticket Types */}
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h5 className="font-medium">Ticket Types</h5>
-                </div>
-
-                {option.ticketTypes?.map((ticketType, ticketIndex) => {
-                  const ticketErrors =
-                    errors.productOptions?.[optionIndex]?.ticketTypes?.[
-                      ticketIndex
-                    ];
-
-                  return (
-                    <div
-                      key={`${optionIndex}-${ticketIndex}`}
-                      className={`p-4 rounded-lg border mb-3 ${
-                        ticketErrors ? "bg-red-50 border-red-300" : "bg-white"
+                  <div className="flex shrink-0 items-center gap-2">
+                    {hasError && (
+                      <span className="flex items-center gap-1 text-xs font-medium text-red-600">
+                        <AlertCircle className="h-4 w-4" />
+                        Needs fixing
+                      </span>
+                    )}
+                    <span className="hidden sm:inline text-xs text-gray-500">
+                      {ticketTypeCount} ticket type
+                      {ticketTypeCount === 1 ? "" : "s"}
+                    </span>
+                    <span
+                      className={`rounded-md px-2 py-0.5 text-xs font-medium ${
+                        option.isPublished
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-200 text-gray-600"
                       }`}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <h6 className="font-medium">{ticketType.name}</h6>
-                      </div>
+                      {option.isPublished ? "Published" : "Unpublished"}
+                    </span>
+                    <ChevronDown
+                      className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <InputField
-                          label="Original Price"
-                          type="number"
-                          value={ticketType.originalPrice ?? ""}
-                          disabled={true}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="package-body"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="space-y-4 px-6 pb-6 pt-2 border-t">
+                        <div className="grid grid-cols-1 gap-4 mb-6">
+                          <InputField
+                            label="Package Name"
+                            value={option.name ?? ""}
+                            onChange={(e) =>
+                              updateProductOption(
+                                optionIndex,
+                                "name",
+                                e.target.value
+                              )
+                            }
+                            errMsg={
+                              errors.productOptions?.[optionIndex]?.name
+                                ?.message
+                            }
+                          />
+
+                          <TextareaField
+                            label="Package Description"
+                            value={option.description ?? ""}
+                            onChange={(e) =>
+                              updateProductOption(
+                                optionIndex,
+                                "description",
+                                e.target.value
+                              )
+                            }
+                            errMsg={
+                              errors.productOptions?.[optionIndex]?.description
+                                ?.message
+                            }
+                          />
+                        </div>
+
+                        <ReadOnly
+                          label="Ticket Validity"
+                          value={option.ticketValidity}
                         />
 
-                        <InputField
-                          label="Net Price"
-                          type="number"
-                          value={ticketType.nettPrice ?? ""}
-                          disabled={true}
-                        />
-
-                        <InputField
-                          label="Minimum Selling Price"
-                          type="number"
-                          value={ticketType.minimumSellingPrice ?? ""}
-                          disabled={true}
-                        />
-
-                        <InputField
-                          label="Recommended Selling Price"
-                          type="number"
-                          value={ticketType.recommendedSellingPrice ?? ""}
-                          disabled={true}
-                        />
-
-                        <InputField
-                          label="DH Selling Price"
-                          type="number"
-                          value={ticketType.dhSellingPrice ?? ""}
-                          onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhSellingPrice",
-                              value
-                            );
-                          }}
-                          errMsg={ticketErrors?.dhSellingPrice?.message}
-                        />
-
-                        <InputField
-                          label="DH Net Price"
-                          type="number"
-                          value={ticketType.dhNetPrice ?? ""}
-                          onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhNetPrice",
-                              value
-                            );
-                          }}
-                          errMsg={ticketErrors?.dhNetPrice?.message}
-                        />
-
-                        <InputField
-                          label="DH Minimum Selling Price"
-                          type="number"
-                          value={ticketType.dhMinimumSellingPrice ?? ""}
-                          onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhMinimumSellingPrice",
-                              value
-                            );
-                          }}
-                          errMsg={
-                            ticketErrors?.dhRecommendedSellingPrice?.message
+                        <ReadOnly
+                          label="Redeem Start"
+                          value={
+                            option.redeemStart
+                              ? formatUtcDate(option.redeemStart)
+                              : "---"
                           }
                         />
 
-                        <InputField
-                          label="DH Recommended Selling Price"
-                          type="number"
-                          value={ticketType.dhRecommendedSellingPrice ?? ""}
-                          onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            updateTicketType(
-                              optionIndex,
-                              ticketIndex,
-                              "dhRecommendedSellingPrice",
-                              value
-                            );
-                          }}
-                          errMsg={
-                            ticketErrors?.dhRecommendedSellingPrice?.message
+                        <ReadOnly
+                          label="Redeem End"
+                          value={
+                            option.redeemEnd
+                              ? formatUtcDate(option.redeemEnd)
+                              : "---"
                           }
                         />
-                      </div>
-                    </div>
-                  );
-                })}
 
-                {(!option.ticketTypes || option.ticketTypes.length === 0) && (
-                  <p className="text-gray-500 text-sm mb-3">
-                    No ticket types added yet.
-                  </p>
-                )}
+                        <ReadOnly
+                          label="Defined Duration"
+                          value={option.definedDuration}
+                        />
+
+                        <ReadOnly
+                          label="Visit Date"
+                          value={
+                            option.visitDate.isOpenDated ? "True" : "False"
+                          }
+                        />
+
+                        <div className="mb-4">
+                          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
+                            <Checkbox
+                              checked={option.thaiNationalOnly}
+                              onCheckedChange={(checked) =>
+                                updateProductOption(
+                                  optionIndex,
+                                  "thaiNationalOnly",
+                                  checked
+                                )
+                              }
+                            />
+                            <Label>Thai National Only</Label>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <hr className="border-gray-200 mt-5" />
+                          <div className="flex items-center gap-2 mb-4">
+                            <NotebookIcon className="h-5 w-5 text-red-500" />
+                            <h4 className="text-lg font-semibold text-gray-800">
+                              Inclusions
+                            </h4>
+                          </div>
+
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            {/* English */}
+                            <div className="space-y-3">
+                              <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                English
+                              </h5>
+                              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                {option.inclusions.map((item, index) => (
+                                  <div key={index} className="relative group">
+                                    <TextareaField
+                                      label=""
+                                      value={item}
+                                      onChange={(e) =>
+                                        updateInclusion(
+                                          optionIndex,
+                                          index,
+                                          e.target.value,
+                                          false
+                                        )
+                                      }
+                                      placeholder="Enter inclusions"
+                                      minHeight={60}
+                                      maxHeight={150}
+                                    />
+                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                          removeInclusion(
+                                            optionIndex,
+                                            index,
+                                            false
+                                          )
+                                        }
+                                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                                <Button
+                                  type="button"
+                                  onClick={() =>
+                                    addInclusion(optionIndex, false)
+                                  }
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full"
+                                >
+                                  <Plus className="h-4 w-4 mr-2" /> Add
+                                  Inclusions
+                                </Button>
+                              </div>
+                            </div>
+
+                            {/* Myanmar */}
+                            <div className="space-y-3">
+                              <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Myanmar
+                              </h5>
+                              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                {option.inclusions_mm.map((item, index) => (
+                                  <div key={index} className="relative group">
+                                    <TextareaField
+                                      label=""
+                                      value={item}
+                                      onChange={(e) =>
+                                        updateInclusion(
+                                          optionIndex,
+                                          index,
+                                          e.target.value,
+                                          true
+                                        )
+                                      }
+                                      placeholder="Enter inclusions (MM)"
+                                      minHeight={60}
+                                      maxHeight={150}
+                                    />
+                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                          removeInclusion(
+                                            optionIndex,
+                                            index,
+                                            true
+                                          )
+                                        }
+                                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                                <Button
+                                  type="button"
+                                  onClick={() =>
+                                    addInclusion(optionIndex, true)
+                                  }
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full"
+                                >
+                                  <Plus className="h-4 w-4 mr-2" /> Add
+                                  Inclusions MM
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg py-3">
+                            <Checkbox
+                              checked={!!option.isPublished}
+                              onCheckedChange={(checked) =>
+                                updateProductOption(
+                                  optionIndex,
+                                  "isPublished",
+                                  checked
+                                )
+                              }
+                            />
+                            <Label>Is Published</Label>
+                          </div>
+                        </div>
+
+                        {/* Ticket Types */}
+                        <div className="mb-4">
+                          <div className="flex justify-between items-center mb-3">
+                            <h5 className="font-medium">Ticket Types</h5>
+                          </div>
+
+                          {option.ticketTypes?.map(
+                            (ticketType, ticketIndex) => {
+                              const ticketErrors =
+                                errors.productOptions?.[optionIndex]
+                                  ?.ticketTypes?.[ticketIndex];
+
+                              return (
+                                <div
+                                  key={`${optionIndex}-${ticketIndex}`}
+                                  className={`p-4 rounded-lg border mb-3 ${
+                                    ticketErrors
+                                      ? "bg-red-50 border-red-300"
+                                      : "bg-white"
+                                  }`}
+                                >
+                                  <div className="flex justify-between items-start mb-3">
+                                    <h6 className="font-medium">
+                                      {ticketType.name}
+                                    </h6>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <InputField
+                                      label="Original Price"
+                                      type="number"
+                                      value={ticketType.originalPrice ?? ""}
+                                      disabled={true}
+                                    />
+
+                                    <InputField
+                                      label="Net Price"
+                                      type="number"
+                                      value={ticketType.nettPrice ?? ""}
+                                      disabled={true}
+                                    />
+
+                                    <InputField
+                                      label="Minimum Selling Price"
+                                      type="number"
+                                      value={
+                                        ticketType.minimumSellingPrice ?? ""
+                                      }
+                                      disabled={true}
+                                    />
+
+                                    <InputField
+                                      label="Recommended Selling Price"
+                                      type="number"
+                                      value={
+                                        ticketType.recommendedSellingPrice ?? ""
+                                      }
+                                      disabled={true}
+                                    />
+
+                                    <InputField
+                                      label="DH Selling Price"
+                                      type="number"
+                                      value={ticketType.dhSellingPrice ?? ""}
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value);
+                                        updateTicketType(
+                                          optionIndex,
+                                          ticketIndex,
+                                          "dhSellingPrice",
+                                          value
+                                        );
+                                      }}
+                                      errMsg={
+                                        ticketErrors?.dhSellingPrice?.message
+                                      }
+                                    />
+
+                                    <InputField
+                                      label="DH Net Price"
+                                      type="number"
+                                      value={ticketType.dhNetPrice ?? ""}
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value);
+                                        updateTicketType(
+                                          optionIndex,
+                                          ticketIndex,
+                                          "dhNetPrice",
+                                          value
+                                        );
+                                      }}
+                                      errMsg={ticketErrors?.dhNetPrice?.message}
+                                    />
+
+                                    <InputField
+                                      label="DH Minimum Selling Price"
+                                      type="number"
+                                      value={
+                                        ticketType.dhMinimumSellingPrice ?? ""
+                                      }
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value);
+                                        updateTicketType(
+                                          optionIndex,
+                                          ticketIndex,
+                                          "dhMinimumSellingPrice",
+                                          value
+                                        );
+                                      }}
+                                      errMsg={
+                                        ticketErrors?.dhRecommendedSellingPrice
+                                          ?.message
+                                      }
+                                    />
+
+                                    <InputField
+                                      label="DH Recommended Selling Price"
+                                      type="number"
+                                      value={
+                                        ticketType.dhRecommendedSellingPrice ??
+                                        ""
+                                      }
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value);
+                                        updateTicketType(
+                                          optionIndex,
+                                          ticketIndex,
+                                          "dhRecommendedSellingPrice",
+                                          value
+                                        );
+                                      }}
+                                      errMsg={
+                                        ticketErrors?.dhRecommendedSellingPrice
+                                          ?.message
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            }
+                          )}
+
+                          {(!option.ticketTypes ||
+                            option.ticketTypes.length === 0) && (
+                            <p className="text-gray-500 text-sm mb-3">
+                              No ticket types added yet.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Empty state */}
           {(!watchedProductOptions || watchedProductOptions.length === 0) && (
