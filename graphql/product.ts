@@ -334,10 +334,10 @@ export const exportProductsReport = async (data: ProductReportInput) => {
   }
 };
 
-export const seedProductByCountry = async (globaltixCountryID: number) => {
+export const seedProductByCountry = async (countryId: string) => {
   const res: any = await client.mutate({
     mutation: warpGql(SEED_PRODUCT_BY_COUNTRY_MUTATION),
-    variables: { globaltixCountryID },
+    variables: { countryId },
     fetchPolicy: "no-cache",
   });
   return res.data.seedProductByCountry as { status: number; message: string };

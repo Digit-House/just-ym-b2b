@@ -118,6 +118,8 @@ const AdminTicketEdit = () => {
       const res: any = await seedProduct(id);
       if (res.data) {
         toast.success("Successfully Refreshed !");
+        // Reload so the form picks up the supplier-synced data.
+        window.location.reload();
       }
     } catch (err) {
       toast.error(getErrMsg(err, "message"));
