@@ -3,7 +3,8 @@ import React, { useLayoutEffect, useRef, useCallback, useEffect } from "react";
 interface AutoResizeTextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   minHeight?: number;
-  maxHeight?: number;
+  /** Max height in px before scrolling. Pass `null` to grow without limit. */
+  maxHeight?: number | null;
 }
 
 const AutoResizeTextarea = React.forwardRef<
@@ -40,13 +41,13 @@ const AutoResizeTextarea = React.forwardRef<
       el.style.height = "auto";
       el.style.overflow = "hidden";
 
-      const height = Math.min(
-        Math.max(el.scrollHeight, minHeight),
-        maxHeight
-      );
+      const contentHeight = Math.max(el.scrollHeight, minHeight);
+      const height =
+        maxHeight == null ? contentHeight : Math.min(contentHeight, maxHeight);
 
       el.style.height = `${height}px`;
-      el.style.overflow = "auto";
+      el.style.overflow =
+        maxHeight != null && contentHeight > maxHeight ? "auto" : "hidden";
     }, [minHeight, maxHeight]);
 
     // Handle all resize scenarios
@@ -128,8 +129,7 @@ const AutoResizeTextarea = React.forwardRef<
         style={{ 
           ...style, 
           minHeight, 
-          maxHeight,
-          overflow: "auto",
+          maxHeight: maxHeight ?? undefined,
           resize: "vertical"
         }}
         {...props}

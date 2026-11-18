@@ -7,7 +7,7 @@ interface TextareaFieldProps
   isRequired?: boolean;
   errMsg?: string;
   minHeight?: number;
-  maxHeight?: number;
+  maxHeight?: number | null;
 }
 
 const TextareaField = forwardRef<
