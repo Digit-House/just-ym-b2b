@@ -123,6 +123,7 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
      id
      name
      description
+     description_mm
      isPublished
      visitDate{
       isOpenDated

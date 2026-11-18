@@ -114,6 +114,7 @@ export const ticketSchema = z.object({
         id: z.string().optional().nullable(),
         name: z.string().optional().nullable(),
         description: z.string().optional().nullable(),
+        description_mm: z.string().optional().nullable(),
         isPublished: z.boolean().optional().nullable(),
         ticketValidity: z.string().optional().nullable(),
         visitDate: z
