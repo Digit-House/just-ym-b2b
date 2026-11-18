@@ -375,6 +375,8 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                               errors.productOptions?.[optionIndex]?.description
                                 ?.message
                             }
+                            minHeight={80}
+                            maxHeight={null}
                           />
                         </div>
 
