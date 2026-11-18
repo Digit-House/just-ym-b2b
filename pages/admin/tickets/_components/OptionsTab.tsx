@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
   ChevronDown,
+  FileText,
   NotebookIcon,
   Plus,
   Tag,
@@ -23,6 +24,8 @@ import TextareaField from "@/components/TextareaField";
 import ReadOnly from "@/components/ReadOnly";
 import { Button } from "@/components/ui/button";
 import { formatUtcDate } from "@/lib/dateFormat";
+import RichTextEditor from "@/components/RichTextEditor";
+import { toRichTextHtml } from "@/lib/richText";
 import { AnimatePresence, motion } from "framer-motion";
 
 type OptionsTabProps = {
@@ -360,24 +363,76 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 ?.message
                             }
                           />
+                        </div>
 
-                          <TextareaField
-                            label="Package Description"
-                            value={option.description ?? ""}
-                            onChange={(e) =>
-                              updateProductOption(
-                                optionIndex,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            errMsg={
-                              errors.productOptions?.[optionIndex]?.description
-                                ?.message
-                            }
-                            minHeight={80}
-                            maxHeight={null}
-                          />
+                        <div className="space-y-4">
+                          <hr className="border-gray-200 mt-5" />
+                          <div className="flex items-center gap-2 mb-4">
+                            <FileText className="h-5 w-5 text-indigo-600" />
+                            <h4 className="text-lg font-semibold text-gray-800">
+                              Package Description
+                            </h4>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-6">
+                            {/* English */}
+                            <div className="space-y-3">
+                              <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                English
+                              </h5>
+                              <RichTextEditor
+                                value={toRichTextHtml(option.description)}
+                                onChange={(html) =>
+                                  updateProductOption(
+                                    optionIndex,
+                                    "description",
+                                    html
+                                  )
+                                }
+                                placeholder="Enter package description..."
+                                minHeight={150}
+                                autoHeight
+                              />
+                              {errors.productOptions?.[optionIndex]?.description
+                                ?.message && (
+                                <p className="text-red-500 text-sm">
+                                  {
+                                    errors.productOptions?.[optionIndex]
+                                      ?.description?.message
+                                  }
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Myanmar */}
+                            <div className="space-y-3">
+                              <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Myanmar
+                              </h5>
+                              <RichTextEditor
+                                value={toRichTextHtml(option.description_mm)}
+                                onChange={(html) =>
+                                  updateProductOption(
+                                    optionIndex,
+                                    "description_mm",
+                                    html
+                                  )
+                                }
+                                placeholder="Enter package description in Myanmar..."
+                                minHeight={150}
+                                autoHeight
+                              />
+                              {errors.productOptions?.[optionIndex]
+                                ?.description_mm?.message && (
+                                <p className="text-red-500 text-sm">
+                                  {
+                                    errors.productOptions?.[optionIndex]
+                                      ?.description_mm?.message
+                                  }
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         </div>
 
                         <ReadOnly

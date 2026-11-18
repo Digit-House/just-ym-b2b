@@ -241,6 +241,7 @@ export interface ProductOptionT {
   id: string;
   name: string;
   description: string;
+  description_mm?: string | null;
   isPublished: boolean;
   ticketValidity: string;
   thaiNationalOnly: boolean;

@@ -7,6 +7,8 @@ interface RichTextEditorProps {
   placeholder?: string;
   minHeight?: number;
   maxHeight?: number;
+  /** Grow with the content instead of using a fixed height of `maxHeight`. */
+  autoHeight?: boolean;
   className?: string;
 }
 
@@ -17,6 +19,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(
     placeholder = "Enter content...",
     minHeight = 200,
     maxHeight = 300,
+    autoHeight = false,
     className = "",
   }) => {
     const config = useMemo(
@@ -24,7 +27,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(
         readonly: false,
         placeholder,
         toolbarAdaptive: false,
-        height: maxHeight,
+        height: autoHeight ? "auto" : maxHeight,
         minHeight,
         showCharsCounter: false,
         showWordsCounter: false,
@@ -53,7 +56,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(
         iframe: false,
         useSplitMode: false,
       }),
-      [placeholder, minHeight, maxHeight]
+      [placeholder, minHeight, maxHeight, autoHeight]
     );
 
     return (

@@ -47,6 +47,7 @@ const TicketEditForm: React.FC<Props> = ({
           id: option.id,
           name: option.name,
           description: option.description,
+          description_mm: option.description_mm ?? "",
           isPublished: option.isPublished,
           ticketValidity: option.ticketValidity,
           visitDate: option.visitDate,

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import VariantSelecter from "./VariantSelecter";
 import { useUser } from "@/provider/UserProvider";
 import MascotLoader from "@/components/MascotLoader";
+import { toRichTextHtml } from "@/lib/richText";
 
 const formatPrice = (n: number) =>
   n.toLocaleString("en-US", {
@@ -209,9 +210,12 @@ const ProductionOptionSelecter = ({
                 >
                   <div className="w-full py-3 border-t border-[#E2E8F0] flex flex-col gap-3">
                     {item.description && (
-                      <p className="text-[#0F172B] text-xs">
-                        {item.description}
-                      </p>
+                      <div
+                        className="text-[#0F172B] text-xs [&_p]:my-1 [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4"
+                        dangerouslySetInnerHTML={{
+                          __html: toRichTextHtml(item.description),
+                        }}
+                      />
                     )}
                     {item.inclusions.length > 0 && (
                       <div className="flex flex-col gap-2">
