@@ -379,8 +379,8 @@ mutation Mutation($productId: String!) {
 }`;
 
 export const SEED_PRODUCT_BY_COUNTRY_MUTATION = `
-mutation SeedProductByCountry($globaltixCountryID: Float!) {
-  seedProductByCountry(globaltixCountryID: $globaltixCountryID) {
+mutation SeedProductByCountry($countryId: String!) {
+  seedProductByCountry(countryId: $countryId) {
     message
     status
   }
