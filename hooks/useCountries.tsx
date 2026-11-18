@@ -33,10 +33,10 @@ export const useCountries = ({
           },
           fetchPolicy: "no-cache",
         });
-        return data?.countries || [];
+        return data?.countries ?? { data: [], total: 0 };
       } catch (err) {
         console.error("Error fetching countries:", err);
-        return [];
+        return { data: [], total: 0 };
       }
     },
     staleTime: Infinity,

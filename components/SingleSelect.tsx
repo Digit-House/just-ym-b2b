@@ -9,7 +9,7 @@ export interface SelectOption {
 interface SelectProps {
   label?: string;
   placeholder?: string;
-  options: SelectOption[];
+  options?: SelectOption[];
   value: string;                 // ✅ single value
   onChange: (value: string) => void; // ✅ single value
   width?: string;
@@ -68,7 +68,10 @@ export default function SingleSelect({
           )}
 
           <div className="space-y-3 max-h-[200px] overflow-y-auto">
-            {options.map(option => {
+            {!options?.length && (
+              <p className="px-3 py-2 text-sm text-gray-400">No options</p>
+            )}
+            {(options ?? []).map(option => {
               const active = value === option.id;
 
               return (

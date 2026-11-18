@@ -75,7 +75,6 @@ query Countries($params: CountryPagedParams!) {
         markup
         roundingUp
       }
-      globaltixId
       id
       isBilling
       isCurrencyExchange
