@@ -11,6 +11,12 @@ import VariantSelecter from "./VariantSelecter";
 import { useUser } from "@/provider/UserProvider";
 import MascotLoader from "@/components/MascotLoader";
 
+const formatPrice = (n: number) =>
+  n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
 type Props = {
   loading: boolean;
   productOptions: ProductOptionT[];
@@ -86,29 +92,30 @@ const ProductionOptionSelecter = ({
                 </div>
 
                 {/* right side */}
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-2 divide-x">
-                    {item.ticketType.map((ticket, i: number) => (
-                      <div
-                        key={ticket.id}
-                        className={`flex items-center gap-1 ${
-                          i === item.ticketType.length - 1 ? "pr-0" : "pr-2"
-                        }`}
-                      >
-                        <p className="text-[#050505] capitalize text-sm">{`${ticket.name.toLowerCase()}:`}</p>
-                        <div className="flex flex-col items-end">
-                          <p className=" text-indigo-700 font-bold">
-                            ฿{user.type === "OWNER" ? ticket.dhSellingPrice.toFixed(2) : ticket.dhNetPrice.toFixed(2)}
-                          </p>
-                          {user.type === "OWNER" && ticket.nettPrice != null && (
-                            <p className="text-xs text-gray-500">
-                              Supplier price: ฿{Number(ticket.nettPrice).toFixed(2)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap md:justify-end gap-y-3 divide-x divide-[#E2E8F0] w-full md:w-auto md:max-w-[60%]">
+                  {item.ticketType.map((ticket) => (
+                    <div
+                      key={ticket.id}
+                      className="min-w-[112px] flex-1 md:flex-none px-4 first:pl-0 last:pr-0"
+                    >
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-[#62748E]">
+                        {ticket.name}
+                      </p>
+                      <p className="text-base font-bold leading-tight text-indigo-700 tabular-nums">
+                        ฿
+                        {formatPrice(
+                          user.type === "OWNER"
+                            ? ticket.dhSellingPrice
+                            : ticket.dhNetPrice
+                        )}
+                      </p>
+                      {user.type === "OWNER" && ticket.nettPrice != null && (
+                        <p className="mt-0.5 text-[11px] text-[#90A1B9] tabular-nums">
+                          Supplier ฿{formatPrice(Number(ticket.nettPrice))}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
 
