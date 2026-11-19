@@ -297,6 +297,8 @@ export default function BookedDateFilter({ value, onChange }: Props) {
               selected={draft}
               disabled={{ after: now }}
               onDayClick={handleDay}
+              // A no-op onSelect makes `selected` controlled; without it react-day-picker 9 ignores draft updates.
+              onSelect={() => {}}
               className="border-0 p-0 shadow-none"
             />
             {tooLong && (
