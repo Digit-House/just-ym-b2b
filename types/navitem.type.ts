@@ -8,6 +8,7 @@ import {
   DollarSign,
   FileText,
   HatGlasses,
+  History,
   Home,
   Hotel,
   LayoutGrid,
@@ -59,6 +60,12 @@ export const NAV_CONFIG: NavItem[] = [
     path: "/tickets",
     icon: Ticket,
     types: "ALL",
+  },
+  {
+    label: "Tickets",
+    path: "/content-tickets",
+    icon: Ticket,
+    types: ["CONTENT_EDITOR"],
   },
   {
     label: "Hotels",
@@ -133,9 +140,15 @@ export const NAV_CONFIG: NavItem[] = [
     types: "ALL",
   },
   {
+    label: "Audit log",
+    path: "/audit-log",
+    icon: History,
+    types: ["OWNER"],
+  },
+  {
     label: "Setting",
     path: "/settings/general",
     icon: Settings,
-    types: "ALL",
+    types: ["OWNER", "RESELLER", "CONTENT_EDITOR"],
   },
 ];

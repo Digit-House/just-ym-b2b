@@ -9,7 +9,8 @@ export const userSchema = z
     active: z.boolean().optional(),
     contactNo: z.string().trim().regex(PHONE_REGEX, "Invalid phone number"),
     countryCode: z.string().optional(),
-    roleIds: z.array(z.string()).min(1, "At least one role must be selected"),
+    type: z.string().optional(),
+    roleIds: z.array(z.string()),
     password: z.string().min(6, "Password must be at least 6 characters"),
     resellerId: z.string().optional(),
     confirmPassword: z.string(),
@@ -17,6 +18,11 @@ export const userSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
+  })
+  // Content editors are platform users: no roles needed.
+  .refine((data) => data.type === "CONTENT_EDITOR" || data.roleIds.length > 0, {
+    message: "At least one role must be selected",
+    path: ["roleIds"],
   });
 
 export type UserFormValues = z.infer<typeof userSchema>;

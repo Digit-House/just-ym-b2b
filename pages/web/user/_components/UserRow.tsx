@@ -61,7 +61,7 @@ export default function UserRow({ user, onEdit, onDelete }: Props) {
               : "bg-slate-100 text-slate-700"
           }`}
         >
-          {user?.roles[0]?.name || "USER"}
+          {user?.roles[0]?.name || (user?.type === "CONTENT_EDITOR" ? "CONTENT EDITOR" : "USER")}
         </span>
       </td>
 

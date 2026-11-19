@@ -19,6 +19,11 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
+import AuditLogList from "@/components/AuditLogList";
+import SupplierUpdatesPanel, {
+  useProductContent,
+  useSupplierUpdates,
+} from "@/pages/content/_components/SupplierUpdatesPanel";
 
 type Mode = "edit";
 
@@ -446,6 +451,22 @@ const TicketEditForm: React.FC<Props> = ({
     onSubmit(payload);
   };
 
+  // Owner-only tabs: they never submit the form, and they only fetch once opened.
+  const pendingUpdates = useSupplierUpdates(initialValues?.id ?? "");
+  const productContent = useProductContent(initialValues?.id ?? "");
+  const entityNames: Record<string, string> = {};
+  for (const o of productContent.data?.productOptions ?? []) {
+    entityNames[o.id] = o.name;
+    for (const t of o.ticketTypes) entityNames[t.id] = t.name;
+  }
+  const isExtraTab = currentTab === "history" || currentTab === "supplier-updates";
+  const extraTabClass = (id: string) =>
+    `flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+      currentTab === id
+        ? "bg-indigo-100 text-indigo-700 border border-indigo-200"
+        : "text-gray-600 hover:bg-gray-50 border border-transparent"
+    }`;
+
   const TabButton = ({ id, label }: { id: string; label: string }) => (
     <button
       onClick={() => setCurrentTab(id)}
@@ -508,6 +529,25 @@ const TicketEditForm: React.FC<Props> = ({
         <TabButton id="operating-hours" label="Operating Hours" />
         <TabButton id="options" label="Pricing & Packages" />
         <TabButton id="relatedTickets" label="Related Tickets" />
+        {initialValues?.id && (
+          <>
+            <button type="button" onClick={() => setCurrentTab("history")} className={extraTabClass("history")}>
+              History
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentTab("supplier-updates")}
+              className={extraTabClass("supplier-updates")}
+            >
+              Supplier updates
+              {(pendingUpdates.data?.length ?? 0) > 0 && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                  {pendingUpdates.data!.length}
+                </span>
+              )}
+            </button>
+          </>
+        )}
       </div>
 
       <div className="p-6 border rounded-xl min-h-125 bg-white shadow-sm relative">
@@ -607,9 +647,19 @@ const TicketEditForm: React.FC<Props> = ({
             initialValues={initialValues as ProductInfoT}
           />
         </div>
+
+        {initialValues?.id && currentTab === "history" && (
+          <AuditLogList filter={{ productId: initialValues.id }} entityNames={entityNames} />
+        )}
+        {initialValues?.id && currentTab === "supplier-updates" && (
+          <SupplierUpdatesPanel productId={initialValues.id} />
+        )}
       </div>
 
-      <div className="flex justify-between pt-4 border-t border-gray-200">
+      <div
+        className="flex justify-between pt-4 border-t border-gray-200"
+        style={{ display: isExtraTab ? "none" : undefined }}
+      >
         <Button
           type="button"
           variant="outline"

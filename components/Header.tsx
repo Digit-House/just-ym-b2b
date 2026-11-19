@@ -79,6 +79,7 @@ const Header: React.FC = () => {
   const [showWalletModal, setShowWalletModal] = React.useState(false);
 
   const isOwner = user.type === "OWNER";
+  const isEditor = user.type === "CONTENT_EDITOR";
   const formattedBalance = `${creditInfo?.currency} ${
     creditInfo?.balance?.toLocaleString("en-US") || "0"
   }`;
@@ -101,6 +102,8 @@ const Header: React.FC = () => {
             <Menu size={20} className="text-gray-700" />
           </button>
 
+          {!isEditor && (
+            <>
           {/* Desktop Wallet */}
           <div className="hidden md:flex p-2 rounded-lg items-center gap-4 bg-indigo-700 text-white shadow-md shadow-indigo-700/20">
             <div className="flex items-center gap-3 pr-4 border-r border-indigo-500/50">
@@ -127,11 +130,14 @@ const Header: React.FC = () => {
             <Wallet size={18} />
             <span className="text-xs font-bold">{formattedBalance}</span>
           </button>
+            </>
+          )}
         </div>
 
         {/* RIGHT */}
         <div className="flex items-center gap-2">
           {/* Cart */}
+          {!isEditor && (
           <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
             <button
               onClick={() => navigate("/cart")}
@@ -149,6 +155,7 @@ const Header: React.FC = () => {
               )}
             </button>
           </div>
+          )}
 
           {/* User */}
           <div

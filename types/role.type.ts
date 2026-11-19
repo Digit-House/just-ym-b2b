@@ -1,6 +1,6 @@
 import { FilterT } from "./index.type";
 
-export type USER_TYPE = "OWNER" | "RESELLER";
+export type USER_TYPE = "OWNER" | "RESELLER" | "CONTENT_EDITOR";
 
 export const isAdmin = (role: USER_TYPE) => role === "OWNER";
 export const isNotAdmin = (role: USER_TYPE) => role !== "OWNER";
