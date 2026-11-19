@@ -53,6 +53,9 @@ function Calendar({
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 flex-1 flex items-center justify-center relative z-20"
         ),
+        // The real <button> inside the cell: fill the cell so a click anywhere on it counts, not only on the number.
+        day_button:
+          "flex h-full w-full items-center justify-center rounded-[inherit] cursor-pointer disabled:cursor-not-allowed",
         selected:
           "rounded-full bg-indigo-700 text-white hover:bg-indigo-700 hover:text-white",
         range_start:
