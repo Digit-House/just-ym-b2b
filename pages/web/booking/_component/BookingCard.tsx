@@ -211,7 +211,7 @@ const BookingCard = ({ data }: Props) => {
           </div>
 
           <div className="flex items-center gap-2">
-            {data.ticketDetail?.viewTicketUrl && (
+            {user?.type === "OWNER" && data.ticketDetail?.viewTicketUrl && (
               <Button
                 variant="ghost"
                 size="icon"
