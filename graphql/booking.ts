@@ -8,7 +8,10 @@ import {
   GET_MY_BOOKING_QUERY,
   GET_MY_BOOKING_QUERY_DATA_TYPE,
   MY_BOOKINGS_QUERY,
+  REFRESH_BOOKING_MUTATION,
+  UPLOAD_BOOKING_VOUCHER_MUTATION,
 } from "./type-query/booking";
+import { getSignedUrl } from "./file";
 import { RESEND_EMAIL_MUTATION } from "./type-query/product";
 import {
   BookingSummaryFindInputT,
@@ -131,5 +134,30 @@ export const confirmBooking = async (id: string) => {
         transactionId: id,
       },
     },
+  });
+};
+
+export const refreshBooking = async (id: string) => {
+  return client.mutate({
+    mutation: warpGql(REFRESH_BOOKING_MUTATION),
+    variables: { data: { transactionId: id } },
+  });
+};
+
+// Presigned POST to S3 (key = fields.key), then attach the key to the booking.
+export const uploadBookingVoucher = async (id: string, file: File) => {
+  const signed: any = await getSignedUrl({
+    filename: "voucher.pdf",
+    folder: "TICKET_VOUCHER",
+  });
+  const { url, fields } = signed.data.getPresignedPost;
+  const formData = new FormData();
+  Object.entries(fields).forEach(([k, v]) => formData.append(k, v as string));
+  formData.append("file", file);
+  const response = await fetch(url, { method: "POST", body: formData });
+  if (!response.ok) throw new Error("Voucher upload to storage failed");
+  return client.mutate({
+    mutation: warpGql(UPLOAD_BOOKING_VOUCHER_MUTATION),
+    variables: { data: { transactionId: id, key: fields.key } },
   });
 };
