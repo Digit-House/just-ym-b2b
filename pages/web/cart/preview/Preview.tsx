@@ -20,11 +20,17 @@ import {
   FileText,
   Info,
   RefreshCw,
+  Upload,
 } from "lucide-react"; // Added Info and RefreshCw
 import ResendModel from "./_component/ResendModal";
+import { useRef, useState } from "react";
 import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
-import { confirmBooking } from "@/graphql/booking";
+import {
+  confirmBooking,
+  refreshBooking,
+  uploadBookingVoucher,
+} from "@/graphql/booking";
 import { toast } from "sonner";
 import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
 import MascotLoader from "@/components/MascotLoader";
@@ -51,8 +57,55 @@ const Preview = () => {
     link.click();
   };
 
-  const handleRefresh = () => {
-    window.location.reload();
+  const isOwner = user?.type === "OWNER";
+  const [refreshLoading, setRefreshLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleRefresh = async () => {
+    if (!isOwner || !id) {
+      window.location.reload();
+      return;
+    }
+    setRefreshLoading(true);
+    try {
+      const res = await refreshBooking(id);
+      const out = (res.data as any)?.refreshBooking;
+      if (out?.isTicketReady && !out.eTicketUrl) {
+        toast.error(
+          "Voucher still held: the logo edit needs a developer fix. See the Discord alert."
+        );
+        setRefreshLoading(false);
+        return;
+      }
+      window.location.reload();
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+      setRefreshLoading(false);
+    }
+  };
+
+  const handleUploadVoucher = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !id) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Voucher must be a PDF file");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("Voucher must be 4 MB or smaller");
+      return;
+    }
+    setUploadLoading(true);
+    try {
+      await uploadBookingVoucher(id, file);
+      toast.success("Voucher uploaded");
+      window.location.reload();
+    } catch (err) {
+      toast.error(getErrMsg(err, "message"));
+      setUploadLoading(false);
+    }
   };
 
   const handleConfirm = async () => {
@@ -123,10 +176,11 @@ const Preview = () => {
           variant="outline"
           size="icon"
           onClick={handleRefresh}
+          disabled={refreshLoading}
           title="Refresh Page"
           className="rounded-full hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200"
         >
-          <RefreshCw size={18} />
+          <RefreshCw size={18} className={refreshLoading ? "animate-spin" : ""} />
         </Button>
       </div>
 
@@ -426,7 +480,7 @@ const Preview = () => {
         {/* FOOTER ACTIONS */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4">
           <div className="text-sm text-gray-500">
-            {bookingDetail.viewTicketUrl && (
+            {isOwner && bookingDetail.viewTicketUrl && (
               <a
                 href={bookingDetail.viewTicketUrl}
                 target="_blank"
@@ -462,7 +516,28 @@ const Preview = () => {
               </>
             )}
 
-            {user.type === "OWNER" &&
+            {isOwner && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={handleUploadVoucher}
+                />
+                <Button
+                  variant="outline"
+                  disabled={uploadLoading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2"
+                >
+                  {uploadLoading ? <ButtonSpinner /> : <Upload className="w-4 h-4" />}
+                  {uploadLoading ? "Uploading..." : "Upload voucher"}
+                </Button>
+              </>
+            )}
+
+            {isOwner &&
               bookingDetail.requiresManualConfirm &&
               !bookingDetail.isTicketConfirmed && (
                 <Button

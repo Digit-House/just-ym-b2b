@@ -209,3 +209,19 @@ mutation Mutation($data: ConfirmBookingInput!) {
     status
   }
 }`;
+
+export const REFRESH_BOOKING_MUTATION = `
+mutation Mutation($data: RefreshBookingInput!) {
+  refreshBooking(data: $data) {
+    eTicketUrl
+    isTicketReady
+  }
+}`;
+
+export const UPLOAD_BOOKING_VOUCHER_MUTATION = `
+mutation Mutation($data: UploadBookingVoucherInput!) {
+  uploadBookingVoucher(data: $data) {
+    eTicketUrl
+    isTicketReady
+  }
+}`;
