@@ -657,11 +657,45 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <InputField
-                                      label="Original Price"
+                                      label="Original Price (GlobalTix)"
                                       type="number"
-                                      value={ticketType.originalPrice ?? ""}
+                                      value={
+                                        ticketType.supplierOriginalPrice ??
+                                        ticketType.originalPrice ??
+                                        ""
+                                      }
                                       disabled={true}
                                     />
+
+                                    <div className="flex flex-col gap-1">
+                                      <InputField
+                                        label="Custom original price"
+                                        type="number"
+                                        min={0}
+                                        value={
+                                          ticketType.customOriginalPrice ?? ""
+                                        }
+                                        onChange={(e) => {
+                                          const value =
+                                            e.target.value === ""
+                                              ? null
+                                              : Number(e.target.value);
+                                          updateTicketType(
+                                            optionIndex,
+                                            ticketIndex,
+                                            "customOriginalPrice",
+                                            value
+                                          );
+                                        }}
+                                        errMsg={
+                                          ticketErrors?.customOriginalPrice
+                                            ?.message
+                                        }
+                                      />
+                                      <p className="text-xs text-gray-500">
+                                        Empty = use GlobalTix price
+                                      </p>
+                                    </div>
 
                                     <InputField
                                       label="Net Price"

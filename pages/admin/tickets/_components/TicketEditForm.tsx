@@ -70,6 +70,8 @@ const TicketEditForm: React.FC<Props> = ({
                 dhSellingPrice: ticket.dhSellingPrice,
                 recommendedSellingPrice: ticket.recommendedSellingPrice,
                 originalPrice: ticket.originalPrice,
+                supplierOriginalPrice: ticket.supplierOriginalPrice ?? null,
+                customOriginalPrice: ticket.customOriginalPrice ?? null,
                 createdAt: ticket.createdAt,
                 updatedAt: ticket.updatedAt,
               }))
@@ -434,6 +436,7 @@ const TicketEditForm: React.FC<Props> = ({
               dhRecommendedSellingPrice: t.dhRecommendedSellingPrice || 0,
               dhNetPrice: t.dhNetPrice || 0,
               dhMinimumSellingPrice: t.dhMinimumSellingPrice || 0,
+              customOriginalPrice: t.customOriginalPrice ?? null,
             };
           }),
         };

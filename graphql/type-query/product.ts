@@ -150,6 +150,8 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
         ageFrom
         ageTo
         originalPrice
+        customOriginalPrice
+        supplierOriginalPrice
         globaltixId
         createdAt
         updatedAt
