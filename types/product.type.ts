@@ -295,6 +295,8 @@ export interface TicketTypeT {
   nettPrice: number;
   quantity: number;
   originalPrice: number;
+  customOriginalPrice?: number | null;
+  supplierOriginalPrice?: number | null;
   maxPurchaseQty: number;
   minPurchaseQty: number;
   createdAt: string;
