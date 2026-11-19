@@ -13,6 +13,11 @@ import MainSearch from "@/components/MainSearch";
 import { useUser } from "@/provider/UserProvider";
 import MascotLoader from "@/components/MascotLoader";
 import ButtonSpinner from "@/components/ButtonSpinner";
+import BookedDateFilter, {
+  BookedChoice,
+  bookedChoiceToRange,
+  sanitizeBookedChoice,
+} from "./_component/BookedDateFilter";
 
 const SORT_OPTION: SortOption[] = [
   { label: "Newest", value: "desc" },
@@ -73,6 +78,10 @@ export default function Bookings() {
   );
   const [kind, setKind] = useState<string>(storedFilters?.kind || "ALL");
   const [search, setSearch] = useState(storedFilters?.search || "");
+  const [booked, setBooked] = useState<BookedChoice>(
+    sanitizeBookedChoice(storedFilters?.booked),
+  );
+  const { purchasedFrom, purchasedTo } = bookedChoiceToRange(booked);
 
   const debouncedSearch = useDebounce(search, 2000);
 
@@ -83,9 +92,10 @@ export default function Bookings() {
       ...(isAdmin ? { status } : { bucket }),
       kind,
       search,
+      booked,
     };
     localStorage.setItem("bookingFilters", JSON.stringify(filtersToStore));
-  }, [sort, bucket, status, kind, search, isAdmin]);
+  }, [sort, bucket, status, kind, search, booked, isAdmin]);
 
   const {
     data,
@@ -105,6 +115,8 @@ export default function Bookings() {
         kind,
         sort,
         search: debouncedSearch,
+        purchasedFrom,
+        purchasedTo,
       },
     ],
     queryFn: fetchMyBookings,
@@ -133,6 +145,7 @@ export default function Bookings() {
     setStatus("PAID");
     setKind("ALL");
     setSearch("");
+    setBooked("all");
     localStorage.removeItem("bookingFilters");
   };
 
@@ -140,7 +153,8 @@ export default function Bookings() {
     sort !== "desc" ||
     (isAdmin ? status !== "PAID" : bucket !== "ALL") ||
     kind !== "ALL" ||
-    search !== "";
+    search !== "" ||
+    booked !== "all";
 
   return (
     <PageContainer>
@@ -197,6 +211,7 @@ export default function Bookings() {
               label="Show:"
             />
           )}
+          <BookedDateFilter value={booked} onChange={setBooked} />
         </div>
         <div className="flex items-center gap-2">
           <SortSelect value={sort} options={SORT_OPTION} onChange={setSort} />

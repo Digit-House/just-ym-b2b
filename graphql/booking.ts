@@ -90,7 +90,7 @@ export const getMyBookings = async (
 };
 
 export const fetchMyBookings = async ({ pageParam = 1, queryKey }: any) => {
-  const [, { bucket, status, kind, sort, search }] = queryKey;
+  const [, { bucket, status, kind, sort, search, purchasedFrom, purchasedTo }] = queryKey;
   const limit = 10;
   const res = await getMyBookings({
     page: pageParam,
@@ -100,6 +100,8 @@ export const fetchMyBookings = async ({ pageParam = 1, queryKey }: any) => {
     status: status === "ALL" ? undefined : status,
     kind: kind === "ALL" ? undefined : kind,
     search: search || undefined,
+    purchasedFrom: purchasedFrom || undefined,
+    purchasedTo: purchasedTo || undefined,
   });
   return {
     data: res.data,

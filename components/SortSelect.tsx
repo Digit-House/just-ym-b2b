@@ -13,6 +13,8 @@ interface SortSelectProps {
   value: string;
   onChange: (value: string) => void;
   width?: string;
+  /** Call onChange again when the already-selected option is picked. */
+  reselectable?: boolean;
 }
 
 export default function SortSelect({
@@ -21,6 +23,7 @@ export default function SortSelect({
   options,
   value,
   onChange,
+  reselectable = false,
 }: SortSelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -70,6 +73,13 @@ export default function SortSelect({
                   name="sort"
                   checked={value === option.value}
                   onChange={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                  }}
+                  // A checked radio fires no change event; re-picking it
+                  // (e.g. to edit a custom range) still reaches the parent.
+                  onClick={() => {
+                    if (!reselectable || value !== option.value) return;
                     onChange(option.value);
                     setOpen(false);
                   }}

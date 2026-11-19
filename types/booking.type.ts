@@ -107,6 +107,10 @@ export type BookingSummaryFindInputT = {
   status?: "PAID" | "PENDING" | "FAILED" | "EXPIRED";
   kind?: BookingKind;
   search?: string;
+  /** ISO DateTime, inclusive */
+  purchasedFrom?: string;
+  /** ISO DateTime, exclusive */
+  purchasedTo?: string;
 };
 
 export type BookingSummaryT = {
