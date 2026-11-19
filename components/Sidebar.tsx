@@ -47,7 +47,7 @@ const Sidebar = () => {
     }`;
 
   const canShow = (roles: NavItem["types"]) =>
-    roles === "ALL" || roles.includes(TYPE);
+    roles === "ALL" ? TYPE !== "CONTENT_EDITOR" : roles.includes(TYPE);
 
   return (
     <>

@@ -15,6 +15,8 @@ const ProtectedRoute = () => {
   return <RouteGuard />;
 };
 
+const EDITOR_PATH = /^\/(content-tickets(\/[^/]+)?|settings\/general)\/?$/;
+
 // RouteGuard component that handles role-based access control
 const RouteGuard = () => {
   const location = useLocation();
@@ -25,6 +27,14 @@ const RouteGuard = () => {
   useEffect(() => {
     setLoading(false);
   }, [user]);
+
+  // Content editors may only open the content ticket pages and general settings.
+  if (user?.type === "CONTENT_EDITOR" && !EDITOR_PATH.test(location.pathname)) {
+    return <Navigate to="/content-tickets" replace />;
+  }
+  if (user && user.type !== "CONTENT_EDITOR" && location.pathname.startsWith("/content-tickets")) {
+    return <Navigate to="/" replace />;
+  }
 
   if(user && user?.type !== "OWNER" && location.pathname.includes("admin-tickets")){
     return <Navigate to="/" replace />; 

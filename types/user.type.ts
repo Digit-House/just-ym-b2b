@@ -4,6 +4,7 @@ export type UserRoleTypeT =
   | "USER"
   | "ADMIN"
   | "MANAGER"
+  | "CONTENT_EDITOR"
   | null;
 export type UserStatusT = "Active" | "Inactive";
 

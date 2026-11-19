@@ -65,6 +65,7 @@ export default function UserForm({
       roleIds: initialValues?.roleIds || [],
       password: mode === "edit" ? "defaultPassword" : "",
       resellerId: initialValues?.resellerId || "",
+      type: "",
       confirmPassword: mode === "edit" ? "defaultPassword" : "",
     },
   });
@@ -85,6 +86,7 @@ export default function UserForm({
   const [resellerData, setResellerData] = useState<ResellerT[]>([]);
 
   const roleIds = watch("roleIds") || [];
+  const isEditor = watch("type") === "CONTENT_EDITOR";
 
   const fetchResellers = async () => {
     try {
@@ -107,7 +109,7 @@ export default function UserForm({
   const submitHandler = async (values: UserFormValues) => {
     try {
       // Additional validation for OWNER user type
-      if (userType === "OWNER" && !values.resellerId) {
+      if (userType === "OWNER" && !isEditor && !values.resellerId) {
         setError("resellerId", {
           type: "manual",
           message: "Reseller is required for OWNER accounts",
@@ -160,8 +162,23 @@ export default function UserForm({
         disabled={mode === "edit"}
         errMsg={errors?.email?.message}
       />
+      {userType === "OWNER" && mode === "create" && (
+        <div className="flex gap-2 flex-col">
+          <label htmlFor="userType" className="text-sm font-medium">
+            User type
+          </label>
+          <select
+            id="userType"
+            {...register("type")}
+            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="">Reseller user</option>
+            <option value="CONTENT_EDITOR">Content editor</option>
+          </select>
+        </div>
+      )}
       {/* Reseller Selection - Only for OWNER user type */}
-      {userType === "OWNER" && (
+      {userType === "OWNER" && !isEditor && (
         <div className="flex gap-2 flex-col">
           <label className="flex items-center gap-1 text-sm font-medium">
             Reseller{" "}
@@ -194,6 +211,7 @@ export default function UserForm({
         </div>
       )}
 
+      {!isEditor && (
       <div>
         <label className="text-sm flex items-center gap-2 font-medium text-gray-700 mb-2">
           User Roles{" "}
@@ -255,6 +273,7 @@ export default function UserForm({
           <p className="text-red-500 text-xs mt-1">{errors.roleIds.message}</p>
         )}
       </div>
+      )}
 
       <PhoneInput
         id="contactNo"
