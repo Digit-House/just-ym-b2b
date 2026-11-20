@@ -560,6 +560,20 @@ const ContentTicketEdit = () => {
         {tab === "options" && (
           <div className="space-y-6">
             {data.productOptions.length === 0 && <p className="text-sm text-gray-500">This ticket has no options.</p>}
+            {data.productOptions.length > 1 && (
+              // Same controls as the owner's Packages header (OptionsTab expandAll/collapseAll).
+              <div className="flex items-center justify-between">
+                <h4 className="text-lg font-medium">Packages</h4>
+                <div className="flex items-center gap-1">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setOpenOpts(new Set(data.productOptions.map((o) => o.id)))}>
+                    Expand all
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setOpenOpts(new Set())}>
+                    Collapse all
+                  </Button>
+                </div>
+              </div>
+            )}
             {activeFirst(data.productOptions).map((o, i) => renderOption(o, i))}
           </div>
         )}
