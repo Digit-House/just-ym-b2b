@@ -18,6 +18,22 @@ import { useCountries } from "@/hooks/useCountries";
 import ImageUpload from "@/components/ImageUpload";
 import { useLocked } from "@/components/OwnerReviewContext";
 import { LockKeyhole } from "lucide-react";
+import { preFixImg } from "@/util/initData";
+
+const LockedImage = ({ src }: { src?: string | null }) => {
+  const [failed, setFailed] = React.useState(false);
+  const url = src?.trim();
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium text-gray-700">Ticket Image</p>
+      {url && !failed ? (
+        <img src={preFixImg(url)} alt="Ticket" onError={() => setFailed(true)} className="h-40 rounded-md border object-contain" />
+      ) : (
+        <p className="text-sm text-gray-400">No image</p>
+      )}
+    </div>
+  );
+};
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -76,12 +92,9 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
           </p>
         </div>
 
-        {/* saved-version page, no image: one line, not the 300px upload box */}
-        {locked && !watch("image") ? (
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-700">Ticket Image</p>
-            <p className="text-sm text-gray-400">No image</p>
-          </div>
+        {/* saved-version page: read-only thumbnail, or one "No image" line when empty or the file is missing */}
+        {locked ? (
+          <LockedImage src={watch("image")} />
         ) : (
         <div className={`space-y-3 w-full h-[300px]`}>
           <Controller

@@ -21,13 +21,24 @@ const Sidebar = () => {
   // Below the overlay breakpoint (useResize, 1024px) the sidebar must not stay open after a live resize or a navigation.
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 1023px)");
+    // Close only on a crossing into mobile width: plain mobile resizes (address bar, keyboard) must not close it.
+    let wasMobile = false;
     const close = () => {
-      if (mq.matches && useSidebarStore.getState().isOpen) toggleSidebar();
+      if (mq.matches && !wasMobile && useSidebarStore.getState().isOpen) toggleSidebar();
+      wasMobile = mq.matches;
     };
     close();
     mq.addEventListener("change", close);
-    return () => mq.removeEventListener("change", close);
+    window.addEventListener("resize", close); // fallback: same event useResize uses, in case "change" is not delivered
+    return () => {
+      mq.removeEventListener("change", close);
+      window.removeEventListener("resize", close);
+    };
   }, [toggleSidebar]);
+  // isDesktop is the state that renders the overlay; closing on its flip keeps store and layout in step.
+  useEffect(() => {
+    if (!isDesktop && useSidebarStore.getState().isOpen) toggleSidebar();
+  }, [isDesktop, toggleSidebar]);
   const TYPE = user?.type as USER_TYPE;
   const counts = useReviewCount(TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
   const isTicketsItem = (path?: string) => path === "/tickets" || path === "/content-tickets";

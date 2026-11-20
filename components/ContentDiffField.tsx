@@ -45,8 +45,15 @@ const ContentDiffField = ({
           <Lock size={12} /> {locked ? "Before" : "Supplier"}
         </p>
         {edited ? (
-          <div className="max-h-64 flex-1 overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
-            {plain(baseline) || <span className="text-gray-400">Empty</span>}
+          // side by side the Current control sets the row height and this box fills it (content adds no height); stacked it sizes to its text
+          <div className={stack ? "" : "relative min-h-[3rem] flex-1"}>
+            <div
+              className={`overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600 ${
+                stack ? "max-h-64" : "absolute inset-0"
+              }`}
+            >
+              {plain(baseline) || <span className="text-gray-400">Empty</span>}
+            </div>
           </div>
         ) : (
           <div className="flex-1 rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm italic text-gray-400">
