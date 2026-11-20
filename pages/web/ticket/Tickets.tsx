@@ -68,10 +68,10 @@ export default function Tickets() {
   const counts = useReviewCount(isOwner);
   const [defaulted, setDefaulted] = useState(false);
   useEffect(() => {
-    if (defaulted || !counts.loaded) return;
+    if (defaulted || !user || !counts.loaded) return; // wait for the user: before it loads isOwner is false and the default would be skipped
     if (isOwner && !searchParams.get("review") && counts.readyForReview > 0) setReview("READY_FOR_REVIEW");
     setDefaulted(true);
-  }, [defaulted, counts.loaded, counts.readyForReview, isOwner, searchParams]);
+  }, [defaulted, user, counts.loaded, counts.readyForReview, isOwner, searchParams]);
   const reviewOn = user?.type === "OWNER" && review !== "ALL";
   const debouncedSearch = useDebounce(filters.search, 500);
 

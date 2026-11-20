@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
-import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import MascotLoader from "@/components/MascotLoader";
 import ImageUpload from "@/components/ImageUpload";
@@ -28,16 +27,21 @@ import SupplierUpdatesPanel, {
   useSupplierUpdates,
 } from "./_components/SupplierUpdatesPanel";
 import {
-  BASIC_FIELDS,
+  BASIC_GROUPS,
   Bind,
   ContentField,
   DETAIL_FIELDS,
+  DETAIL_GROUPS,
   FieldCtx,
   FieldFrame,
+  FieldGroup,
   FieldSpec,
+  InfoCard,
   LOCATION_FIELDS,
-  OPTION_FIELDS,
+  LOCATION_GROUPS,
+  OPTION_GROUPS,
   ReadOnlyField,
+  SectionCard,
 } from "./_components/ContentFields";
 
 type Edits = Record<string, any>;
@@ -222,12 +226,16 @@ const ContentTicketEdit = () => {
   });
   const productCtx = ctxFor("Product", data.id, data);
 
-  const renderFields = (specs: FieldSpec[], bind: (f: string) => Bind, ctx: FieldCtx) => (
-    <div className="space-y-6">
-      {specs.map((s) => (
-        <ContentField key={s.f} spec={s} bind={bind} ctx={ctx} />
+  const renderGroups = (groups: FieldGroup[], bind: (f: string) => Bind, ctx: FieldCtx) => (
+    <>
+      {groups.map((g) => (
+        <SectionCard key={g.title} title={g.title}>
+          {g.specs.map((s) => (
+            <ContentField key={s.f} spec={s} bind={bind} ctx={ctx} />
+          ))}
+        </SectionCard>
       ))}
-    </div>
+    </>
   );
 
   const mediaBind = mk("p:media", data.media, false);
@@ -246,15 +254,26 @@ const ContentTicketEdit = () => {
   };
 
   const cover = bindProduct("image");
+  const tabOf = (k: string): TabId => {
+    const [kind, f] = k.split(":");
+    if (kind !== "p") return "options";
+    if (f === "media" || f === "image") return "media";
+    if (DETAIL_FIELDS.some((x) => x.f === f || `${x.f}_mm` === f)) return "details";
+    return LOCATION_FIELDS.some((x) => x.f === f) ? "location" : "basic";
+  };
+  const dirtyTabs = new Set(changed.map(tabOf));
   const TabBtn = ({ t, label }: { t: TabId; label: string }) => (
     <button
       type="button"
       onClick={() => setTab(t)}
-      className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+      className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
         tab === t ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
       }`}
     >
       {label}
+      {dirtyTabs.has(t) && (
+        <span aria-label="Unsaved changes" className="h-2 w-2 rounded-full bg-amber-500" />
+      )}
     </button>
   );
   const pending = updates.data?.length ?? data.pendingSupplierUpdates;
@@ -263,55 +282,64 @@ const ContentTicketEdit = () => {
     const deleted = !!o.deletedAt;
     const bind = (f: string) => mk(`o:${o.id}:${f}`, o[f]);
     const img = bind("image");
+    const types = activeFirst(o.ticketTypes);
     return (
-      <div key={o.id} className={`space-y-5 rounded-xl border p-5 ${deleted ? "border-gray-200 bg-gray-50" : "border-gray-300 bg-white"}`}>
+      <div key={o.id} className="space-y-4 rounded-2xl border border-gray-300 bg-gray-50/50 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="text-lg font-semibold text-gray-900">{o.name}</h3>
           {deleted && <DeletedBadge at={o.deletedAt!} />}
         </div>
-        {deleted ? (
-          <p className="text-sm text-gray-500">This option was removed by the supplier and is read-only.</p>
-        ) : (
+        {deleted && <p className="text-sm text-gray-500">This option was removed by the supplier and is read-only.</p>}
+        {!deleted && (
           <>
-            <div>
-              <p className="mb-2 text-sm font-medium">Option image</p>
-              <ImageUpload
-                value={img.value}
-                label=""
-                folderType="PRODUCT_MEDIA"
-                disableRemove
-                enableCrop
-                presetCropSetting="TICKET_CARD"
-                cropLibrary="react-easy-crop"
-                onChange={async (_v, file) => {
-                  if (!file) return;
-                  const path = await uploadImage(file);
-                  if (path) img.onChange(path);
-                }}
-              />
-            </div>
-            {renderFields(OPTION_FIELDS, bind, ctxFor("ProductOption", o.id, o))}
+            <SectionCard title="Image">
+              <div>
+                <ImageUpload
+                  value={img.value}
+                  label=""
+                  folderType="PRODUCT_MEDIA"
+                  disableRemove
+                  enableCrop
+                  presetCropSetting="TICKET_CARD"
+                  cropLibrary="react-easy-crop"
+                  onChange={async (_v, file) => {
+                    if (!file) return;
+                    const path = await uploadImage(file);
+                    if (path) img.onChange(path);
+                  }}
+                />
+              </div>
+            </SectionCard>
+            {renderGroups(OPTION_GROUPS, bind, ctxFor("ProductOption", o.id, o))}
           </>
         )}
-        <div className="grid gap-3 md:grid-cols-3">
-          <ReadOnlyField label="Ticket validity" value={o.ticketValidity} />
-          <ReadOnlyField label="Published" value={o.isPublished} />
-          <ReadOnlyField label="Cancellable" value={o.isCancellable} />
-        </div>
-        <div className="space-y-3">
-          <p className="text-sm font-medium">Ticket types</p>
-          {activeFirst(o.ticketTypes).map((t) => {
+        <InfoCard
+          title="Ticket info (read-only)"
+          rows={[
+            ["Ticket validity", o.ticketValidity],
+            ["Published", o.isPublished],
+            ["Cancellable", o.isCancellable],
+            ...types.map((t): [string, unknown] => [
+              `GlobalTix original price, ${t.name}`,
+              t.supplierOriginalPrice == null ? "Not set" : t.supplierOriginalPrice,
+            ]),
+          ]}
+        />
+        <SectionCard title="Ticket types">
+          {types.map((t) => {
             const tb = mk(`t:${o.id}:${t.id}`, t.name);
             const pb = mk(`c:${o.id}:${t.id}`, t.customOriginalPrice ?? "", false);
             const gone = deleted || !!t.deletedAt;
             const perr = priceError(norm(`c:${o.id}:${t.id}`, pb.value));
             return (
-              <div key={t.id} className="space-y-3 rounded-lg border border-gray-200 p-3">
+              <div key={t.id} className="space-y-4">
                 <FieldFrame
                   ctx={ctxFor("TicketType", t.id, t)}
                   names={["name"]}
-                  label={`ticket type ${t.name}`}
+                  label={`Ticket type ${t.name}`}
                   current={tb.value}
+                  showLabel
+                  disabled={gone}
                 >
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="min-w-[14rem] flex-1">
@@ -328,73 +356,74 @@ const ContentTicketEdit = () => {
                     )}
                   </div>
                 </FieldFrame>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <ReadOnlyField
-                    label="GlobalTix original price"
-                    value={t.supplierOriginalPrice == null ? "Not set" : t.supplierOriginalPrice}
+                <div>
+                  <InputField
+                    label="Custom original price"
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="Empty = use GlobalTix price"
+                    disabled={gone}
+                    value={pb.value ?? ""}
+                    onChange={(e) => pb.onChange(e.target.value)}
                   />
-                  <div>
-                    <InputField
-                      label="Custom original price"
-                      type="number"
-                      min="0"
-                      step="any"
-                      placeholder="Empty = use GlobalTix price"
-                      disabled={gone}
-                      value={pb.value ?? ""}
-                      onChange={(e) => pb.onChange(e.target.value)}
-                    />
-                    {perr && <p className="mt-1 text-xs text-red-600">{perr}</p>}
-                  </div>
+                  {perr && <p className="mt-1 text-xs text-red-600">{perr}</p>}
                 </div>
               </div>
             );
           })}
-        </div>
+        </SectionCard>
       </div>
     );
   };
 
+  const sentBack = data.contentReviewStatus === "SENT_BACK";
+
   return (
     <PageContainer>
       <BackBtn route="/content-tickets" title="Back to Tickets" />
-      <PageHeader title={data.name} des="Edit the ticket content below." />
 
-      <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
-        <ReviewStatusBadge status={data.contentReviewStatus} />
-        {data.contentReviewStatus === "IN_PROGRESS" && data.contentReviewSubmittedAt && (
-          <span className="text-sm text-amber-700">Sent back by owner</span>
-        )}
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-          <Switch checked={diff} onCheckedChange={toggleDiff} aria-label="Diff view" />
-          Diff view
-        </label>
-        <Button type="button" variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate()}>
-          <RefreshCw size={16} className={refresh.isPending ? "animate-spin" : ""} />
-          {refresh.isPending ? "Refreshing from supplier..." : "Refresh from supplier"}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={data.contentReviewStatus === "READY_FOR_REVIEW" || dirty || submit.isPending}
-          loading={submit.isPending}
-          title={dirty ? "Save your changes first" : undefined}
-          onClick={() => submit.mutate()}
-        >
-          {data.contentReviewStatus === "READY_FOR_REVIEW" ? "Waiting for owner review" : "Submit for review"}
-        </Button>
-        {dirty && <span className="text-sm text-amber-700">Unsaved changes</span>}
-        <Button
-          type="button"
-          disabled={!dirty || uploading > 0 || save.isPending || badPrice}
-          loading={save.isPending}
-          onClick={() => save.mutate()}
-        >
-          {uploading > 0 ? "Uploading image..." : "Save changes"}
-        </Button>
+      <div className="mb-4 space-y-4 rounded-xl border bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h1 className="text-xl font-semibold text-gray-900">{data.name}</h1>
+          <ReviewStatusBadge status={data.contentReviewStatus} />
+          {sentBack && data.contentReviewSentBackAt && (
+            <span className="text-sm text-amber-700">
+              by owner, {new Date(data.contentReviewSentBackAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+            <Switch checked={diff} onCheckedChange={toggleDiff} aria-label="Diff view" />
+            Diff view
+          </label>
+          <Button type="button" variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate()}>
+            <RefreshCw size={16} className={refresh.isPending ? "animate-spin" : ""} />
+            {refresh.isPending ? "Refreshing from supplier..." : "Refresh from supplier"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={data.contentReviewStatus === "READY_FOR_REVIEW" || dirty || submit.isPending}
+            loading={submit.isPending}
+            title={dirty ? "Save your changes first" : undefined}
+            onClick={() => submit.mutate()}
+          >
+            {data.contentReviewStatus === "READY_FOR_REVIEW" ? "Waiting for owner review" : "Submit for review"}
+          </Button>
+          <Button
+            type="button"
+            disabled={!dirty || uploading > 0 || save.isPending || badPrice}
+            loading={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {uploading > 0 ? "Uploading image..." : `Save changes${dirty ? ` (${changed.length})` : ""}`}
+          </Button>
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 border-b pb-4">
+      <div className="flex flex-wrap gap-2 pb-4">
         <TabBtn t="basic" label="Basic" />
         <TabBtn t="details" label="Details" />
         <TabBtn t="location" label="Location" />
@@ -403,29 +432,32 @@ const ContentTicketEdit = () => {
         <TabBtn t="updates" label={pending > 0 ? `Supplier updates (${pending})` : "Supplier updates"} />
       </div>
 
-      <div className="mt-4 min-h-96 rounded-xl border bg-white p-6 shadow-sm">
+      <div className="min-h-96 space-y-4">
         {tab === "basic" && (
-          <div className="space-y-6">
-            {renderFields(BASIC_FIELDS, bindProduct, productCtx)}
-            <div className="grid gap-4 md:grid-cols-3">
-              <ReadOnlyField label="Slug" value={data.slug} />
-              <ReadOnlyField label="Category" value={data.category} />
-              <ReadOnlyField label="City" value={data.city} />
-              <ReadOnlyField label="Country" value={data.country} />
-              <ReadOnlyField label="Published" value={data.isPublished} />
-              <ReadOnlyField label="Recommended" value={data.isRecommended} />
-              <ReadOnlyField label="Best seller" value={data.isBestSeller} />
-              <ReadOnlyField label="Cancellable" value={data.isCancellable} />
-              <ReadOnlyField label="Manual confirmation" value={data.requiresManualConfirmation} />
-            </div>
-          </div>
+          <>
+            {renderGroups(BASIC_GROUPS, bindProduct, productCtx)}
+            <InfoCard
+              title="Ticket info (read-only)"
+              rows={[
+                ["Slug", data.slug],
+                ["Category", data.category],
+                ["City", data.city],
+                ["Country", data.country],
+                ["Published", data.isPublished],
+                ["Recommended", data.isRecommended],
+                ["Best seller", data.isBestSeller],
+                ["Cancellable", data.isCancellable],
+                ["Manual confirmation", data.requiresManualConfirmation],
+              ]}
+            />
+          </>
         )}
-        {tab === "details" && renderFields(DETAIL_FIELDS, bindProduct, productCtx)}
-        {tab === "location" && renderFields(LOCATION_FIELDS, bindProduct, productCtx)}
+        {tab === "details" && renderGroups(DETAIL_GROUPS, bindProduct, productCtx)}
+        {tab === "location" && renderGroups(LOCATION_GROUPS, bindProduct, productCtx)}
         {tab === "media" && (
-          <div className="space-y-8">
-            <div>
-              <p className="mb-2 text-sm font-medium">Cover image</p>
+          <>
+            <SectionCard title="Cover image">
+              <div>
               <ImageUpload
                 value={cover.value}
                 label=""
@@ -440,9 +472,10 @@ const ContentTicketEdit = () => {
                   if (path) cover.onChange(path);
                 }}
               />
-            </div>
-            <div className="space-y-3">
-              <p className="text-sm font-medium">Gallery</p>
+              </div>
+            </SectionCard>
+            <SectionCard title="Gallery">
+              <div className="space-y-3">
               <div className="grid gap-4 md:grid-cols-2">
                 {media.map((m, i) => (
                   <div key={`${i}-${m.path}`} className="space-y-2 rounded-lg border p-3">
@@ -473,8 +506,9 @@ const ContentTicketEdit = () => {
               >
                 <Plus size={16} /> Add image
               </Button>
-            </div>
-          </div>
+              </div>
+            </SectionCard>
+          </>
         )}
         {tab === "options" && (
           <div className="space-y-6">

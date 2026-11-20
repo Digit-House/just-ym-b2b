@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Lock, Plus, Trash2 } from "lucide-react";
 import InputField from "@/components/InputField";
 import TextareaField from "@/components/TextareaField";
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
@@ -26,7 +26,6 @@ export const ReadOnlyField = ({ label, value }: { label: string; value: unknown 
 
 export const ListField = ({ label, value, onChange }: { label: string } & Bind<string[]>) => (
   <div className="space-y-2">
-    <p className="text-sm font-medium">{label}</p>
     {value.map((item, i) => (
       <div key={i} className="flex items-start gap-2">
         <div className="flex-1">
@@ -64,12 +63,47 @@ export type FieldCtx = {
   onShowPending: () => void;
 };
 
-/** Adds the "Always review" switch and, in diff view, the supplier baseline beside the control. */
+/** Section card: small uppercase title; its direct children are field rows split by a bold divider. */
+export const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">{title}</h3>
+    <div className="divide-y-2 divide-gray-200 [&>*]:py-5 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">{children}</div>
+  </section>
+);
+
+/** Muted read-only card: label/value text, not inputs. */
+export const InfoCard = ({ title, rows }: { title: string; rows: [string, unknown][] }) => (
+  <section className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <h3 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <Lock size={12} /> {title}
+    </h3>
+    <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+      {rows.map(([k, v]) => (
+        <div key={k}>
+          <dt className="text-xs text-gray-500">{k}</dt>
+          <dd className="text-sm text-gray-700">
+            {v === null || v === undefined || v === "" ? "-" : typeof v === "boolean" ? (v ? "Yes" : "No") : String(v)}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+);
+
+const CHIP = "rounded-full px-2 py-0.5 text-xs font-medium";
+
+/**
+ * One field row: header line (label, state chip, Always review switch), then the control, with the
+ * supplier baseline beside it in diff view. `disabled` locks every input and hides the actions.
+ * `showLabel` is off where the control carries its own label (owner form).
+ */
 export const FieldFrame = ({
   ctx,
   names,
   label,
   current,
+  showLabel,
+  disabled,
   children,
 }: {
   ctx?: FieldCtx;
@@ -77,35 +111,54 @@ export const FieldFrame = ({
   names: string[];
   label: string;
   current: unknown;
+  showLabel?: boolean;
+  disabled?: boolean;
   children: React.ReactNode;
 }) => {
   if (!ctx) return <>{children}</>;
   const f = names[0];
   const on = ctx.meta.alwaysReviewFields.includes(f);
+  const edited = ctx.meta.editedFields.includes(f);
+  const pending = names.some((n) => ctx.pending.has(n));
   return (
-    <div className="space-y-2">
-      <div className="flex justify-end">
-        <AlwaysReviewSwitch
-          label={label}
-          checked={on}
-          disabled={ctx.busy}
-          onChange={(v) => ctx.onToggleAlways(names, v)}
-        />
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          {showLabel && <span className="text-sm font-medium text-gray-900">{label}</span>}
+          {pending ? (
+            <span className={`${CHIP} bg-amber-100 text-amber-800`}>Newer supplier value</span>
+          ) : edited ? (
+            <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>Edited</span>
+          ) : (
+            <span className={`${CHIP} bg-gray-100 text-gray-500`}>Same as supplier</span>
+          )}
+        </div>
+        {!disabled && (
+          <AlwaysReviewSwitch
+            label={label}
+            checked={on}
+            disabled={ctx.busy}
+            onChange={(v) => ctx.onToggleAlways(names, v)}
+          />
+        )}
       </div>
       {ctx.diff ? (
         <ContentDiffField
           field={f}
           label={label}
-          edited={ctx.meta.editedFields.includes(f)}
+          edited={edited}
           baseline={ctx.meta.supplierBaseline?.[f]}
           current={current}
-          pending={names.some((n) => ctx.pending.has(n))}
+          pending={pending}
           onShowPending={ctx.onShowPending}
+          disabled={disabled}
         >
           {children}
         </ContentDiffField>
       ) : (
-        children
+        <fieldset disabled={disabled} className="min-w-0">
+          {children}
+        </fieldset>
       )}
     </div>
   );
@@ -116,10 +169,12 @@ export const ContentField = ({
   spec,
   bind,
   ctx,
+  disabled,
 }: {
   spec: FieldSpec;
   bind: (field: string) => Bind;
   ctx?: FieldCtx;
+  disabled?: boolean;
 }) => {
   const b = bind(spec.f);
   return (
@@ -128,6 +183,8 @@ export const ContentField = ({
       names={spec.kind === "terms" ? [spec.f, `${spec.f}_mm`] : [spec.f]}
       label={spec.label}
       current={b.value}
+      showLabel
+      disabled={disabled}
     >
       <ContentFieldBody spec={spec} bind={bind} />
     </FieldFrame>
@@ -139,12 +196,12 @@ const ContentFieldBody = ({ spec, bind }: { spec: FieldSpec; bind: (field: strin
   switch (spec.kind) {
     case "input":
       return (
-        <InputField label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
+        <InputField aria-label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
       );
     case "number":
       return (
         <InputField
-          label={spec.label}
+          aria-label={spec.label}
           type="number"
           value={b.value ?? ""}
           onChange={(e) => b.onChange(e.target.value === "" ? null : Number(e.target.value))}
@@ -152,7 +209,7 @@ const ContentFieldBody = ({ spec, bind }: { spec: FieldSpec; bind: (field: strin
       );
     case "area":
       return (
-        <TextareaField label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
+        <TextareaField label="" aria-label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
       );
     case "list": {
       // Only plain string lists are editable; any other stored shape stays read-only.
@@ -222,3 +279,34 @@ export const OPTION_FIELDS: FieldSpec[] = [
 /** Every wire field the editor may send, derived from the specs ("terms" covers its _mm twin). */
 export const fieldNames = (specs: FieldSpec[]) =>
   specs.flatMap((s) => (s.kind === "terms" ? [s.f, `${s.f}_mm`] : [s.f]));
+
+export type FieldGroup = { title: string; specs: FieldSpec[] };
+const group = (title: string, all: FieldSpec[], fs: string[]): FieldGroup => ({
+  title,
+  specs: all.filter((s) => fs.includes(s.f)),
+});
+
+export const BASIC_GROUPS = [
+  group("Text", BASIC_FIELDS, ["name", "goodToKnow"]),
+  group("Search", BASIC_FIELDS, ["keywords", "productKeywords"]),
+];
+export const DETAIL_GROUPS = [
+  group("Description", DETAIL_FIELDS, ["description", "description_mm", "whatToExpect", "whatToExpect_mm"]),
+  group("Terms", DETAIL_FIELDS, ["termsAndConditions"]),
+  group("Lists", DETAIL_FIELDS, [
+    ...["highlights", "inclusions", "exclusions", "howToUseList", "thingsToNote"].flatMap((f) => [f, `${f}_mm`]),
+  ]),
+];
+export const LOCATION_GROUPS = [
+  group("Address", LOCATION_FIELDS, ["location", "addressLine", "postalCode"]),
+  group("Coordinates", LOCATION_FIELDS, ["latitude", "longitude"]),
+];
+export const OPTION_GROUPS = [
+  group("Text", OPTION_FIELDS, ["name", "description", "description_mm"]),
+  group("Terms", OPTION_FIELDS, ["termsAndConditions"]),
+  group("Lists", OPTION_FIELDS, [
+    ...["howToUse", "inclusions", "exclusions"].flatMap((f) => [f, `${f}_mm`]),
+    "tourInformation",
+    "cancellationNotes",
+  ]),
+];
