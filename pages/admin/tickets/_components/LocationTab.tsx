@@ -7,6 +7,7 @@ import { Map, Marker } from "pigeon-maps";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
+import { ReviewField } from "@/components/OwnerReviewContext";
 
 type LocationTabProps = {
   control: Control<TicketFormValues>;
@@ -34,6 +35,7 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
     <div className="space-y-6">
       {/* Inputs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ReviewField names={["latitude"]} label="Latitude" current={latitude}>
         <Controller
           name="latitude"
           control={control}
@@ -52,7 +54,9 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
             />
           )}
         />
+        </ReviewField>
 
+        <ReviewField names={["longitude"]} label="Longitude" current={longitude}>
         <Controller
           name="longitude"
           control={control}
@@ -71,6 +75,7 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
             />
           )}
         />
+        </ReviewField>
       </div>
 
       {/* Map */}

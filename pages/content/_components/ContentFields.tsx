@@ -3,6 +3,9 @@ import InputField from "@/components/InputField";
 import TextareaField from "@/components/TextareaField";
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
 import { Button } from "@/components/ui/button";
+import AlwaysReviewSwitch from "@/components/AlwaysReviewSwitch";
+import ContentDiffField from "@/components/ContentDiffField";
+import { ReviewMetaT } from "@/types/contentEditor.type";
 
 export type Bind<T = any> = { value: T; onChange: (v: T) => void };
 
@@ -50,14 +53,88 @@ export const ListField = ({ label, value, onChange }: { label: string } & Bind<s
   </div>
 );
 
+/** Review context of one entity (product, option or ticket type) for its fields. */
+export type FieldCtx = {
+  meta: ReviewMetaT;
+  diff: boolean;
+  /** Fields with a waiting supplier update. */
+  pending: Set<string>;
+  busy: boolean;
+  onToggleAlways: (fields: string[], on: boolean) => void;
+  onShowPending: () => void;
+};
+
+/** Adds the "Always review" switch and, in diff view, the supplier baseline beside the control. */
+export const FieldFrame = ({
+  ctx,
+  names,
+  label,
+  current,
+  children,
+}: {
+  ctx?: FieldCtx;
+  /** Wire fields this control edits; the first is the one diffed. */
+  names: string[];
+  label: string;
+  current: unknown;
+  children: React.ReactNode;
+}) => {
+  if (!ctx) return <>{children}</>;
+  const f = names[0];
+  const on = ctx.meta.alwaysReviewFields.includes(f);
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-end">
+        <AlwaysReviewSwitch
+          label={label}
+          checked={on}
+          disabled={ctx.busy}
+          onChange={(v) => ctx.onToggleAlways(names, v)}
+        />
+      </div>
+      {ctx.diff ? (
+        <ContentDiffField
+          field={f}
+          label={label}
+          edited={ctx.meta.editedFields.includes(f)}
+          baseline={ctx.meta.supplierBaseline?.[f]}
+          current={current}
+          pending={names.some((n) => ctx.pending.has(n))}
+          onShowPending={ctx.onShowPending}
+        >
+          {children}
+        </ContentDiffField>
+      ) : (
+        children
+      )}
+    </div>
+  );
+};
+
 /** Renders one editable content field. `bind(field)` returns the value and a change handler for it. */
 export const ContentField = ({
   spec,
   bind,
+  ctx,
 }: {
   spec: FieldSpec;
   bind: (field: string) => Bind;
+  ctx?: FieldCtx;
 }) => {
+  const b = bind(spec.f);
+  return (
+    <FieldFrame
+      ctx={ctx}
+      names={spec.kind === "terms" ? [spec.f, `${spec.f}_mm`] : [spec.f]}
+      label={spec.label}
+      current={b.value}
+    >
+      <ContentFieldBody spec={spec} bind={bind} />
+    </FieldFrame>
+  );
+};
+
+const ContentFieldBody = ({ spec, bind }: { spec: FieldSpec; bind: (field: string) => Bind }) => {
   const b = bind(spec.f);
   switch (spec.kind) {
     case "input":

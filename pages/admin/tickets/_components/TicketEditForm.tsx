@@ -19,6 +19,7 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
+import { OwnerReviewProvider, DiffToggle } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
   useProductContent,
@@ -487,6 +488,7 @@ const TicketEditForm: React.FC<Props> = ({
   );
 
   return (
+    <OwnerReviewProvider productId={initialValues?.id ?? ""} onShowPending={() => setCurrentTab("supplier-updates")}>
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
       {/* Validation Summary - Shows validation errors at the top */}
       {Object.keys(errors).length > 0 && (
@@ -510,7 +512,8 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
       )}
 
-      <div className="flex flex-col items-end">
+      <div className="flex items-center justify-end gap-4">
+        {initialValues?.id && <DiffToggle />}
         <Button
           type="submit"
           loading={loading}
@@ -692,6 +695,7 @@ const TicketEditForm: React.FC<Props> = ({
         )}
       </div>
     </form>
+    </OwnerReviewProvider>
   );
 };
 

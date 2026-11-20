@@ -8,7 +8,9 @@ import {
   LayersPlusIcon,
   DatabaseZap,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import ReviewFilteredList from "./_components/ReviewFilteredList";
+import { REVIEW_STATUS_OPTIONS } from "@/components/ReviewStatusBadge";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 
 import PageContainer from "@/components/PageContainer";
@@ -57,6 +59,10 @@ export default function Tickets() {
   const { user } = useUser();
 
   const { filters, setFilters, resetFilters } = useTicketFilters();
+  const [searchParams] = useSearchParams();
+  // Owner review status filter (R5). The sidebar badge links here with ?review=READY_FOR_REVIEW.
+  const [review, setReview] = useState(searchParams.get("review") ?? "ALL");
+  const reviewOn = user?.type === "OWNER" && review !== "ALL";
   const debouncedSearch = useDebounce(filters.search, 500);
 
   const [sortDialogOpen, setSortDialogOpen] = useState(false);
@@ -108,6 +114,7 @@ export default function Tickets() {
       },
     ],
     queryFn: fetchProducts,
+    enabled: !reviewOn,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
     staleTime: 0,
     gcTime: 0,
@@ -258,6 +265,20 @@ export default function Tickets() {
                     <SelectItem value="UNPUBLISHED">Unpublished</SelectItem>
                   </SelectContent>
                 </ShadcnSelect>
+                <ShadcnSelect value={review} onValueChange={setReview}>
+                  <SelectTrigger className="w-full md:w-48" aria-label="Review status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All review statuses</SelectItem>
+                    <SelectItem value="NOT_STARTED">Not started</SelectItem>
+                    {REVIEW_STATUS_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </ShadcnSelect>
                 <ShadcnSelect
                   value={
                     filters.isRecommended ? "RECOMMENDED" : "NOT_RECOMMENDED"
@@ -317,10 +338,12 @@ export default function Tickets() {
             user?.type === "OWNER" ? "justify-between" : "justify-end"
           } items-start md:items-center mb-6 gap-4`}
         >
-          <p className="text-sm font-medium text-gray-600">
-            Total Tickets :{" "}
-            <span className="font-bold text-gray-900">{total}</span>
-          </p>
+          {reviewOn ? <span /> : (
+            <p className="text-sm font-medium text-gray-600">
+              Total Tickets :{" "}
+              <span className="font-bold text-gray-900">{total}</span>
+            </p>
+          )}
 
           {user?.type === "OWNER" && (
             <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
@@ -349,6 +372,17 @@ export default function Tickets() {
           )}
         </div>
 
+        {reviewOn ? (
+          <ReviewFilteredList
+            review={review}
+            search={debouncedSearch}
+            categories={filters.categories}
+            countryId={filters.countryId}
+            published={filters.published}
+            sort={filters.sort}
+          />
+        ) : (
+          <>
         {isPending && (
           <MascotLoader label="Loading tickets..." className="py-16" />
         )}
@@ -378,6 +412,8 @@ export default function Tickets() {
 
         {!products.length && !isPending && (
           <NotFoundComponent message="No products found" />
+        )}
+          </>
         )}
       </PageContainer>
       {sortDialogOpen && (

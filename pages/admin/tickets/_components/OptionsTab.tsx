@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { formatUtcDate } from "@/lib/dateFormat";
 import RichTextEditor from "@/components/RichTextEditor";
 import { toRichTextHtml } from "@/lib/richText";
+import { ReviewField } from "@/components/OwnerReviewContext";
 import { AnimatePresence, motion } from "framer-motion";
 
 type OptionsTabProps = {
@@ -348,6 +349,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                     >
                       <div className="space-y-4 px-6 pb-6 pt-2 border-t">
                         <div className="grid grid-cols-1 gap-4 mb-6">
+                          <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["name"]} label="Package name" current={option.name}>
                           <InputField
                             label="Package Name"
                             value={option.name ?? ""}
@@ -363,6 +365,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 ?.message
                             }
                           />
+                          </ReviewField>
                         </div>
 
                         <div className="space-y-4">
@@ -376,6 +379,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                           <div className="grid grid-cols-1 gap-6">
                             {/* English */}
+                            <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["description"]} label="Package description" current={option.description}>
                             <div className="space-y-3">
                               <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
                                 English
@@ -403,8 +407,10 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 </p>
                               )}
                             </div>
+                            </ReviewField>
 
                             {/* Myanmar */}
+                            <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["description_mm"]} label="Package description (Myanmar)" current={option.description_mm}>
                             <div className="space-y-3">
                               <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
                                 Myanmar
@@ -432,6 +438,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 </p>
                               )}
                             </div>
+                            </ReviewField>
                           </div>
                         </div>
 
@@ -497,6 +504,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* English */}
+                            <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["inclusions"]} label="Package inclusions" current={option.inclusions}>
                             <div className="space-y-3">
                               <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
                                 English
@@ -552,8 +560,10 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 </Button>
                               </div>
                             </div>
+                            </ReviewField>
 
                             {/* Myanmar */}
+                            <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["inclusions_mm"]} label="Package inclusions (Myanmar)" current={option.inclusions_mm}>
                             <div className="space-y-3">
                               <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
                                 Myanmar
@@ -609,6 +619,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 </Button>
                               </div>
                             </div>
+                            </ReviewField>
                           </div>
                         </div>
 
@@ -650,9 +661,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                   }`}
                                 >
                                   <div className="flex justify-between items-start mb-3">
+                                    <ReviewField entity="TicketType" entityId={ticketType.id ?? undefined} names={["name"]} label="Ticket type name" current={ticketType.name}>
                                     <h6 className="font-medium">
                                       {ticketType.name}
                                     </h6>
+                                    </ReviewField>
                                   </div>
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

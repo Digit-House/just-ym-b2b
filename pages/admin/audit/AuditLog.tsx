@@ -4,6 +4,8 @@ import { X } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import AuditLogList from "@/components/AuditLogList";
+import AuditArchiveCard from "@/components/AuditArchiveCard";
+import { useUser } from "@/provider/UserProvider";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getContentProducts } from "@/graphql/contentEditor";
 import { getAllUsers } from "@/graphql/user";
@@ -13,6 +15,7 @@ import { AUDIT_ACTIONS, actionOptionLabel } from "@/util/contentLabels";
 const inputCls = "rounded-md border border-gray-300 bg-white px-3 py-2 text-sm";
 
 const AuditLog = () => {
+  const { user } = useUser();
   const [ticket, setTicket] = useState<{ id: string; name: string } | null>(null);
   const [ticketSearch, setTicketSearch] = useState("");
   const [userId, setUserId] = useState("");
@@ -125,6 +128,7 @@ const AuditLog = () => {
       </div>
 
       <AuditLogList filter={filter} showTicketLink />
+      {user?.type === "OWNER" && <AuditArchiveCard />}
     </PageContainer>
   );
 };

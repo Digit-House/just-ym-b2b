@@ -1,5 +1,27 @@
 export type SupplierUpdateAction = "KEEP_MINE" | "USE_SUPPLIER" | "MERGE";
 
+export type ContentReviewStatus = "IN_PROGRESS" | "READY_FOR_REVIEW" | "DONE";
+
+export type ContentReviewCountsT = { readyForReview: number };
+
+/** Per-entity review metadata. supplierBaseline is keyed by content field name. */
+export type ReviewMetaT = {
+  editedFields: string[];
+  alwaysReviewFields: string[];
+  supplierBaseline?: Record<string, unknown> | null;
+};
+
+export type AuditArchiveT = {
+  id: string;
+  month: string;
+  keys: string[];
+  auditCount: number;
+  supplierUpdateCount: number;
+  createdAt: string;
+};
+
+export type ArchiveKind = "audit-logs" | "supplier-updates";
+
 export type ContentListItemT = {
   id: string;
   name: string;
@@ -8,6 +30,7 @@ export type ContentListItemT = {
   category: string;
   isPublished: boolean | null;
   pendingSupplierUpdates: number;
+  contentReviewStatus?: ContentReviewStatus | null;
 };
 
 export type ContentMediaT = {
@@ -26,7 +49,11 @@ export type ContentTicketTypeT = {
   minPurchaseQty?: number | null;
   maxPurchaseQty?: number | null;
   deletedAt?: string | null;
+  supplierOriginalPrice?: number | null;
+  customOriginalPrice?: number | null;
   editedFields: string[];
+  alwaysReviewFields: string[];
+  supplierBaseline?: Record<string, unknown> | null;
   pendingSupplierUpdates: number;
 };
 
@@ -34,6 +61,9 @@ export type ContentOptionT = {
   id: string;
   name: string;
   deletedAt?: string | null;
+  editedFields: string[];
+  alwaysReviewFields: string[];
+  supplierBaseline?: Record<string, unknown> | null;
   ticketTypes: ContentTicketTypeT[];
   pendingSupplierUpdates: number;
   [key: string]: any;
@@ -45,6 +75,11 @@ export type ProductContentT = {
   media: ContentMediaT[];
   productOptions: ContentOptionT[];
   pendingSupplierUpdates: number;
+  editedFields: string[];
+  alwaysReviewFields: string[];
+  supplierBaseline?: Record<string, unknown> | null;
+  contentReviewStatus?: ContentReviewStatus | null;
+  contentReviewSubmittedAt?: string | null;
   [key: string]: any;
 };
 
@@ -56,8 +91,11 @@ export type SupplierUpdateT = {
   field: string;
   baselineValue: unknown;
   supplierValue: unknown;
-  status: "PENDING" | "KEPT" | "APPLIED" | "MERGED";
+  status: "PENDING" | "KEPT" | "APPLIED" | "MERGED" | "OBSOLETE";
   createdAt: string;
+  /** "<ticket> › Option: <name> › Ticket type: <name>"; deleted items end with "(deleted)". */
+  location?: string | null;
+  locationIds?: { productId?: string; optionId?: string; ticketTypeId?: string } | null;
 };
 
 export type AuditLogT = {
@@ -71,6 +109,8 @@ export type AuditLogT = {
   newValues?: Record<string, unknown> | null;
   user?: { id: string; name?: string | null; email?: string | null } | null;
   createdAt: string;
+  location?: string | null;
+  locationIds?: { productId?: string; optionId?: string; ticketTypeId?: string } | null;
 };
 
 export type AuditFilterT = {
