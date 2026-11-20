@@ -114,11 +114,33 @@ export type AuditLogT = {
   locationIds?: { productId?: string; optionId?: string; ticketTypeId?: string } | null;
 };
 
+export type AuditChangeT = {
+  id: string;
+  entityName: string;
+  entityId?: string | null;
+  entityLabel?: string | null;
+  action: string;
+  oldValues?: Record<string, unknown> | null;
+  newValues?: Record<string, unknown> | null;
+};
+
+/** One save: every change written together (auditSaves, OWNER only). */
+export type AuditSaveT = {
+  saveId: string;
+  createdAt: string;
+  source?: string | null;
+  user?: { id: string; name?: string | null; email?: string | null } | null;
+  ipAddress?: string | null;
+  location?: string | null;
+  productId?: string | null;
+  productName?: string | null;
+  changes: AuditChangeT[];
+};
+
 export type AuditFilterT = {
   productId?: string;
   entityName?: string;
-  userId?: string;
-  action?: string;
+  performedBy?: string;
   source?: string;
   from?: string;
   to?: string;

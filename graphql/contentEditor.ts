@@ -1,8 +1,7 @@
 import { warpGql } from "@/util";
 import client from "./client";
-import { UPDATE_PRODUCT_CONTENT } from "./type-query/contentEditor";
+import { AUDIT_SAVES, UPDATE_PRODUCT_CONTENT } from "./type-query/contentEditor";
 import {
-  AUDIT_LOGS_REVIEW as AUDIT_LOGS,
   CONTENT_PRODUCTS_REVIEW as CONTENT_PRODUCTS,
   PRODUCT_CONTENT_REVIEW as PRODUCT_CONTENT,
   SUPPLIER_UPDATES_REVIEW as SUPPLIER_UPDATES,
@@ -10,7 +9,7 @@ import {
 } from "./contentEditorReview";
 import {
   AuditFilterT,
-  AuditLogT,
+  AuditSaveT,
   ContentListItemT,
   ContentReviewStatus,
   ProductContentT,
@@ -77,13 +76,13 @@ export const resolveSupplierUpdate = (
   expectedSupplierValue?: unknown
 ) => resolveSupplierUpdateChecked(id, action, mergedValue, expectedSupplierValue);
 
-export const getAuditLogs = async (
+export const getAuditSaves = async (
   filter: AuditFilterT,
   page: { page: number; limit: number }
 ) =>
   (
-    await query<{ auditLogs: { total: number; items: AuditLogT[] } }>(
-      AUDIT_LOGS,
+    await query<{ auditSaves: { total: number; truncated: boolean; items: AuditSaveT[] } }>(
+      AUDIT_SAVES,
       { filter, page }
     )
-  ).auditLogs;
+  ).auditSaves;

@@ -8,6 +8,7 @@ interface TermsAndConditionsEditorProps {
   onMyanmarChange: (value: string) => void;
   englishError?: string;
   myanmarError?: string;
+  readOnly?: boolean;
 }
 
 const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
@@ -17,6 +18,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
   onMyanmarChange,
   englishError,
   myanmarError,
+  readOnly,
 }) => {
   // Ensure initial values are properly set
   useEffect(() => {
@@ -64,6 +66,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
             placeholder="Enter terms and conditions in English..."
             minHeight={200}
             maxHeight={300}
+            readOnly={readOnly}
           />
           {englishError && <p className="text-red-500 text-sm">{englishError}</p>}
         </div>
@@ -79,6 +82,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
             placeholder="Enter terms and conditions in Myanmar..."
             minHeight={200}
             maxHeight={300}
+            readOnly={readOnly}
           />
           {myanmarError && <p className="text-red-500 text-sm">{myanmarError}</p>}
         </div>

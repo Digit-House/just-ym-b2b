@@ -22,7 +22,6 @@ import RelatedTicketTab from "./RelatedTicketTab";
 import { OwnerReviewProvider, DiffToggle } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
-  useProductContent,
   useSupplierUpdates,
 } from "@/pages/content/_components/SupplierUpdatesPanel";
 
@@ -454,12 +453,6 @@ const TicketEditForm: React.FC<Props> = ({
 
   // Owner-only tabs: they never submit the form, and they only fetch once opened.
   const pendingUpdates = useSupplierUpdates(initialValues?.id ?? "");
-  const productContent = useProductContent(initialValues?.id ?? "");
-  const entityNames: Record<string, string> = {};
-  for (const o of productContent.data?.productOptions ?? []) {
-    entityNames[o.id] = o.name;
-    for (const t of o.ticketTypes) entityNames[t.id] = t.name;
-  }
   const isExtraTab = currentTab === "history" || currentTab === "supplier-updates";
   const extraTabClass = (id: string) =>
     `flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
@@ -652,7 +645,7 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
 
         {initialValues?.id && currentTab === "history" && (
-          <AuditLogList filter={{ productId: initialValues.id }} entityNames={entityNames} />
+          <AuditLogList filter={{ productId: initialValues.id }} />
         )}
         {initialValues?.id && currentTab === "supplier-updates" && (
           <SupplierUpdatesPanel productId={initialValues.id} />

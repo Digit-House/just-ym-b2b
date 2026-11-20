@@ -24,7 +24,7 @@ export const ReadOnlyField = ({ label, value }: { label: string; value: unknown 
   />
 );
 
-export const ListField = ({ label, value, onChange }: { label: string } & Bind<string[]>) => (
+export const ListField = ({ label, value, onChange, readOnly }: { label: string; readOnly?: boolean } & Bind<string[]>) => (
   <div className="space-y-2">
     {value.map((item, i) => (
       <div key={i} className="flex items-start gap-2">
@@ -36,6 +36,7 @@ export const ListField = ({ label, value, onChange }: { label: string } & Bind<s
             onChange={(e) => onChange(value.map((v, j) => (j === i ? e.target.value : v)))}
           />
         </div>
+        {!readOnly && (
         <Button
           type="button"
           variant="outline"
@@ -44,11 +45,14 @@ export const ListField = ({ label, value, onChange }: { label: string } & Bind<s
         >
           <Trash2 size={16} />
         </Button>
+        )}
       </div>
     ))}
-    <Button type="button" variant="outline" onClick={() => onChange([...value, ""])}>
-      <Plus size={16} /> Add item
-    </Button>
+    {!readOnly && (
+      <Button type="button" variant="outline" onClick={() => onChange([...value, ""])}>
+        <Plus size={16} /> Add item
+      </Button>
+    )}
   </div>
 );
 
@@ -191,7 +195,16 @@ export const ContentField = ({
   );
 };
 
-const ContentFieldBody = ({ spec, bind }: { spec: FieldSpec; bind: (field: string) => Bind }) => {
+export const ContentFieldBody = ({
+  spec,
+  bind,
+  readOnly,
+}: {
+  spec: FieldSpec;
+  bind: (field: string) => Bind;
+  /** Terms editors are contenteditable (`fieldset disabled` cannot lock them); list Add/Remove buttons are hidden. */
+  readOnly?: boolean;
+}) => {
   const b = bind(spec.f);
   switch (spec.kind) {
     case "input":
@@ -215,7 +228,7 @@ const ContentFieldBody = ({ spec, bind }: { spec: FieldSpec; bind: (field: strin
       // Only plain string lists are editable; any other stored shape stays read-only.
       const v = b.value ?? [];
       return Array.isArray(v) && v.every((x) => typeof x === "string") ? (
-        <ListField label={spec.label} value={v} onChange={b.onChange} />
+        <ListField label={spec.label} value={v} onChange={b.onChange} readOnly={readOnly} />
       ) : (
         <ReadOnlyField label={`${spec.label} (not editable)`} value={JSON.stringify(v)} />
       );
@@ -228,6 +241,7 @@ const ContentFieldBody = ({ spec, bind }: { spec: FieldSpec; bind: (field: strin
           myanmarValue={mm.value ?? ""}
           onEnglishChange={b.onChange}
           onMyanmarChange={mm.onChange}
+          readOnly={readOnly}
         />
       );
     }

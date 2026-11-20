@@ -91,3 +91,16 @@ query AuditLogs($filter: AuditLogFilterInput, $page: PageInput) {
   }
 }
 `;
+
+export const AUDIT_SAVES = `
+query AuditSaves($filter: AuditSavesFilterInput, $page: PageInput) {
+  auditSaves(filter: $filter, page: $page) {
+    total truncated
+    items {
+      saveId createdAt source ipAddress location productId productName
+      user { id name email }
+      changes { id entityName entityId entityLabel action oldValues newValues }
+    }
+  }
+}
+`;

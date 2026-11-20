@@ -4,25 +4,24 @@ import AuditTimeline from "@/components/AuditTimeline";
 import EmptyState from "@/components/EmptyState";
 import MascotLoader from "@/components/MascotLoader";
 import Pagination from "@/components/Pagination";
-import { getAuditLogs } from "@/graphql/contentEditor";
+import { getAuditSaves } from "@/graphql/contentEditor";
 import { AuditFilterT } from "@/types/contentEditor.type";
 
 type Props = {
   filter: AuditFilterT;
-  entityNames?: Record<string, string>;
   showTicketLink?: boolean;
 };
 
 /** Fetches, pages and renders audit history for a filter (OWNER only on the API). */
-const AuditLogList = ({ filter, entityNames, showTicketLink }: Props) => {
+const AuditLogList = ({ filter, showTicketLink }: Props) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const filterKey = JSON.stringify(filter);
   useEffect(() => setPage(1), [filterKey]);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["auditLogs", filterKey, page, pageSize],
-    queryFn: () => getAuditLogs(filter, { page, limit: pageSize }),
+    queryKey: ["auditSaves", filterKey, page, pageSize],
+    queryFn: () => getAuditSaves(filter, { page, limit: pageSize }),
     refetchOnWindowFocus: false,
   });
 
@@ -44,7 +43,7 @@ const AuditLogList = ({ filter, entityNames, showTicketLink }: Props) => {
 
   return (
     <div className="space-y-3">
-      <AuditTimeline logs={data.items} entityNames={entityNames} showTicketLink={showTicketLink} />
+      <AuditTimeline saves={data.items} showTicketLink={showTicketLink} truncated={data.truncated} />
       <Pagination
         page={page}
         pageSize={pageSize}

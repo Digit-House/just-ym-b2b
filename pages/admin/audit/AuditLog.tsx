@@ -10,7 +10,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { getContentProducts } from "@/graphql/contentEditor";
 import { getAllUsers } from "@/graphql/user";
 import { AuditFilterT } from "@/types/contentEditor.type";
-import { AUDIT_ACTIONS, actionOptionLabel } from "@/util/contentLabels";
 
 const inputCls = "rounded-md border border-gray-300 bg-white px-3 py-2 text-sm";
 
@@ -19,7 +18,6 @@ const AuditLog = () => {
   const [ticket, setTicket] = useState<{ id: string; name: string } | null>(null);
   const [ticketSearch, setTicketSearch] = useState("");
   const [userId, setUserId] = useState("");
-  const [action, setAction] = useState("");
   const [source, setSource] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -47,8 +45,7 @@ const AuditLog = () => {
 
   const filter: AuditFilterT = {
     ...(ticket && { productId: ticket.id }),
-    ...(userId && { userId }),
-    ...(action && { action }),
+    ...(userId && { performedBy: userId }),
     ...(source && { source }),
     ...(from && { from: new Date(`${from}T00:00:00`).toISOString() }),
     ...(to && { to: new Date(`${to}T23:59:59.999`).toISOString() }),
@@ -56,7 +53,7 @@ const AuditLog = () => {
 
   return (
     <PageContainer>
-      <PageHeader title="Audit log" des="Every content change and supplier sync across all tickets." />
+      <PageHeader title="Audit log" des="Every save and supplier sync across all tickets, one entry per save." />
 
       <div className="mb-5 flex flex-wrap items-end gap-3">
         <div className="relative">
@@ -101,14 +98,6 @@ const AuditLog = () => {
           {users.data?.map((u) => (
             <option key={u.id} value={u.id}>
               {u.username || u.email}
-            </option>
-          ))}
-        </select>
-        <select className={inputCls} value={action} onChange={(e) => setAction(e.target.value)} aria-label="Action">
-          <option value="">All actions</option>
-          {AUDIT_ACTIONS.map((a) => (
-            <option key={a} value={a}>
-              {actionOptionLabel(a)}
             </option>
           ))}
         </select>

@@ -10,6 +10,8 @@ interface RichTextEditorProps {
   /** Grow with the content instead of using a fixed height of `maxHeight`. */
   autoHeight?: boolean;
   className?: string;
+  /** Not editable, no toolbar. */
+  readOnly?: boolean;
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(
@@ -21,10 +23,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(
     maxHeight = 300,
     autoHeight = false,
     className = "",
+    readOnly = false,
   }) => {
     const config = useMemo(
       () => ({
-        readonly: false,
+        readonly: readOnly,
+        toolbar: !readOnly,
         placeholder,
         toolbarAdaptive: false,
         height: autoHeight ? "auto" : maxHeight,
@@ -56,7 +60,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(
         iframe: false,
         useSplitMode: false,
       }),
-      [placeholder, minHeight, maxHeight, autoHeight]
+      [placeholder, minHeight, maxHeight, autoHeight, readOnly]
     );
 
     return (
