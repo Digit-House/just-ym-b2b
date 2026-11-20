@@ -20,6 +20,7 @@ const ContentDiffField = ({
   pending,
   onShowPending,
   disabled,
+  stack,
   children,
 }: {
   field: string;
@@ -30,10 +31,12 @@ const ContentDiffField = ({
   pending?: boolean;
   onShowPending?: () => void;
   disabled?: boolean;
+  /** Supplier above Current, both full width: for wide controls (English and Myanmar lists). */
+  stack?: boolean;
   children: ReactNode;
 }) => (
   <div className="space-y-3">
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className={stack ? "grid gap-4" : "grid gap-4 md:grid-cols-2"}>
       <div className="space-y-1">
         <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500">
           <Lock size={12} /> Supplier

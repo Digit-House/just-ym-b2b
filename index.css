@@ -255,3 +255,8 @@
 .tickets-swiper * {
   min-height: 0 !important;
 }
+
+/* Owner diff view: a grid that holds a boxed diff row shows one column, so each row is full width. */
+.grid:has([data-diff-row]) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}

@@ -85,6 +85,7 @@ export const ReviewField = ({
   const have = meta.alwaysReviewFields ?? [];
   return (
     <FieldFrame
+      boxed
       names={names}
       label={label}
       current={current}

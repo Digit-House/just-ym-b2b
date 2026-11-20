@@ -107,6 +107,7 @@ export const FieldFrame = ({
   label,
   current,
   showLabel,
+  boxed,
   disabled,
   children,
 }: {
@@ -116,6 +117,8 @@ export const FieldFrame = ({
   label: string;
   current: unknown;
   showLabel?: boolean;
+  /** Owner form: in diff view the row becomes a full-width boxed card with its label in the header. */
+  boxed?: boolean;
   disabled?: boolean;
   children: React.ReactNode;
 }) => {
@@ -124,11 +127,21 @@ export const FieldFrame = ({
   const on = ctx.meta.alwaysReviewFields.includes(f);
   const edited = ctx.meta.editedFields.includes(f);
   const pending = names.some((n) => ctx.pending.has(n));
+  const box = boxed && ctx.diff;
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+    <div
+      data-diff-row={box || undefined}
+      className={box ? "space-y-4 rounded-xl border border-gray-300 bg-white p-5 shadow-sm" : "space-y-3"}
+    >
+      <div
+        className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${box ? "border-b-2 border-gray-200 pb-3" : ""}`}
+      >
         <div className="flex flex-wrap items-center gap-2">
-          {showLabel && <span className="text-sm font-medium text-gray-900">{label}</span>}
+          {(showLabel || box) && (
+            <span className={box ? "text-base font-semibold text-gray-900" : "text-sm font-medium text-gray-900"}>
+              {label}
+            </span>
+          )}
           {pending ? (
             <span className={`${CHIP} bg-amber-100 text-amber-800`}>Newer supplier value</span>
           ) : edited ? (
@@ -156,6 +169,7 @@ export const FieldFrame = ({
           pending={pending}
           onShowPending={ctx.onShowPending}
           disabled={disabled}
+          stack={box && names.length > 1}
         >
           {children}
         </ContentDiffField>
