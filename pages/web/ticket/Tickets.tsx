@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   ArrowUpDown,
   RotateCcw,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ReviewFilteredList from "./_components/ReviewFilteredList";
+import { useReviewCount } from "@/hooks/useReviewCount";
 import { REVIEW_STATUS_OPTIONS } from "@/components/ReviewStatusBadge";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -62,6 +63,15 @@ export default function Tickets() {
   const [searchParams] = useSearchParams();
   // Owner review status filter (R5). The sidebar badge links here with ?review=READY_FOR_REVIEW.
   const [review, setReview] = useState(searchParams.get("review") ?? "ALL");
+  // D-r3-7: owner with no ?review= defaults once to Ready for review when any exist; the product query waits for the counts (no double load).
+  const isOwner = user?.type === "OWNER";
+  const counts = useReviewCount(isOwner);
+  const [defaulted, setDefaulted] = useState(false);
+  useEffect(() => {
+    if (defaulted || !counts.loaded) return;
+    if (isOwner && !searchParams.get("review") && counts.readyForReview > 0) setReview("READY_FOR_REVIEW");
+    setDefaulted(true);
+  }, [defaulted, counts.loaded, counts.readyForReview, isOwner, searchParams]);
   const reviewOn = user?.type === "OWNER" && review !== "ALL";
   const debouncedSearch = useDebounce(filters.search, 500);
 
@@ -114,7 +124,7 @@ export default function Tickets() {
       },
     ],
     queryFn: fetchProducts,
-    enabled: !reviewOn,
+    enabled: !reviewOn && defaulted,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
     staleTime: 0,
     gcTime: 0,

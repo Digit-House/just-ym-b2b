@@ -1,8 +1,8 @@
 export type SupplierUpdateAction = "KEEP_MINE" | "USE_SUPPLIER" | "MERGE";
 
-export type ContentReviewStatus = "IN_PROGRESS" | "READY_FOR_REVIEW" | "DONE";
+export type ContentReviewStatus = "IN_PROGRESS" | "SENT_BACK" | "READY_FOR_REVIEW" | "DONE";
 
-export type ContentReviewCountsT = { readyForReview: number };
+export type ContentReviewCountsT = { readyForReview: number; sentBack: number };
 
 /** Per-entity review metadata. supplierBaseline is keyed by content field name. */
 export type ReviewMetaT = {
@@ -80,6 +80,7 @@ export type ProductContentT = {
   supplierBaseline?: Record<string, unknown> | null;
   contentReviewStatus?: ContentReviewStatus | null;
   contentReviewSubmittedAt?: string | null;
+  contentReviewSentBackAt?: string | null;
   [key: string]: any;
 };
 

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
+import { useReviewCount } from "@/hooks/useReviewCount";
 import { ContentReviewStatus } from "@/types/contentEditor.type";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -53,9 +54,19 @@ const ContentTickets = () => {
   const [pageSize, setPageSize] = useState(10);
   const name = useDebounce(search.trim(), 400);
 
+  // D-r3-7: once per page load, default to Sent back when any exist. The list query waits for the counts, so no double load.
+  const counts = useReviewCount(true);
+  const [defaulted, setDefaulted] = useState(false);
+  useEffect(() => {
+    if (defaulted || !counts.loaded) return;
+    if (counts.sentBack > 0) setReviewStatus("SENT_BACK");
+    setDefaulted(true);
+  }, [defaulted, counts.loaded, counts.sentBack]);
+
   useEffect(() => setPage(1), [name, pendingOnly, categories, countryId, published, sort, reviewStatus]);
 
   const { data, isLoading, isError, refetch } = useQuery({
+    enabled: defaulted,
     queryKey: ["contentProducts", name, pendingOnly, categories, countryId, published, sort, reviewStatus, page, pageSize],
     queryFn: () =>
       getContentProducts(

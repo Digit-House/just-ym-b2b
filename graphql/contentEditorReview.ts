@@ -32,7 +32,7 @@ query ProductContent($id: ID!) {
     category city country isPublished isRecommended isBestSeller isCancellable
     requiresManualConfirmation position
     ${REVIEW_META}
-    contentReviewStatus contentReviewSubmittedAt
+    contentReviewStatus contentReviewSubmittedAt contentReviewSentBackAt
     productOptions {
       id name description description_mm termsAndConditions termsAndConditions_mm image
       howToUse howToUse_mm inclusions inclusions_mm exclusions exclusions_mm
@@ -78,7 +78,7 @@ const SUBMIT = `mutation SubmitContentForReview($productId: ID!) { submitContent
 const APPROVE = `mutation ApproveContentReview($productId: ID!) { approveContentReview(productId: $productId) { id contentReviewStatus isPublished } }`;
 const SEND_BACK = `mutation SendBackContentReview($productId: ID!) { sendBackContentReview(productId: $productId) { id contentReviewStatus } }`;
 const REFRESH = `mutation RefreshProductContent($productId: ID!) { refreshProductContent(productId: $productId) { status message } }`;
-const COUNTS = `query ContentReviewCounts { contentReviewCounts { readyForReview } }`;
+const COUNTS = `query ContentReviewCounts { contentReviewCounts { readyForReview sentBack } }`;
 const ALWAYS_REVIEW = `mutation SetAlwaysReviewFields($entityName: String!, $entityId: ID!, $fields: [String!]!) {
   setAlwaysReviewFields(entityName: $entityName, entityId: $entityId, fields: $fields) { id }
 }`;

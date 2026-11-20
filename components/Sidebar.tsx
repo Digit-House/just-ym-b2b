@@ -19,8 +19,9 @@ const Sidebar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const isDesktop = useResize();
   const TYPE = user?.type as USER_TYPE;
-  const reviewCount = useReviewCount(TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
-  const countFor = (path?: string) => (path === "/tickets" || path === "/content-tickets" ? reviewCount : 0);
+  const counts = useReviewCount(TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
+  const isTicketsItem = (path?: string) => path === "/tickets" || path === "/content-tickets";
+  const readyCount = TYPE === "OWNER" ? counts.readyForReview : 0;
 
   const isActive = (path: string) => {
     const active =
@@ -122,17 +123,28 @@ const Sidebar = () => {
             return (
               <NavLink
                 key={item.path}
-                to={TYPE === "OWNER" && countFor(item.path) > 0 ? `${item.path}?review=READY_FOR_REVIEW` : item.path!}
+                to={TYPE === "OWNER" && isTicketsItem(item.path) && readyCount > 0 ? `${item.path}?review=READY_FOR_REVIEW` : item.path!}
                 className={navItemClass(item.path!)}
               >
                 <item.icon size={20} />
                 <span>{item.label}</span>
-                {countFor(item.path) > 0 && (
-                  <span
-                    className="ml-auto rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-semibold text-white"
-                    aria-label={`${countFor(item.path)} tickets ready for review`}
-                  >
-                    {countFor(item.path)}
+                {isTicketsItem(item.path) && (
+                  <span className="ml-auto flex flex-col items-end gap-1">
+                    {TYPE === "CONTENT_EDITOR" && counts.sentBack > 0 && (
+                      <span className="whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                        Sent back {counts.sentBack}
+                      </span>
+                    )}
+                    {TYPE === "CONTENT_EDITOR" && counts.readyForReview > 0 && (
+                      <span className="whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">
+                        In review {counts.readyForReview}
+                      </span>
+                    )}
+                    {readyCount > 0 && (
+                      <span className="whitespace-nowrap rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-semibold text-white">
+                        Ready {readyCount}
+                      </span>
+                    )}
                   </span>
                 )}
               </NavLink>
