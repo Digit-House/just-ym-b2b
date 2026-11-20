@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, RefreshCw, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, RefreshCw, Trash2 } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
 import EmptyState from "@/components/EmptyState";
 import MascotLoader from "@/components/MascotLoader";
@@ -22,7 +22,13 @@ import {
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { getErrMsg } from "@/util/initData";
 import { ContentMediaT, ContentOptionT, ProductContentT, ReviewMetaT } from "@/types/contentEditor.type";
+import AddRelated from "@/pages/admin/tickets/_components/AddRelated";
+import { searchRelatedProducts } from "@/graphql/contentEditorReview";
 import SupplierUpdatesPanel, {
+  Staged,
+  handleConflict,
+  isConflict,
+  stagedList,
   useProductContent,
   useSupplierUpdates,
 } from "./_components/SupplierUpdatesPanel";
@@ -46,7 +52,7 @@ import {
 
 type Edits = Record<string, any>;
 const DIFF_KEY = "contentDiffView";
-type TabId = "basic" | "details" | "location" | "media" | "options" | "updates";
+type TabId = "basic" | "details" | "location" | "media" | "related" | "options" | "updates";
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 const cleanMedia = (m: ContentMediaT[] | undefined) => (m ?? []).filter((x) => x.path);
@@ -73,6 +79,8 @@ const serverValue = (data: ProductContentT, key: string) => {
 /** c: keys hold the typed text; empty means "use GlobalTix" (null). */
 const norm = (key: string, v: any) => {
   if (key === "p:media") return cleanMedia(v);
+  if (key === "p:relatedProducts")
+    return (v ?? []).map((x: any) => ({ productId: x.productId || x.id, linkBack: x.linkBack || false }));
   if (key.startsWith("c:")) return v === "" || v == null ? null : Number(v);
   return v;
 };
@@ -86,7 +94,10 @@ const ContentTicketEdit = () => {
   const { data, isLoading, isError, refetch } = useProductContent(id);
   const updates = useSupplierUpdates(id);
   const [tab, setTab] = useState<TabId>("basic");
+  const [openOpts, setOpenOpts] = useState<Set<string>>(new Set());
   const [edits, setEdits] = useState<Edits>({});
+  const [staged, setStaged] = useState<Staged>({});
+  const stagedCount = Object.keys(staged).length;
   const [uploading, setUploading] = useState(0);
   const [diff, setDiff] = useState(() => localStorage.getItem(DIFF_KEY) === "1");
   const toggleDiff = (on: boolean) => {
@@ -95,7 +106,7 @@ const ContentTicketEdit = () => {
   };
 
   const changed = data ? Object.keys(edits).filter((k) => !same(norm(k, edits[k]), norm(k, serverValue(data, k)))) : [];
-  const dirty = changed.length > 0;
+  const dirty = changed.length > 0 || stagedCount > 0;
   const badPrice = changed.some((k) => k.startsWith("c:") && priceError(norm(k, edits[k])));
 
   // Unsaved-changes warning for tab close and for in-app links (the app has no data router for useBlocker).
@@ -133,14 +144,19 @@ const ContentTicketEdit = () => {
         }
       }
       if (Object.keys(opts).length) input.productOptions = Object.values(opts);
+      if (stagedCount) input.resolutions = stagedList(staged);
       return updateProductContent(input);
     },
     onSuccess: async () => {
       toast.success("Ticket content saved");
       setEdits({});
-      ["productContent", "contentProducts", "auditLogs"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
+      setStaged({});
+      ["productContent", "supplierUpdates", "contentProducts", "auditLogs"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
     },
-    onError: (err) => toast.error(getErrMsg(err as any, "message")),
+    onError: (err) => {
+      if (isConflict(err)) void handleConflict(qc, id, setStaged);
+      else toast.error(getErrMsg(err as any, "message"));
+    },
   });
 
   const reloadAll = () =>
@@ -254,14 +270,16 @@ const ContentTicketEdit = () => {
   };
 
   const cover = bindProduct("image");
+  const related = bindProduct("relatedProducts");
   const tabOf = (k: string): TabId => {
     const [kind, f] = k.split(":");
     if (kind !== "p") return "options";
     if (f === "media" || f === "image") return "media";
+    if (f === "relatedProducts") return "related";
     if (DETAIL_FIELDS.some((x) => x.f === f || `${x.f}_mm` === f)) return "details";
     return LOCATION_FIELDS.some((x) => x.f === f) ? "location" : "basic";
   };
-  const dirtyTabs = new Set(changed.map(tabOf));
+  const dirtyTabs = new Set<TabId>([...changed.map(tabOf), ...(stagedCount ? (["updates"] as TabId[]) : [])]);
   const TabBtn = ({ t, label }: { t: TabId; label: string }) => (
     <button
       type="button"
@@ -281,35 +299,37 @@ const ContentTicketEdit = () => {
   const renderOption = (o: ContentOptionT) => {
     const deleted = !!o.deletedAt;
     const bind = (f: string) => mk(`o:${o.id}:${f}`, o[f]);
-    const img = bind("image");
     const types = activeFirst(o.ticketTypes);
+    const isOpen = openOpts.has(o.id);
+    const edited = changed.some((k) => /^[otc]:/.test(k) && k.split(":")[1] === o.id);
     return (
-      <div key={o.id} className="space-y-4 rounded-2xl border border-gray-300 bg-gray-50/50 p-4 sm:p-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <h3 className="text-lg font-semibold text-gray-900">{o.name}</h3>
+      <div key={o.id} className="rounded-2xl border border-gray-300 bg-gray-50/50">
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          onClick={() =>
+            setOpenOpts((prev) => {
+              const n = new Set(prev);
+              if (!n.delete(o.id)) n.add(o.id);
+              return n;
+            })
+          }
+          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left sm:px-5"
+        >
+          <h3 className="min-w-0 flex-1 truncate text-lg font-semibold text-gray-900">{o.name}</h3>
           {deleted && <DeletedBadge at={o.deletedAt!} />}
-        </div>
+          {edited && (
+            <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Unsaved edits</span>
+          )}
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {/* hidden, not unmounted, so unsaved form state survives collapsing */}
+        <div className={`space-y-4 px-4 pb-4 sm:px-5 sm:pb-5 ${isOpen ? "" : "hidden"}`}>
         {deleted && <p className="text-sm text-gray-500">This option was removed by the supplier and is read-only.</p>}
         {!deleted && (
           <>
-            <SectionCard title="Image">
-              <div>
-                <ImageUpload
-                  value={img.value}
-                  label=""
-                  folderType="PRODUCT_MEDIA"
-                  disableRemove
-                  enableCrop
-                  presetCropSetting="TICKET_CARD"
-                  cropLibrary="react-easy-crop"
-                  onChange={async (_v, file) => {
-                    if (!file) return;
-                    const path = await uploadImage(file);
-                    if (path) img.onChange(path);
-                  }}
-                />
-              </div>
-            </SectionCard>
             {renderGroups(OPTION_GROUPS, bind, ctxFor("ProductOption", o.id, o))}
           </>
         )}
@@ -373,6 +393,7 @@ const ContentTicketEdit = () => {
             );
           })}
         </SectionCard>
+        </div>
       </div>
     );
   };
@@ -418,7 +439,7 @@ const ContentTicketEdit = () => {
             loading={save.isPending}
             onClick={() => save.mutate()}
           >
-            {uploading > 0 ? "Uploading image..." : `Save changes${dirty ? ` (${changed.length})` : ""}`}
+            {uploading > 0 ? "Uploading image..." : `Save changes${dirty ? ` (${changed.length + stagedCount})` : ""}`}
           </Button>
         </div>
       </div>
@@ -429,6 +450,7 @@ const ContentTicketEdit = () => {
         <TabBtn t="location" label="Location" />
         <TabBtn t="media" label="Media" />
         <TabBtn t="options" label="Options" />
+        <TabBtn t="related" label="Related tickets" />
         <TabBtn t="updates" label={pending > 0 ? `Supplier updates (${pending})` : "Supplier updates"} />
       </div>
 
@@ -510,13 +532,36 @@ const ContentTicketEdit = () => {
             </SectionCard>
           </>
         )}
+        {tab === "related" && (
+          <SectionCard title="Related tickets">
+            <AddRelated
+              currentRelatedProducts={related.value ?? []}
+              currentTicketId={id}
+              onRelatedProductsChange={related.onChange}
+              searchProducts={searchRelatedProducts}
+            />
+          </SectionCard>
+        )}
         {tab === "options" && (
           <div className="space-y-6">
             {data.productOptions.length === 0 && <p className="text-sm text-gray-500">This ticket has no options.</p>}
             {activeFirst(data.productOptions).map(renderOption)}
           </div>
         )}
-        {tab === "updates" && <SupplierUpdatesPanel productId={id} />}
+        {tab === "updates" && (
+          <SupplierUpdatesPanel
+            productId={id}
+            staged={staged}
+            onStage={(sid, res) =>
+              setStaged((prev) => {
+                const n = { ...prev };
+                if (res) n[sid] = res;
+                else delete n[sid];
+                return n;
+              })
+            }
+          />
+        )}
       </div>
     </PageContainer>
   );

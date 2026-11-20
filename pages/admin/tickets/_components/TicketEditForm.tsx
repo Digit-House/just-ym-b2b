@@ -22,6 +22,8 @@ import RelatedTicketTab from "./RelatedTicketTab";
 import { OwnerReviewProvider, DiffToggle, useLocked } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
+  Resolution,
+  Staged,
   useSupplierUpdates,
 } from "@/pages/content/_components/SupplierUpdatesPanel";
 
@@ -33,6 +35,9 @@ type Props = {
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: UpdateProductPayloadT) => void;
+  /** Supplier-update choices staged in the Supplier updates tab; saved by the parent with the form. */
+  staged?: Staged;
+  onStage?: (id: string, r: Resolution | null) => void;
 };
 
 const TicketEditForm: React.FC<Props> = ({
@@ -41,6 +46,8 @@ const TicketEditForm: React.FC<Props> = ({
   loading,
   onCancel,
   onSubmit,
+  staged,
+  onStage,
 }) => {
   const isEdit = mode === "edit";
   const locked = useLocked(); // saved-version page: read-only, no actions
@@ -464,6 +471,7 @@ const TicketEditForm: React.FC<Props> = ({
 
   const TabButton = ({ id, label }: { id: string; label: string }) => (
     <button
+      type="button"
       onClick={() => setCurrentTab(id)}
       className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors relative ${
         currentTab === id
@@ -517,7 +525,7 @@ const TicketEditForm: React.FC<Props> = ({
             loading={loading}
             className="flex items-center gap-2"
           >
-            {isEdit ? <>Save Changes</> : <>Create Ticket</>}
+            {isEdit ? <>Save Changes{Object.keys(staged ?? {}).length > 0 && ` (${Object.keys(staged ?? {}).length} supplier choice${Object.keys(staged ?? {}).length === 1 ? "" : "s"})`}</> : <>Create Ticket</>}
           </Button>
         )}
       </div>
@@ -655,7 +663,7 @@ const TicketEditForm: React.FC<Props> = ({
           <AuditLogList filter={{ productId: initialValues.id }} />
         )}
         {initialValues?.id && currentTab === "supplier-updates" && (
-          <SupplierUpdatesPanel productId={initialValues.id} />
+          <SupplierUpdatesPanel productId={initialValues.id} staged={staged} onStage={onStage} />
         )}
       </div>
       </fieldset>

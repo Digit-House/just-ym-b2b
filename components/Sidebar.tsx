@@ -21,7 +21,6 @@ const Sidebar = () => {
   const TYPE = user?.type as USER_TYPE;
   const counts = useReviewCount(TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
   const isTicketsItem = (path?: string) => path === "/tickets" || path === "/content-tickets";
-  const readyCount = TYPE === "OWNER" ? counts.readyForReview : 0;
 
   const isActive = (path: string) => {
     const active =
@@ -120,34 +119,35 @@ const Sidebar = () => {
               );
             }
 
-            return (
-              <NavLink
-                key={item.path}
-                to={TYPE === "OWNER" && isTicketsItem(item.path) && readyCount > 0 ? `${item.path}?review=READY_FOR_REVIEW` : item.path!}
-                className={navItemClass(item.path!)}
-              >
+            const link = (
+              <NavLink key={item.path} to={item.path!} className={navItemClass(item.path!)}>
                 <item.icon size={20} />
                 <span>{item.label}</span>
-                {isTicketsItem(item.path) && (
-                  <span className="ml-auto flex flex-col items-end gap-1">
-                    {TYPE === "CONTENT_EDITOR" && counts.sentBack > 0 && (
-                      <span className="whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                        Sent back {counts.sentBack}
-                      </span>
-                    )}
-                    {TYPE === "CONTENT_EDITOR" && counts.readyForReview > 0 && (
-                      <span className="whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">
-                        In review {counts.readyForReview}
-                      </span>
-                    )}
-                    {readyCount > 0 && (
-                      <span className="whitespace-nowrap rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-semibold text-white">
-                        Ready {readyCount}
-                      </span>
-                    )}
-                  </span>
-                )}
               </NavLink>
+            );
+            if (!isTicketsItem(item.path) || (TYPE !== "OWNER" && TYPE !== "CONTENT_EDITOR")) return link;
+            const badges = [
+              { label: "In review", status: "READY_FOR_REVIEW", n: counts.readyForReview, cls: "bg-blue-100 text-blue-800" },
+              { label: "Sent back", status: "SENT_BACK", n: counts.sentBack, cls: "bg-amber-100 text-amber-800" },
+              { label: "In progress", status: "IN_PROGRESS", n: counts.inProgress, cls: "bg-gray-100 text-gray-700" },
+            ].filter((x) => x.n > 0);
+            return (
+              <div key={item.path}>
+                {link}
+                {badges.length > 0 && (
+                  <div className="flex flex-wrap gap-1 px-4 pb-1 pl-12">
+                    {badges.map((x) => (
+                      <NavLink
+                        key={x.status}
+                        to={`${item.path}?review=${x.status}`}
+                        className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold hover:opacity-80 ${x.cls}`}
+                      >
+                        {x.label} {x.n}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>

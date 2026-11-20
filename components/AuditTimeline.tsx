@@ -34,18 +34,25 @@ const groupChanges = (changes: AuditChangeT[]) => {
 const ChangeList = ({ changes }: { changes: AuditChangeT[] }) => (
   <div className="space-y-4 border-t border-gray-100 pt-3">
     {groupChanges(changes).map(([name, items]) => (
-      <div key={name} className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{name}</p>
+      <div key={name} className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+          {entityLabel(items[0].entityName) !== name && (
+            <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-xs font-medium text-indigo-700">
+              {entityLabel(items[0].entityName)}
+            </span>
+          )}
+          <p className="text-sm font-semibold text-gray-900">{name}</p>
+        </div>
         {items.map((c) => {
           const oldV = c.oldValues ?? {};
           const newV = c.newValues ?? {};
           const fields = [...new Set([...Object.keys(newV), ...Object.keys(oldV)])].filter((f) => f !== "currency");
           const currency = (newV.currency ?? oldV.currency) as string | undefined;
           return (
-            <div key={c.id} className="space-y-3">
+            <div key={c.id} className="space-y-4">
               {fields.length === 0 && <p className="text-sm text-gray-400">No field details.</p>}
               {fields.map((f) => (
-                <DiffView key={f} field={f} oldValue={oldV[f]} newValue={newV[f]} currency={currency} />
+                <DiffView key={f} className="border-l-2 border-indigo-200 pl-3" field={f} oldValue={oldV[f]} newValue={newV[f]} currency={currency} />
               ))}
             </div>
           );

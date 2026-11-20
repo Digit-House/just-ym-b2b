@@ -1,27 +1,50 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import DiffView, { toPlain } from "@/components/DiffView";
 import EmptyState from "@/components/EmptyState";
 import MascotLoader from "@/components/MascotLoader";
-import {
-  getProductContent,
-  getSupplierUpdates,
-  resolveSupplierUpdate,
-} from "@/graphql/contentEditor";
+import { getProductContent, getSupplierUpdates } from "@/graphql/contentEditor";
 import { ProductContentT, SupplierUpdateAction, SupplierUpdateT } from "@/types/contentEditor.type";
 import { entityLabel, fieldLabel } from "@/util/contentLabels";
 import { errorCode } from "@/graphql/contentEditorReview";
-import { getErrMsg } from "@/util/initData";
+
+/** A supplier-update decision staged on the card; sent with the page's Save (UpdateProductContentInput.resolutions). */
+export type Resolution = {
+  supplierUpdateId: string;
+  action: SupplierUpdateAction;
+  mergedValue?: unknown;
+  expectedSupplierValue: unknown;
+};
+export type Staged = Record<string, Resolution>;
+export const stagedList = (s: Staged) => Object.values(s);
+
+/** The server rejects the whole save when a supplier value moved after the card was shown. */
+export const isConflict = (err: any) =>
+  errorCode(err) === "SUPPLIER_UPDATE_CHANGED" || /SUPPLIER_UPDATE_CHANGED/.test(String(err?.message ?? ""));
+
+/** Toast, refetch the updates and drop staged choices whose supplier value moved. Other form edits are untouched. */
+export const handleConflict = async (
+  qc: QueryClient,
+  productId: string,
+  setStaged: (fn: (prev: Staged) => Staged) => void
+) => {
+  toast.error("Supplier changed this field again; review the new value");
+  ["productContent", "contentProducts"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
+  const fresh = await qc.fetchQuery({
+    queryKey: ["supplierUpdates", productId],
+    queryFn: () => getSupplierUpdates(productId, "PENDING"),
+    staleTime: 0,
+  });
+  setStaged((prev) =>
+    Object.fromEntries(
+      Object.entries(prev).filter(([id, r]) =>
+        fresh.some((u) => u.id === id && JSON.stringify(u.supplierValue ?? null) === JSON.stringify(r.expectedSupplierValue ?? null))
+      )
+    )
+  );
+};
 
 export const useSupplierUpdates = (productId: string) =>
   useQuery({
@@ -56,29 +79,60 @@ const isTextValue = (v: unknown) =>
   v === null || v === undefined || typeof v === "string" || (Array.isArray(v) && v.every((x) => typeof x === "string"));
 
 const toEditable = (v: unknown) => (Array.isArray(v) ? v.join("\n") : ((v as string) ?? ""));
+const display = (v: unknown) => (Array.isArray(v) ? (v as string[]).map(toPlain).join("\n") : toPlain(String(v ?? "")));
 
-const Item = ({ su, live, name, onResolve, busy }: {
+const CHIP: Record<string, string> = {
+  KEEP_MINE: "Will keep mine",
+  USE_SUPPLIER: "Will use supplier",
+  MERGE: "Will use custom text",
+};
+
+const Item = ({ su, live, name, staged, onStage }: {
   su: SupplierUpdateT;
   live: unknown;
   name: string;
-  busy: boolean;
-  onResolve: (action: SupplierUpdateAction, merged?: unknown) => void;
+  staged?: Resolution;
+  onStage: (r: Resolution | null) => void;
 }) => {
   const [showOld, setShowOld] = useState(false);
-  const [confirmUse, setConfirmUse] = useState(false);
-  const [merging, setMerging] = useState(false);
-  const [draft, setDraft] = useState("");
   const asList = Array.isArray(su.supplierValue) || Array.isArray(live);
-  const canMerge = su.field !== "image" && su.field !== "media" && isTextValue(live) && isTextValue(su.supplierValue);
+  const canEdit = su.field !== "image" && su.field !== "media" && isTextValue(live) && isTextValue(su.supplierValue);
+  const liveText = toEditable(live);
+  const supplierText = toEditable(su.supplierValue);
+  const [empty, setEmpty] = useState(false);
+  const [final, setFinal] = useState(() =>
+    !staged ? "" : staged.action === "KEEP_MINE" ? liveText : staged.action === "USE_SUPPLIER" ? supplierText : toEditable(staged.mergedValue)
+  );
 
-  const openMerge = () => {
-    setDraft(toEditable(live));
-    setMerging(true);
+  const stage = (action: Resolution["action"], mergedValue?: unknown) =>
+    onStage({
+      supplierUpdateId: su.id,
+      action,
+      ...(action === "MERGE" ? { mergedValue } : {}),
+      expectedSupplierValue: su.supplierValue,
+    });
+  const keepMine = () => {
+    setEmpty(false);
+    setFinal(liveText);
+    stage("KEEP_MINE");
   };
-  const submitMerge = () => {
-    const merged = asList ? draft.split("\n").map((l) => l.trim()).filter(Boolean) : draft;
-    setMerging(false);
-    onResolve("MERGE", merged);
+  const useSupplier = () => {
+    setEmpty(false);
+    setFinal(supplierText);
+    stage("USE_SUPPLIER");
+  };
+  const edit = (text: string) => {
+    setFinal(text);
+    setEmpty(text.trim() === "");
+    if (text.trim() === "") onStage(null);
+    else if (text === liveText) stage("KEEP_MINE");
+    else if (text === supplierText) stage("USE_SUPPLIER");
+    else stage("MERGE", asList ? text.split("\n").map((l) => l.trim()).filter(Boolean) : text);
+  };
+  const undo = () => {
+    setEmpty(false);
+    setFinal("");
+    onStage(null);
   };
 
   return (
@@ -90,11 +144,36 @@ const Item = ({ su, live, name, onResolve, busy }: {
           {su.entityName !== "Product" && name ? `: ${name}` : ""}
         </span>
         {su.location && <span className="text-xs text-gray-500">{su.location}</span>}
+        {staged && (
+          <span className="ml-auto flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-0.5 text-xs font-medium text-indigo-700">
+            {CHIP[staged.action]}
+            <button type="button" onClick={undo} className="font-semibold underline">
+              Undo
+            </button>
+          </span>
+        )}
       </div>
-      <div>
-        <p className="mb-1 text-xs text-gray-500">Your text, and how it would change with the supplier's new text</p>
-        <DiffView field={su.field} hideLabel oldValue={live} newValue={su.supplierValue} />
-      </div>
+      {canEdit ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <p className="mb-1 text-xs font-medium text-gray-500">Your text</p>
+            <div className="max-h-64 min-h-[3rem] overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-2 text-sm text-gray-800">
+              {display(live)}
+            </div>
+          </div>
+          <div>
+            <p className="mb-1 text-xs font-medium text-gray-500">Supplier new text</p>
+            <div className="max-h-64 min-h-[3rem] overflow-auto whitespace-pre-wrap rounded-md border border-amber-200 bg-amber-50 p-2 text-sm text-gray-800">
+              {display(su.supplierValue)}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p className="mb-1 text-xs text-gray-500">Your value, and how it would change with the supplier's new value</p>
+          <DiffView field={su.field} hideLabel oldValue={live} newValue={su.supplierValue} />
+        </div>
+      )}
       <button
         type="button"
         onClick={() => setShowOld(!showOld)}
@@ -109,109 +188,45 @@ const Item = ({ su, live, name, onResolve, busy }: {
         </div>
       )}
       <div className="flex flex-wrap gap-2 pt-1">
-        <Button type="button" variant="outline" disabled={busy} onClick={() => onResolve("KEEP_MINE")}>
+        <Button type="button" variant="outline" onClick={keepMine}>
           Keep mine
         </Button>
-        <Button type="button" variant="outline" disabled={busy} onClick={() => setConfirmUse(true)}>
+        <Button type="button" variant="outline" onClick={useSupplier}>
           Use supplier
         </Button>
-        {canMerge && (
-          <Button type="button" variant="outline" disabled={busy} onClick={openMerge}>
-            Merge
-          </Button>
-        )}
       </div>
-
-      <Dialog open={confirmUse} onOpenChange={setConfirmUse}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Use the supplier text?</DialogTitle>
-            <DialogDescription>
-              This replaces your text for "{fieldLabel(su.field)}" with the supplier's. Your text is kept in the history.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setConfirmUse(false)}>
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={() => {
-                setConfirmUse(false);
-                onResolve("USE_SUPPLIER");
-              }}
-            >
-              Use supplier text
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={merging} onOpenChange={setMerging}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Merge "{fieldLabel(su.field)}"</DialogTitle>
-            <DialogDescription>
-              Edit your text using the supplier's new text as a guide.{asList ? " One item per line." : ""}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="space-y-1 text-sm font-medium">
-              Your text (edit)
-              <textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                rows={12}
-                className="w-full rounded-md border border-gray-300 p-2 text-sm font-normal"
-              />
-            </label>
-            <div className="space-y-1 text-sm font-medium">
-              Supplier text
-              <div className="max-h-[22rem] overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-2 text-sm font-normal text-gray-700">
-                {Array.isArray(su.supplierValue)
-                  ? (su.supplierValue as string[]).map(toPlain).join("\n")
-                  : toPlain(String(su.supplierValue ?? ""))}
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setMerging(false)}>
-              Cancel
-            </Button>
-            <Button type="button" onClick={submitMerge}>
-              Save merged text
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {canEdit && (
+        <label className="block space-y-1 text-xs font-medium text-gray-500">
+          Final text{asList ? " (one item per line)" : ""}
+          <textarea
+            value={final}
+            onChange={(e) => edit(e.target.value)}
+            rows={6}
+            placeholder="Choose Keep mine or Use supplier, or write your own"
+            className="w-full rounded-md border border-gray-300 p-2 text-sm font-normal text-gray-900"
+          />
+          {empty && (
+            <span className="block text-amber-700">Final text cannot be empty</span>
+          )}
+        </label>
+      )}
     </li>
   );
 };
 
-const SupplierUpdatesPanel = ({ productId }: { productId: string }) => {
-  const qc = useQueryClient();
+const noStaged: Staged = {};
+
+const SupplierUpdatesPanel = ({
+  productId,
+  staged = noStaged,
+  onStage = () => {},
+}: {
+  productId: string;
+  staged?: Staged;
+  onStage?: (id: string, r: Resolution | null) => void;
+}) => {
   const updates = useSupplierUpdates(productId);
   const content = useProductContent(productId);
-
-  const reload = () =>
-    ["supplierUpdates", "productContent", "auditLogs", "contentProducts"].forEach((k) =>
-      qc.invalidateQueries({ queryKey: [k] })
-    );
-
-  const resolve = useMutation({
-    mutationFn: (v: { id: string; action: SupplierUpdateAction; merged?: unknown; expected: unknown }) =>
-      resolveSupplierUpdate(v.id, v.action, v.merged, v.expected),
-    onSuccess: () => {
-      toast.success("Supplier update resolved");
-      reload();
-    },
-    onError: (err) => {
-      if (errorCode(err) === "SUPPLIER_UPDATE_CHANGED") {
-        toast.error("The supplier changed this value again; reload to see the latest");
-        reload();
-      } else toast.error(getErrMsg(err as any, "message"));
-    },
-  });
 
   if (updates.isLoading || content.isLoading)
     return <MascotLoader label="Loading supplier updates..." className="min-h-[30vh]" />;
@@ -234,12 +249,12 @@ const SupplierUpdatesPanel = ({ productId }: { productId: string }) => {
         const { entity, name } = locate(content.data, su);
         return (
           <Item
-            key={su.id}
+            key={`${su.id}:${JSON.stringify(su.supplierValue ?? null)}`}
             su={su}
             live={entity?.[su.field]}
             name={name}
-            busy={resolve.isPending}
-            onResolve={(action, merged) => resolve.mutate({ id: su.id, action, merged, expected: su.supplierValue })}
+            staged={staged[su.id]}
+            onStage={(r) => onStage(su.id, r)}
           />
         );
       })}

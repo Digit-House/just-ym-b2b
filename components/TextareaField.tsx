@@ -17,7 +17,7 @@ const TextareaField = forwardRef<
   return (
     <div className="flex flex-col gap-2">
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium">
+        <label htmlFor={id} className="own-label block text-sm font-medium">
           {label} {isRequired && <span className="text-red-500">*</span>}
         </label>
       )}

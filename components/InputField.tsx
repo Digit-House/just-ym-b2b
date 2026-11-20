@@ -22,7 +22,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
         {label && (
           <label
             htmlFor={id}
-            className="flex items-center gap-1 text-sm font-medium"
+            className="own-label flex items-center gap-1 text-sm font-medium"
           >
             {label}
 

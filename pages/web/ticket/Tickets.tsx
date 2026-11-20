@@ -8,7 +8,7 @@ import {
   LayersPlusIcon,
   DatabaseZap,
 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import ReviewFilteredList from "./_components/ReviewFilteredList";
 import { useReviewCount } from "@/hooks/useReviewCount";
 import { REVIEW_STATUS_OPTIONS } from "@/components/ReviewStatusBadge";
@@ -61,6 +61,7 @@ export default function Tickets() {
 
   const { filters, setFilters, resetFilters } = useTicketFilters();
   const [searchParams] = useSearchParams();
+  const locationKey = useLocation().key; // changes on every sidebar click, so the same badge re-applies its filter
   // Owner review status filter (R5). The sidebar badge links here with ?review=READY_FOR_REVIEW.
   const [review, setReview] = useState(searchParams.get("review") ?? "ALL");
   // D-r3-7: owner with no ?review= defaults once to Ready for review when any exist; the product query waits for the counts (no double load).
@@ -72,6 +73,10 @@ export default function Tickets() {
     if (isOwner && !searchParams.get("review") && counts.readyForReview > 0) setReview("READY_FOR_REVIEW");
     setDefaulted(true);
   }, [defaulted, user, counts.loaded, counts.readyForReview, isOwner, searchParams]);
+  const reviewParam = searchParams.get("review");
+  useEffect(() => {
+    if (reviewParam) setReview(reviewParam);
+  }, [reviewParam, locationKey]);
   const reviewOn = user?.type === "OWNER" && review !== "ALL";
   const debouncedSearch = useDebounce(filters.search, 500);
 

@@ -189,9 +189,9 @@ const Body = ({ field, oldValue, newValue, currency }: Omit<Props, "className" |
 
 /** Shared diff row: audit history and supplier updates render through this one component. */
 const DiffView = ({ field, hideLabel, className = "", ...rest }: Props) => (
-  <div className={`space-y-1 ${className}`}>
+  <div className={`space-y-2 ${className}`}>
     {!hideLabel && (
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <p className="text-sm font-semibold text-gray-800">
         {fieldLabel(field)}
       </p>
     )}

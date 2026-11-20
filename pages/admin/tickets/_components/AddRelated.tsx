@@ -28,9 +28,11 @@ type Props = {
   currentRelatedProducts: any[];
   currentTicketId?: string;
   onRelatedProductsChange: (updatedProducts: any[]) => void;
+  /** Content editor: replaces the product query with this search (name search only, no filters or paging). */
+  searchProducts?: (search: string, take: number) => Promise<any[]>;
 };
 
-const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProductsChange }: Props) => {
+const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProductsChange, searchProducts }: Props) => {
   const { filters, setFilters, resetFilters } = useRelatedTicketFilters();
   
   // Pagination state
@@ -55,10 +57,11 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
     orderBy: { dir: "asc" },
     isPublished: true,
     search: undefined,
+    enabled: !searchProducts,
   });
 
   const { data: cityData } = useCities({
-    countryId: filters.countryId,
+    countryId: searchProducts ? "" : filters.countryId,
     limit: 250,
     page: 1,
     orderBy: {
@@ -68,7 +71,7 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
     search: undefined,
   });
 
-  const { data: categoryData } = useCategories({ limit: 10, page: 1 });
+  const { data: categoryData } = useCategories({ limit: 10, page: 1, enabled: !searchProducts });
 
   const {
     data: productsData,
@@ -77,7 +80,7 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
     error,
   } = useQuery({
     queryKey: [
-      "products",
+      searchProducts ? "contentRelatedProducts" : "products",
       {
         categories: filters.categories,
         countryId: filters.countryId,
@@ -125,6 +128,10 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
         name: search,
       };
 
+      if (searchProducts) {
+        const rows = await searchProducts(search ?? "", 30);
+        return { data: rows, total: 0, page: page, pageSize: pageSize };
+      }
       const res = await getAllProducts(filter);
       return {
         data: res?.data,
@@ -229,6 +236,7 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
         }}
       />
 
+      {!searchProducts && (
       <div className="flex justify-between gap-4 mt-3 mb-6 border px-4 py-2">
         <div className="flex gap-5 items-center">
           <MultiSelect
@@ -312,6 +320,7 @@ const AddRelated = ({ currentRelatedProducts, currentTicketId, onRelatedProducts
           <RotateCcw size={18} />
         </button>
       </div>
+      )}
 
       {isPending && (
         <MascotLoader label="Loading products..." className="py-16" />

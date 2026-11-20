@@ -2,7 +2,7 @@ export type SupplierUpdateAction = "KEEP_MINE" | "USE_SUPPLIER" | "MERGE";
 
 export type ContentReviewStatus = "IN_PROGRESS" | "SENT_BACK" | "READY_FOR_REVIEW" | "DONE";
 
-export type ContentReviewCountsT = { readyForReview: number; sentBack: number };
+export type ContentReviewCountsT = { readyForReview: number; sentBack: number; inProgress: number };
 
 /** Per-entity review metadata. supplierBaseline is keyed by content field name. */
 export type ReviewMetaT = {

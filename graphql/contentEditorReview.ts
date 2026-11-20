@@ -31,6 +31,7 @@ query ProductContent($id: ID!) {
     location addressLine postalCode latitude longitude
     category city country isPublished isRecommended isBestSeller isCancellable
     requiresManualConfirmation position
+    relatedProducts { id name image }
     ${REVIEW_META}
     contentReviewStatus contentReviewSubmittedAt contentReviewSentBackAt
     productOptions {
@@ -78,7 +79,8 @@ const SUBMIT = `mutation SubmitContentForReview($productId: ID!) { submitContent
 const APPROVE = `mutation ApproveContentReview($productId: ID!) { approveContentReview(productId: $productId) { id contentReviewStatus isPublished } }`;
 const SEND_BACK = `mutation SendBackContentReview($productId: ID!) { sendBackContentReview(productId: $productId) { id contentReviewStatus } }`;
 const REFRESH = `mutation RefreshProductContent($productId: ID!) { refreshProductContent(productId: $productId) { status message } }`;
-const COUNTS = `query ContentReviewCounts { contentReviewCounts { readyForReview sentBack } }`;
+const COUNTS = `query ContentReviewCounts { contentReviewCounts { readyForReview sentBack inProgress } }`;
+const RELATED_SEARCH = `query ContentRelatedProductSearch($search: String, $take: Int) { contentRelatedProductSearch(search: $search, take: $take) { id name image } }`;
 const ALWAYS_REVIEW = `mutation SetAlwaysReviewFields($entityName: String!, $entityId: ID!, $fields: [String!]!) {
   setAlwaysReviewFields(entityName: $entityName, entityId: $entityId, fields: $fields) { id }
 }`;
@@ -100,6 +102,10 @@ export const sendBackContentReview = (productId: string) => mutate(SEND_BACK, { 
 export const refreshProductContent = async (productId: string) =>
   (await mutate<{ refreshProductContent: { status: number; message: string } }>(REFRESH, { productId }))
     .refreshProductContent;
+
+export const searchRelatedProducts = async (search: string, take: number) =>
+  (await query<{ contentRelatedProductSearch: { id: string; name: string; image: string }[] }>(RELATED_SEARCH, { search, take }))
+    .contentRelatedProductSearch;
 
 export const getContentReviewCounts = async () =>
   (await query<{ contentReviewCounts: ContentReviewCountsT }>(COUNTS)).contentReviewCounts;

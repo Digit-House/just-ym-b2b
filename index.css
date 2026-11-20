@@ -262,8 +262,13 @@
 }
 
 /* Owner diff view: the box header shows the label, so hide the control's own top label (not one wrapping an input). */
-[data-diff-row] fieldset > div > label:first-child:not(:has(input, textarea, select, button)) {
-  display: none;
+[data-diff-row] fieldset > div > label:first-child:not(:has(input, textarea, select, button)),
+[data-diff-row] .own-label {
+  display: none !important;
+}
+/* the space-y gap that followed a hidden title must go too, so the control starts at the row's top */
+[data-diff-row] .own-label + * {
+  margin-top: 0 !important;
 }
 
 /* Locked inputs (disabled fieldset) look read-only, not editable. */

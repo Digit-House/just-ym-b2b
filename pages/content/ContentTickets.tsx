@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import SortSelect, { SortOption } from "@/components/SortSelect";
@@ -41,7 +41,14 @@ const ContentTickets = () => {
   const [countryId, setCountryId] = useState("");
   const [published, setPublished] = useState("ALL");
   const [sort, setSort] = useState("alphabet");
-  const [reviewStatus, setReviewStatus] = useState("ALL");
+  const [searchParams] = useSearchParams();
+  const locationKey = useLocation().key; // changes on every sidebar click, so the same badge re-applies its filter
+  const reviewParam = searchParams.get("review");
+  const [reviewStatus, setReviewStatus] = useState(reviewParam ?? "ALL");
+  // Sidebar badges link here with ?review=<status>, also while already on this page.
+  useEffect(() => {
+    if (reviewParam) setReviewStatus(reviewParam);
+  }, [reviewParam, locationKey]);
   const [page, setPage] = useState(1);
   const { data: categoryData } = useCategories({ limit: 10, page: 1 });
   const { data: countryData } = useCountries({
@@ -59,9 +66,9 @@ const ContentTickets = () => {
   const [defaulted, setDefaulted] = useState(false);
   useEffect(() => {
     if (defaulted || !counts.loaded) return;
-    if (counts.sentBack > 0) setReviewStatus("SENT_BACK");
+    if (!reviewParam && counts.sentBack > 0) setReviewStatus("SENT_BACK");
     setDefaulted(true);
-  }, [defaulted, counts.loaded, counts.sentBack]);
+  }, [defaulted, counts.loaded, counts.sentBack, reviewParam]);
 
   useEffect(() => setPage(1), [name, pendingOnly, categories, countryId, published, sort, reviewStatus]);
 

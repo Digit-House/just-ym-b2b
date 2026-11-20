@@ -216,7 +216,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                   }}
                 >
                   <SelectTrigger
-                    className={`w-full ${
+                    className={`w-full !h-auto ${
                       errors.category_relation_id ? "border-red-500" : ""
                     }`}
                   >
@@ -261,7 +261,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                   }
                 >
                   <SelectTrigger
-                    className={`w-full ${
+                    className={`w-full !h-auto ${
                       errors.countryId ? "border-red-500" : ""
                     }`}
                   >

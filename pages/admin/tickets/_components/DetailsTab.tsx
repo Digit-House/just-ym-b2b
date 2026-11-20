@@ -289,7 +289,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
       {/* Exclusions Section */}
       <ReviewField names={["exclusions", "exclusions_mm"]} label="Exclusions" current={exclusions}>
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="own-label flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-red-500" />
           <h4 className="text-lg font-semibold text-gray-800">Exclusions</h4>
         </div>
@@ -397,7 +397,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
       {/* Highlights Section */}
       <ReviewField names={["highlights", "highlights_mm"]} label="Highlights" current={highlights}>
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="own-label flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-yellow-500" />
           <h4 className="text-lg font-semibold text-gray-800">Highlights</h4>
         </div>
@@ -503,7 +503,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
       {/* How to Use Section */}
       <ReviewField names={["howToUseList", "howToUseList_mm"]} label="How to use" current={howToUseList}>
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="own-label flex items-center gap-2 mb-4">
           <ListTodo className="h-5 w-5 text-blue-500" />
           <h4 className="text-lg font-semibold text-gray-800">How to Use</h4>
         </div>
@@ -609,7 +609,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
       {/* Inclusions Section */}
       <ReviewField names={["inclusions", "inclusions_mm"]} label="Inclusions" current={inclusions}>
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="own-label flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-green-500" />
           <h4 className="text-lg font-semibold text-gray-800">Inclusions</h4>
         </div>
@@ -715,7 +715,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
       {/* Things to Note Section */}
       <ReviewField names={["thingsToNote", "thingsToNote_mm"]} label="Things to note" current={thingsToNote}>
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="own-label flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-purple-500" />
           <h4 className="text-lg font-semibold text-gray-800">
             Things to Note

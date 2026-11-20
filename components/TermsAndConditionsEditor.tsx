@@ -32,7 +32,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
 
   return (
     <div className="space-y-6">
-      <h4 className="text-md font-semibold text-gray-800 flex items-center gap-2">
+      <h4 className="own-label text-md font-semibold text-gray-800 flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"

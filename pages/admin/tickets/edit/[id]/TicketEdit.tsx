@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getProductInfo,
   seedProduct,
@@ -18,7 +18,14 @@ import { Button } from "@/components/ui/button";
 import BackBtn from "@/components/BackBtn";
 import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicketsCarousel";
 import ReviewActions from "@/components/ReviewActions";
-import { useProductContent } from "@/pages/content/_components/SupplierUpdatesPanel";
+import {
+  Staged,
+  handleConflict,
+  isConflict,
+  stagedList,
+  useProductContent,
+} from "@/pages/content/_components/SupplierUpdatesPanel";
+import { updateProductContent } from "@/graphql/contentEditor";
 
 const AdminTicketEdit = () => {
   const [refresh, setRefresh] = useState(false);
@@ -27,6 +34,8 @@ const AdminTicketEdit = () => {
   const [submitLoading,setSubmitLoading] = useState(false);
 
   const content = useProductContent(id ?? "");
+  const qc = useQueryClient();
+  const [staged, setStaged] = useState<Staged>({});
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["ticket", id],
@@ -99,6 +108,16 @@ const AdminTicketEdit = () => {
       }
 
       await updateProductInfo(updatedFormData as UpdateProductPayloadT);
+      if (Object.keys(staged).length) {
+        try {
+          await updateProductContent({ id, resolutions: stagedList(staged) });
+        } catch (err) {
+          // The ticket edits above are saved; stay on the page so the owner can re-decide the changed field.
+          if (!isConflict(err)) throw err;
+          await handleConflict(qc, id!, setStaged);
+          return;
+        }
+      }
       toast.success("Successfully Updated !");
       navigate("/tickets");
     } catch (err) {
@@ -150,6 +169,15 @@ const AdminTicketEdit = () => {
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
         <TicketEditForm
+          staged={staged}
+          onStage={(sid, res) =>
+            setStaged((prev) => {
+              const n = { ...prev };
+              if (res) n[sid] = res;
+              else delete n[sid];
+              return n;
+            })
+          }
           key={String(data.isPublished)} // approve publishes: remount so a later Save does not unpublish
           mode="edit"
           loading={submitLoading}

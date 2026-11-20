@@ -135,10 +135,18 @@ export const FieldFrame = ({
   return (
     <div
       data-diff-row={box || undefined}
-      className={box ? "space-y-4 rounded-xl border border-gray-300 bg-white p-5 shadow-sm" : "space-y-3"}
+      className={
+        box
+          ? "space-y-4 rounded-xl border border-gray-300 bg-white p-5 shadow-sm"
+          : boxed
+            ? "flex flex-col gap-3"
+            : "space-y-3"
+      }
     >
       <div
-        className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${box ? "border-b-2 border-gray-200 pb-3" : ""}`}
+        className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${box ? "border-b-2 border-gray-200 pb-3" : ""} ${
+          boxed && !box ? "order-last" : "" // owner form: the control's own label leads, so paired fields share a top
+        }`}
       >
         <div className="flex flex-wrap items-center gap-2">
           {(showLabel || box) && (

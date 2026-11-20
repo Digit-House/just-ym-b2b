@@ -7,7 +7,7 @@ const EVENT = "content-review-changed";
 /** Call after submit, approve or send back so the sidebar count refreshes at once. */
 export const notifyReviewChanged = () => window.dispatchEvent(new Event(EVENT));
 
-/** Review counts (readyForReview, sentBack). Polls every 60 s; 0 when disabled or on error. `loaded` is true once the first fetch settled (or when disabled). */
+/** Review counts (readyForReview, sentBack, inProgress). Polls every 60 s; 0 when disabled or on error. `loaded` is true once the first fetch settled (or when disabled). */
 export const useReviewCount = (enabled: boolean) => {
   const { data, refetch, isFetched } = useQuery({
     queryKey: ["contentReviewCounts"],
@@ -26,6 +26,7 @@ export const useReviewCount = (enabled: boolean) => {
   return {
     readyForReview: enabled ? data?.readyForReview ?? 0 : 0,
     sentBack: enabled ? data?.sentBack ?? 0 : 0,
+    inProgress: enabled ? data?.inProgress ?? 0 : 0,
     loaded: !enabled || isFetched,
   };
 };
