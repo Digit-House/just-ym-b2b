@@ -71,7 +71,7 @@ export type FieldCtx = {
 export const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
     <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">{title}</h3>
-    <div className="divide-y-2 divide-gray-200 [&>*]:py-5 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">{children}</div>
+    <div className="divide-y-2 divide-gray-300 [&>*]:py-5 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">{children}</div>
   </section>
 );
 

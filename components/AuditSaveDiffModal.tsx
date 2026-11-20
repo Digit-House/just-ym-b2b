@@ -93,7 +93,7 @@ const SpecRow = ({ spec, o, n }: { spec: FieldSpec; o: Values; n: Values }) => {
 const Unchanged = ({ count, children }: { count: number; children: ReactNode }) => (
   <details>
     <summary className="cursor-pointer text-sm text-gray-500">{count} unchanged (shown muted)</summary>
-    <div className="mt-4 divide-y-2 divide-gray-200 [&>*]:py-5 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">{children}</div>
+    <div className="mt-4 divide-y-2 divide-gray-300 [&>*]:py-5 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">{children}</div>
   </details>
 );
 
