@@ -20,6 +20,7 @@ const ContentDiffField = ({
   pending,
   onShowPending,
   disabled,
+  locked,
   stack,
   children,
 }: {
@@ -31,6 +32,8 @@ const ContentDiffField = ({
   pending?: boolean;
   onShowPending?: () => void;
   disabled?: boolean;
+  /** Saved-version page: columns read Before / After. */
+  locked?: boolean;
   /** Supplier above Current, both full width: for wide controls (English and Myanmar lists). */
   stack?: boolean;
   children: ReactNode;
@@ -39,20 +42,20 @@ const ContentDiffField = ({
     <div className={stack ? "grid gap-4" : "grid gap-4 md:grid-cols-2"}>
       <div className="space-y-1">
         <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500">
-          <Lock size={12} /> Supplier
+          <Lock size={12} /> {locked ? "Before" : "Supplier"}
         </p>
         {edited ? (
-          <div className="max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
+          <div className="max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
             {plain(baseline) || <span className="text-gray-400">Empty</span>}
           </div>
         ) : (
-          <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 p-3 text-sm italic text-gray-400">
-            Same as supplier
+          <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm italic text-gray-400">
+            {locked ? "Not changed in this save" : "Same as supplier"}
           </div>
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Current</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{locked ? "After" : "Current"}</p>
         <fieldset disabled={disabled} className="min-w-0">
           {children}
         </fieldset>

@@ -67,8 +67,8 @@ const Plain = ({ k, v }: { k: string; v: unknown }) =>
     <TextareaField label="" aria-label={fieldLabel(k)} readOnly disabled value={JSON.stringify(v, null, 2)} />
   );
 
-const GenericRow = ({ k, o, n }: { k: string; o: Values; n: Values }) => (
-  <Pair label={fieldLabel(k)} changed={!same(o[k], n[k])} left={<Plain k={k} v={o[k]} />} right={<Plain k={k} v={n[k]} />} />
+const GenericRow = ({ k, o, n, label }: { k: string; o: Values; n: Values; label?: string }) => (
+  <Pair label={label ?? fieldLabel(k)} changed={!same(o[k], n[k])} left={<Plain k={k} v={o[k]} />} right={<Plain k={k} v={n[k]} />} />
 );
 
 /** Bind for a spec control: text controls cannot show objects, so those become JSON text. */
@@ -144,6 +144,19 @@ const ChangeForm = ({ change }: { change: AuditChangeT }) => {
       )}
     </div>
   );
+};
+
+/** Changes with no control on the ticket form (status, prices, owner-only fields): the "Other changes" card. */
+export const OtherChanges = ({ save }: { save: AuditSaveT }) => {
+  const rows = save.changes.flatMap((c) => {
+    const o = (c.oldValues ?? {}) as Values;
+    const n = (c.newValues ?? {}) as Values;
+    const covered = new Set((GROUPS[c.entityName] ?? []).flatMap((g) => g.specs.flatMap(specKeys)));
+    const keys = [...new Set([...Object.keys(o), ...Object.keys(n)])].filter((k) => !covered.has(k));
+    const title = c.entityLabel || entityLabel(c.entityName);
+    return keys.map((k) => <GenericRow key={`${c.id}-${k}`} k={k} o={o} n={n} label={`${title} · ${fieldLabel(k)}`} />);
+  });
+  return rows.length ? <SectionCard title="Other changes">{rows}</SectionCard> : null;
 };
 
 /** One save as the real ticket form: locked, old left, new right. No save or mutation is reachable here. */

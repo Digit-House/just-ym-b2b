@@ -5,14 +5,27 @@ import { Switch } from "@/components/ui/switch";
 import { FieldFrame } from "@/pages/content/_components/ContentFields";
 import { useProductContent, useSupplierUpdates } from "@/pages/content/_components/SupplierUpdatesPanel";
 import { setAlwaysReviewFields } from "@/graphql/contentEditorReview";
+import { AuditChangeT, AuditSaveT, ProductContentT } from "@/types/contentEditor.type";
 import { getErrMsg } from "@/util/initData";
 
 const DIFF_KEY = "contentDiffView"; // same key as the editor form: one toggle per browser (D10)
 
-type Value = ReturnType<typeof useValue>;
+type Value = {
+  content?: ProductContentT;
+  updates: { entityId: string; field: string }[];
+  diff: boolean;
+  setDiff: (on: boolean) => void;
+  always: { isPending: boolean; mutate: (v: { entityName: string; entityId: string; fields: string[] }) => void };
+  onShowPending: () => void;
+  /** Saved-version page: read-only, Before/After. */
+  locked?: boolean;
+};
 const Ctx = createContext<Value | null>(null);
 
-const useValue = (productId: string, onShowPending: () => void) => {
+/** True on the saved-version page: no editing, no actions. */
+export const useLocked = () => !!useContext(Ctx)?.locked;
+
+const useValue = (productId: string, onShowPending: () => void): Value => {
   const qc = useQueryClient();
   const content = useProductContent(productId);
   const updates = useSupplierUpdates(productId);
@@ -31,19 +44,75 @@ const useValue = (productId: string, onShowPending: () => void) => {
 };
 
 /** Gives the owner ticket form the diff-view toggle and the per-field "Always review" switch (D10, D13). */
-export const OwnerReviewProvider = ({
-  productId,
-  onShowPending,
+const LiveProvider = ({ productId, onShowPending, children }: ProviderProps) => (
+  <Ctx.Provider value={useValue(productId, onShowPending)}>{children}</Ctx.Provider>
+);
+
+type ProviderProps = { productId: string; onShowPending: () => void; children: ReactNode };
+
+/** An outer SaveDiffProvider wins: the form then reads the saved version, not the live review queries. */
+export const OwnerReviewProvider = (props: ProviderProps) =>
+  useContext(Ctx) ? <>{props.children}</> : <LiveProvider {...props} />;
+
+const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+
+/** Review meta of one entity as saved: edited = keys this save changed, baseline = old values. */
+const metaOf = (changes: AuditChangeT[]) => {
+  const o = Object.assign({}, ...changes.map((c) => c.oldValues ?? {}));
+  const n = Object.assign({}, ...changes.map((c) => c.newValues ?? {}));
+  const keys = [...new Set([...Object.keys(o), ...Object.keys(n)])];
+  return { editedFields: keys.filter((k) => !same(o[k], n[k])), alwaysReviewFields: [] as string[], supplierBaseline: o };
+};
+
+/**
+ * Feeds the ticket form one saved version (D-r3): diff always on, edited = fields this save changed,
+ * baseline = old values, locked. `ticket` lists the entities so unchanged ones read "Not changed".
+ */
+export const SaveDiffProvider = ({
+  ticket,
+  save,
   children,
 }: {
-  productId: string;
-  onShowPending: () => void;
+  ticket: any;
+  save: AuditSaveT;
   children: ReactNode;
-}) => <Ctx.Provider value={useValue(productId, onShowPending)}>{children}</Ctx.Provider>;
+}) => {
+  const of = (name: string, id?: string | null) =>
+    metaOf(save.changes.filter((c) => c.entityName === name && (name === "Product" || c.entityId === id)));
+  const content = {
+    id: ticket.id,
+    name: ticket.name,
+    media: [],
+    pendingSupplierUpdates: 0,
+    ...of("Product"),
+    productOptions: (ticket.productOptions ?? []).map((o: any) => ({
+      id: o.id,
+      name: o.name,
+      pendingSupplierUpdates: 0,
+      ...of("ProductOption", o.id),
+      ticketTypes: (o.ticketType ?? []).map((t: any) => ({
+        id: t.id,
+        name: t.name,
+        pendingSupplierUpdates: 0,
+        ...of("TicketType", t.id),
+      })),
+    })),
+  } as ProductContentT;
+  const value: Value = {
+    content,
+    updates: [],
+    diff: true,
+    setDiff: () => {},
+    always: { isPending: false, mutate: () => {} },
+    onShowPending: () => {},
+    locked: true,
+  };
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+};
 
 export const DiffToggle = () => {
   const v = useContext(Ctx);
-  if (!v) return null;
+  if (!v || v.locked) return null;
   return (
     <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
       <Switch checked={v.diff} onCheckedChange={v.setDiff} aria-label="Diff view" />
@@ -94,6 +163,7 @@ export const ReviewField = ({
         diff: v.diff,
         pending: new Set(v.updates.filter((u) => u.entityId === id).map((u) => u.field)),
         busy: v.always.isPending,
+        locked: v.locked,
         onShowPending: v.onShowPending,
         onToggleAlways: (ns, on) =>
           v.always.mutate({

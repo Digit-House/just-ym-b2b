@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { formatUtcDate } from "@/lib/dateFormat";
 import RichTextEditor from "@/components/RichTextEditor";
 import { toRichTextHtml } from "@/lib/richText";
-import { ReviewField } from "@/components/OwnerReviewContext";
+import { ReviewField, useLocked } from "@/components/OwnerReviewContext";
 import { AnimatePresence, motion } from "framer-motion";
 
 type OptionsTabProps = {
@@ -47,6 +47,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   setValue,
   trigger,
 }) => {
+  const locked = useLocked();
   const watchedProductOptions = watch("productOptions");
 
   useEffect(() => {
@@ -262,6 +263,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
           <h4 className="text-lg font-medium">Packages</h4>
           {optionCount > 1 && (
             <div className="flex items-center gap-1">
+              {!locked && (
               <Button
                 type="button"
                 variant="ghost"
@@ -270,6 +272,8 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
               >
                 Expand all
               </Button>
+              )}
+              {!locked && (
               <Button
                 type="button"
                 variant="ghost"
@@ -278,13 +282,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
               >
                 Collapse all
               </Button>
+              )}
             </div>
           )}
         </div>
 
         <div className="space-y-6">
           {watchedProductOptions?.map((option, optionIndex) => {
-            const isOpen = openPackages.has(optionIndex);
+            const isOpen = locked || openPackages.has(optionIndex);
             const hasError = !!errors.productOptions?.[optionIndex];
             const ticketTypeCount = option.ticketTypes?.length ?? 0;
 
@@ -385,6 +390,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 English
                               </h5>
                               <RichTextEditor
+                                readOnly={locked}
                                 value={toRichTextHtml(option.description)}
                                 onChange={(html) =>
                                   updateProductOption(
@@ -416,6 +422,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                 Myanmar
                               </h5>
                               <RichTextEditor
+                                readOnly={locked}
                                 value={toRichTextHtml(option.description_mm)}
                                 onChange={(html) =>
                                   updateProductOption(
@@ -528,6 +535,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                       maxHeight={150}
                                     />
                                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {!locked && (
                                       <Button
                                         type="button"
                                         variant="ghost"
@@ -543,9 +551,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
+                                      )}
                                     </div>
                                   </div>
                                 ))}
+                                {!locked && (
                                 <Button
                                   type="button"
                                   onClick={() =>
@@ -558,6 +568,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                   <Plus className="h-4 w-4 mr-2" /> Add
                                   Inclusions
                                 </Button>
+                                )}
                               </div>
                             </div>
                             </ReviewField>
@@ -587,6 +598,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                       maxHeight={150}
                                     />
                                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {!locked && (
                                       <Button
                                         type="button"
                                         variant="ghost"
@@ -602,9 +614,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
+                                      )}
                                     </div>
                                   </div>
                                 ))}
+                                {!locked && (
                                 <Button
                                   type="button"
                                   onClick={() =>
@@ -617,6 +631,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                   <Plus className="h-4 w-4 mr-2" /> Add
                                   Inclusions MM
                                 </Button>
+                                )}
                               </div>
                             </div>
                             </ReviewField>

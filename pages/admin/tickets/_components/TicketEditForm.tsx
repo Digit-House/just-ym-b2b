@@ -19,7 +19,7 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
-import { OwnerReviewProvider, DiffToggle } from "@/components/OwnerReviewContext";
+import { OwnerReviewProvider, DiffToggle, useLocked } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
   useSupplierUpdates,
@@ -43,6 +43,7 @@ const TicketEditForm: React.FC<Props> = ({
   onSubmit,
 }) => {
   const isEdit = mode === "edit";
+  const locked = useLocked(); // saved-version page: read-only, no actions
 
   const transformApiDataToForm = (apiData: any) => {
     if (!apiData || !apiData.productOptions) return apiData;
@@ -482,7 +483,10 @@ const TicketEditForm: React.FC<Props> = ({
 
   return (
     <OwnerReviewProvider productId={initialValues?.id ?? ""} onShowPending={() => setCurrentTab("supplier-updates")}>
-    <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+    <form
+      onSubmit={locked ? (e) => e.preventDefault() : handleSubmit(submitHandler)}
+      className="space-y-6"
+    >
       {/* Validation Summary - Shows validation errors at the top */}
       {Object.keys(errors).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -507,13 +511,15 @@ const TicketEditForm: React.FC<Props> = ({
 
       <div className="flex items-center justify-end gap-4">
         {initialValues?.id && <DiffToggle />}
-        <Button
-          type="submit"
-          loading={loading}
-          className="flex items-center gap-2"
-        >
-          {isEdit ? <>Save Changes</> : <>Create Ticket</>}
-        </Button>
+        {!locked && (
+          <Button
+            type="submit"
+            loading={loading}
+            className="flex items-center gap-2"
+          >
+            {isEdit ? <>Save Changes</> : <>Create Ticket</>}
+          </Button>
+        )}
       </div>
 
       {/* Custom Tabs Navigation - Modern style with error indicators */}
@@ -525,7 +531,7 @@ const TicketEditForm: React.FC<Props> = ({
         <TabButton id="operating-hours" label="Operating Hours" />
         <TabButton id="options" label="Pricing & Packages" />
         <TabButton id="relatedTickets" label="Related Tickets" />
-        {initialValues?.id && (
+        {initialValues?.id && !locked && (
           <>
             <button type="button" onClick={() => setCurrentTab("history")} className={extraTabClass("history")}>
               History
@@ -546,6 +552,7 @@ const TicketEditForm: React.FC<Props> = ({
         )}
       </div>
 
+      <fieldset disabled={locked} className="min-w-0">
       <div className="p-6 border rounded-xl min-h-125 bg-white shadow-sm relative">
         {/* Error indicator for current tab */}
         {hasTabErrors(currentTab) && (
@@ -651,10 +658,11 @@ const TicketEditForm: React.FC<Props> = ({
           <SupplierUpdatesPanel productId={initialValues.id} />
         )}
       </div>
+      </fieldset>
 
       <div
         className="flex justify-between pt-4 border-t border-gray-200"
-        style={{ display: isExtraTab ? "none" : undefined }}
+        style={{ display: isExtraTab || locked ? "none" : undefined }}
       >
         <Button
           type="button"

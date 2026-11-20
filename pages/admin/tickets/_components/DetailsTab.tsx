@@ -5,7 +5,7 @@ import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import TextareaField from "@/components/TextareaField";
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
 import { Button } from "@/components/ui/button";
-import { ReviewField } from "@/components/OwnerReviewContext";
+import { ReviewField, useLocked } from "@/components/OwnerReviewContext";
 import { Trash2, Plus, NotebookIcon, FileText, ListTodo } from "lucide-react";
 
 type DetailsTabProps = {
@@ -24,6 +24,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
   setValue,
   initialValues,
 }) => {
+  const locked = useLocked();
   // State for dynamic arrays
   const [exclusions, setExclusions] = useState<string[]>(
     (initialValues as UpdateProductPayloadT)?.exclusions ?? []
@@ -269,6 +270,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           control={control}
           render={({ field, fieldState }) => (
             <TermsAndConditionsEditor
+              readOnly={locked}
               englishValue={field.value || ""}
               myanmarValue={termsAndConditionsMm}
               onEnglishChange={field.onChange}
@@ -312,6 +314,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -321,9 +324,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setExclusions)}
@@ -333,6 +338,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Exclusion
               </Button>
+              )}
             </div>
           </div>
 
@@ -355,6 +361,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -364,9 +371,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setExclusionsMm)}
@@ -376,6 +385,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Exclusion MM
               </Button>
+              )}
             </div>
           </div>
         </div>
@@ -411,6 +421,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -420,9 +431,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setHighlights)}
@@ -432,6 +445,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Highlight
               </Button>
+              )}
             </div>
           </div>
 
@@ -453,6 +467,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -462,9 +477,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setHighlightsMm)}
@@ -474,6 +491,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Highlight MM
               </Button>
+              )}
             </div>
           </div>
         </div>
@@ -509,6 +527,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -518,9 +537,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setHowToUseList)}
@@ -530,6 +551,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Instruction
               </Button>
+              )}
             </div>
           </div>
 
@@ -551,6 +573,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -560,9 +583,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setHowToUseListMm)}
@@ -572,6 +597,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Instruction MM
               </Button>
+              )}
             </div>
           </div>
         </div>
@@ -607,6 +633,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -616,9 +643,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setInclusions)}
@@ -628,6 +657,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Inclusion
               </Button>
+              )}
             </div>
           </div>
 
@@ -649,6 +679,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -658,9 +689,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setInclusionsMm)}
@@ -670,6 +703,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Inclusion MM
               </Button>
+              )}
             </div>
           </div>
         </div>
@@ -707,6 +741,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -716,9 +751,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setThingsToNote)}
@@ -728,6 +765,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Note
               </Button>
+              )}
             </div>
           </div>
 
@@ -749,6 +787,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     maxHeight={150}
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!locked && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -758,9 +797,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 </div>
               ))}
+              {!locked && (
               <Button
                 type="button"
                 onClick={() => addToArray(setThingsToNoteMm)}
@@ -770,6 +811,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Note MM
               </Button>
+              )}
             </div>
           </div>
         </div>

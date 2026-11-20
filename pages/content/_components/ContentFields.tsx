@@ -65,6 +65,8 @@ export type FieldCtx = {
   busy: boolean;
   onToggleAlways: (fields: string[], on: boolean) => void;
   onShowPending: () => void;
+  /** Saved-version page: everything read-only, Before/After wording. */
+  locked?: boolean;
 };
 
 /** Section card: small uppercase title; its direct children are field rows split by a bold divider. */
@@ -108,7 +110,7 @@ export const FieldFrame = ({
   current,
   showLabel,
   boxed,
-  disabled,
+  disabled: disabledProp,
   children,
 }: {
   ctx?: FieldCtx;
@@ -123,6 +125,8 @@ export const FieldFrame = ({
   children: React.ReactNode;
 }) => {
   if (!ctx) return <>{children}</>;
+  const locked = !!ctx.locked;
+  const disabled = disabledProp || locked;
   const f = names[0];
   const on = ctx.meta.alwaysReviewFields.includes(f);
   const edited = ctx.meta.editedFields.includes(f);
@@ -145,9 +149,9 @@ export const FieldFrame = ({
           {pending ? (
             <span className={`${CHIP} bg-amber-100 text-amber-800`}>Newer supplier value</span>
           ) : edited ? (
-            <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>Edited</span>
+            <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>{locked ? "Changed" : "Edited"}</span>
           ) : (
-            <span className={`${CHIP} bg-gray-100 text-gray-500`}>Same as supplier</span>
+            <span className={`${CHIP} bg-gray-100 text-gray-500`}>{locked ? "Not changed" : "Same as supplier"}</span>
           )}
         </div>
         {!disabled && (
@@ -169,6 +173,7 @@ export const FieldFrame = ({
           pending={pending}
           onShowPending={ctx.onShowPending}
           disabled={disabled}
+          locked={locked}
           stack={box && names.length > 1}
         >
           {children}

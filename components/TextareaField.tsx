@@ -16,9 +16,11 @@ const TextareaField = forwardRef<
 >(({ label, isRequired, errMsg, id, minHeight, maxHeight, ...rest }, ref) => {
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="block text-sm font-medium">
-        {label} {isRequired && <span className="text-red-500">*</span>}
-      </label>
+      {label && (
+        <label htmlFor={id} className="block text-sm font-medium">
+          {label} {isRequired && <span className="text-red-500">*</span>}
+        </label>
+      )}
 
       <AutoResizeTextarea
         ref={ref}

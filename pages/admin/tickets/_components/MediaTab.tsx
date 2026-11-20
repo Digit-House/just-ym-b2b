@@ -1,3 +1,4 @@
+import { useLocked } from "@/components/OwnerReviewContext";
 import React, { useState, useEffect, useRef as reactUseRef } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
@@ -46,6 +47,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
   initialValues,
   setMediaItemRef,
 }) => {
+  const locked = useLocked();
   // State for crop library selection
   const [cropLibrary, setCropLibrary] = useState<
     "react-image-crop" | "react-easy-crop"
@@ -494,6 +496,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                                 </Label>
                               </div>
 
+                              {!locked && (
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -503,6 +506,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -516,6 +520,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
             </Droppable>
           </DragDropContext>
           <div className="flex items-center justify-end pt-5">
+          {!locked && (
           <Button
               type="button"
               onClick={addMediaItem}
@@ -524,6 +529,7 @@ const MediaTab: React.FC<MediaTabProps> = ({
             >
               <Plus className="h-4 w-4 mr-1" /> Add Media
             </Button>
+          )}
           </div>
         </div>
       </div>

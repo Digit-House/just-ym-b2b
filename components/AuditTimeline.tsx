@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
 import { ChevronDown, ChevronRight, ExternalLink, GitCompare, RefreshCw } from "lucide-react";
 import DiffView from "@/components/DiffView";
@@ -58,6 +58,7 @@ const ChangeList = ({ changes }: { changes: AuditChangeT[] }) => (
 const SaveEntry = ({ save, showTicketLink }: { save: AuditSaveT; showTicketLink?: boolean }) => {
   const [open, setOpen] = useState(false);
   const [diff, setDiff] = useState(false);
+  const navigate = useNavigate();
   const isSync = save.source === "SYNC";
   const who = isSync ? "Supplier sync" : save.user?.name || save.user?.email || "Unknown user";
   const created = new Date(save.createdAt);
@@ -106,7 +107,11 @@ const SaveEntry = ({ save, showTicketLink }: { save: AuditSaveT; showTicketLink?
           </button>
           <button
             type="button"
-            onClick={() => setDiff(true)}
+            onClick={() =>
+              save.productId
+                ? navigate(`/admin-tickets/edit/${save.productId}/save/${save.saveId}`, { state: { save } })
+                : setDiff(true)
+            }
             className="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
           >
             <GitCompare size={12} /> Show in diff
