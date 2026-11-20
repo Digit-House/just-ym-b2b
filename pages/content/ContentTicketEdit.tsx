@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ChevronDown, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
 import EmptyState from "@/components/EmptyState";
 import MascotLoader from "@/components/MascotLoader";
 import ImageUpload from "@/components/ImageUpload";
 import InputField from "@/components/InputField";
+import TextInput from "@/components/ticket-fields/TextInput";
+import PackageCardShell from "@/components/ticket-fields/PackageCardShell";
+import PackagesHeader from "@/components/ticket-fields/PackagesHeader";
 import BackBtn from "@/components/BackBtn";
 import ReviewStatusBadge from "@/components/ReviewStatusBadge";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +24,7 @@ import {
 } from "@/graphql/contentEditorReview";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { getErrMsg } from "@/util/initData";
+import { sameRichText } from "@/lib/richText";
 import { ContentMediaT, ContentOptionT, ProductContentT, ReviewMetaT } from "@/types/contentEditor.type";
 import AddRelated from "@/pages/admin/tickets/_components/AddRelated";
 import { searchRelatedProducts } from "@/graphql/contentEditorReview";
@@ -35,7 +39,6 @@ import SupplierUpdatesPanel, {
 import {
   BASIC_GROUPS,
   Bind,
-  ContentField,
   DETAIL_FIELDS,
   DETAIL_GROUPS,
   FieldCtx,
@@ -48,12 +51,15 @@ import {
   OPTION_GROUPS,
   ReadOnlyField,
   SectionCard,
+  renderSpecs,
 } from "./_components/ContentFields";
 
 type Edits = Record<string, any>;
 const DIFF_KEY = "contentDiffView";
 type TabId = "basic" | "details" | "location" | "media" | "related" | "options" | "updates";
 
+/** Edit keys of rich text fields (option descriptions). */
+const RICH_KEY = /^o:[^:]+:description(_mm)?$/;
 const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 const cleanMedia = (m: ContentMediaT[] | undefined) => (m ?? []).filter((x) => x.path);
 const activeFirst = <T extends { deletedAt?: string | null }>(xs: T[]) => [
@@ -105,7 +111,13 @@ const ContentTicketEdit = () => {
     localStorage.setItem(DIFF_KEY, on ? "1" : "0");
   };
 
-  const changed = data ? Object.keys(edits).filter((k) => !same(norm(k, edits[k]), norm(k, serverValue(data, k)))) : [];
+  const changed = data
+    ? Object.keys(edits).filter((k) =>
+        RICH_KEY.test(k)
+          ? !sameRichText(edits[k], serverValue(data, k))
+          : !same(norm(k, edits[k]), norm(k, serverValue(data, k))),
+      )
+    : [];
   const dirty = changed.length > 0 || stagedCount > 0;
   const badPrice = changed.some((k) => k.startsWith("c:") && priceError(norm(k, edits[k])));
 
@@ -246,9 +258,7 @@ const ContentTicketEdit = () => {
     <>
       {groups.map((g) => (
         <SectionCard key={g.title} title={g.title}>
-          {g.specs.map((s) => (
-            <ContentField key={s.f} spec={s} bind={bind} ctx={ctx} />
-          ))}
+          {renderSpecs(g.specs, bind, ctx)}
         </SectionCard>
       ))}
     </>
@@ -303,45 +313,30 @@ const ContentTicketEdit = () => {
     const isOpen = openOpts.has(o.id);
     const edited = changed.some((k) => /^[otc]:/.test(k) && k.split(":")[1] === o.id);
     return (
-      <div key={o.id} className="rounded-lg border bg-gray-50">
-        <button
-          type="button"
-          aria-expanded={isOpen}
-          onClick={() =>
-            setOpenOpts((prev) => {
-              const n = new Set(prev);
-              if (!n.delete(o.id)) n.add(o.id);
-              return n;
-            })
-          }
-          className="flex w-full cursor-pointer items-center gap-3 px-6 py-4 text-left"
-        >
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Package {optionNo + 1}</p>
-            <p className="truncate text-base font-semibold text-gray-900">{o.name || "Untitled package"}</p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
+      <PackageCardShell
+        key={o.id}
+        keepMounted
+        index={optionNo}
+        name={o.name}
+        published={o.isPublished}
+        ticketTypeCount={types.length}
+        open={isOpen}
+        onToggle={() =>
+          setOpenOpts((prev) => {
+            const n = new Set(prev);
+            if (!n.delete(o.id)) n.add(o.id);
+            return n;
+          })
+        }
+        badges={
+          <>
             {deleted && <DeletedBadge at={o.deletedAt!} />}
             {edited && (
               <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Unsaved edits</span>
             )}
-            <span className="hidden text-xs text-gray-500 sm:inline">
-              {types.length} ticket type{types.length === 1 ? "" : "s"}
-            </span>
-            <span
-              className={`rounded-md px-2 py-0.5 text-xs font-medium ${
-                o.isPublished ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
-              }`}
-            >
-              {o.isPublished ? "Published" : "Unpublished"}
-            </span>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-          />
-          </div>
-        </button>
-        {/* hidden, not unmounted, so unsaved form state survives collapsing */}
-        <div className={`space-y-4 border-t px-6 pb-6 pt-2 ${isOpen ? "" : "hidden"}`}>
+          </>
+        }
+      >
         {deleted && <p className="text-sm text-gray-500">This option was removed by the supplier and is read-only.</p>}
         {!deleted && (
           <>
@@ -378,11 +373,11 @@ const ContentTicketEdit = () => {
                 >
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="min-w-[14rem] flex-1">
-                      <InputField
+                      <TextInput
                         aria-label={`Ticket type ${t.name}`}
                         value={tb.value}
                         disabled={gone}
-                        onChange={(e) => tb.onChange(e.target.value)}
+                        onChange={tb.onChange}
                       />
                     </div>
                     {t.deletedAt && <DeletedBadge at={t.deletedAt} />}
@@ -408,8 +403,7 @@ const ContentTicketEdit = () => {
             );
           })}
         </SectionCard>
-        </div>
-      </div>
+      </PackageCardShell>
     );
   };
 
@@ -560,20 +554,11 @@ const ContentTicketEdit = () => {
         {tab === "options" && (
           <div className="space-y-6">
             {data.productOptions.length === 0 && <p className="text-sm text-gray-500">This ticket has no options.</p>}
-            {data.productOptions.length > 1 && (
-              // Same controls as the owner's Packages header (OptionsTab expandAll/collapseAll).
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-medium">Packages</h4>
-                <div className="flex items-center gap-1">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setOpenOpts(new Set(data.productOptions.map((o) => o.id)))}>
-                    Expand all
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setOpenOpts(new Set())}>
-                    Collapse all
-                  </Button>
-                </div>
-              </div>
-            )}
+            <PackagesHeader
+              count={data.productOptions.length}
+              onExpandAll={() => setOpenOpts(new Set(data.productOptions.map((o) => o.id)))}
+              onCollapseAll={() => setOpenOpts(new Set())}
+            />
             {activeFirst(data.productOptions).map((o, i) => renderOption(o, i))}
           </div>
         )}

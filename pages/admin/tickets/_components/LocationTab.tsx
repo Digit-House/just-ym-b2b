@@ -6,7 +6,7 @@ import { Map, Marker } from "pigeon-maps";
 
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
-import InputField from "@/components/InputField";
+import NumberInput from "@/components/ticket-fields/NumberInput";
 import { ReviewField } from "@/components/OwnerReviewContext";
 
 type LocationTabProps = {
@@ -40,16 +40,9 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
           name="latitude"
           control={control}
           render={({ field }) => (
-            <InputField
+            <NumberInput
               label="Latitude"
-              type="number"
               {...field}
-              value={field.value ?? ""}
-              onChange={(e) =>
-                field.onChange(
-                  e.target.value === "" ? null : Number(e.target.value)
-                )
-              }
               errMsg={errors.latitude?.message}
             />
           )}
@@ -61,16 +54,9 @@ const LocationTab: React.FC<LocationTabProps> = ({ control, errors }) => {
           name="longitude"
           control={control}
           render={({ field }) => (
-            <InputField
+            <NumberInput
               label="Longitude"
-              type="number"
               {...field}
-              value={field.value ?? ""}
-              onChange={(e) =>
-                field.onChange(
-                  e.target.value === "" ? null : Number(e.target.value)
-                )
-              }
               errMsg={errors.longitude?.message}
             />
           )}

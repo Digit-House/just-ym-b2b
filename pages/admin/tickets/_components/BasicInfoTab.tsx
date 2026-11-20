@@ -2,6 +2,7 @@ import React from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ReviewField } from "@/components/OwnerReviewContext";
+import TextInput from "@/components/ticket-fields/TextInput";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -132,7 +133,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
               name="name"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Ticket Name"
                   {...field}
                   errMsg={errors.name?.message}
@@ -155,7 +156,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
               name="addressLine"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Address Line"
                   {...field}
                   errMsg={errors.addressLine?.message}
@@ -178,7 +179,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
               name="location"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Location"
                   {...field}
                   errMsg={errors.location?.message}
@@ -344,7 +345,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
               name="postalCode"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Postal Code"
                   {...field}
                   errMsg={errors.postalCode?.message}
@@ -419,7 +420,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
               name="keywords"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Keywords"
                   {...field}
                   errMsg={errors.keywords?.message}

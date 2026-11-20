@@ -1,10 +1,12 @@
-import { Lock, Plus, Trash2 } from "lucide-react";
+import { Lock } from "lucide-react";
 import InputField from "@/components/InputField";
-import TextareaField from "@/components/TextareaField";
-import RichTextEditor from "@/components/RichTextEditor";
-import { toRichTextHtml } from "@/lib/richText";
+import TextInput from "@/components/ticket-fields/TextInput";
+import NumberInput from "@/components/ticket-fields/NumberInput";
+import LongText from "@/components/ticket-fields/LongText";
+import RichText from "@/components/ticket-fields/RichText";
+import StringListEditor from "@/components/ticket-fields/StringListEditor";
+import BilingualListSection, { LIST_ICONS } from "@/components/ticket-fields/BilingualListSection";
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
-import { Button } from "@/components/ui/button";
 import AlwaysReviewSwitch from "@/components/AlwaysReviewSwitch";
 import ContentDiffField from "@/components/ContentDiffField";
 import { ReviewMetaT } from "@/types/contentEditor.type";
@@ -15,6 +17,13 @@ export type FieldSpec = {
   f: string;
   label: string;
   kind: "input" | "number" | "area" | "rich" | "list" | "terms";
+  placeholder?: string;
+};
+
+/** "Enter exclusion (MM)" -> "Add Exclusion MM"; the owner form's button wording. */
+const addLabelOf = (placeholder?: string) => {
+  const w = (placeholder ?? "Enter item").replace(/^Enter /, "").replace(/ \(MM\)$/, " MM");
+  return `Add ${w.charAt(0).toUpperCase()}${w.slice(1)}`;
 };
 
 export const ReadOnlyField = ({ label, value }: { label: string; value: unknown }) => (
@@ -26,36 +35,15 @@ export const ReadOnlyField = ({ label, value }: { label: string; value: unknown 
   />
 );
 
-export const ListField = ({ label, value, onChange, readOnly }: { label: string; readOnly?: boolean } & Bind<string[]>) => (
-  <div className="space-y-2">
-    {value.map((item, i) => (
-      <div key={i} className="flex items-start gap-2">
-        <div className="flex-1">
-          <TextareaField
-            label=""
-            aria-label={`${label} ${i + 1}`}
-            value={item}
-            onChange={(e) => onChange(value.map((v, j) => (j === i ? e.target.value : v)))}
-          />
-        </div>
-        {!readOnly && (
-        <Button
-          type="button"
-          variant="outline"
-          aria-label={`Remove ${label} ${i + 1}`}
-          onClick={() => onChange(value.filter((_, j) => j !== i))}
-        >
-          <Trash2 size={16} />
-        </Button>
-        )}
-      </div>
-    ))}
-    {!readOnly && (
-      <Button type="button" variant="outline" onClick={() => onChange([...value, ""])}>
-        <Plus size={16} /> Add item
-      </Button>
-    )}
-  </div>
+export const ListField = ({ label, value, onChange, readOnly, placeholder }: { label: string; readOnly?: boolean; placeholder?: string } & Bind<string[]>) => (
+  <StringListEditor
+    label={label}
+    value={value}
+    onChange={onChange}
+    readOnly={readOnly}
+    placeholder={placeholder}
+    addLabel={addLabelOf(placeholder)}
+  />
 );
 
 /** Review context of one entity (product, option or ticket type) for its fields. */
@@ -235,41 +223,21 @@ export const ContentFieldBody = ({
   readOnly?: boolean;
 }) => {
   const b = bind(spec.f);
+  const common = { "aria-label": spec.label, placeholder: spec.placeholder };
   switch (spec.kind) {
     case "input":
-      return (
-        <InputField aria-label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
-      );
+      return <TextInput {...common} value={b.value} onChange={b.onChange} />;
     case "number":
-      return (
-        <InputField
-          aria-label={spec.label}
-          type="number"
-          value={b.value ?? ""}
-          onChange={(e) => b.onChange(e.target.value === "" ? null : Number(e.target.value))}
-        />
-      );
+      return <NumberInput {...common} value={b.value} onChange={b.onChange} />;
     case "area":
-      return (
-        <TextareaField label="" aria-label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
-      );
+      return <LongText {...common} value={b.value} onChange={b.onChange} />;
     case "rich":
-      // Same editor and saved shape as the owner's package description: an HTML string, written back as-is.
-      return (
-        <RichTextEditor
-          readOnly={readOnly}
-          value={toRichTextHtml(b.value)}
-          onChange={b.onChange}
-          placeholder={`Enter ${spec.label.toLowerCase()}...`}
-          minHeight={150}
-          autoHeight
-        />
-      );
+      return <RichText readOnly={readOnly} value={b.value} onChange={b.onChange} placeholder={spec.placeholder} />;
     case "list": {
       // Only plain string lists are editable; any other stored shape stays read-only.
       const v = b.value ?? [];
       return Array.isArray(v) && v.every((x) => typeof x === "string") ? (
-        <ListField label={spec.label} value={v} onChange={b.onChange} readOnly={readOnly} />
+        <ListField label={spec.label} value={v} onChange={b.onChange} readOnly={readOnly} placeholder={spec.placeholder} />
       ) : (
         <ReadOnlyField label={`${spec.label} (not editable)`} value={JSON.stringify(v)} />
       );
@@ -289,46 +257,70 @@ export const ContentFieldBody = ({
   }
 };
 
-const withMm = (f: string, label: string, kind: FieldSpec["kind"]): FieldSpec[] => [
-  { f, label, kind },
-  { f: `${f}_mm`, label: `${label} (Myanmar)`, kind },
-];
+/**
+ * Field rows of one section. A list and its `_mm` twin render as one English/Myanmar section,
+ * each side keeping its own review frame.
+ */
+export const renderSpecs = (specs: FieldSpec[], bind: (f: string) => Bind, ctx: FieldCtx) => {
+  const rows: React.ReactNode[] = [];
+  for (let i = 0; i < specs.length; i++) {
+    const s = specs[i];
+    const mm = specs[i + 1];
+    if (s.kind === "list" && mm?.f === `${s.f}_mm`) {
+      rows.push(
+        <BilingualListSection
+          key={s.f}
+          title={s.label}
+          icon={LIST_ICONS[s.f]}
+          en={<ContentField spec={s} bind={bind} ctx={ctx} />}
+          mm={<ContentField spec={mm} bind={bind} ctx={ctx} />}
+        />,
+      );
+      i++;
+    } else rows.push(<ContentField key={s.f} spec={s} bind={bind} ctx={ctx} />);
+  }
+  return rows;
+};
 
+const withMm = (f: string, label: string, kind: FieldSpec["kind"], placeholder?: string): FieldSpec[] => [
+  { f, label, kind, placeholder },
+  { f: `${f}_mm`, label: `${label} MM`, kind, placeholder: placeholder && (kind === "list" ? `${placeholder} (MM)` : placeholder) },
+];
 export const BASIC_FIELDS: FieldSpec[] = [
-  { f: "name", label: "Name", kind: "input" },
-  { f: "keywords", label: "Keywords", kind: "input" },
-  { f: "productKeywords", label: "Product keywords", kind: "input" },
-  { f: "goodToKnow", label: "Good to know", kind: "area" },
+  { f: "name", label: "Ticket Name", kind: "input", placeholder: "Enter ticket name" },
+  { f: "keywords", label: "Keywords", kind: "input", placeholder: "Enter keywords separated by commas" },
+  { f: "productKeywords", label: "Product Keywords", kind: "input" },
+  { f: "goodToKnow", label: "Good To Know", kind: "area" },
 ];
 
 export const DETAIL_FIELDS: FieldSpec[] = [
-  ...withMm("description", "Description", "area"),
-  ...withMm("whatToExpect", "What to expect", "area"),
+  ...withMm("description", "Description", "area", "Enter a detailed description of the ticket..."),
+  ...withMm("whatToExpect", "What To Expect", "area", "Describe what customers can expect from this ticket..."),
   { f: "termsAndConditions", label: "Terms and conditions", kind: "terms" },
-  ...withMm("highlights", "Highlights", "list"),
-  ...withMm("inclusions", "Inclusions", "list"),
-  ...withMm("exclusions", "Exclusions", "list"),
-  ...withMm("howToUseList", "How to use", "list"),
-  ...withMm("thingsToNote", "Things to note", "list"),
+  ...withMm("highlights", "Highlights", "list", "Enter highlight"),
+  ...withMm("inclusions", "Inclusions", "list", "Enter inclusion"),
+  ...withMm("exclusions", "Exclusions", "list", "Enter exclusion"),
+  ...withMm("howToUseList", "How to Use", "list", "Enter instruction"),
+  ...withMm("thingsToNote", "Things to Note", "list", "Enter note"),
 ];
 
 export const LOCATION_FIELDS: FieldSpec[] = [
-  { f: "location", label: "Location", kind: "input" },
-  { f: "addressLine", label: "Address", kind: "input" },
-  { f: "postalCode", label: "Postal code", kind: "input" },
+  { f: "location", label: "Location", kind: "input", placeholder: "Enter location" },
+  { f: "addressLine", label: "Address Line", kind: "input", placeholder: "Enter address" },
+  { f: "postalCode", label: "Postal Code", kind: "input", placeholder: "Enter postal code" },
   { f: "latitude", label: "Latitude", kind: "number" },
   { f: "longitude", label: "Longitude", kind: "number" },
 ];
 
 export const OPTION_FIELDS: FieldSpec[] = [
-  { f: "name", label: "Name", kind: "input" },
-  ...withMm("description", "Description", "rich"),
+  { f: "name", label: "Package Name", kind: "input" },
+  ...withMm("description", "Package Description", "rich", "Enter package description..."),
   { f: "termsAndConditions", label: "Terms and conditions", kind: "terms" },
-  ...withMm("howToUse", "How to use", "list"),
-  ...withMm("inclusions", "Inclusions", "list"),
-  ...withMm("exclusions", "Exclusions", "list"),
-  { f: "tourInformation", label: "Tour information", kind: "list" },
-  { f: "cancellationNotes", label: "Cancellation notes", kind: "list" },
+  ...withMm("howToUse", "How to Use", "list", "Enter instruction"),
+  ...withMm("inclusions", "Inclusions", "list", "Enter inclusion"),
+  ...withMm("exclusions", "Exclusions", "list", "Enter exclusion"),
+  { f: "tourInformation", label: "Tour Information", kind: "list", placeholder: "Enter tour information" },
+  { f: "cancellationNotes", label: "Cancellation Notes", kind: "list", placeholder: "Enter cancellation note" },
 ];
 
 /** Every wire field the editor may send, derived from the specs ("terms" covers its _mm twin). */
