@@ -66,10 +66,11 @@ const DashboardLayout = () => {
 
   // Auto-close sidebar on mobile when route changes
   useEffect(() => {
-    if (!isDesktop && isOpen) {
+    // read the live store value: the Sidebar's resize listener may already have closed it
+    if (!isDesktop && useSidebarStore.getState().isOpen) {
       toggleSidebar();
     }
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   if (loading) return <Loading />;
 

@@ -16,6 +16,7 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import ImageUpload from "@/components/ImageUpload";
+import { useLocked } from "@/components/OwnerReviewContext";
 import { LockKeyhole } from "lucide-react";
 
 type BasicInfoTabProps = {
@@ -30,6 +31,7 @@ type BasicInfoTabProps = {
 
 const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
   ({ control, errors, watch, imageRef }, ref) => {
+    const locked = useLocked();
     // Fetch categories, countries and cities
     const { data: categoriesResponse } = useCategories({
       limit: 50,
@@ -74,6 +76,13 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
           </p>
         </div>
 
+        {/* saved-version page, no image: one line, not the 300px upload box */}
+        {locked && !watch("image") ? (
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-gray-700">Ticket Image</p>
+            <p className="text-sm text-gray-400">No image</p>
+          </div>
+        ) : (
         <div className={`space-y-3 w-full h-[300px]`}>
           <Controller
             name="image"
@@ -95,6 +104,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             )}
           />
         </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div

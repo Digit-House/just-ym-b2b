@@ -41,14 +41,16 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
     <div className={`rounded-lg border overflow-hidden shadow-sm transition-shadow ${isDisabled ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200 hover:shadow-md'} ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
       <div className="relative">
         {showCheckbox && (
-          <div className="absolute top-3 left-3 z-10">
+          <label className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 shadow-sm">
             <Checkbox
+              aria-label="Select as related ticket"
               checked={isSelected}
               onCheckedChange={isDisabled ? undefined : onToggle}
               className="h-5 w-5"
               disabled={isDisabled}
             />
-          </div>
+            Select
+          </label>
         )}
         <div className="h-40 overflow-hidden">
           <ImageFallback
@@ -90,6 +92,7 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
           <div className="mt-3 flex items-center">
             <Checkbox
               id={`linkBack-${product?.id}`}
+              aria-label="Link back to this ticket"
               checked={linkBack}
               onCheckedChange={isDisabled ? undefined : handleLinkBackChange}
               className="mr-2"

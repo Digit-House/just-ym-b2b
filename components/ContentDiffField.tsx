@@ -40,23 +40,23 @@ const ContentDiffField = ({
 }) => (
   <div className="space-y-3">
     <div className={stack ? "grid gap-4" : "grid gap-4 md:grid-cols-2"}>
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1">
         <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500">
           <Lock size={12} /> {locked ? "Before" : "Supplier"}
         </p>
         {edited ? (
-          <div className="max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+          <div className="max-h-64 flex-1 overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
             {plain(baseline) || <span className="text-gray-400">Empty</span>}
           </div>
         ) : (
-          <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm italic text-gray-400">
+          <div className="flex-1 rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm italic text-gray-400">
             {locked ? "Not changed in this save" : "Same as supplier"}
           </div>
         )}
       </div>
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1">
         <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{locked ? "After" : "Current"}</p>
-        <fieldset disabled={disabled} className="min-w-0">
+        <fieldset disabled={disabled} className="min-w-0 flex-1">
           {children}
         </fieldset>
       </div>

@@ -68,14 +68,23 @@ export default function Tickets() {
   const isOwner = user?.type === "OWNER";
   const counts = useReviewCount(isOwner);
   const [defaulted, setDefaulted] = useState(false);
+  // The sidebar counts ignore list filters, so jumping to a review list clears the saved ones (else a default "Published" hides unpublished review tickets).
+  const showAllForReview = () =>
+    setFilters((f) => ({ ...f, published: "ALL", categories: [], countryId: "", cityId: "", search: "" }));
   useEffect(() => {
     if (defaulted || !user || !counts.loaded) return; // wait for the user: before it loads isOwner is false and the default would be skipped
-    if (isOwner && !searchParams.get("review") && counts.readyForReview > 0) setReview("READY_FOR_REVIEW");
+    if (isOwner && !searchParams.get("review") && counts.readyForReview > 0) {
+      setReview("READY_FOR_REVIEW");
+      showAllForReview();
+    }
     setDefaulted(true);
   }, [defaulted, user, counts.loaded, counts.readyForReview, isOwner, searchParams]);
   const reviewParam = searchParams.get("review");
   useEffect(() => {
-    if (reviewParam) setReview(reviewParam);
+    if (reviewParam) {
+      setReview(reviewParam);
+      showAllForReview();
+    }
   }, [reviewParam, locationKey]);
   const reviewOn = user?.type === "OWNER" && review !== "ALL";
   const debouncedSearch = useDebounce(filters.search, 500);
