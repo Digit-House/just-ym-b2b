@@ -17,13 +17,16 @@ import { getErrMsg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import BackBtn from "@/components/BackBtn";
 import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicketsCarousel";
-import { set } from "zod";
+import ReviewActions from "@/components/ReviewActions";
+import { useProductContent } from "@/pages/content/_components/SupplierUpdatesPanel";
 
 const AdminTicketEdit = () => {
   const [refresh, setRefresh] = useState(false);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [submitLoading,setSubmitLoading] = useState(false);
+
+  const content = useProductContent(id ?? "");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["ticket", id],
@@ -133,6 +136,12 @@ const AdminTicketEdit = () => {
       <BackBtn route="/tickets" title="Back to Tickets" preserveParams={true} />
       <PageHeader title={data?.name} des="Modify the ticket details below." />
 
+      <ReviewActions
+        productId={data.id}
+        status={content.data?.contentReviewStatus}
+        submittedAt={content.data?.contentReviewSubmittedAt}
+      />
+
       <div className="w-full flex  mb-6">
         <Button size="lg" disabled={refresh} onClick={handleRefresh}>
           {refresh ? "Refreshing..." : "Refresh"}
@@ -141,6 +150,7 @@ const AdminTicketEdit = () => {
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
         <TicketEditForm
+          key={String(data.isPublished)} // approve publishes: remount so a later Save does not unpublish
           mode="edit"
           loading={submitLoading}
           initialValues={data as ProductInfoT}

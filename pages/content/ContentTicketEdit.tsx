@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
@@ -10,11 +10,19 @@ import MascotLoader from "@/components/MascotLoader";
 import ImageUpload from "@/components/ImageUpload";
 import InputField from "@/components/InputField";
 import BackBtn from "@/components/BackBtn";
+import ReviewStatusBadge from "@/components/ReviewStatusBadge";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { updateProductContent } from "@/graphql/contentEditor";
+import {
+  errorCode,
+  refreshProductContent,
+  setAlwaysReviewFields,
+  submitContentForReview,
+} from "@/graphql/contentEditorReview";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { getErrMsg } from "@/util/initData";
-import { ContentMediaT, ContentOptionT, ProductContentT } from "@/types/contentEditor.type";
+import { ContentMediaT, ContentOptionT, ProductContentT, ReviewMetaT } from "@/types/contentEditor.type";
 import SupplierUpdatesPanel, {
   useProductContent,
   useSupplierUpdates,
@@ -24,6 +32,8 @@ import {
   Bind,
   ContentField,
   DETAIL_FIELDS,
+  FieldCtx,
+  FieldFrame,
   FieldSpec,
   LOCATION_FIELDS,
   OPTION_FIELDS,
@@ -31,6 +41,7 @@ import {
 } from "./_components/ContentFields";
 
 type Edits = Record<string, any>;
+const DIFF_KEY = "contentDiffView";
 type TabId = "basic" | "details" | "location" | "media" | "options" | "updates";
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
@@ -51,9 +62,18 @@ const serverValue = (data: ProductContentT, key: string) => {
   const [kind, a, b] = key.split(":");
   if (kind === "p") return data[a];
   const option = data.productOptions.find((o) => o.id === a);
-  return kind === "o" ? option?.[b] : option?.ticketTypes.find((t) => t.id === b)?.name;
+  if (kind === "o") return option?.[b];
+  const tt = option?.ticketTypes.find((t) => t.id === b);
+  return kind === "c" ? tt?.customOriginalPrice : tt?.name;
 };
-const norm = (key: string, v: any) => (key === "p:media" ? cleanMedia(v) : v);
+/** c: keys hold the typed text; empty means "use GlobalTix" (null). */
+const norm = (key: string, v: any) => {
+  if (key === "p:media") return cleanMedia(v);
+  if (key.startsWith("c:")) return v === "" || v == null ? null : Number(v);
+  return v;
+};
+/** Mirrors the server: a custom original price must be a number above 0. */
+const priceError = (v: number | null) => (v !== null && !(Number.isFinite(v) && v > 0) ? "Enter a price above 0, or leave empty to use GlobalTix." : "");
 
 const ContentTicketEdit = () => {
   const { id = "" } = useParams<{ id: string }>();
@@ -64,9 +84,15 @@ const ContentTicketEdit = () => {
   const [tab, setTab] = useState<TabId>("basic");
   const [edits, setEdits] = useState<Edits>({});
   const [uploading, setUploading] = useState(0);
+  const [diff, setDiff] = useState(() => localStorage.getItem(DIFF_KEY) === "1");
+  const toggleDiff = (on: boolean) => {
+    setDiff(on);
+    localStorage.setItem(DIFF_KEY, on ? "1" : "0");
+  };
 
   const changed = data ? Object.keys(edits).filter((k) => !same(norm(k, edits[k]), norm(k, serverValue(data, k)))) : [];
   const dirty = changed.length > 0;
+  const badPrice = changed.some((k) => k.startsWith("c:") && priceError(norm(k, edits[k])));
 
   // Unsaved-changes warning for tab close and for in-app links (the app has no data router for useBlocker).
   useEffect(() => {
@@ -96,7 +122,11 @@ const ContentTicketEdit = () => {
         const v = norm(k, edits[k]);
         if (kind === "p") input[a] = v;
         else if (kind === "o") (opts[a] ??= { id: a })[b] = v;
-        else ((opts[a] ??= { id: a }).ticketTypes ??= []).push({ id: b, name: v });
+        else {
+          const tts: any[] = ((opts[a] ??= { id: a }).ticketTypes ??= []);
+          const tt = tts.find((x) => x.id === b) ?? tts[tts.push({ id: b }) - 1];
+          tt[kind === "c" ? "customOriginalPrice" : "name"] = v;
+        }
       }
       if (Object.keys(opts).length) input.productOptions = Object.values(opts);
       return updateProductContent(input);
@@ -106,6 +136,41 @@ const ContentTicketEdit = () => {
       setEdits({});
       ["productContent", "contentProducts", "auditLogs"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
     },
+    onError: (err) => toast.error(getErrMsg(err as any, "message")),
+  });
+
+  const reloadAll = () =>
+    ["productContent", "supplierUpdates", "contentProducts", "contentReviewCounts", "auditLogs"].forEach((k) =>
+      qc.invalidateQueries({ queryKey: [k] })
+    );
+
+  const refresh = useMutation({
+    mutationFn: () => refreshProductContent(id),
+    onSuccess: () => {
+      toast.success("Refreshed from supplier");
+      reloadAll();
+    },
+    onError: (err) => {
+      if (errorCode(err) === "REFRESH_RATE_LIMITED")
+        toast.error("Refreshed less than a minute ago. Try again in a minute.");
+      else toast.error(getErrMsg(err as any, "message"));
+      reloadAll();
+    },
+  });
+
+  const submit = useMutation({
+    mutationFn: () => submitContentForReview(id),
+    onSuccess: () => {
+      toast.success("Submitted for review");
+      reloadAll();
+    },
+    onError: (err) => toast.error(getErrMsg(err as any, "message")),
+  });
+
+  const always = useMutation({
+    mutationFn: (v: { entityName: string; entityId: string; fields: string[] }) =>
+      setAlwaysReviewFields(v.entityName, v.entityId, v.fields),
+    onSuccess: () => ["productContent", "auditLogs"].forEach((k) => qc.invalidateQueries({ queryKey: [k] })),
     onError: (err) => toast.error(getErrMsg(err as any, "message")),
   });
 
@@ -141,10 +206,26 @@ const ContentTicketEdit = () => {
     return null;
   };
 
-  const renderFields = (specs: FieldSpec[], bind: (f: string) => Bind) => (
+  const pendingFor = (entityId: string) =>
+    new Set((updates.data ?? []).filter((u) => u.entityId === entityId).map((u) => u.field));
+  const ctxFor = (entityName: string, entityId: string, meta: ReviewMetaT): FieldCtx => ({
+    meta: { ...meta, editedFields: meta.editedFields ?? [], alwaysReviewFields: meta.alwaysReviewFields ?? [] },
+    diff,
+    pending: pendingFor(entityId),
+    busy: always.isPending,
+    onShowPending: () => setTab("updates"),
+    onToggleAlways: (names, on) => {
+      const cur = meta.alwaysReviewFields ?? [];
+      const fields = on ? Array.from(new Set([...cur, ...names])) : cur.filter((f) => !names.includes(f));
+      always.mutate({ entityName, entityId, fields });
+    },
+  });
+  const productCtx = ctxFor("Product", data.id, data);
+
+  const renderFields = (specs: FieldSpec[], bind: (f: string) => Bind, ctx: FieldCtx) => (
     <div className="space-y-6">
       {specs.map((s) => (
-        <ContentField key={s.f} spec={s} bind={bind} />
+        <ContentField key={s.f} spec={s} bind={bind} ctx={ctx} />
       ))}
     </div>
   );
@@ -209,7 +290,7 @@ const ContentTicketEdit = () => {
                 }}
               />
             </div>
-            {renderFields(OPTION_FIELDS, bind)}
+            {renderFields(OPTION_FIELDS, bind, ctxFor("ProductOption", o.id, o))}
           </>
         )}
         <div className="grid gap-3 md:grid-cols-3">
@@ -221,21 +302,51 @@ const ContentTicketEdit = () => {
           <p className="text-sm font-medium">Ticket types</p>
           {activeFirst(o.ticketTypes).map((t) => {
             const tb = mk(`t:${o.id}:${t.id}`, t.name);
+            const pb = mk(`c:${o.id}:${t.id}`, t.customOriginalPrice ?? "", false);
             const gone = deleted || !!t.deletedAt;
+            const perr = priceError(norm(`c:${o.id}:${t.id}`, pb.value));
             return (
-              <div key={t.id} className="flex flex-wrap items-center gap-3">
-                <div className="min-w-[14rem] flex-1">
-                  <InputField
-                    aria-label={`Ticket type ${t.name}`}
-                    value={tb.value}
-                    disabled={gone}
-                    onChange={(e) => tb.onChange(e.target.value)}
+              <div key={t.id} className="space-y-3 rounded-lg border border-gray-200 p-3">
+                <FieldFrame
+                  ctx={ctxFor("TicketType", t.id, t)}
+                  names={["name"]}
+                  label={`ticket type ${t.name}`}
+                  current={tb.value}
+                >
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="min-w-[14rem] flex-1">
+                      <InputField
+                        aria-label={`Ticket type ${t.name}`}
+                        value={tb.value}
+                        disabled={gone}
+                        onChange={(e) => tb.onChange(e.target.value)}
+                      />
+                    </div>
+                    {t.deletedAt && <DeletedBadge at={t.deletedAt} />}
+                    {(t.ageFrom != null || t.ageTo != null) && (
+                      <span className="text-xs text-gray-400">Age {t.ageFrom ?? "-"} to {t.ageTo ?? "-"}</span>
+                    )}
+                  </div>
+                </FieldFrame>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <ReadOnlyField
+                    label="GlobalTix original price"
+                    value={t.supplierOriginalPrice == null ? "Not set" : t.supplierOriginalPrice}
                   />
+                  <div>
+                    <InputField
+                      label="Custom original price"
+                      type="number"
+                      min="0"
+                      step="any"
+                      placeholder="Empty = use GlobalTix price"
+                      disabled={gone}
+                      value={pb.value ?? ""}
+                      onChange={(e) => pb.onChange(e.target.value)}
+                    />
+                    {perr && <p className="mt-1 text-xs text-red-600">{perr}</p>}
+                  </div>
                 </div>
-                {t.deletedAt && <DeletedBadge at={t.deletedAt} />}
-                {(t.ageFrom != null || t.ageTo != null) && (
-                  <span className="text-xs text-gray-400">Age {t.ageFrom ?? "-"} to {t.ageTo ?? "-"}</span>
-                )}
               </div>
             );
           })}
@@ -249,11 +360,33 @@ const ContentTicketEdit = () => {
       <BackBtn route="/content-tickets" title="Back to Tickets" />
       <PageHeader title={data.name} des="Edit the ticket content below." />
 
-      <div className="mb-4 flex items-center justify-end gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
+        <ReviewStatusBadge status={data.contentReviewStatus} />
+        {data.contentReviewStatus === "IN_PROGRESS" && data.contentReviewSubmittedAt && (
+          <span className="text-sm text-amber-700">Sent back by owner</span>
+        )}
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+          <Switch checked={diff} onCheckedChange={toggleDiff} aria-label="Diff view" />
+          Diff view
+        </label>
+        <Button type="button" variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate()}>
+          <RefreshCw size={16} className={refresh.isPending ? "animate-spin" : ""} />
+          {refresh.isPending ? "Refreshing from supplier..." : "Refresh from supplier"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={data.contentReviewStatus === "READY_FOR_REVIEW" || dirty || submit.isPending}
+          loading={submit.isPending}
+          title={dirty ? "Save your changes first" : undefined}
+          onClick={() => submit.mutate()}
+        >
+          {data.contentReviewStatus === "READY_FOR_REVIEW" ? "Waiting for owner review" : "Submit for review"}
+        </Button>
         {dirty && <span className="text-sm text-amber-700">Unsaved changes</span>}
         <Button
           type="button"
-          disabled={!dirty || uploading > 0 || save.isPending}
+          disabled={!dirty || uploading > 0 || save.isPending || badPrice}
           loading={save.isPending}
           onClick={() => save.mutate()}
         >
@@ -273,7 +406,7 @@ const ContentTicketEdit = () => {
       <div className="mt-4 min-h-96 rounded-xl border bg-white p-6 shadow-sm">
         {tab === "basic" && (
           <div className="space-y-6">
-            {renderFields(BASIC_FIELDS, bindProduct)}
+            {renderFields(BASIC_FIELDS, bindProduct, productCtx)}
             <div className="grid gap-4 md:grid-cols-3">
               <ReadOnlyField label="Slug" value={data.slug} />
               <ReadOnlyField label="Category" value={data.category} />
@@ -287,8 +420,8 @@ const ContentTicketEdit = () => {
             </div>
           </div>
         )}
-        {tab === "details" && renderFields(DETAIL_FIELDS, bindProduct)}
-        {tab === "location" && renderFields(LOCATION_FIELDS, bindProduct)}
+        {tab === "details" && renderFields(DETAIL_FIELDS, bindProduct, productCtx)}
+        {tab === "location" && renderFields(LOCATION_FIELDS, bindProduct, productCtx)}
         {tab === "media" && (
           <div className="space-y-8">
             <div>

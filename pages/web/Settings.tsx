@@ -183,7 +183,7 @@ const Settings: React.FC = () => {
               </button>
             </div>
 
-            {user.type === "OWNER" && 
+            {(user.type === "OWNER" || user.type === "CONTENT_EDITOR") && 
             <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <p className="font-semibold text-gray-900">Two-Factor Authentication</p>

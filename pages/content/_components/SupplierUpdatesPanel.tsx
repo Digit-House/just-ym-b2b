@@ -20,6 +20,7 @@ import {
 } from "@/graphql/contentEditor";
 import { ProductContentT, SupplierUpdateAction, SupplierUpdateT } from "@/types/contentEditor.type";
 import { entityLabel, fieldLabel } from "@/util/contentLabels";
+import { errorCode } from "@/graphql/contentEditorReview";
 import { getErrMsg } from "@/util/initData";
 
 export const useSupplierUpdates = (productId: string) =>
@@ -88,6 +89,7 @@ const Item = ({ su, live, name, onResolve, busy }: {
           {entityLabel(su.entityName)}
           {su.entityName !== "Product" && name ? `: ${name}` : ""}
         </span>
+        {su.location && <span className="text-xs text-gray-500">{su.location}</span>}
       </div>
       <div>
         <p className="mb-1 text-xs text-gray-500">Your text, and how it would change with the supplier's new text</p>
@@ -191,16 +193,24 @@ const SupplierUpdatesPanel = ({ productId }: { productId: string }) => {
   const updates = useSupplierUpdates(productId);
   const content = useProductContent(productId);
 
+  const reload = () =>
+    ["supplierUpdates", "productContent", "auditLogs", "contentProducts"].forEach((k) =>
+      qc.invalidateQueries({ queryKey: [k] })
+    );
+
   const resolve = useMutation({
-    mutationFn: (v: { id: string; action: SupplierUpdateAction; merged?: unknown }) =>
-      resolveSupplierUpdate(v.id, v.action, v.merged),
+    mutationFn: (v: { id: string; action: SupplierUpdateAction; merged?: unknown; expected: unknown }) =>
+      resolveSupplierUpdate(v.id, v.action, v.merged, v.expected),
     onSuccess: () => {
       toast.success("Supplier update resolved");
-      ["supplierUpdates", "productContent", "auditLogs", "contentProducts"].forEach((k) =>
-        qc.invalidateQueries({ queryKey: [k] })
-      );
+      reload();
     },
-    onError: (err) => toast.error(getErrMsg(err as any, "message")),
+    onError: (err) => {
+      if (errorCode(err) === "SUPPLIER_UPDATE_CHANGED") {
+        toast.error("The supplier changed this value again; reload to see the latest");
+        reload();
+      } else toast.error(getErrMsg(err as any, "message"));
+    },
   });
 
   if (updates.isLoading || content.isLoading)
@@ -229,7 +239,7 @@ const SupplierUpdatesPanel = ({ productId }: { productId: string }) => {
             live={entity?.[su.field]}
             name={name}
             busy={resolve.isPending}
-            onResolve={(action, merged) => resolve.mutate({ id: su.id, action, merged })}
+            onResolve={(action, merged) => resolve.mutate({ id: su.id, action, merged, expected: su.supplierValue })}
           />
         );
       })}

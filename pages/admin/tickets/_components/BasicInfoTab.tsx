@@ -1,6 +1,7 @@
 import React from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
+import { ReviewField } from "@/components/OwnerReviewContext";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -103,6 +104,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["name"]} label="Ticket name" current={watch("name")}>
             <Controller
               name="name"
               control={control}
@@ -115,6 +117,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -124,6 +127,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["addressLine"]} label="Address" current={watch("addressLine")}>
             <Controller
               name="addressLine"
               control={control}
@@ -136,6 +140,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -145,6 +150,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["location"]} label="Location" current={watch("location")}>
             <Controller
               name="location"
               control={control}
@@ -157,6 +163,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -309,6 +316,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["postalCode"]} label="Postal code" current={watch("postalCode")}>
             <Controller
               name="postalCode"
               control={control}
@@ -321,6 +329,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -382,6 +391,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["keywords"]} label="Keywords" current={watch("keywords")}>
             <Controller
               name="keywords"
               control={control}
@@ -394,6 +404,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
         </div>
 

@@ -58,10 +58,16 @@ const AuditEntry = ({ log, entityNames, showTicketLink }: { log: AuditLogT } & O
           </time>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
-          <span>
-            {isProduct ? "Ticket" : entityLabel(log.entityName)}
-            {!isProduct && name ? `: ${name}` : ""}
-          </span>
+          {log.location ? (
+            <span title="Ticket › option › ticket type" className="font-medium text-gray-600">
+              {log.location}
+            </span>
+          ) : (
+            <span>
+              {isProduct ? "Ticket" : entityLabel(log.entityName)}
+              {!isProduct && name ? `: ${name}` : ""}
+            </span>
+          )}
           {showTicketLink && log.productId && (
             <Link
               to={`/admin-tickets/edit/${log.productId}`}

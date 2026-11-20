@@ -5,6 +5,7 @@ import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import TextareaField from "@/components/TextareaField";
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
 import { Button } from "@/components/ui/button";
+import { ReviewField } from "@/components/OwnerReviewContext";
 import { Trash2, Plus, NotebookIcon, FileText, ListTodo } from "lucide-react";
 
 type DetailsTabProps = {
@@ -19,6 +20,7 @@ type DetailsTabProps = {
 const DetailsTab: React.FC<DetailsTabProps> = ({
   control,
   errors,
+  watch,
   setValue,
   initialValues,
 }) => {
@@ -163,6 +165,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               : ""
           }`}
         >
+          <ReviewField names={["description"]} label="Description" current={watch("description")}>
           <Controller
             name="description"
             control={control}
@@ -177,6 +180,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               />
             )}
           />
+          </ReviewField>
         </div>
 
         <div
@@ -186,6 +190,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               : ""
           }`}
         >
+          <ReviewField names={["description_mm"]} label="Description MM" current={watch("description_mm")}>
           <Controller
             name="description_mm"
             control={control}
@@ -200,6 +205,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               />
             )}
           />
+          </ReviewField>
         </div>
 
         <div
@@ -209,6 +215,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               : ""
           }`}
         >
+          <ReviewField names={["whatToExpect"]} label="What to expect" current={watch("whatToExpect")}>
           <Controller
             name="whatToExpect"
             control={control}
@@ -223,6 +230,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               />
             )}
           />
+          </ReviewField>
         </div>
 
         <div
@@ -232,6 +240,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               : ""
           }`}
         >
+          <ReviewField names={["whatToExpect_mm"]} label="What to expect MM" current={watch("whatToExpect_mm")}>
           <Controller
             name="whatToExpect_mm"
             control={control}
@@ -246,6 +255,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
               />
             )}
           />
+          </ReviewField>
         </div>
       </div>
 
@@ -253,6 +263,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
 
       {/* Group 2: Terms & Conditions */}
       <div className="space-y-6">
+        <ReviewField names={["termsAndConditions", "termsAndConditions_mm"]} label="Terms and conditions" current={watch("termsAndConditions")}>
         <Controller
           name="termsAndConditions"
           control={control}
@@ -267,12 +278,14 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
             />
           )}
         />
+        </ReviewField>
       </div>
 
       <hr className="border-gray-200" />
 
 
       {/* Exclusions Section */}
+      <ReviewField names={["exclusions", "exclusions_mm"]} label="Exclusions" current={exclusions}>
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-red-500" />
@@ -367,10 +380,12 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           </div>
         </div>
       </div>
+      </ReviewField>
 
       <hr className="border-gray-200" />
 
       {/* Highlights Section */}
+      <ReviewField names={["highlights", "highlights_mm"]} label="Highlights" current={highlights}>
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-yellow-500" />
@@ -463,10 +478,12 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           </div>
         </div>
       </div>
+      </ReviewField>
 
       <hr className="border-gray-200" />
 
       {/* How to Use Section */}
+      <ReviewField names={["howToUseList", "howToUseList_mm"]} label="How to use" current={howToUseList}>
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <ListTodo className="h-5 w-5 text-blue-500" />
@@ -559,10 +576,12 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           </div>
         </div>
       </div>
+      </ReviewField>
 
       <hr className="border-gray-200" />
 
       {/* Inclusions Section */}
+      <ReviewField names={["inclusions", "inclusions_mm"]} label="Inclusions" current={inclusions}>
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-green-500" />
@@ -655,10 +674,12 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           </div>
         </div>
       </div>
+      </ReviewField>
 
       <hr className="border-gray-200" />
 
       {/* Things to Note Section */}
+      <ReviewField names={["thingsToNote", "thingsToNote_mm"]} label="Things to note" current={thingsToNote}>
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <NotebookIcon className="h-5 w-5 text-purple-500" />
@@ -753,6 +774,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
           </div>
         </div>
       </div>
+      </ReviewField>
     </div>
   );
 };

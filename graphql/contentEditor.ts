@@ -1,17 +1,18 @@
 import { warpGql } from "@/util";
 import client from "./client";
+import { UPDATE_PRODUCT_CONTENT } from "./type-query/contentEditor";
 import {
-  AUDIT_LOGS,
-  CONTENT_PRODUCTS,
-  PRODUCT_CONTENT,
-  RESOLVE_SUPPLIER_UPDATE,
-  SUPPLIER_UPDATES,
-  UPDATE_PRODUCT_CONTENT,
-} from "./type-query/contentEditor";
+  AUDIT_LOGS_REVIEW as AUDIT_LOGS,
+  CONTENT_PRODUCTS_REVIEW as CONTENT_PRODUCTS,
+  PRODUCT_CONTENT_REVIEW as PRODUCT_CONTENT,
+  SUPPLIER_UPDATES_REVIEW as SUPPLIER_UPDATES,
+  resolveSupplierUpdateChecked,
+} from "./contentEditorReview";
 import {
   AuditFilterT,
   AuditLogT,
   ContentListItemT,
+  ContentReviewStatus,
   ProductContentT,
   SupplierUpdateAction,
   SupplierUpdateT,
@@ -27,7 +28,16 @@ const query = async <T>(q: string, variables: Record<string, unknown>) => {
 };
 
 export const getContentProducts = async (
-  filter: { name?: string; hasPendingUpdates?: boolean },
+  filter: {
+    name?: string;
+    hasPendingUpdates?: boolean;
+    categoryIds?: string[];
+    countryId?: string;
+    isPublished?: boolean;
+    reviewStatus?: ContentReviewStatus;
+    reviewNotStarted?: boolean;
+    orderBy?: { field: string; dir: "asc" | "desc" };
+  },
   page: { page: number; limit: number }
 ) =>
   (
@@ -60,17 +70,12 @@ export const getSupplierUpdates = async (
     })
   ).supplierUpdates;
 
-export const resolveSupplierUpdate = async (
+export const resolveSupplierUpdate = (
   id: string,
   action: SupplierUpdateAction,
-  mergedValue?: unknown
-) => {
-  const res: any = await client.mutate({
-    mutation: warpGql(RESOLVE_SUPPLIER_UPDATE),
-    variables: { id, action, mergedValue },
-  });
-  return res.data;
-};
+  mergedValue?: unknown,
+  expectedSupplierValue?: unknown
+) => resolveSupplierUpdateChecked(id, action, mergedValue, expectedSupplierValue);
 
 export const getAuditLogs = async (
   filter: AuditFilterT,
