@@ -296,14 +296,14 @@ const ContentTicketEdit = () => {
   );
   const pending = updates.data?.length ?? data.pendingSupplierUpdates;
 
-  const renderOption = (o: ContentOptionT) => {
+  const renderOption = (o: ContentOptionT, optionNo: number) => {
     const deleted = !!o.deletedAt;
     const bind = (f: string) => mk(`o:${o.id}:${f}`, o[f]);
     const types = activeFirst(o.ticketTypes);
     const isOpen = openOpts.has(o.id);
     const edited = changed.some((k) => /^[otc]:/.test(k) && k.split(":")[1] === o.id);
     return (
-      <div key={o.id} className="rounded-2xl border border-gray-300 bg-gray-50/50">
+      <div key={o.id} className="rounded-lg border bg-gray-50">
         <button
           type="button"
           aria-expanded={isOpen}
@@ -314,19 +314,34 @@ const ContentTicketEdit = () => {
               return n;
             })
           }
-          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left sm:px-5"
+          className="flex w-full cursor-pointer items-center gap-3 px-6 py-4 text-left"
         >
-          <h3 className="min-w-0 flex-1 truncate text-lg font-semibold text-gray-900">{o.name}</h3>
-          {deleted && <DeletedBadge at={o.deletedAt!} />}
-          {edited && (
-            <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Unsaved edits</span>
-          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Package {optionNo + 1}</p>
+            <p className="truncate text-base font-semibold text-gray-900">{o.name || "Untitled package"}</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            {deleted && <DeletedBadge at={o.deletedAt!} />}
+            {edited && (
+              <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Unsaved edits</span>
+            )}
+            <span className="hidden text-xs text-gray-500 sm:inline">
+              {types.length} ticket type{types.length === 1 ? "" : "s"}
+            </span>
+            <span
+              className={`rounded-md px-2 py-0.5 text-xs font-medium ${
+                o.isPublished ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+              }`}
+            >
+              {o.isPublished ? "Published" : "Unpublished"}
+            </span>
           <ChevronDown
             className={`h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
+          </div>
         </button>
         {/* hidden, not unmounted, so unsaved form state survives collapsing */}
-        <div className={`space-y-4 px-4 pb-4 sm:px-5 sm:pb-5 ${isOpen ? "" : "hidden"}`}>
+        <div className={`space-y-4 border-t px-6 pb-6 pt-2 ${isOpen ? "" : "hidden"}`}>
         {deleted && <p className="text-sm text-gray-500">This option was removed by the supplier and is read-only.</p>}
         {!deleted && (
           <>
@@ -545,7 +560,7 @@ const ContentTicketEdit = () => {
         {tab === "options" && (
           <div className="space-y-6">
             {data.productOptions.length === 0 && <p className="text-sm text-gray-500">This ticket has no options.</p>}
-            {activeFirst(data.productOptions).map(renderOption)}
+            {activeFirst(data.productOptions).map((o, i) => renderOption(o, i))}
           </div>
         )}
         {tab === "updates" && (

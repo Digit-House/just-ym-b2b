@@ -1,6 +1,8 @@
 import { Lock, Plus, Trash2 } from "lucide-react";
 import InputField from "@/components/InputField";
 import TextareaField from "@/components/TextareaField";
+import RichTextEditor from "@/components/RichTextEditor";
+import { toRichTextHtml } from "@/lib/richText";
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
 import { Button } from "@/components/ui/button";
 import AlwaysReviewSwitch from "@/components/AlwaysReviewSwitch";
@@ -12,7 +14,7 @@ export type Bind<T = any> = { value: T; onChange: (v: T) => void };
 export type FieldSpec = {
   f: string;
   label: string;
-  kind: "input" | "number" | "area" | "list" | "terms";
+  kind: "input" | "number" | "area" | "rich" | "list" | "terms";
 };
 
 export const ReadOnlyField = ({ label, value }: { label: string; value: unknown }) => (
@@ -217,7 +219,7 @@ export const ContentField = ({
       showLabel
       disabled={disabled}
     >
-      <ContentFieldBody spec={spec} bind={bind} />
+      <ContentFieldBody spec={spec} bind={bind} readOnly={disabled || ctx?.locked} />
     </FieldFrame>
   );
 };
@@ -250,6 +252,18 @@ export const ContentFieldBody = ({
     case "area":
       return (
         <TextareaField label="" aria-label={spec.label} value={b.value ?? ""} onChange={(e) => b.onChange(e.target.value)} />
+      );
+    case "rich":
+      // Same editor and saved shape as the owner's package description: an HTML string, written back as-is.
+      return (
+        <RichTextEditor
+          readOnly={readOnly}
+          value={toRichTextHtml(b.value)}
+          onChange={b.onChange}
+          placeholder={`Enter ${spec.label.toLowerCase()}...`}
+          minHeight={150}
+          autoHeight
+        />
       );
     case "list": {
       // Only plain string lists are editable; any other stored shape stays read-only.
@@ -308,7 +322,7 @@ export const LOCATION_FIELDS: FieldSpec[] = [
 
 export const OPTION_FIELDS: FieldSpec[] = [
   { f: "name", label: "Name", kind: "input" },
-  ...withMm("description", "Description", "area"),
+  ...withMm("description", "Description", "rich"),
   { f: "termsAndConditions", label: "Terms and conditions", kind: "terms" },
   ...withMm("howToUse", "How to use", "list"),
   ...withMm("inclusions", "Inclusions", "list"),

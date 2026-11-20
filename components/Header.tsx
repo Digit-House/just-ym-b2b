@@ -87,7 +87,7 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed z-30 bg-white top-0 right-0 flex justify-between items-center w-full py-2 px-4 md:px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
+        className={`fixed z-[45] lg:z-30 bg-white top-0 right-0 flex justify-between items-center w-full py-2 px-4 md:px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
           isOpen ? "md:max-w-[calc(100vw-232px)]" : "w-full"
         }`}
       >
