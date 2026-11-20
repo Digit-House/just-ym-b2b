@@ -86,7 +86,16 @@ import {
   ServerError,
 } from "@apollo/client/errors";
 
+// A reload or navigation away aborts in-flight requests as "Failed to fetch"; that is not a server error.
+let pageUnloading = false;
+if (typeof window !== "undefined") {
+  // pagehide, not beforeunload: a cancelled "leave page?" prompt must not leave the flag set.
+  window.addEventListener("pagehide", () => (pageUnloading = true));
+  window.addEventListener("pageshow", () => (pageUnloading = false)); // back/forward cache restore
+}
+
 const errorLink = new ErrorLink(({ error }) => {
+  if (pageUnloading) return;
   if (CombinedGraphQLErrors.is(error)) {
     error.errors.forEach((err: any) => {
       // 🔑 Most backends send status here
