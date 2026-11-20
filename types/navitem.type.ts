@@ -10,6 +10,7 @@ import {
   HatGlasses,
   History,
   Home,
+  Bell,
   Hotel,
   LayoutGrid,
   Percent,
@@ -101,6 +102,12 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Currency Rate",
     path: "/currencyRate",
     icon: Currency,
+    types: ["OWNER"],
+  },
+  {
+    label: "Push Notifications",
+    path: "/pushNotification",
+    icon: Bell,
     types: ["OWNER"],
   },
   {
