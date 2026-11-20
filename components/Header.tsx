@@ -16,7 +16,7 @@ const BalanceItem = ({
   value: string | number | undefined;
 }) => (
   <div className="flex flex-col justify-center">
-    <span className="text-[10px] font-medium text-indigo-200 uppercase">
+    <span className="text-xs font-medium text-indigo-200 uppercase">
       {label}
     </span>
     <span className="text-xs font-bold">
@@ -44,7 +44,7 @@ const OwnerBalances = ({
             key={label}
             className="flex flex-col justify-center bg-indigo-800/50 p-2 rounded-lg"
           >
-            <span className="text-[10px] font-medium text-indigo-200 uppercase">
+            <span className="text-xs font-medium text-indigo-200 uppercase">
               {label}
             </span>
             <span className="text-xs font-bold text-white">
@@ -111,7 +111,7 @@ const Header: React.FC = () => {
                 <Wallet className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-[10px] font-medium text-indigo-200 uppercase tracking-wider">
+                <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider">
                   Available Credits
                 </p>
                 <p className="text-sm font-bold leading-tight">
@@ -166,7 +166,7 @@ const Header: React.FC = () => {
               <p className="text-xs font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">
                 {user?.username || "User"}
               </p>
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 {user?.type}
               </p>
             </div>
@@ -213,7 +213,7 @@ const Header: React.FC = () => {
                   <Wallet className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-medium text-indigo-200 uppercase tracking-wider">
+                  <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider">
                     Available Credits
                   </p>
                   <p className="text-xl font-bold leading-tight text-white">

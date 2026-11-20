@@ -33,7 +33,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                   className="mb-[1px]"
                 />
               ) : (
-                <span className="text-red-500">*</span>
+                <span className="text-red-600">*</span>
               ))}
           </label>
         )}
@@ -45,7 +45,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             type={isPassword && showPassword ? "text" : type}
             disabled={disabled}
             className={cn(
-              "w-full border rounded-md px-3 py-2 text-sm pr-10",
+              "w-full border rounded-md px-3 py-2 text-sm pr-10 placeholder:text-gray-500",
               disabled
                 ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                 : "border-gray-300",

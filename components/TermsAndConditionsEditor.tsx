@@ -58,7 +58,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
         {/* English Version */}
         <div className={`space-y-3 ${englishError ? "border border-red-300 rounded-lg p-4 bg-red-50" : ""}`}>
           <label className="block text-sm font-medium">
-            Terms & Conditions (English) <span className="text-red-500">*</span>
+            Terms & Conditions (English) <span className="text-red-600">*</span>
           </label>
           <RichTextEditor
             value={englishValue || ""}
@@ -74,7 +74,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
         {/* Myanmar Version */}
         <div className={`space-y-3 ${myanmarError ? "border border-red-300 rounded-lg p-4 bg-red-50" : ""}`}>
           <label className="block text-sm font-medium">
-            Terms & Conditions (Myanmar) <span className="text-red-500">*</span>
+            Terms & Conditions (Myanmar) <span className="text-red-600">*</span>
           </label>
           <RichTextEditor
             value={myanmarValue || ""}

@@ -279,3 +279,11 @@ fieldset:disabled select {
   color: #4b5563;
   cursor: not-allowed;
 }
+
+/* Jodit placeholder: default grey is ~2.5:1 */
+.jodit-container {
+  --jd-color-placeholder: #6b7280;
+}
+.jodit-placeholder {
+  color: #6b7280 !important;
+}

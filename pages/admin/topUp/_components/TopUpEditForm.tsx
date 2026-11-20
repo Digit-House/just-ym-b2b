@@ -167,7 +167,7 @@ export default function TopUpEditForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
-          Status <span className="text-red-500">*</span>
+          Status <span className="text-red-600">*</span>
         </label>
 
         <div className="flex gap-2">

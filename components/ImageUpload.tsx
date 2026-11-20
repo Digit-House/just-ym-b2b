@@ -201,7 +201,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           <label className="flex items-center gap-1 text-sm font-medium">
             {label}
             {isRequired && !disabled && (
-              <span className="text-red-500">*</span>
+              <span className="text-red-600">*</span>
             )}
             {disabled && <LockKeyhole size={12} />}
           </label>

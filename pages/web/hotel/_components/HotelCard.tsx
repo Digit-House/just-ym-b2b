@@ -113,7 +113,7 @@ const HotelCard = ({ hotel, handleNavigate, nights }: Props) => {
                   </p>
                 )}
                 {user?.type === "OWNER" && bestRate?.etg_amount_per_night && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-600">
                     Supplier price:{" "}
                     {formatPrice(
                       bestRate.etg_amount_per_night,

@@ -42,7 +42,7 @@ const specKeys = (s: FieldSpec) => (s.kind === "terms" ? [s.f, `${s.f}_mm`] : [s
 const Pair = ({ label, changed, left, right }: { label: string; changed: boolean; left: ReactNode; right: ReactNode }) => {
   const cell = (title: string, tint: string, body: ReactNode) => (
     <div className={`min-w-0 space-y-1 rounded-md p-2 ${changed ? tint : "opacity-60"}`}>
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{title}</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-700">{title}</p>
       <fieldset disabled className="min-w-0">
         {body}
       </fieldset>

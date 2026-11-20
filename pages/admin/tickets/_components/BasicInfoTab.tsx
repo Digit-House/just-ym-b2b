@@ -29,7 +29,7 @@ const LockedImage = ({ src }: { src?: string | null }) => {
       {url && !failed ? (
         <img src={preFixImg(url)} alt="Ticket" onError={() => setFailed(true)} className="h-40 rounded-md border object-contain" />
       ) : (
-        <p className="text-sm text-gray-400">No image</p>
+        <p className="text-sm text-gray-600">No image</p>
       )}
     </div>
   );
@@ -219,7 +219,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             }`}
           >
             <Label>
-              Category <span className="text-red-500">*</span>
+              Category <span className="text-red-600">*</span>
             </Label>
             <Controller
               name="category_relation_id"

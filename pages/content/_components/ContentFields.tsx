@@ -159,7 +159,7 @@ export const FieldFrame = ({
           ) : edited ? (
             <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>{locked ? "Changed" : "Edited"}</span>
           ) : (
-            <span className={`${CHIP} bg-gray-100 text-gray-500`}>{locked ? "Not changed" : "Same as supplier"}</span>
+            <span className={`${CHIP} bg-gray-100 text-gray-700`}>{locked ? "Not changed" : "Same as supplier"}</span>
           )}
         </div>
         {!disabled && (

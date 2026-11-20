@@ -155,7 +155,7 @@ const Sidebar = () => {
               >
                 <NavLink
                   to={item.path!}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-md transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
                     isActive(item.path!)
                       ? `text-indigo-600 font-medium ${countable ? "" : "bg-indigo-50"}`
                       : "text-gray-600 hover:bg-gray-100"
@@ -172,14 +172,15 @@ const Sidebar = () => {
                         <NavLink
                           key={x.status}
                           to={`${item.path}?review=${x.status}`}
-                          className={`ml-10 flex items-center justify-between rounded-md px-2 py-1 text-sm hover:bg-indigo-100/70 ${
+                          aria-label={`${x.label}, ${x.n} ${x.n === 1 ? "ticket" : "tickets"}`}
+                          className={`ml-10 flex min-h-11 items-center justify-between rounded-md px-2 py-1 text-sm hover:bg-indigo-100/70 lg:min-h-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
                             on ? "bg-indigo-100 font-semibold text-indigo-700" : "text-gray-600"
                           }`}
                         >
                           <span>{x.label}</span>
                           <span
                             className={`min-w-[1.5rem] rounded-full px-2 py-0.5 text-center text-xs font-semibold ${
-                              x.n > 0 ? x.cls : "bg-gray-100 text-gray-400"
+                              x.n > 0 ? x.cls : "bg-gray-100 text-gray-600"
                             }`}
                           >
                             {x.n}

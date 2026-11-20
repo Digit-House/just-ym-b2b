@@ -69,7 +69,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
                 (isDisabled ? (
                   <LockKeyhole size={12} className="mb-[1px]" />
                 ) : (
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-600">*</span>
                 ))}
             </label>
           )}

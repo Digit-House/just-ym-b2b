@@ -121,7 +121,7 @@ const ContactInfoSection = ({ open, setOpen, onDone }: Props) => {
                 <div className="flex flex-col gap-1.5">
                   <div className="flex gap-x-1">
                     <p className="text-sm">Guest's Citizenship</p>
-                    <span className="text-red-500">*</span>
+                    <span className="text-red-600">*</span>
                   </div>
                   <Popover
                     open={nationalityOpen}

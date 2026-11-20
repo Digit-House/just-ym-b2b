@@ -75,7 +75,7 @@ export default function RoleForm({
       {/* Role Name */}
       <div className="space-y-1">
         <label className="text-sm font-medium">
-          Name <span className="text-red-500">*</span>
+          Name <span className="text-red-600">*</span>
         </label>
 
         <Select
@@ -116,7 +116,7 @@ export default function RoleForm({
       {/* Reseller */}
       <div className="space-y-1">
         <label className="text-sm font-medium">
-          Reseller <span className="text-red-500">*</span>
+          Reseller <span className="text-red-600">*</span>
         </label>
 
         <Select

@@ -127,7 +127,7 @@ export default function PaymentMethodForm({
           {mode === "edit" ? (
             <LockKeyhole size={12} className="mb-[1px]" />
           ) : (
-            <span className="text-red-500">*</span>
+            <span className="text-red-600">*</span>
           )}
         </label>
 
@@ -195,7 +195,7 @@ export default function PaymentMethodForm({
 
       <div className="space-y-1">
         <label className="text-sm font-medium">
-          Currency <span className="text-red-500">*</span>
+          Currency <span className="text-red-600">*</span>
         </label>
         <Select
           value={watch("currency")}

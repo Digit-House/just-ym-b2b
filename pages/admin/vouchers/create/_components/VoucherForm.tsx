@@ -343,7 +343,7 @@ const VoucherForm = ({ data }: Props) => {
         {/* Discount Type */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">
-            Discount Type <span className="text-red-500">*</span>
+            Discount Type <span className="text-red-600">*</span>
           </label>
 
           <Controller
@@ -380,7 +380,7 @@ const VoucherForm = ({ data }: Props) => {
             {watch("discountType") === VOUCHER_DISCOUNT_TYPE_ENUM.PERCENTAGE
               ? "Percentage"
               : "Value"}{" "}
-            <span className="text-red-500">*</span>
+            <span className="text-red-600">*</span>
           </label>
 
           <InputField
@@ -403,7 +403,7 @@ const VoucherForm = ({ data }: Props) => {
           <label className="text-sm font-medium">
             Maximum amount (THB){" "}
             {watch("discountType") === VOUCHER_DISCOUNT_TYPE_ENUM.PERCENTAGE ? (
-              <span className="text-red-500">*</span>
+              <span className="text-red-600">*</span>
             ) : (
               <span>(Optional)</span>
             )}
@@ -421,7 +421,7 @@ const VoucherForm = ({ data }: Props) => {
         {/* Min purchase */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">
-            Minimal purchase (THB) <span className="text-red-500">*</span>
+            Minimal purchase (THB) <span className="text-red-600">*</span>
           </label>
 
           <InputField
@@ -438,7 +438,7 @@ const VoucherForm = ({ data }: Props) => {
         {/* Min quantity */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">
-            Minimal quantity <span className="text-red-500">*</span>
+            Minimal quantity <span className="text-red-600">*</span>
           </label>
 
           <InputField
@@ -455,7 +455,7 @@ const VoucherForm = ({ data }: Props) => {
         {/* Usage limit */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">
-            Usage limit <span className="text-red-500">*</span>
+            Usage limit <span className="text-red-600">*</span>
           </label>
 
           <InputField
@@ -509,7 +509,7 @@ const VoucherForm = ({ data }: Props) => {
         {!specialDay && (
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Start Date <span className="text-red-500">*</span>
+              Start Date <span className="text-red-600">*</span>
             </label>
 
             <Controller
@@ -558,7 +558,7 @@ const VoucherForm = ({ data }: Props) => {
         {!specialDay && (
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              End Date <span className="text-red-500">*</span>
+              End Date <span className="text-red-600">*</span>
             </label>
 
             <Controller

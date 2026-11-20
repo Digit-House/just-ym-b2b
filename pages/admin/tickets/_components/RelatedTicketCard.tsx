@@ -41,7 +41,7 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
     <div className={`rounded-lg border overflow-hidden shadow-sm transition-shadow ${isDisabled ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200 hover:shadow-md'} ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
       <div className="relative">
         {showCheckbox && (
-          <label className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 shadow-sm">
+          <label className="absolute top-3 left-3 z-10 flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md bg-white/90 px-3 text-xs font-medium text-gray-700 shadow-sm">
             <Checkbox
               aria-label="Select as related ticket"
               checked={isSelected}
@@ -89,7 +89,7 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
         </div>
 
         {onLinkBackChange !== undefined  && (
-          <div className="mt-3 flex items-center">
+          <label htmlFor={`linkBack-${product?.id}`} className="mt-3 flex min-h-11 cursor-pointer items-center">
             <Checkbox
               id={`linkBack-${product?.id}`}
               aria-label="Link back to this ticket"
@@ -98,13 +98,12 @@ const RelatedTicketCard: React.FC<RelatedTicketCardProps> = ({
               className="mr-2"
               disabled={isDisabled}
             />
-            <label 
-              htmlFor={`linkBack-${product?.id}`} 
-              className={`text-sm ${isDisabled ? 'text-gray-400' : 'text-gray-700'}`}
+            <span
+              className={`text-sm ${isDisabled ? 'text-gray-500' : 'text-gray-700'}`}
             >
               Link Back
-            </label>
-          </div>
+            </span>
+          </label>
         )}
       </div>
     </div>

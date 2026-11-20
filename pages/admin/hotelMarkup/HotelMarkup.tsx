@@ -104,7 +104,7 @@ const HotelMarkup = () => {
           <div className="space-y-6">
             <div className="flex flex-col gap-2">
               <Label htmlFor="markupPercent">
-                Markup percent (%) <span className="text-red-500">*</span>
+                Markup percent (%) <span className="text-red-600">*</span>
               </Label>
               <Input
                 id="markupPercent"
@@ -122,7 +122,7 @@ const HotelMarkup = () => {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="markupFloor">
-                Minimum markup (THB) <span className="text-red-500">*</span>
+                Minimum markup (THB) <span className="text-red-600">*</span>
               </Label>
               <Input
                 id="markupFloor"

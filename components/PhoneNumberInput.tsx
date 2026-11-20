@@ -37,7 +37,7 @@ const PhoneNumberInput = ({
         <FormItem>
           <FormLabel className="flex gap-x-1">
             <p className="text-sm">{label}</p>
-            {required && <span className="text-red-500">*</span>}
+            {required && <span className="text-red-600">*</span>}
           </FormLabel>
           <FormControl>
             <PhoneInput

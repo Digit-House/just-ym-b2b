@@ -463,7 +463,7 @@ const TicketEditForm: React.FC<Props> = ({
   const pendingUpdates = useSupplierUpdates(initialValues?.id ?? "");
   const isExtraTab = currentTab === "history" || currentTab === "supplier-updates";
   const extraTabClass = (id: string) =>
-    `flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+    `flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
       currentTab === id
         ? "bg-indigo-100 text-indigo-700 border border-indigo-200"
         : "text-gray-600 hover:bg-gray-50 border border-transparent"
@@ -473,7 +473,7 @@ const TicketEditForm: React.FC<Props> = ({
     <button
       type="button"
       onClick={() => setCurrentTab(id)}
-      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors relative ${
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
         currentTab === id
           ? "bg-indigo-100 text-indigo-700 border border-indigo-200"
           : "text-gray-600 hover:bg-gray-50 border border-transparent"
@@ -677,7 +677,7 @@ const TicketEditForm: React.FC<Props> = ({
           variant="outline"
           onClick={prevTab}
           disabled={currentTab === "basic-info"}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-gray-700"
         >
           ← Previous
         </Button>

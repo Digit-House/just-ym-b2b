@@ -52,11 +52,11 @@ const ContentDiffField = ({
                 stack ? "max-h-64" : "absolute inset-0"
               }`}
             >
-              {plain(baseline) || <span className="text-gray-400">Empty</span>}
+              {plain(baseline) || <span className="text-gray-600">Empty</span>}
             </div>
           </div>
         ) : (
-          <div className="flex-1 rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm italic text-gray-400">
+          <div className="flex-1 rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm italic text-gray-700">
             {locked ? "Not changed in this save" : "Same as supplier"}
           </div>
         )}

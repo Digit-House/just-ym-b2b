@@ -185,7 +185,7 @@ export default function UserForm({
             {mode === "edit" ? (
               <LockKeyhole size={12} className="mb-[1px]" />
             ) : (
-              <span className="text-red-500">*</span>
+              <span className="text-red-600">*</span>
             )}
           </label>
           <select
@@ -218,7 +218,7 @@ export default function UserForm({
           {mode === "edit" ? (
             <LockKeyhole size={12} className="mb-[1px]" />
           ) : (
-            <span className="text-red-500">*</span>
+            <span className="text-red-600">*</span>
           )}
         </label>
 
@@ -297,7 +297,7 @@ export default function UserForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
-          Status <span className="text-red-500">*</span>
+          Status <span className="text-red-600">*</span>
         </label>
 
         <div className="flex gap-2">
