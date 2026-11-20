@@ -260,3 +260,17 @@
 .grid:has([data-diff-row]) {
   grid-template-columns: minmax(0, 1fr) !important;
 }
+
+/* Owner diff view: the box header shows the label, so hide the control's own top label (not one wrapping an input). */
+[data-diff-row] fieldset > div > label:first-child:not(:has(input, textarea, select, button)) {
+  display: none;
+}
+
+/* Locked inputs (disabled fieldset) look read-only, not editable. */
+fieldset:disabled input:not([type="checkbox"]):not([type="radio"]),
+fieldset:disabled textarea,
+fieldset:disabled select {
+  background-color: #f9fafb;
+  color: #4b5563;
+  cursor: not-allowed;
+}
