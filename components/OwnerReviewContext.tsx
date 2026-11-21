@@ -217,11 +217,31 @@ export const SaveDiffProvider = ({
       })),
     })),
   } as ProductContentT;
+  // Each field this save changed, on its tab and package card (indigo dot + count).
+  const optionOfTicketType = (id: string) =>
+    (ticket.productOptions ?? []).find((o: any) => (o.ticketType ?? []).some((t: any) => t.id === id))?.id;
+  const items = save.changes.flatMap((c) => {
+    const o = c.oldValues ?? {};
+    const n = c.newValues ?? {};
+    const optionId =
+      c.entityName === "Product" ? undefined : c.entityName === "ProductOption" ? c.entityId : optionOfTicketType(c.entityId ?? "");
+    return [...new Set([...Object.keys(o), ...Object.keys(n)])]
+      .filter((k) => !same(o[k], n[k]))
+      .map((k): AttentionItem => ({
+        kind: "saved",
+        tab: ownerTabOfField(c.entityName, k),
+        optionId,
+        entityName: c.entityName,
+        entityId: c.entityId ?? "",
+        field: k,
+        label: fieldLabel(k),
+      }));
+  });
   const value: Value = {
     content,
     updates: [],
     staged: {},
-    items: [],
+    items,
     focus: null,
     goTo: () => {},
     openUpdates: () => {},

@@ -145,24 +145,19 @@ export const FieldFrame = ({
             : "space-y-3"
       }
     >
-      <div
-        className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${box ? "border-b-2 border-gray-200 pb-3" : ""} ${
-          boxed && !box ? "order-last" : "" // owner form: the control's own label leads, so paired fields share a top
-        }`}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          {(showLabel || box) && (
-            <span className={box ? "text-base font-semibold text-gray-900" : "text-sm font-medium text-gray-900"}>
-              {label}
-            </span>
-          )}
+      {/* Header on top in every view; all state chips and actions sit right-aligned, the same on both pages. */}
+      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${box ? "border-b-2 border-gray-200 pb-3" : ""}`}>
+        {(showLabel || box) && (
+          <span className={box ? "text-base font-semibold text-gray-900" : "text-sm font-medium text-gray-900"}>
+            {label}
+          </span>
+        )}
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           {edited ? (
             <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>{locked ? "Changed" : "Edited"}</span>
           ) : (
             <span className={`${CHIP} bg-gray-100 text-gray-700`}>{locked ? "Not changed" : "Same as supplier"}</span>
           )}
-        </div>
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           {pending && <SupplierBadge count={fieldUpdates.length} onClick={() => ctx.onOpenUpdates(fieldUpdates)} />}
           {unsaved && <UnsavedChip />}
           {!disabled && (

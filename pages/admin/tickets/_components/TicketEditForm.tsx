@@ -20,7 +20,7 @@ import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
 import AttentionBadge from "@/components/ticket-fields/AttentionBadge";
-import { OwnerReviewProvider, OwnerFieldBox, OwnerUpdatesPanel, DiffToggle, ownerAttention, useLocked } from "@/components/OwnerReviewContext";
+import { OwnerReviewProvider, OwnerFieldBox, OwnerUpdatesPanel, DiffToggle, ownerAttention, useLocked, useOwnerReview } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
   Resolution,
@@ -472,14 +472,17 @@ const TicketEditForm: React.FC<Props> = ({
     }`;
 
   const productContent = useProductContent(initialValues?.id ?? "");
-  const items = ownerAttention({
-    productId: initialValues?.id ?? "",
-    updates: pendingUpdates.data ?? [],
-    staged: staged ?? {},
-    dirtyFields,
-    options: watch("productOptions"),
-    content: productContent.data,
-  });
+  const outer = useOwnerReview();
+  const items = outer?.locked
+    ? outer.items
+    : ownerAttention({
+        productId: initialValues?.id ?? "",
+        updates: pendingUpdates.data ?? [],
+        staged: staged ?? {},
+        dirtyFields,
+        options: watch("productOptions"),
+        content: productContent.data,
+      });
   const updatesTabItems = items.filter((i) => i.kind === "supplier" || i.staged);
 
   const TabButton = ({ id, label }: { id: string; label: string }) => (

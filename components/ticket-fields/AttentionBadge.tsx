@@ -1,9 +1,9 @@
 import { SupplierUpdateT } from "@/types/contentEditor.type";
 import { fieldLabel } from "@/util/contentLabels";
 
-/** One thing that needs attention: a pending supplier change, or a change not saved yet. */
+/** One thing that needs attention: a pending supplier change, a change not saved yet, or a field changed in one saved version. */
 export type AttentionItem = {
-  kind: "supplier" | "unsaved";
+  kind: "supplier" | "unsaved" | "saved";
   /** Tab id of the page that shows it. */
   tab: string;
   optionId?: string | null;
@@ -33,7 +33,7 @@ export const supplierItems = (
     label: fieldLabel(su.field),
   }));
 
-/** Amber dot + count (supplier) and blue dot + count (unsaved); nothing when both are 0. Tooltip on hover and focus. */
+/** Amber dot + count (supplier), blue (unsaved) and indigo (changed in this save, same color as the Changed chip); nothing when all are 0. Tooltip on hover and focus. */
 const AttentionBadge = ({ items }: { items: AttentionItem[] }) => {
   const uniq = (kind: AttentionItem["kind"]) => {
     const seen = new Map<string, string>();
@@ -42,11 +42,13 @@ const AttentionBadge = ({ items }: { items: AttentionItem[] }) => {
   };
   const supplier = uniq("supplier");
   const unsaved = uniq("unsaved");
-  if (!supplier.length && !unsaved.length) return null;
+  const saved = uniq("saved");
+  if (!supplier.length && !unsaved.length && !saved.length) return null;
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
   const text = [
     supplier.length && `${plural(supplier.length, "supplier change")}`,
     unsaved.length && `${plural(unsaved.length, "unsaved change")}`,
+    saved.length && plural(saved.length, "changed field"),
   ]
     .filter(Boolean)
     .join(", ");
@@ -66,6 +68,7 @@ const AttentionBadge = ({ items }: { items: AttentionItem[] }) => {
       >
         {dot("bg-amber-500", supplier.length)}
         {dot("bg-blue-500", unsaved.length)}
+        {dot("bg-indigo-500", saved.length)}
       </span>
       <span
         role="tooltip"
@@ -81,6 +84,12 @@ const AttentionBadge = ({ items }: { items: AttentionItem[] }) => {
           <span className="block">
             <span className="block font-semibold text-blue-300">● {plural(unsaved.length, "unsaved change")}</span>
             {unsaved.join(", ")}
+          </span>
+        )}
+        {saved.length > 0 && (
+          <span className="block">
+            <span className="block font-semibold text-indigo-300">● {plural(saved.length, "changed field")} in this save</span>
+            {saved.join(", ")}
           </span>
         )}
       </span>
