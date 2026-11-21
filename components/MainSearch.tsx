@@ -18,7 +18,7 @@ const MainSearch: React.FC<SearchUIProps> = ({search,placeHolder,onClick}) => {
               onClick(e.target.value)
             }
             placeholder={placeHolder}
-            className="w-full pl-10 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-200 transition-all text-slate-700 font-medium placeholder:text-slate-400"
+            className="w-full pl-10 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-200 transition-all text-slate-700 font-medium placeholder:text-gray-500"
           />
         </div>
       </div>

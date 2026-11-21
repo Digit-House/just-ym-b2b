@@ -81,21 +81,12 @@ export const voucherSchema = z
       discountValue,
       maximumAmount,
       isCodeOnly,
-      codePrefix,
       codes,
       addCodeRequested,
     } = data;
 
-    // ✅ codePrefix required whenever isCodeOnly is enabled
+    // ✅ codePrefix is optional
     if (isCodeOnly) {
-      if (!codePrefix) {
-        ctx.addIssue({
-          path: ["codePrefix"],
-          message: "Code prefix is required",
-          code: z.ZodIssueCode.custom,
-        });
-      }
-
       // codes.comment/count are only required once the "Add Coupon Code"
       // panel is active (always true on create, opt-in on edit).
       if (addCodeRequested) {

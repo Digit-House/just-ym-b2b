@@ -60,7 +60,7 @@ export default function AdminTopUpForm({ loading, onCancel, onSubmit }: Props) {
       <div className="grid grid-cols-1 gap-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">
-            Source <span className="text-red-500">*</span>
+            Source <span className="text-red-600">*</span>
           </label>
           
           <Select

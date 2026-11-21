@@ -194,7 +194,7 @@ export default function ResellerForm({
                 <div className="col-span-2 sm:col-span-1">
                   <div className="space-y-1">
                     <label className="text-sm font-medium">
-                      Username <span className="text-red-500">*</span>
+                      Username <span className="text-red-600">*</span>
                     </label>
                     <input
                       value={watch("user.username") || ""}
@@ -259,7 +259,7 @@ export default function ResellerForm({
               <CardContent className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-sm font-medium">
-                    Password <span className="text-red-500">*</span>
+                    Password <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -289,7 +289,7 @@ export default function ResellerForm({
 
                 <div className="space-y-1">
                   <label className="text-sm font-medium">
-                    Confirm Password <span className="text-red-500">*</span>
+                    Confirm Password <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -335,7 +335,7 @@ export default function ResellerForm({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-sm font-medium">
-                    Currency <span className="text-red-500">*</span>
+                    Currency <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   ArrowUpDown,
   RotateCcw,
@@ -8,7 +8,10 @@ import {
   LayersPlusIcon,
   DatabaseZap,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import ReviewFilteredList from "./_components/ReviewFilteredList";
+import { useReviewCount } from "@/hooks/useReviewCount";
+import { REVIEW_STATUS_OPTIONS } from "@/components/ReviewStatusBadge";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 
 import PageContainer from "@/components/PageContainer";
@@ -57,6 +60,33 @@ export default function Tickets() {
   const { user } = useUser();
 
   const { filters, setFilters, resetFilters } = useTicketFilters();
+  const [searchParams] = useSearchParams();
+  const locationKey = useLocation().key; // changes on every sidebar click, so the same badge re-applies its filter
+  // Owner review status filter (R5). The sidebar badge links here with ?review=READY_FOR_REVIEW.
+  const [review, setReview] = useState(searchParams.get("review") ?? "ALL");
+  // D-r3-7: owner with no ?review= defaults once to Ready for review when any exist; the product query waits for the counts (no double load).
+  const isOwner = user?.type === "OWNER";
+  const counts = useReviewCount(isOwner);
+  const [defaulted, setDefaulted] = useState(false);
+  // The sidebar counts ignore list filters, so jumping to a review list clears the saved ones (else a default "Published" hides unpublished review tickets).
+  const showAllForReview = () =>
+    setFilters((f) => ({ ...f, published: "ALL", categories: [], countryId: "", cityId: "", search: "" }));
+  useEffect(() => {
+    if (defaulted || !user || !counts.loaded) return; // wait for the user: before it loads isOwner is false and the default would be skipped
+    if (isOwner && !searchParams.get("review") && counts.readyForReview > 0) {
+      setReview("READY_FOR_REVIEW");
+      showAllForReview();
+    }
+    setDefaulted(true);
+  }, [defaulted, user, counts.loaded, counts.readyForReview, isOwner, searchParams]);
+  const reviewParam = searchParams.get("review");
+  useEffect(() => {
+    if (reviewParam) {
+      setReview(reviewParam);
+      showAllForReview();
+    }
+  }, [reviewParam, locationKey]);
+  const reviewOn = user?.type === "OWNER" && review !== "ALL";
   const debouncedSearch = useDebounce(filters.search, 500);
 
   const [sortDialogOpen, setSortDialogOpen] = useState(false);
@@ -108,6 +138,7 @@ export default function Tickets() {
       },
     ],
     queryFn: fetchProducts,
+    enabled: !reviewOn && defaulted,
     getNextPageParam: (lastPage) => lastPage?.nextPage ?? undefined,
     staleTime: 0,
     gcTime: 0,
@@ -258,6 +289,20 @@ export default function Tickets() {
                     <SelectItem value="UNPUBLISHED">Unpublished</SelectItem>
                   </SelectContent>
                 </ShadcnSelect>
+                <ShadcnSelect value={review} onValueChange={setReview}>
+                  <SelectTrigger className="w-full md:w-48" aria-label="Review status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All review statuses</SelectItem>
+                    <SelectItem value="NOT_STARTED">Not started</SelectItem>
+                    {REVIEW_STATUS_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </ShadcnSelect>
                 <ShadcnSelect
                   value={
                     filters.isRecommended ? "RECOMMENDED" : "NOT_RECOMMENDED"
@@ -317,10 +362,12 @@ export default function Tickets() {
             user?.type === "OWNER" ? "justify-between" : "justify-end"
           } items-start md:items-center mb-6 gap-4`}
         >
-          <p className="text-sm font-medium text-gray-600">
-            Total Tickets :{" "}
-            <span className="font-bold text-gray-900">{total}</span>
-          </p>
+          {reviewOn ? <span /> : (
+            <p className="text-sm font-medium text-gray-600">
+              Total Tickets :{" "}
+              <span className="font-bold text-gray-900">{total}</span>
+            </p>
+          )}
 
           {user?.type === "OWNER" && (
             <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
@@ -349,6 +396,17 @@ export default function Tickets() {
           )}
         </div>
 
+        {reviewOn ? (
+          <ReviewFilteredList
+            review={review}
+            search={debouncedSearch}
+            categories={filters.categories}
+            countryId={filters.countryId}
+            published={filters.published}
+            sort={filters.sort}
+          />
+        ) : (
+          <>
         {isPending && (
           <MascotLoader label="Loading tickets..." className="py-16" />
         )}
@@ -378,6 +436,8 @@ export default function Tickets() {
 
         {!products.length && !isPending && (
           <NotFoundComponent message="No products found" />
+        )}
+          </>
         )}
       </PageContainer>
       {sortDialogOpen && (

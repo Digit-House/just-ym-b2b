@@ -15,8 +15,10 @@ export const useCountries = ({
   orderBy,
   isPublished,
   search,
-}: CountryFilterT) => {
+  enabled = true,
+}: CountryFilterT & { enabled?: boolean }) => {
   return useQuery<CountriesResponseT>({
+    enabled,
     queryKey: ["countries", limit, page, orderBy.dir, isPublished, search],
     queryFn: async () => {
       try {

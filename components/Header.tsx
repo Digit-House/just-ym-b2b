@@ -16,7 +16,7 @@ const BalanceItem = ({
   value: string | number | undefined;
 }) => (
   <div className="flex flex-col justify-center">
-    <span className="text-[10px] font-medium text-indigo-200 uppercase">
+    <span className="text-xs font-medium text-indigo-200 uppercase">
       {label}
     </span>
     <span className="text-xs font-bold">
@@ -44,7 +44,7 @@ const OwnerBalances = ({
             key={label}
             className="flex flex-col justify-center bg-indigo-800/50 p-2 rounded-lg"
           >
-            <span className="text-[10px] font-medium text-indigo-200 uppercase">
+            <span className="text-xs font-medium text-indigo-200 uppercase">
               {label}
             </span>
             <span className="text-xs font-bold text-white">
@@ -79,6 +79,7 @@ const Header: React.FC = () => {
   const [showWalletModal, setShowWalletModal] = React.useState(false);
 
   const isOwner = user.type === "OWNER";
+  const isEditor = user.type === "CONTENT_EDITOR";
   const formattedBalance = `${creditInfo?.currency} ${
     creditInfo?.balance?.toLocaleString("en-US") || "0"
   }`;
@@ -86,7 +87,7 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed z-30 bg-white top-0 right-0 flex justify-between items-center w-full py-2 px-4 md:px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
+        className={`fixed z-[45] lg:z-30 bg-white top-0 right-0 flex justify-between items-center w-full py-2 px-4 md:px-10 shadow-[0px_8px_12px_0px_#0000000D] transition-all duration-300 ${
           isOpen ? "md:max-w-[calc(100vw-232px)]" : "w-full"
         }`}
       >
@@ -101,6 +102,8 @@ const Header: React.FC = () => {
             <Menu size={20} className="text-gray-700" />
           </button>
 
+          {!isEditor && (
+            <>
           {/* Desktop Wallet */}
           <div className="hidden md:flex p-2 rounded-lg items-center gap-4 bg-indigo-700 text-white shadow-md shadow-indigo-700/20">
             <div className="flex items-center gap-3 pr-4 border-r border-indigo-500/50">
@@ -108,7 +111,7 @@ const Header: React.FC = () => {
                 <Wallet className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-[10px] font-medium text-indigo-200 uppercase tracking-wider">
+                <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider">
                   Available Credits
                 </p>
                 <p className="text-sm font-bold leading-tight">
@@ -127,11 +130,14 @@ const Header: React.FC = () => {
             <Wallet size={18} />
             <span className="text-xs font-bold">{formattedBalance}</span>
           </button>
+            </>
+          )}
         </div>
 
         {/* RIGHT */}
         <div className="flex items-center gap-2">
           {/* Cart */}
+          {!isEditor && (
           <div className="flex items-center bg-gray-100/50 rounded-full p-1 mr-2">
             <button
               onClick={() => navigate("/cart")}
@@ -149,6 +155,7 @@ const Header: React.FC = () => {
               )}
             </button>
           </div>
+          )}
 
           {/* User */}
           <div
@@ -159,7 +166,7 @@ const Header: React.FC = () => {
               <p className="text-xs font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">
                 {user?.username || "User"}
               </p>
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 {user?.type}
               </p>
             </div>
@@ -206,7 +213,7 @@ const Header: React.FC = () => {
                   <Wallet className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-medium text-indigo-200 uppercase tracking-wider">
+                  <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider">
                     Available Credits
                   </p>
                   <p className="text-xl font-bold leading-tight text-white">

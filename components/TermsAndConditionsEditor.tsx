@@ -8,6 +8,7 @@ interface TermsAndConditionsEditorProps {
   onMyanmarChange: (value: string) => void;
   englishError?: string;
   myanmarError?: string;
+  readOnly?: boolean;
 }
 
 const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
@@ -17,6 +18,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
   onMyanmarChange,
   englishError,
   myanmarError,
+  readOnly,
 }) => {
   // Ensure initial values are properly set
   useEffect(() => {
@@ -30,7 +32,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
 
   return (
     <div className="space-y-6">
-      <h4 className="text-md font-semibold text-gray-800 flex items-center gap-2">
+      <h4 className="own-label text-md font-semibold text-gray-800 flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -56,7 +58,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
         {/* English Version */}
         <div className={`space-y-3 ${englishError ? "border border-red-300 rounded-lg p-4 bg-red-50" : ""}`}>
           <label className="block text-sm font-medium">
-            Terms & Conditions (English) <span className="text-red-500">*</span>
+            Terms & Conditions (English) <span className="text-red-600">*</span>
           </label>
           <RichTextEditor
             value={englishValue || ""}
@@ -64,6 +66,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
             placeholder="Enter terms and conditions in English..."
             minHeight={200}
             maxHeight={300}
+            readOnly={readOnly}
           />
           {englishError && <p className="text-red-500 text-sm">{englishError}</p>}
         </div>
@@ -71,7 +74,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
         {/* Myanmar Version */}
         <div className={`space-y-3 ${myanmarError ? "border border-red-300 rounded-lg p-4 bg-red-50" : ""}`}>
           <label className="block text-sm font-medium">
-            Terms & Conditions (Myanmar) <span className="text-red-500">*</span>
+            Terms & Conditions (Myanmar) <span className="text-red-600">*</span>
           </label>
           <RichTextEditor
             value={myanmarValue || ""}
@@ -79,6 +82,7 @@ const TermsAndConditionsEditor: React.FC<TermsAndConditionsEditorProps> = ({
             placeholder="Enter terms and conditions in Myanmar..."
             minHeight={200}
             maxHeight={300}
+            readOnly={readOnly}
           />
           {myanmarError && <p className="text-red-500 text-sm">{myanmarError}</p>}
         </div>

@@ -153,7 +153,7 @@ const GuestInfoSection = ({ open, setOpen, guests, roomName, onDone }: Props) =>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex gap-x-1">
                           <p className="text-sm">First Name</p>
-                          <span className="text-red-500">*</span>
+                          <span className="text-red-600">*</span>
                         </div>
                         <input
                           type="text"
@@ -182,7 +182,7 @@ const GuestInfoSection = ({ open, setOpen, guests, roomName, onDone }: Props) =>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex gap-x-1">
                           <p className="text-sm">Last Name</p>
-                          <span className="text-red-500">*</span>
+                          <span className="text-red-600">*</span>
                         </div>
                         <input
                           type="text"

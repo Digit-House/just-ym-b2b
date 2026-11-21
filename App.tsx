@@ -38,7 +38,11 @@ import TopUp from "./pages/admin/topUp/TopUp";
 import Resellers from "./pages/admin/reseller/Resellers";
 import Roles from "./pages/admin/role/Roles";
 import PaymentMethods from "./pages/admin/paymentMethods/PaymentMethods";
+import ContentTickets from "./pages/content/ContentTickets";
+import ContentTicketEdit from "./pages/content/ContentTicketEdit";
+import AuditLog from "./pages/admin/audit/AuditLog";
 import AdminTicketEdit from "./pages/admin/tickets/edit/[id]/TicketEdit";
+import TicketSaveDiff from "./pages/admin/tickets/edit/[id]/TicketSaveDiff";
 import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 import CurrencyRate from "./pages/admin/currencyRate/CurrencyRate";
 import PushNotification from "./pages/admin/pushNotification/PushNotification";
@@ -129,9 +133,16 @@ const App = () => {
               <Route path="vouchers" element={<Vouchers />} />
               <Route path="admin-vouchers/create" element={<CreateVoucher />} />
               <Route path="admin-vouchers/:id" element={<EditVoucher />} />
+              <Route path="content-tickets" element={<ContentTickets />} />
+              <Route path="content-tickets/:id" element={<ContentTicketEdit />} />
+              <Route path="audit-log" element={<AuditLog />} />
               <Route
                 path="admin-tickets/edit/:id"
                 element={<AdminTicketEdit />}
+              />
+              <Route
+                path="admin-tickets/edit/:id/save/:saveId"
+                element={<TicketSaveDiff />}
               />
             </Route>
           </Route>

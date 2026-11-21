@@ -255,3 +255,35 @@
 .tickets-swiper * {
   min-height: 0 !important;
 }
+
+/* Owner diff view: a grid that holds a boxed diff row shows one column, so each row is full width. */
+.grid:has([data-diff-row]) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* Owner diff view: the box header shows the label, so hide the control's own top label (not one wrapping an input). */
+[data-diff-row] fieldset > div > label:first-child:not(:has(input, textarea, select, button)),
+[data-diff-row] .own-label {
+  display: none !important;
+}
+/* the space-y gap that followed a hidden title must go too, so the control starts at the row's top */
+[data-diff-row] .own-label + * {
+  margin-top: 0 !important;
+}
+
+/* Locked inputs (disabled fieldset) look read-only, not editable. */
+fieldset:disabled input:not([type="checkbox"]):not([type="radio"]),
+fieldset:disabled textarea,
+fieldset:disabled select {
+  background-color: #f9fafb;
+  color: #4b5563;
+  cursor: not-allowed;
+}
+
+/* Jodit placeholder: default grey is ~2.5:1 */
+.jodit-container {
+  --jd-color-placeholder: #6b7280;
+}
+.jodit-placeholder {
+  color: #6b7280 !important;
+}

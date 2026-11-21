@@ -9,14 +9,17 @@ type UseCategoriesParams = {
   orderBy?: {
     dir: "asc" | "desc";
   };
+  enabled?: boolean;
 };
 
 export const useCategories = ({
   limit = 10,
   page = 1,
   orderBy = { dir: "desc" },
+  enabled = true,
 }: UseCategoriesParams = {}) => {
   return useQuery({
+    enabled,
     queryKey: ["categories", limit, page, orderBy.dir],
     queryFn: async () => {
       const { data }: any = await client.query({

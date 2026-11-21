@@ -19,6 +19,15 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
+import AttentionBadge from "@/components/ticket-fields/AttentionBadge";
+import { OwnerReviewProvider, OwnerFieldBox, OwnerUpdatesPanel, DiffToggle, ownerAttention, useLocked, useOwnerReview } from "@/components/OwnerReviewContext";
+import AuditLogList from "@/components/AuditLogList";
+import SupplierUpdatesPanel, {
+  Resolution,
+  Staged,
+  useProductContent,
+  useSupplierUpdates,
+} from "@/pages/content/_components/SupplierUpdatesPanel";
 
 type Mode = "edit";
 
@@ -28,6 +37,9 @@ type Props = {
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: UpdateProductPayloadT) => void;
+  /** Supplier-update choices staged in the Supplier updates tab; saved by the parent with the form. */
+  staged?: Staged;
+  onStage?: (id: string, r: Resolution | null) => void;
 };
 
 const TicketEditForm: React.FC<Props> = ({
@@ -36,8 +48,11 @@ const TicketEditForm: React.FC<Props> = ({
   loading,
   onCancel,
   onSubmit,
+  staged,
+  onStage,
 }) => {
   const isEdit = mode === "edit";
+  const locked = useLocked(); // saved-version page: read-only, no actions
 
   const transformApiDataToForm = (apiData: any) => {
     if (!apiData || !apiData.productOptions) return apiData;
@@ -148,7 +163,7 @@ const TicketEditForm: React.FC<Props> = ({
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
     setValue,
     getValues,
@@ -446,10 +461,35 @@ const TicketEditForm: React.FC<Props> = ({
     onSubmit(payload);
   };
 
+  // Owner-only tabs: they never submit the form, and they only fetch once opened.
+  const pendingUpdates = useSupplierUpdates(initialValues?.id ?? "");
+  const isExtraTab = currentTab === "history" || currentTab === "supplier-updates";
+  const extraTabClass = (id: string) =>
+    `flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
+      currentTab === id
+        ? "bg-indigo-100 text-indigo-700 border border-indigo-200"
+        : "text-gray-600 hover:bg-gray-50 border border-transparent"
+    }`;
+
+  const productContent = useProductContent(initialValues?.id ?? "");
+  const outer = useOwnerReview();
+  const items = outer?.locked
+    ? outer.items
+    : ownerAttention({
+        productId: initialValues?.id ?? "",
+        updates: pendingUpdates.data ?? [],
+        staged: staged ?? {},
+        dirtyFields,
+        options: watch("productOptions"),
+        content: productContent.data,
+      });
+  const updatesTabItems = items.filter((i) => i.kind === "supplier" || i.staged);
+
   const TabButton = ({ id, label }: { id: string; label: string }) => (
     <button
+      type="button"
       onClick={() => setCurrentTab(id)}
-      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors relative ${
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
         currentTab === id
           ? "bg-indigo-100 text-indigo-700 border border-indigo-200"
           : "text-gray-600 hover:bg-gray-50 border border-transparent"
@@ -457,6 +497,7 @@ const TicketEditForm: React.FC<Props> = ({
     >
       {tabIcons[id as keyof typeof tabIcons]}
       {label}
+      <AttentionBadge items={items.filter((i) => i.tab === id)} />
       {hasTabErrors(id) && (
         <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
           <span className="text-xs text-white">!</span>
@@ -466,7 +507,11 @@ const TicketEditForm: React.FC<Props> = ({
   );
 
   return (
-    <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+    <OwnerReviewProvider productId={initialValues?.id ?? ""} setTab={setCurrentTab} items={items} staged={staged} onStage={onStage}>
+    <form
+      onSubmit={locked ? (e) => e.preventDefault() : handleSubmit(submitHandler)}
+      className="space-y-6"
+    >
       {/* Validation Summary - Shows validation errors at the top */}
       {Object.keys(errors).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -489,14 +534,17 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
       )}
 
-      <div className="flex flex-col items-end">
-        <Button
-          type="submit"
-          loading={loading}
-          className="flex items-center gap-2"
-        >
-          {isEdit ? <>Save Changes</> : <>Create Ticket</>}
-        </Button>
+      <div className="flex items-center justify-end gap-4">
+        {initialValues?.id && <DiffToggle />}
+        {!locked && (
+          <Button
+            type="submit"
+            loading={loading}
+            className="flex items-center gap-2"
+          >
+            {isEdit ? <>Save Changes{Object.keys(staged ?? {}).length > 0 && ` (${Object.keys(staged ?? {}).length} supplier choice${Object.keys(staged ?? {}).length === 1 ? "" : "s"})`}</> : <>Create Ticket</>}
+          </Button>
+        )}
       </div>
 
       {/* Custom Tabs Navigation - Modern style with error indicators */}
@@ -508,8 +556,24 @@ const TicketEditForm: React.FC<Props> = ({
         <TabButton id="operating-hours" label="Operating Hours" />
         <TabButton id="options" label="Pricing & Packages" />
         <TabButton id="relatedTickets" label="Related Tickets" />
+        {initialValues?.id && !locked && (
+          <>
+            <button type="button" onClick={() => setCurrentTab("history")} className={extraTabClass("history")}>
+              History
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentTab("supplier-updates")}
+              className={extraTabClass("supplier-updates")}
+            >
+              Supplier updates
+              <AttentionBadge items={updatesTabItems} />
+            </button>
+          </>
+        )}
       </div>
 
+      <fieldset disabled={locked} className="min-w-0">
       <div className="p-6 border rounded-xl min-h-125 bg-white shadow-sm relative">
         {/* Error indicator for current tab */}
         {hasTabErrors(currentTab) && (
@@ -554,13 +618,15 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
 
         <div style={{ display: currentTab === "media" ? "block" : "none" }}>
-          <MediaTab
-            errors={errors}
-            watch={watch}
-            setValue={setValue}
-            initialValues={initialValues as ProductInfoT}
-            setMediaItemRef={setMediaItemRef}
-          />
+          <OwnerFieldBox entityId={initialValues?.id ?? ""} fields={["media", "image"]}>
+            <MediaTab
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              initialValues={initialValues as ProductInfoT}
+              setMediaItemRef={setMediaItemRef}
+            />
+          </OwnerFieldBox>
         </div>
 
         <div
@@ -607,15 +673,26 @@ const TicketEditForm: React.FC<Props> = ({
             initialValues={initialValues as ProductInfoT}
           />
         </div>
-      </div>
 
-      <div className="flex justify-between pt-4 border-t border-gray-200">
+        {initialValues?.id && currentTab === "history" && (
+          <AuditLogList filter={{ productId: initialValues.id }} />
+        )}
+        {initialValues?.id && currentTab === "supplier-updates" && (
+          <OwnerUpdatesPanel productId={initialValues.id} staged={staged} onStage={onStage} />
+        )}
+      </div>
+      </fieldset>
+
+      <div
+        className="flex justify-between pt-4 border-t border-gray-200"
+        style={{ display: isExtraTab || locked ? "none" : undefined }}
+      >
         <Button
           type="button"
           variant="outline"
           onClick={prevTab}
           disabled={currentTab === "basic-info"}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-gray-700"
         >
           ← Previous
         </Button>
@@ -642,6 +719,7 @@ const TicketEditForm: React.FC<Props> = ({
         )}
       </div>
     </form>
+    </OwnerReviewProvider>
   );
 };
 

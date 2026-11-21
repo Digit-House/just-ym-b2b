@@ -1,6 +1,8 @@
 import React from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { TicketFormValues } from "@/types/schema/ticketSchema";
+import { ReviewField } from "@/components/OwnerReviewContext";
+import TextInput from "@/components/ticket-fields/TextInput";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +17,24 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { useCountries } from "@/hooks/useCountries";
 import ImageUpload from "@/components/ImageUpload";
+import { useLocked } from "@/components/OwnerReviewContext";
 import { LockKeyhole } from "lucide-react";
+import { preFixImg } from "@/util/initData";
+
+const LockedImage = ({ src }: { src?: string | null }) => {
+  const [failed, setFailed] = React.useState(false);
+  const url = src?.trim();
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium text-gray-700">Ticket Image</p>
+      {url && !failed ? (
+        <img src={preFixImg(url)} alt="Ticket" onError={() => setFailed(true)} className="h-40 rounded-md border object-contain" />
+      ) : (
+        <p className="text-sm text-gray-600">No image</p>
+      )}
+    </div>
+  );
+};
 
 type BasicInfoTabProps = {
   control: Control<TicketFormValues>;
@@ -29,6 +48,7 @@ type BasicInfoTabProps = {
 
 const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
   ({ control, errors, watch, imageRef }, ref) => {
+    const locked = useLocked();
     // Fetch categories, countries and cities
     const { data: categoriesResponse } = useCategories({
       limit: 50,
@@ -73,6 +93,10 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
           </p>
         </div>
 
+        {/* saved-version page: read-only thumbnail, or one "No image" line when empty or the file is missing */}
+        {locked ? (
+          <LockedImage src={watch("image")} />
+        ) : (
         <div className={`space-y-3 w-full h-[300px]`}>
           <Controller
             name="image"
@@ -94,6 +118,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             )}
           />
         </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
@@ -103,11 +128,12 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["name"]} label="Ticket name" current={watch("name")}>
             <Controller
               name="name"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Ticket Name"
                   {...field}
                   errMsg={errors.name?.message}
@@ -115,6 +141,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -124,11 +151,12 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["addressLine"]} label="Address" current={watch("addressLine")}>
             <Controller
               name="addressLine"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Address Line"
                   {...field}
                   errMsg={errors.addressLine?.message}
@@ -136,6 +164,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -145,11 +174,12 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["location"]} label="Location" current={watch("location")}>
             <Controller
               name="location"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Location"
                   {...field}
                   errMsg={errors.location?.message}
@@ -157,6 +187,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -189,7 +220,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
             }`}
           >
             <Label>
-              Category <span className="text-red-500">*</span>
+              Category <span className="text-red-600">*</span>
             </Label>
             <Controller
               name="category_relation_id"
@@ -209,7 +240,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                   }}
                 >
                   <SelectTrigger
-                    className={`w-full ${
+                    className={`w-full !h-auto ${
                       errors.category_relation_id ? "border-red-500" : ""
                     }`}
                   >
@@ -254,7 +285,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                   }
                 >
                   <SelectTrigger
-                    className={`w-full ${
+                    className={`w-full !h-auto ${
                       errors.countryId ? "border-red-500" : ""
                     }`}
                   >
@@ -309,11 +340,12 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["postalCode"]} label="Postal code" current={watch("postalCode")}>
             <Controller
               name="postalCode"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Postal Code"
                   {...field}
                   errMsg={errors.postalCode?.message}
@@ -321,6 +353,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
 
           <div
@@ -382,11 +415,12 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 : ""
             }`}
           >
+            <ReviewField names={["keywords"]} label="Keywords" current={watch("keywords")}>
             <Controller
               name="keywords"
               control={control}
               render={({ field }) => (
-                <InputField
+                <TextInput
                   label="Keywords"
                   {...field}
                   errMsg={errors.keywords?.message}
@@ -394,6 +428,7 @@ const BasicInfoTab = React.forwardRef<HTMLDivElement, BasicInfoTabProps>(
                 />
               )}
             />
+            </ReviewField>
           </div>
         </div>
 

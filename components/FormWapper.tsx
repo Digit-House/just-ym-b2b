@@ -44,7 +44,7 @@ const FormWapper = ({
         <FormItem>
           <FormLabel className="flex gap-x-1" htmlFor={name}>
             <p className="text-sm">{label}</p>
-            {required && <span className="text-red-500">*</span>}
+            {required && <span className="text-red-600">*</span>}
           </FormLabel>
           <FormControl>
             {textArea ? (

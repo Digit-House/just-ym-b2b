@@ -9,6 +9,7 @@ import {
   GET_MY_BOOKING_QUERY_DATA_TYPE,
   MY_BOOKINGS_QUERY,
   REFRESH_BOOKING_MUTATION,
+  SEND_BOOKING_FAILED_APOLOGY_MUTATION,
   UPLOAD_BOOKING_VOUCHER_MUTATION,
 } from "./type-query/booking";
 import { getSignedUrl } from "./file";
@@ -58,6 +59,16 @@ export const resendEmail = (email: string, id: string) => {
         transactionId: id,
       },
     },
+  });
+};
+
+export const sendBookingFailedApologyEmail = (
+  transactionId: string,
+  voucherCode?: string
+) => {
+  return client.mutate({
+    mutation: warpGql(SEND_BOOKING_FAILED_APOLOGY_MUTATION),
+    variables: { transactionId, voucherCode },
   });
 };
 

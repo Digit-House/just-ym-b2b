@@ -15,7 +15,7 @@ import { getAddToCartCount } from "@/graphql/product";
 import { useResize } from "@/hooks/useResizer";
 
 const DashboardLayout = () => {
-  const { setUser, fetchWallet } = useUser();
+  const { user, setUser, fetchWallet } = useUser();
   const { setCreditInfo } = useWalletStore();
   const { setAddToCartCount } = useCartStore();
   const { isOpen, toggleSidebar } = useSidebarStore();
@@ -27,6 +27,8 @@ const DashboardLayout = () => {
     try {
       const res: any = await getMe();
       setUser(res?.data?.me);
+      // Content editors have no wallet or cart: skip those calls.
+      if (res?.data?.me?.type !== "CONTENT_EDITOR") fetchAddToCartCount();
     } catch (err) {
     } finally {
       setTimeout(() => setLoading(false), 1000);
@@ -55,19 +57,20 @@ const DashboardLayout = () => {
 
   useEffect(() => {
     fetchMe();
-    fetchAddToCartCount();
   }, []);
 
   useEffect(() => {
+    if (!user || user.type === "CONTENT_EDITOR") return;
     fetchCreditInfo();
-  }, [fetchWallet]);
+  }, [fetchWallet, user?.id]);
 
   // Auto-close sidebar on mobile when route changes
   useEffect(() => {
-    if (!isDesktop && isOpen) {
+    // read the live store value: the Sidebar's resize listener may already have closed it
+    if (!isDesktop && useSidebarStore.getState().isOpen) {
       toggleSidebar();
     }
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   if (loading) return <Loading />;
 

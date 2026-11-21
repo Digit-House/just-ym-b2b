@@ -142,7 +142,7 @@ const VariantSelecter = ({
                   ฿ {getItemPrice(item).toFixed(2)}
                 </p>
                 {user.type === "OWNER" && item.nettPrice != null && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-600">
                     Supplier price: ฿ {Number(item.nettPrice).toFixed(2)}
                   </p>
                 )}

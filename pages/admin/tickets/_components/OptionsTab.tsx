@@ -9,24 +9,23 @@ import {
 import { TicketFormValues } from "@/types/schema/ticketSchema";
 import { ProductInfoT, UpdateProductPayloadT } from "@/types/product.type";
 import InputField from "@/components/InputField";
+import TextInput from "@/components/ticket-fields/TextInput";
+import RichText from "@/components/ticket-fields/RichText";
+import StringListEditor from "@/components/ticket-fields/StringListEditor";
+import BilingualListSection, { LIST_ICONS } from "@/components/ticket-fields/BilingualListSection";
+import PackageCardShell from "@/components/ticket-fields/PackageCardShell";
+import PackagesHeader from "@/components/ticket-fields/PackagesHeader";
 import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
-  ChevronDown,
   FileText,
-  NotebookIcon,
-  Plus,
   Tag,
-  Trash2,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import TextareaField from "@/components/TextareaField";
 import ReadOnly from "@/components/ReadOnly";
-import { Button } from "@/components/ui/button";
 import { formatUtcDate } from "@/lib/dateFormat";
-import RichTextEditor from "@/components/RichTextEditor";
-import { toRichTextHtml } from "@/lib/richText";
-import { AnimatePresence, motion } from "framer-motion";
+import { ReviewField, useLocked, useOwnerReview } from "@/components/OwnerReviewContext";
+import AttentionBadge from "@/components/ticket-fields/AttentionBadge";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -46,6 +45,8 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   setValue,
   trigger,
 }) => {
+  const locked = useLocked();
+  const review = useOwnerReview();
   const watchedProductOptions = watch("productOptions");
 
   useEffect(() => {
@@ -71,6 +72,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   const expandAll = () =>
     setOpenPackages(new Set(Array.from({ length: optionCount }, (_, i) => i)));
   const collapseAll = () => setOpenPackages(new Set());
+
+  // Go to field: open the package that owns the update.
+  const focus = review?.focus;
+  useEffect(() => {
+    if (!focus) return;
+    const i = (watch("productOptions") ?? []).findIndex((o: any) => o.id === focus.optionId);
+    if (i >= 0) setOpenPackages((prev) => new Set(prev).add(i));
+  }, [focus, watch]);
 
   // Packages with validation errors open automatically so the errors are visible.
   const errorIndexKey = useMemo(() => {
@@ -154,96 +163,6 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
     setTimeout(() => trigger("productOptions"), 0);
   };
 
-  // Helper functions for inclusions array operations
-  const addInclusion = (optionIndex: number, isMyanmar: boolean = false) => {
-    const currentOptions = getValues("productOptions") ?? [];
-    if (!currentOptions[optionIndex]) return;
-
-    const field = isMyanmar ? "inclusions_mm" : "inclusions";
-    const currentArray = currentOptions[optionIndex][field] ?? [];
-
-    const updatedOptions = currentOptions.map((option, oi) =>
-      oi === optionIndex
-        ? {
-            ...option,
-            [field]: [...currentArray, ""],
-          }
-        : option
-    );
-
-    setValue("productOptions", updatedOptions, {
-      shouldDirty: true,
-    });
-
-    // Trigger validation after the update
-    setTimeout(() => trigger("productOptions"), 0);
-  };
-
-  const updateInclusion = (
-    optionIndex: number,
-    index: number,
-    value: string,
-    isMyanmar: boolean = false
-  ) => {
-    const currentOptions = getValues("productOptions") ?? [];
-    if (!currentOptions[optionIndex]) return;
-
-    const field = isMyanmar ? "inclusions_mm" : "inclusions";
-    const currentArray = currentOptions[optionIndex][field] ?? [];
-
-    const updatedArray = currentArray.map((item, i) =>
-      i === index ? value : item
-    );
-
-    const updatedOptions = currentOptions.map((option, oi) =>
-      oi === optionIndex
-        ? {
-            ...option,
-            [field]: updatedArray,
-          }
-        : option
-    );
-
-    setValue("productOptions", updatedOptions, {
-      shouldDirty: true,
-    });
-
-    // Trigger validation after the update
-    setTimeout(() => trigger("productOptions"), 0);
-  };
-
-  const removeInclusion = (
-    optionIndex: number,
-    index: number,
-    isMyanmar: boolean = false
-  ) => {
-    const currentOptions = getValues("productOptions") ?? [];
-    if (!currentOptions[optionIndex]) return;
-
-    const field = isMyanmar ? "inclusions_mm" : "inclusions";
-    const currentArray = currentOptions[optionIndex][field] ?? [];
-
-    if (currentArray.length <= 1) return; // Prevent removing all items
-
-    const updatedArray = currentArray.filter((_, i) => i !== index);
-
-    const updatedOptions = currentOptions.map((option, oi) =>
-      oi === optionIndex
-        ? {
-            ...option,
-            [field]: updatedArray,
-          }
-        : option
-    );
-
-    setValue("productOptions", updatedOptions, {
-      shouldDirty: true,
-    });
-
-    // Trigger validation after the update
-    setTimeout(() => trigger("productOptions"), 0);
-  };
-
   return (
     <div className="space-y-6">
       <div className="border-b pb-4">
@@ -257,112 +176,51 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
       </div>
 
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h4 className="text-lg font-medium">Packages</h4>
-          {optionCount > 1 && (
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={expandAll}
-              >
-                Expand all
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={collapseAll}
-              >
-                Collapse all
-              </Button>
-            </div>
-          )}
-        </div>
+        <PackagesHeader count={optionCount} onExpandAll={expandAll} onCollapseAll={collapseAll} hidden={locked} />
 
         <div className="space-y-6">
           {watchedProductOptions?.map((option, optionIndex) => {
-            const isOpen = openPackages.has(optionIndex);
+            const isOpen = locked || openPackages.has(optionIndex);
             const hasError = !!errors.productOptions?.[optionIndex];
             const ticketTypeCount = option.ticketTypes?.length ?? 0;
 
             return (
-              <div
+              <PackageCardShell
                 key={option.id ?? `option-${optionIndex}`}
-                className={`rounded-lg border bg-gray-50 ${
-                  hasError ? "border-red-300" : ""
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => togglePackage(optionIndex)}
-                  aria-expanded={isOpen}
-                  className="flex w-full items-center gap-3 px-6 py-4 text-left cursor-pointer"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                      Package {optionIndex + 1}
-                    </p>
-                    <p className="truncate text-base font-semibold text-gray-900">
-                      {option.name || "Untitled package"}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                index={optionIndex}
+                name={option.name}
+                published={option.isPublished}
+                ticketTypeCount={ticketTypeCount}
+                hasError={hasError}
+                open={isOpen}
+                onToggle={() => togglePackage(optionIndex)}
+                badges={
+                  <>
+                    <AttentionBadge items={(review?.items ?? []).filter((i) => i.optionId === option.id)} />
                     {hasError && (
                       <span className="flex items-center gap-1 text-xs font-medium text-red-600">
                         <AlertCircle className="h-4 w-4" />
                         Needs fixing
                       </span>
                     )}
-                    <span className="hidden sm:inline text-xs text-gray-500">
-                      {ticketTypeCount} ticket type
-                      {ticketTypeCount === 1 ? "" : "s"}
-                    </span>
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-xs font-medium ${
-                        option.isPublished
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {option.isPublished ? "Published" : "Unpublished"}
-                    </span>
-                    <ChevronDown
-                      className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      key="package-body"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <div className="space-y-4 px-6 pb-6 pt-2 border-t">
+                  </>
+                }
+              >
+                      <>
                         <div className="grid grid-cols-1 gap-4 mb-6">
-                          <InputField
+                          <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["name"]} label="Package name" current={option.name}>
+                          <TextInput
                             label="Package Name"
-                            value={option.name ?? ""}
-                            onChange={(e) =>
-                              updateProductOption(
-                                optionIndex,
-                                "name",
-                                e.target.value
-                              )
+                            value={option.name}
+                            onChange={(v) =>
+                              updateProductOption(optionIndex, "name", v)
                             }
                             errMsg={
                               errors.productOptions?.[optionIndex]?.name
                                 ?.message
                             }
                           />
+                          </ReviewField>
                         </div>
 
                         <div className="space-y-4">
@@ -376,62 +234,40 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                           <div className="grid grid-cols-1 gap-6">
                             {/* English */}
+                            <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["description"]} label="Package description" current={option.description}>
                             <div className="space-y-3">
                               <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
                                 English
                               </h5>
-                              <RichTextEditor
-                                value={toRichTextHtml(option.description)}
+                              <RichText
+                                readOnly={locked}
+                                value={option.description}
                                 onChange={(html) =>
-                                  updateProductOption(
-                                    optionIndex,
-                                    "description",
-                                    html
-                                  )
+                                  updateProductOption(optionIndex, "description", html)
                                 }
                                 placeholder="Enter package description..."
-                                minHeight={150}
-                                autoHeight
+                                errMsg={errors.productOptions?.[optionIndex]?.description?.message}
                               />
-                              {errors.productOptions?.[optionIndex]?.description
-                                ?.message && (
-                                <p className="text-red-500 text-sm">
-                                  {
-                                    errors.productOptions?.[optionIndex]
-                                      ?.description?.message
-                                  }
-                                </p>
-                              )}
                             </div>
+                            </ReviewField>
 
                             {/* Myanmar */}
+                            <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["description_mm"]} label="Package description (Myanmar)" current={option.description_mm}>
                             <div className="space-y-3">
                               <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
                                 Myanmar
                               </h5>
-                              <RichTextEditor
-                                value={toRichTextHtml(option.description_mm)}
+                              <RichText
+                                readOnly={locked}
+                                value={option.description_mm}
                                 onChange={(html) =>
-                                  updateProductOption(
-                                    optionIndex,
-                                    "description_mm",
-                                    html
-                                  )
+                                  updateProductOption(optionIndex, "description_mm", html)
                                 }
                                 placeholder="Enter package description in Myanmar..."
-                                minHeight={150}
-                                autoHeight
+                                errMsg={errors.productOptions?.[optionIndex]?.description_mm?.message}
                               />
-                              {errors.productOptions?.[optionIndex]
-                                ?.description_mm?.message && (
-                                <p className="text-red-500 text-sm">
-                                  {
-                                    errors.productOptions?.[optionIndex]
-                                      ?.description_mm?.message
-                                  }
-                                </p>
-                              )}
                             </div>
+                            </ReviewField>
                           </div>
                         </div>
 
@@ -488,128 +324,36 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
 
                         <div className="space-y-4">
                           <hr className="border-gray-200 mt-5" />
-                          <div className="flex items-center gap-2 mb-4">
-                            <NotebookIcon className="h-5 w-5 text-red-500" />
-                            <h4 className="text-lg font-semibold text-gray-800">
-                              Inclusions
-                            </h4>
-                          </div>
-
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* English */}
-                            <div className="space-y-3">
-                              <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
-                                English
-                              </h5>
-                              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                {option.inclusions.map((item, index) => (
-                                  <div key={index} className="relative group">
-                                    <TextareaField
-                                      label=""
-                                      value={item}
-                                      onChange={(e) =>
-                                        updateInclusion(
-                                          optionIndex,
-                                          index,
-                                          e.target.value,
-                                          false
-                                        )
-                                      }
-                                      placeholder="Enter inclusions"
-                                      minHeight={60}
-                                      maxHeight={150}
-                                    />
-                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() =>
-                                          removeInclusion(
-                                            optionIndex,
-                                            index,
-                                            false
-                                          )
-                                        }
-                                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ))}
-                                <Button
-                                  type="button"
-                                  onClick={() =>
-                                    addInclusion(optionIndex, false)
-                                  }
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full"
-                                >
-                                  <Plus className="h-4 w-4 mr-2" /> Add
-                                  Inclusions
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Myanmar */}
-                            <div className="space-y-3">
-                              <h5 className="text-sm font-medium text-gray-600 uppercase tracking-wider">
-                                Myanmar
-                              </h5>
-                              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                {option.inclusions_mm.map((item, index) => (
-                                  <div key={index} className="relative group">
-                                    <TextareaField
-                                      label=""
-                                      value={item}
-                                      onChange={(e) =>
-                                        updateInclusion(
-                                          optionIndex,
-                                          index,
-                                          e.target.value,
-                                          true
-                                        )
-                                      }
-                                      placeholder="Enter inclusions (MM)"
-                                      minHeight={60}
-                                      maxHeight={150}
-                                    />
-                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() =>
-                                          removeInclusion(
-                                            optionIndex,
-                                            index,
-                                            true
-                                          )
-                                        }
-                                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ))}
-                                <Button
-                                  type="button"
-                                  onClick={() =>
-                                    addInclusion(optionIndex, true)
-                                  }
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full"
-                                >
-                                  <Plus className="h-4 w-4 mr-2" /> Add
-                                  Inclusions MM
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
+                          <BilingualListSection
+                            title="Inclusions"
+                            icon={LIST_ICONS.exclusions}
+                            en={
+                              <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["inclusions"]} label="Package inclusions" current={option.inclusions}>
+                                <StringListEditor
+                                  label="Inclusions"
+                                  value={option.inclusions}
+                                  onChange={(v) => updateProductOption(optionIndex, "inclusions", v)}
+                                  readOnly={locked}
+                                  minItems={1}
+                                  placeholder="Enter inclusions"
+                                  addLabel="Add Inclusions"
+                                />
+                              </ReviewField>
+                            }
+                            mm={
+                              <ReviewField entity="ProductOption" entityId={option.id ?? undefined} names={["inclusions_mm"]} label="Package inclusions (Myanmar)" current={option.inclusions_mm}>
+                                <StringListEditor
+                                  label="Inclusions MM"
+                                  value={option.inclusions_mm}
+                                  onChange={(v) => updateProductOption(optionIndex, "inclusions_mm", v)}
+                                  readOnly={locked}
+                                  minItems={1}
+                                  placeholder="Enter inclusions (MM)"
+                                  addLabel="Add Inclusions MM"
+                                />
+                              </ReviewField>
+                            }
+                          />
                         </div>
 
                         <div className="mb-4">
@@ -650,9 +394,11 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                   }`}
                                 >
                                   <div className="flex justify-between items-start mb-3">
+                                    <ReviewField entity="TicketType" entityId={ticketType.ticketTypeId ?? undefined} names={["name"]} label="Ticket type name" current={ticketType.name}>
                                     <h6 className="font-medium">
                                       {ticketType.name}
                                     </h6>
+                                    </ReviewField>
                                   </div>
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -823,11 +569,8 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                             </p>
                           )}
                         </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                      </>
+              </PackageCardShell>
             );
           })}
 

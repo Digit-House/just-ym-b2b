@@ -5,9 +5,10 @@ import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_CONFIG, NavItem } from "@/types/navitem.type";
 import { USER_TYPE } from "@/types/role.type";
 import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logoutSession } from "@/graphql/session";
+import { useReviewCount } from "@/hooks/useReviewCount";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -17,7 +18,30 @@ const Sidebar = () => {
   const { isOpen, toggleSidebar } = useSidebarStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const isDesktop = useResize();
+  // Below the overlay breakpoint (useResize, 1024px) the sidebar must not stay open after a live resize or a navigation.
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    // Close only on a crossing into mobile width: plain mobile resizes (address bar, keyboard) must not close it.
+    let wasMobile = false;
+    const close = () => {
+      if (mq.matches && !wasMobile && useSidebarStore.getState().isOpen) toggleSidebar();
+      wasMobile = mq.matches;
+    };
+    close();
+    mq.addEventListener("change", close);
+    window.addEventListener("resize", close); // fallback: same event useResize uses, in case "change" is not delivered
+    return () => {
+      mq.removeEventListener("change", close);
+      window.removeEventListener("resize", close);
+    };
+  }, [toggleSidebar]);
+  // isDesktop is the state that renders the overlay; closing on its flip keeps store and layout in step.
+  useEffect(() => {
+    if (!isDesktop && useSidebarStore.getState().isOpen) toggleSidebar();
+  }, [isDesktop, toggleSidebar]);
   const TYPE = user?.type as USER_TYPE;
+  const counts = useReviewCount(TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
+  const isTicketsItem = (path?: string) => path === "/tickets" || path === "/content-tickets";
 
   const isActive = (path: string) => {
     const active =
@@ -47,7 +71,7 @@ const Sidebar = () => {
     }`;
 
   const canShow = (roles: NavItem["types"]) =>
-    roles === "ALL" || roles.includes(TYPE);
+    roles === "ALL" ? TYPE !== "CONTENT_EDITOR" : roles.includes(TYPE);
 
   return (
     <>
@@ -116,15 +140,57 @@ const Sidebar = () => {
               );
             }
 
+            const countable = isTicketsItem(item.path) && (TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
+            const rows = [
+              { label: "In review", status: "READY_FOR_REVIEW", n: counts.readyForReview, cls: "bg-blue-100 text-blue-800" },
+              { label: "Sent back", status: "SENT_BACK", n: counts.sentBack, cls: "bg-amber-100 text-amber-800" },
+              { label: "In progress", status: "IN_PROGRESS", n: counts.inProgress, cls: "bg-gray-200 text-gray-700" },
+            ];
+            const currentReview = new URLSearchParams(location.search).get("review");
+            // Counts sit inside the Tickets container: the container carries the background, the link row only hover.
             return (
-              <NavLink
+              <div
                 key={item.path}
-                to={item.path!}
-                className={navItemClass(item.path!)}
+                className={countable && isActive(item.path!) ? "rounded-lg bg-indigo-50" : "rounded-lg"}
               >
-                <item.icon size={20} />
-                <span>{item.label}</span>
-              </NavLink>
+                <NavLink
+                  to={item.path!}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
+                    isActive(item.path!)
+                      ? `text-indigo-600 font-medium ${countable ? "" : "bg-indigo-50"}`
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <item.icon size={20} />
+                  <span>{item.label}</span>
+                </NavLink>
+                {countable && (
+                  <div className="space-y-0.5 pb-2 pr-2">
+                    {rows.map((x) => {
+                      const on = isActive(item.path!) && currentReview === x.status;
+                      return (
+                        <NavLink
+                          key={x.status}
+                          to={`${item.path}?review=${x.status}`}
+                          aria-label={`${x.label}, ${x.n} ${x.n === 1 ? "ticket" : "tickets"}`}
+                          className={`ml-10 flex min-h-11 items-center justify-between rounded-md px-2 py-1 text-sm hover:bg-indigo-100/70 lg:min-h-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
+                            on ? "bg-indigo-100 font-semibold text-indigo-700" : "text-gray-600"
+                          }`}
+                        >
+                          <span>{x.label}</span>
+                          <span
+                            className={`min-w-[1.5rem] rounded-full px-2 py-0.5 text-center text-xs font-semibold ${
+                              x.n > 0 ? x.cls : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {x.n}
+                          </span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>

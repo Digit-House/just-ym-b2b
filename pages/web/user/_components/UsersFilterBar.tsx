@@ -37,6 +37,7 @@ const UsersFilterBar = ({
       <option value={"RESELLER"}>RESELLER</option>
       {/* <option value={"MANAGER"}>Manager</option> */}
       <option value={"USER"}>USER</option>
+      <option value={"CONTENT_EDITOR"}>CONTENT EDITOR</option>
     </select>
     <select
       value={active === null ? "null" : active ? "true" : "false"}
