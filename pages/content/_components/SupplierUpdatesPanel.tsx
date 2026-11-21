@@ -95,24 +95,13 @@ export const flashField = (su: SupplierUpdateT) =>
   flashTo(`[data-field-key~="${fieldKey(su.entityName, su.entityId, su.field)}"]`);
 export const flashUpdate = (su: SupplierUpdateT) => flashTo(`[data-update-id="${su.id}"]`);
 
-/** Updates of one package: its own, and those of its ticket types. Counts staged-but-unsaved ones too (still PENDING). */
-export const optionUpdateCount = (updates: SupplierUpdateT[], optionId?: string | null, typeIds: string[] = []) =>
-  !optionId
-    ? 0
-    : updates.filter(
-        (u) => u.entityId === optionId || u.locationIds?.optionId === optionId || typeIds.includes(u.entityId)
-      ).length;
-
-/** Amber count pill: tab and package card. */
-export const CountPill = ({ count, text }: { count: number; text?: boolean }) =>
-  count > 0 ? (
-    <span
-      aria-label={`${count} supplier update${count === 1 ? "" : "s"}`}
-      className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800"
-    >
-      {text ? `${count} supplier update${count === 1 ? "" : "s"}` : count}
-    </span>
-  ) : null;
+/** Package that owns an update: the option itself, or the one holding the ticket type. */
+export const optionIdOfUpdate = (su: SupplierUpdateT, content?: ProductContentT) =>
+  su.entityName === "ProductOption"
+    ? su.entityId
+    : su.entityName === "Product"
+      ? undefined
+      : (su.locationIds?.optionId ?? content?.productOptions.find((o) => o.ticketTypes.some((t) => t.id === su.entityId))?.id);
 
 /** Field badge: opens the dialog with this field's pending updates. */
 export const SupplierBadge = ({ count, onClick }: { count: number; onClick: () => void }) => (

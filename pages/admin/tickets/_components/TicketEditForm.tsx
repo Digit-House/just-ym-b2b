@@ -19,12 +19,13 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
-import { OwnerReviewProvider, OwnerFieldBox, OwnerUpdatesPanel, DiffToggle, ownerTabOf, useLocked } from "@/components/OwnerReviewContext";
+import AttentionBadge from "@/components/ticket-fields/AttentionBadge";
+import { OwnerReviewProvider, OwnerFieldBox, OwnerUpdatesPanel, DiffToggle, ownerAttention, useLocked } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
   Resolution,
-  CountPill,
   Staged,
+  useProductContent,
   useSupplierUpdates,
 } from "@/pages/content/_components/SupplierUpdatesPanel";
 
@@ -162,7 +163,7 @@ const TicketEditForm: React.FC<Props> = ({
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
     setValue,
     getValues,
@@ -470,8 +471,16 @@ const TicketEditForm: React.FC<Props> = ({
         : "text-gray-600 hover:bg-gray-50 border border-transparent"
     }`;
 
-  const tabCounts = new Map<string, number>();
-  (pendingUpdates.data ?? []).forEach((u) => tabCounts.set(ownerTabOf(u), (tabCounts.get(ownerTabOf(u)) ?? 0) + 1));
+  const productContent = useProductContent(initialValues?.id ?? "");
+  const items = ownerAttention({
+    productId: initialValues?.id ?? "",
+    updates: pendingUpdates.data ?? [],
+    staged: staged ?? {},
+    dirtyFields,
+    options: watch("productOptions"),
+    content: productContent.data,
+  });
+  const updatesTabItems = items.filter((i) => i.kind === "supplier" || i.staged);
 
   const TabButton = ({ id, label }: { id: string; label: string }) => (
     <button
@@ -485,7 +494,7 @@ const TicketEditForm: React.FC<Props> = ({
     >
       {tabIcons[id as keyof typeof tabIcons]}
       {label}
-      <CountPill count={tabCounts.get(id) ?? 0} />
+      <AttentionBadge items={items.filter((i) => i.tab === id)} />
       {hasTabErrors(id) && (
         <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
           <span className="text-xs text-white">!</span>
@@ -495,7 +504,7 @@ const TicketEditForm: React.FC<Props> = ({
   );
 
   return (
-    <OwnerReviewProvider productId={initialValues?.id ?? ""} setTab={setCurrentTab} staged={staged} onStage={onStage}>
+    <OwnerReviewProvider productId={initialValues?.id ?? ""} setTab={setCurrentTab} items={items} staged={staged} onStage={onStage}>
     <form
       onSubmit={locked ? (e) => e.preventDefault() : handleSubmit(submitHandler)}
       className="space-y-6"
@@ -555,11 +564,7 @@ const TicketEditForm: React.FC<Props> = ({
               className={extraTabClass("supplier-updates")}
             >
               Supplier updates
-              {(pendingUpdates.data?.length ?? 0) > 0 && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                  {pendingUpdates.data!.length}
-                </span>
-              )}
+              <AttentionBadge items={updatesTabItems} />
             </button>
           </>
         )}

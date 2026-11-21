@@ -9,6 +9,8 @@ import MascotLoader from "@/components/MascotLoader";
 import ImageUpload from "@/components/ImageUpload";
 import InputField from "@/components/InputField";
 import TextInput from "@/components/ticket-fields/TextInput";
+import AttentionBadge, { AttentionItem, UnsavedChip, supplierItems } from "@/components/ticket-fields/AttentionBadge";
+import { fieldLabel } from "@/util/contentLabels";
 import PackageCardShell from "@/components/ticket-fields/PackageCardShell";
 import PackagesHeader from "@/components/ticket-fields/PackagesHeader";
 import BackBtn from "@/components/BackBtn";
@@ -29,7 +31,6 @@ import { ContentMediaT, ContentOptionT, ProductContentT, ReviewMetaT, SupplierUp
 import AddRelated from "@/pages/admin/tickets/_components/AddRelated";
 import { searchRelatedProducts } from "@/graphql/contentEditorReview";
 import SupplierUpdatesPanel, {
-  CountPill,
   Resolution,
   Staged,
   SupplierBadge,
@@ -37,7 +38,7 @@ import SupplierUpdatesPanel, {
   fieldKey,
   flashField,
   flashUpdate,
-  optionUpdateCount,
+  optionIdOfUpdate,
   handleConflict,
   isConflict,
   stagedList,
@@ -246,7 +247,28 @@ const ContentTicketEdit = () => {
     return null;
   };
 
+  const tabOf = (k: string): TabId => {
+    const [kind, f] = k.split(":");
+    if (kind !== "p") return "options";
+    const s = sectionOfField(f);
+    return s === "hours" ? "basic" : s; // this page has no hours tab
+  };
+  const tabOfUpdate = (su: SupplierUpdateT): TabId => (su.entityName === "Product" ? tabOf(`p:${su.field}`) : "options");
   const allUpdates = updates.data ?? [];
+  const changedItems = changed.map((k): AttentionItem => {
+    const [kind, a, b] = k.split(":");
+    const base = { kind: "unsaved" as const, tab: tabOf(k), optionId: kind === "p" ? null : a };
+    if (kind === "p") return { ...base, entityName: "Product", entityId: data.id, field: a, label: fieldLabel(a) };
+    if (kind === "o") return { ...base, entityName: "ProductOption", entityId: a, field: b, label: fieldLabel(b) };
+    const field = kind === "c" ? "customOriginalPrice" : "name";
+    return { ...base, entityName: "TicketType", entityId: b, field, label: fieldLabel(field) };
+  });
+  // A staged choice counts as unsaved, not as pending supplier change.
+  const items: AttentionItem[] = [
+    ...supplierItems(allUpdates, staged, tabOfUpdate, (su) => optionIdOfUpdate(su, data)),
+    ...changedItems,
+  ];
+  const itemsOf = (t: TabId) => (t === "updates" ? items.filter((i) => i.kind === "supplier" || i.staged) : items.filter((i) => i.tab === t));
   const onStage = (sid: string, res: Resolution | null) =>
     setStaged((prev) => {
       const n = { ...prev };
@@ -262,15 +284,25 @@ const ContentTicketEdit = () => {
   };
   /** Field badge for controls without a FieldFrame (cover, gallery). */
   const productBadge = (field: string) => {
-    const us = allUpdates.filter((u) => u.entityName === "Product" && u.field === field);
-    return us.length ? <SupplierBadge count={us.length} onClick={() => setDialogIds(us.map((u) => u.id))} /> : null;
+    const us = allUpdates.filter((u) => u.entityName === "Product" && u.field === field && !staged[u.id]);
+    const dirtyField = items.some((i) => i.kind === "unsaved" && i.entityName === "Product" && i.field === field);
+    return us.length || dirtyField ? (
+      <div className="flex items-center justify-end gap-2">
+        {us.length > 0 && <SupplierBadge count={us.length} onClick={() => setDialogIds(us.map((u) => u.id))} />}
+        {dirtyField && <UnsavedChip />}
+      </div>
+    ) : null;
   };
   const ctxFor = (entityName: string, entityId: string, meta: ReviewMetaT): FieldCtx => ({
     meta: { ...meta, editedFields: meta.editedFields ?? [], alwaysReviewFields: meta.alwaysReviewFields ?? [] },
     diff,
     entityName,
     entityId,
-    updates: allUpdates.filter((u) => u.entityId === entityId),
+    updates: allUpdates.filter((u) => u.entityId === entityId && !staged[u.id]),
+    // a price edit marks the ticket-type row, which has no price field of its own
+    dirty: items
+      .filter((i) => i.kind === "unsaved" && i.entityName === entityName && i.entityId === entityId)
+      .map((i) => (i.field === "customOriginalPrice" ? "name" : i.field)),
     busy: always.isPending,
     onShowPending: (su) => {
       setTab("updates");
@@ -312,16 +344,6 @@ const ContentTicketEdit = () => {
 
   const cover = bindProduct("image");
   const related = bindProduct("relatedProducts");
-  const tabOf = (k: string): TabId => {
-    const [kind, f] = k.split(":");
-    if (kind !== "p") return "options";
-    const s = sectionOfField(f);
-    return s === "hours" ? "basic" : s; // this page has no hours tab
-  };
-  const tabOfUpdate = (su: SupplierUpdateT): TabId => (su.entityName === "Product" ? tabOf(`p:${su.field}`) : "options");
-  const tabCounts = new Map<TabId, number>();
-  allUpdates.forEach((u) => tabCounts.set(tabOfUpdate(u), (tabCounts.get(tabOfUpdate(u)) ?? 0) + 1));
-  const dirtyTabs = new Set<TabId>([...changed.map(tabOf), ...(stagedCount ? (["updates"] as TabId[]) : [])]);
   const TabBtn = ({ t, label }: { t: TabId; label: string }) => (
     <button
       type="button"
@@ -331,21 +353,15 @@ const ContentTicketEdit = () => {
       }`}
     >
       {label}
-      {t !== "updates" && <CountPill count={tabCounts.get(t) ?? 0} />}
-      {dirtyTabs.has(t) && (
-        <span aria-label="Unsaved changes" className="h-2 w-2 rounded-full bg-amber-500" />
-      )}
+      <AttentionBadge items={itemsOf(t)} />
     </button>
   );
-  const pending = updates.data?.length ?? data.pendingSupplierUpdates;
 
   const renderOption = (o: ContentOptionT, optionNo: number) => {
     const deleted = !!o.deletedAt;
     const bind = (f: string) => mk(`o:${o.id}:${f}`, o[f]);
     const types = activeFirst(o.ticketTypes);
     const isOpen = openOpts.has(o.id);
-    const edited = changed.some((k) => /^[otc]:/.test(k) && k.split(":")[1] === o.id);
-    const nUpd = optionUpdateCount(allUpdates, o.id, o.ticketTypes.map((t) => t.id));
     return (
       <PackageCardShell
         key={o.id}
@@ -365,10 +381,7 @@ const ContentTicketEdit = () => {
         badges={
           <>
             {deleted && <DeletedBadge at={o.deletedAt!} />}
-            <CountPill count={nUpd} text />
-            {edited && (
-              <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Unsaved edits</span>
-            )}
+            <AttentionBadge items={items.filter((i) => i.optionId === o.id)} />
           </>
         }
       >
@@ -495,7 +508,7 @@ const ContentTicketEdit = () => {
         <TabBtn t="media" label="Media" />
         <TabBtn t="options" label="Options" />
         <TabBtn t="related" label="Related tickets" />
-        <TabBtn t="updates" label={pending > 0 ? `Supplier updates (${pending})` : "Supplier updates"} />
+        <TabBtn t="updates" label="Supplier updates" />
       </div>
 
       <div className="min-h-96 space-y-4">

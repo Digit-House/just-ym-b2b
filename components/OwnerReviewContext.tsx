@@ -1,6 +1,8 @@
 import { ReactNode, createContext, useContext, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { AttentionItem, UnsavedChip, supplierItems } from "@/components/ticket-fields/AttentionBadge";
+import { fieldLabel } from "@/util/contentLabels";
 import { Switch } from "@/components/ui/switch";
 import { FieldFrame, Section, sectionOfField } from "@/pages/content/_components/ContentFields";
 import SupplierUpdatesPanel, {
@@ -9,6 +11,7 @@ import SupplierUpdatesPanel, {
   SupplierBadge,
   SupplierFieldDialog,
   fieldKey,
+  optionIdOfUpdate,
   flashField,
   flashUpdate,
   useProductContent,
@@ -29,12 +32,57 @@ const OWNER_TAB: Record<Section, string> = {
   hours: "operating-hours",
   related: "relatedTickets",
 };
-export const ownerTabOf = (su: SupplierUpdateT) =>
-  su.entityName === "Product" ? OWNER_TAB[sectionOfField(su.field)] : "options";
+const ownerTabOfField = (entityName: string, field: string) =>
+  entityName === "Product" ? OWNER_TAB[sectionOfField(field)] : "options";
+export const ownerTabOf = (su: SupplierUpdateT) => ownerTabOfField(su.entityName, su.field);
+
+const isDirty = (v: any): boolean =>
+  v === true || (Array.isArray(v) ? v.some(isDirty) : !!v && typeof v === "object" && Object.values(v).some(isDirty));
+
+/**
+ * Everything that needs attention on the owner form: pending supplier updates (a staged choice counts as
+ * unsaved, not pending) and fields changed in the form, read from react-hook-form dirtyFields (vs initialValues).
+ */
+export const ownerAttention = ({ productId, updates, staged, dirtyFields, options, content }: {
+  productId: string;
+  updates: SupplierUpdateT[];
+  staged: Staged;
+  dirtyFields: any;
+  options: any[] | undefined;
+  content?: ProductContentT;
+}): AttentionItem[] => {
+  const out = supplierItems(updates, staged, ownerTabOf, (su) => optionIdOfUpdate(su, content));
+  const add = (entityName: string, entityId: string, field: string, optionId?: string | null) =>
+    out.push({
+      kind: "unsaved",
+      tab: ownerTabOfField(entityName, field),
+      optionId,
+      entityName,
+      entityId,
+      field,
+      label: fieldLabel(field),
+    });
+  Object.entries(dirtyFields ?? {}).forEach(([k, v]) => k !== "productOptions" && isDirty(v) && add("Product", productId, k));
+  ((dirtyFields?.productOptions as any[]) ?? []).forEach((od, i) => {
+    const o = options?.[i];
+    if (!o?.id || !od) return;
+    Object.entries(od).forEach(([k, v]) => {
+      if (k !== "ticketTypes") return isDirty(v) && add("ProductOption", o.id, k, o.id);
+      (v as any[]).forEach((td, j) => {
+        const t = o.ticketTypes?.[j];
+        if (t && td) Object.entries(td).forEach(([tk, tv]) => isDirty(tv) && add("TicketType", t.ticketTypeId, tk, o.id));
+      });
+    });
+  });
+  return out;
+};
 
 type Value = {
   content?: ProductContentT;
   updates: SupplierUpdateT[];
+  staged: Staged;
+  /** Everything that needs attention (supplier and unsaved), built by the form. */
+  items: AttentionItem[];
   /** Package to open (set by Go to field); `n` makes a repeat request a new value. */
   focus: { optionId: string; n: number } | null;
   openUpdates: (updates: SupplierUpdateT[]) => void;
@@ -72,7 +120,7 @@ const useValue = (productId: string) => {
 };
 
 /** Gives the owner ticket form the diff-view toggle and the per-field "Always review" switch (D10, D13). */
-const LiveProvider = ({ productId, setTab, staged = {}, onStage = () => {}, children }: ProviderProps) => {
+const LiveProvider = ({ productId, setTab, staged = {}, onStage = () => {}, items, children }: ProviderProps) => {
   const base = useValue(productId);
   const [dialogIds, setDialogIds] = useState<string[] | null>(null);
   const [focus, setFocus] = useState<Value["focus"]>(null);
@@ -84,6 +132,8 @@ const LiveProvider = ({ productId, setTab, staged = {}, onStage = () => {}, chil
   };
   const value: Value = {
     ...base,
+    staged,
+    items,
     focus,
     goTo,
     openUpdates: (us) => setDialogIds(us.map((u) => u.id)),
@@ -112,6 +162,7 @@ const LiveProvider = ({ productId, setTab, staged = {}, onStage = () => {}, chil
 type ProviderProps = {
   productId: string;
   setTab: (id: string) => void;
+  items: AttentionItem[];
   /** Supplier-update choices staged by the page; the field dialog edits them. */
   staged?: Staged;
   onStage?: (id: string, r: Resolution | null) => void;
@@ -169,6 +220,8 @@ export const SaveDiffProvider = ({
   const value: Value = {
     content,
     updates: [],
+    staged: {},
+    items: [],
     focus: null,
     goTo: () => {},
     openUpdates: () => {},
@@ -234,7 +287,12 @@ export const ReviewField = ({
         diff: v.diff,
         entityName: entity,
         entityId: id,
-        updates: v.updates.filter((u) => u.entityId === id),
+        updates: v.updates.filter((u) => u.entityId === id && !v.staged[u.id]),
+        dirty: (() => {
+          const mine = v.items.filter((i) => i.kind === "unsaved" && i.entityName === entity && i.entityId === id);
+          // any edit on a ticket type marks its row, which only has the name control
+          return entity === "TicketType" && mine.length ? names : mine.map((i) => i.field);
+        })(),
         onOpenUpdates: v.openUpdates,
         busy: v.always.isPending,
         locked: v.locked,
@@ -255,10 +313,16 @@ export const ReviewField = ({
 /** Anchor and badge for a control that has no ReviewField (owner media tab). */
 export const OwnerFieldBox = ({ entityId, fields, children }: { entityId: string; fields: string[]; children: ReactNode }) => {
   const v = useContext(Ctx);
-  const us = (v?.updates ?? []).filter((u) => u.entityName === "Product" && fields.includes(u.field));
+  const us = (v?.updates ?? []).filter((u) => u.entityName === "Product" && fields.includes(u.field) && !v!.staged[u.id]);
+  const unsaved = (v?.items ?? []).some((i) => i.kind === "unsaved" && i.entityName === "Product" && fields.includes(i.field));
   return (
     <div data-field-key={fields.map((f) => fieldKey("Product", entityId, f)).join(" ")} className="space-y-3">
-      {us.length > 0 && <SupplierBadge count={us.length} onClick={() => v!.openUpdates(us)} />}
+      {(us.length > 0 || unsaved) && (
+        <div className="flex items-center justify-end gap-2">
+          {us.length > 0 && <SupplierBadge count={us.length} onClick={() => v!.openUpdates(us)} />}
+          {unsaved && <UnsavedChip />}
+        </div>
+      )}
       {children}
     </div>
   );

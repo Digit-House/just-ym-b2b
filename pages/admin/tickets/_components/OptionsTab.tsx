@@ -25,7 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ReadOnly from "@/components/ReadOnly";
 import { formatUtcDate } from "@/lib/dateFormat";
 import { ReviewField, useLocked, useOwnerReview } from "@/components/OwnerReviewContext";
-import { CountPill, optionUpdateCount } from "@/pages/content/_components/SupplierUpdatesPanel";
+import AttentionBadge from "@/components/ticket-fields/AttentionBadge";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -196,10 +196,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 onToggle={() => togglePackage(optionIndex)}
                 badges={
                   <>
-                    <CountPill
-                      count={optionUpdateCount(review?.updates ?? [], option.id, option.ticketTypes?.map((t) => t.ticketTypeId))}
-                      text
-                    />
+                    <AttentionBadge items={(review?.items ?? []).filter((i) => i.optionId === option.id)} />
                     {hasError && (
                       <span className="flex items-center gap-1 text-xs font-medium text-red-600">
                         <AlertCircle className="h-4 w-4" />
@@ -397,7 +394,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                                   }`}
                                 >
                                   <div className="flex justify-between items-start mb-3">
-                                    <ReviewField entity="TicketType" entityId={ticketType.id ?? undefined} names={["name"]} label="Ticket type name" current={ticketType.name}>
+                                    <ReviewField entity="TicketType" entityId={ticketType.ticketTypeId ?? undefined} names={["name"]} label="Ticket type name" current={ticketType.name}>
                                     <h6 className="font-medium">
                                       {ticketType.name}
                                     </h6>

@@ -10,6 +10,7 @@ import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
 import AlwaysReviewSwitch from "@/components/AlwaysReviewSwitch";
 import ContentDiffField from "@/components/ContentDiffField";
 import { ReviewMetaT, SupplierUpdateT } from "@/types/contentEditor.type";
+import { UnsavedChip } from "@/components/ticket-fields/AttentionBadge";
 import { SupplierBadge, fieldKey } from "./SupplierUpdatesPanel";
 
 export type Bind<T = any> = { value: T; onChange: (v: T) => void };
@@ -53,8 +54,10 @@ export type FieldCtx = {
   diff: boolean;
   entityName: string;
   entityId: string;
-  /** Waiting supplier updates of this entity. */
+  /** Waiting supplier updates of this entity (staged choices excluded: they count as unsaved). */
   updates: SupplierUpdateT[];
+  /** Fields of this entity changed in the form and not saved yet. */
+  dirty: string[];
   busy: boolean;
   onToggleAlways: (fields: string[], on: boolean) => void;
   /** Go to the Supplier updates tab, at this update. */
@@ -128,6 +131,7 @@ export const FieldFrame = ({
   const edited = ctx.meta.editedFields.includes(f);
   const fieldUpdates = ctx.updates.filter((u) => names.includes(u.field));
   const pending = fieldUpdates.length > 0;
+  const unsaved = names.some((n) => ctx.dirty.includes(n));
   const box = boxed && ctx.diff;
   return (
     <div
@@ -152,22 +156,24 @@ export const FieldFrame = ({
               {label}
             </span>
           )}
-          {pending ? (
-            <SupplierBadge count={fieldUpdates.length} onClick={() => ctx.onOpenUpdates(fieldUpdates)} />
-          ) : edited ? (
+          {edited ? (
             <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>{locked ? "Changed" : "Edited"}</span>
           ) : (
             <span className={`${CHIP} bg-gray-100 text-gray-700`}>{locked ? "Not changed" : "Same as supplier"}</span>
           )}
         </div>
-        {!disabled && (
-          <AlwaysReviewSwitch
-            label={label}
-            checked={on}
-            disabled={ctx.busy}
-            onChange={(v) => ctx.onToggleAlways(names, v)}
-          />
-        )}
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          {pending && <SupplierBadge count={fieldUpdates.length} onClick={() => ctx.onOpenUpdates(fieldUpdates)} />}
+          {unsaved && <UnsavedChip />}
+          {!disabled && (
+            <AlwaysReviewSwitch
+              label={label}
+              checked={on}
+              disabled={ctx.busy}
+              onChange={(v) => ctx.onToggleAlways(names, v)}
+            />
+          )}
+        </div>
       </div>
       {ctx.diff ? (
         <ContentDiffField
