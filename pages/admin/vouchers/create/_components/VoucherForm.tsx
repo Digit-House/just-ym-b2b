@@ -3,7 +3,7 @@
 import InputField from "@/components/InputField";
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { format, startOfDay } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon, Copy, Plus } from "lucide-react";
 
 import {
@@ -538,7 +538,6 @@ const VoucherForm = ({ data }: Props) => {
                         field.onChange(date);
                         setOpenStartDate(false);
                       }}
-                      disabled={(date) => date < startOfDay(new Date())}
                       initialFocus
                     />
                   </PopoverContent>
@@ -609,11 +608,10 @@ const VoucherForm = ({ data }: Props) => {
         {/* Code Prefix */}
         {isCodeOnly && (
           <InputField
-            label="Code Prefix"
+            label="Code Prefix (optional)"
             placeholder="Enter code prefix"
             {...register("codePrefix")}
             errMsg={errors.codePrefix?.message}
-            isRequired
           />
         )}
 
