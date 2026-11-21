@@ -80,6 +80,8 @@ export type MY_BOOKING_DATA_TYPE = {
   remarks: string;
   status: BOOKING_STATUS_ENUM;
   supplierStatus?: string | null; // OWNER-only
+  bookingFailedApologySentAt?: string | null; // OWNER-only
+  bookingFailedApologyVoucherCode?: string | null; // OWNER-only
   transactionRefNumber: string;
   transactedAmount: number;
   transactedBy: string;
@@ -132,6 +134,8 @@ export type BookingSummaryT = {
   expiresAt?: string | null;
   referenceNumber: string;
   supplierStatus?: string | null; // OWNER-only
+  bookingFailedApologySentAt?: string | null; // OWNER-only
+  bookingFailedApologyVoucherCode?: string | null; // OWNER-only
   voucherDiscountAmount: number;
   hotelDetail?: {
     id: string; // ETG reservation id — what bookingItinerary(id) expects, not the summary id
