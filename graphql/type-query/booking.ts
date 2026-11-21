@@ -102,11 +102,19 @@ query GetTransactionDetailBy($data: FindBookingByInput!) {
     remarks
     status
     supplierStatus
+    bookingFailedApologySentAt
     transactedAmount
     transactedBy
     transactedTime
     transactionRefNumber
     viewTicketUrl
+  }
+}`;
+
+export const SEND_BOOKING_FAILED_APOLOGY_MUTATION = `
+mutation SendBookingFailedApologyEmail($transactionId: String!) {
+  sendBookingFailedApologyEmail(transactionId: $transactionId) {
+    sentAt
   }
 }`;
 
@@ -141,6 +149,7 @@ query MyBookings($params: BookingSummaryFindInput!) {
       expiresAt
       referenceNumber
       supplierStatus
+      bookingFailedApologySentAt
       voucherDiscountAmount
       hotelDetail {
         id

@@ -33,6 +33,7 @@ import {
 } from "@/graphql/booking";
 import { toast } from "sonner";
 import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
+import BookingFailedApology from "@/pages/web/booking/_component/BookingFailedApology";
 import MascotLoader from "@/components/MascotLoader";
 import ButtonSpinner from "@/components/ButtonSpinner";
 
@@ -41,6 +42,7 @@ const Preview = () => {
   const { id } = useParams();
   const {
     bookingDetail,
+    setBookingDetail,
     total,
     loading,
     resendLoading,
@@ -207,6 +209,17 @@ const Preview = () => {
                     prefix="Supplier status:"
                   />
                 )}
+                <BookingFailedApology
+                  transactionId={bookingDetail.id}
+                  isFailed={bookingDetail.status === "FAILED" || bookingDetail.supplierStatus === "FAILED"}
+                  sentAt={bookingDetail.bookingFailedApologySentAt}
+                  onSent={(sentAt) =>
+                    setBookingDetail({
+                      ...bookingDetail,
+                      bookingFailedApologySentAt: sentAt,
+                    })
+                  }
+                />
                 {bookingDetail.isTicketConfirmed && (
                   <div className="bg-blue-100 border border-blue-200 px-3 py-1 rounded-[4px]">
                     <p className="text-blue-700 text-sm font-medium">

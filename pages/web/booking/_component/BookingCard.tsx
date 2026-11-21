@@ -17,7 +17,7 @@ import {
   Globe,
   Ticket,
 } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn, truncateDescription } from "@/lib/utils";
 import ImageFallback from "@/components/ImageFallback";
@@ -25,6 +25,7 @@ import { HOTEL_IMAGE_PLACEHOLDER, resolveHotelImageUrl } from "@/graphql/hotel";
 import { preFixImg } from "@/util/initData";
 import { useUser } from "@/provider/UserProvider";
 import SupplierStatusBadge from "./SupplierStatusBadge";
+import BookingFailedApology from "./BookingFailedApology";
 
 type Props = {
   data: BookingSummaryT;
@@ -39,6 +40,9 @@ const FULFILLMENT_ICONS: Record<BookingFulfillmentStatus, ReactNode> = {
 const BookingCard = ({ data }: Props) => {
   const { user } = useUser();
   const navigate = useNavigate();
+  const [apologySentAt, setApologySentAt] = useState(
+    data.bookingFailedApologySentAt
+  );
 
   // Helper to determine badge styles based on payment status
   const getStatusStyles = (status: BOOKING_STATUS_ENUM) => {
@@ -187,6 +191,16 @@ const BookingCard = ({ data }: Props) => {
                 className="mt-1"
               />
             )}
+            <BookingFailedApology
+              className="mt-1"
+              transactionId={data.id}
+              isFailed={
+                !isHotel &&
+                (data.paymentStatus === BOOKING_STATUS_ENUM.FAILED || data.supplierStatus === "FAILED")
+              }
+              sentAt={apologySentAt}
+              onSent={setApologySentAt}
+            />
             <div className="text-xs text-slate-500 mt-0.5">
               Qty: {data.quantity}
             </div>
