@@ -31,12 +31,18 @@ const PackageCardShell = ({
 }) => {
   const body = "space-y-4 px-6 pb-6 pt-2 border-t";
   return (
-    <div className={`rounded-lg border bg-gray-50 ${hasError ? "border-red-300" : ""}`}>
+    <div
+      className={`rounded-xl border bg-white transition-shadow duration-200 ${
+        open ? "shadow-md" : "shadow-sm hover:shadow-md"
+      } ${hasError ? "border-red-300" : "border-gray-200"}`}
+    >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center gap-3 px-6 py-4 text-left cursor-pointer"
+        className={`flex w-full items-center gap-3 px-6 py-4 text-left cursor-pointer transition-colors hover:bg-gray-50 ${
+          open ? "rounded-t-xl" : "rounded-xl"
+        }`}
       >
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Package {index + 1}</p>
