@@ -82,7 +82,7 @@ const serverValue = (data: ProductContentT, key: string) => {
   const tt = option?.ticketTypes.find((t) => t.id === b);
   return kind === "c" ? tt?.customOriginalPrice : tt?.name;
 };
-/** c: keys hold the typed text; empty means "use GlobalTix" (null). */
+/** c: keys hold the typed text; empty means "use the supplier price" (null). */
 const norm = (key: string, v: any) => {
   if (key === "p:media") return cleanMedia(v);
   if (key === "p:relatedProducts")
@@ -91,7 +91,7 @@ const norm = (key: string, v: any) => {
   return v;
 };
 /** Mirrors the server: a custom original price must be a number above 0. */
-const priceError = (v: number | null) => (v !== null && !(Number.isFinite(v) && v > 0) ? "Enter a price above 0, or leave empty to use GlobalTix." : "");
+const priceError = (v: number | null) => (v !== null && !(Number.isFinite(v) && v > 0) ? "Enter a price above 0, or leave empty to use the supplier price." : "");
 
 const ContentTicketEdit = () => {
   const { id = "" } = useParams<{ id: string }>();
@@ -350,7 +350,7 @@ const ContentTicketEdit = () => {
             ["Published", o.isPublished],
             ["Cancellable", o.isCancellable],
             ...types.map((t): [string, unknown] => [
-              `GlobalTix original price, ${t.name}`,
+              `Supplier original price, ${t.name}`,
               t.supplierOriginalPrice == null ? "Not set" : t.supplierOriginalPrice,
             ]),
           ]}
@@ -392,7 +392,7 @@ const ContentTicketEdit = () => {
                     type="number"
                     min="0"
                     step="any"
-                    placeholder="Empty = use GlobalTix price"
+                    placeholder="Empty = use supplier price"
                     disabled={gone}
                     value={pb.value ?? ""}
                     onChange={(e) => pb.onChange(e.target.value)}
