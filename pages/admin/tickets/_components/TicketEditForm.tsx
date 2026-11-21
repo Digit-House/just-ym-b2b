@@ -19,10 +19,11 @@ import OptionsTab from "./OptionsTab";
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { ImageUploadRef } from "@/components/ImageUpload";
 import RelatedTicketTab from "./RelatedTicketTab";
-import { OwnerReviewProvider, DiffToggle, useLocked } from "@/components/OwnerReviewContext";
+import { OwnerReviewProvider, OwnerFieldBox, OwnerUpdatesPanel, DiffToggle, ownerTabOf, useLocked } from "@/components/OwnerReviewContext";
 import AuditLogList from "@/components/AuditLogList";
 import SupplierUpdatesPanel, {
   Resolution,
+  CountPill,
   Staged,
   useSupplierUpdates,
 } from "@/pages/content/_components/SupplierUpdatesPanel";
@@ -469,6 +470,9 @@ const TicketEditForm: React.FC<Props> = ({
         : "text-gray-600 hover:bg-gray-50 border border-transparent"
     }`;
 
+  const tabCounts = new Map<string, number>();
+  (pendingUpdates.data ?? []).forEach((u) => tabCounts.set(ownerTabOf(u), (tabCounts.get(ownerTabOf(u)) ?? 0) + 1));
+
   const TabButton = ({ id, label }: { id: string; label: string }) => (
     <button
       type="button"
@@ -481,6 +485,7 @@ const TicketEditForm: React.FC<Props> = ({
     >
       {tabIcons[id as keyof typeof tabIcons]}
       {label}
+      <CountPill count={tabCounts.get(id) ?? 0} />
       {hasTabErrors(id) && (
         <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
           <span className="text-xs text-white">!</span>
@@ -490,7 +495,7 @@ const TicketEditForm: React.FC<Props> = ({
   );
 
   return (
-    <OwnerReviewProvider productId={initialValues?.id ?? ""} onShowPending={() => setCurrentTab("supplier-updates")}>
+    <OwnerReviewProvider productId={initialValues?.id ?? ""} setTab={setCurrentTab} staged={staged} onStage={onStage}>
     <form
       onSubmit={locked ? (e) => e.preventDefault() : handleSubmit(submitHandler)}
       className="space-y-6"
@@ -605,13 +610,15 @@ const TicketEditForm: React.FC<Props> = ({
         </div>
 
         <div style={{ display: currentTab === "media" ? "block" : "none" }}>
-          <MediaTab
-            errors={errors}
-            watch={watch}
-            setValue={setValue}
-            initialValues={initialValues as ProductInfoT}
-            setMediaItemRef={setMediaItemRef}
-          />
+          <OwnerFieldBox entityId={initialValues?.id ?? ""} fields={["media", "image"]}>
+            <MediaTab
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              initialValues={initialValues as ProductInfoT}
+              setMediaItemRef={setMediaItemRef}
+            />
+          </OwnerFieldBox>
         </div>
 
         <div
@@ -663,7 +670,7 @@ const TicketEditForm: React.FC<Props> = ({
           <AuditLogList filter={{ productId: initialValues.id }} />
         )}
         {initialValues?.id && currentTab === "supplier-updates" && (
-          <SupplierUpdatesPanel productId={initialValues.id} staged={staged} onStage={onStage} />
+          <OwnerUpdatesPanel productId={initialValues.id} staged={staged} onStage={onStage} />
         )}
       </div>
       </fieldset>

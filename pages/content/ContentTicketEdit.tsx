@@ -25,11 +25,19 @@ import {
 import { getSignedUrlAndImageDataUpload } from "@/util";
 import { getErrMsg } from "@/util/initData";
 import { sameRichText } from "@/lib/richText";
-import { ContentMediaT, ContentOptionT, ProductContentT, ReviewMetaT } from "@/types/contentEditor.type";
+import { ContentMediaT, ContentOptionT, ProductContentT, ReviewMetaT, SupplierUpdateT } from "@/types/contentEditor.type";
 import AddRelated from "@/pages/admin/tickets/_components/AddRelated";
 import { searchRelatedProducts } from "@/graphql/contentEditorReview";
 import SupplierUpdatesPanel, {
+  CountPill,
+  Resolution,
   Staged,
+  SupplierBadge,
+  SupplierFieldDialog,
+  fieldKey,
+  flashField,
+  flashUpdate,
+  optionUpdateCount,
   handleConflict,
   isConflict,
   stagedList,
@@ -39,19 +47,18 @@ import SupplierUpdatesPanel, {
 import {
   BASIC_GROUPS,
   Bind,
-  DETAIL_FIELDS,
   DETAIL_GROUPS,
   FieldCtx,
   FieldFrame,
   FieldGroup,
   FieldSpec,
   InfoCard,
-  LOCATION_FIELDS,
   LOCATION_GROUPS,
   OPTION_GROUPS,
   ReadOnlyField,
   SectionCard,
   renderSpecs,
+  sectionOfField,
 } from "./_components/ContentFields";
 
 type Edits = Record<string, any>;
@@ -103,6 +110,7 @@ const ContentTicketEdit = () => {
   const [openOpts, setOpenOpts] = useState<Set<string>>(new Set());
   const [edits, setEdits] = useState<Edits>({});
   const [staged, setStaged] = useState<Staged>({});
+  const [dialogIds, setDialogIds] = useState<string[] | null>(null);
   const stagedCount = Object.keys(staged).length;
   const [uploading, setUploading] = useState(0);
   const [diff, setDiff] = useState(() => localStorage.getItem(DIFF_KEY) === "1");
@@ -238,14 +246,37 @@ const ContentTicketEdit = () => {
     return null;
   };
 
-  const pendingFor = (entityId: string) =>
-    new Set((updates.data ?? []).filter((u) => u.entityId === entityId).map((u) => u.field));
+  const allUpdates = updates.data ?? [];
+  const onStage = (sid: string, res: Resolution | null) =>
+    setStaged((prev) => {
+      const n = { ...prev };
+      if (res) n[sid] = res;
+      else delete n[sid];
+      return n;
+    });
+  const goToField = (su: SupplierUpdateT) => {
+    setTab(tabOfUpdate(su));
+    const optionId = su.entityName === "ProductOption" ? su.entityId : su.locationIds?.optionId;
+    if (su.entityName !== "Product" && optionId) setOpenOpts((prev) => new Set(prev).add(optionId));
+    flashField(su);
+  };
+  /** Field badge for controls without a FieldFrame (cover, gallery). */
+  const productBadge = (field: string) => {
+    const us = allUpdates.filter((u) => u.entityName === "Product" && u.field === field);
+    return us.length ? <SupplierBadge count={us.length} onClick={() => setDialogIds(us.map((u) => u.id))} /> : null;
+  };
   const ctxFor = (entityName: string, entityId: string, meta: ReviewMetaT): FieldCtx => ({
     meta: { ...meta, editedFields: meta.editedFields ?? [], alwaysReviewFields: meta.alwaysReviewFields ?? [] },
     diff,
-    pending: pendingFor(entityId),
+    entityName,
+    entityId,
+    updates: allUpdates.filter((u) => u.entityId === entityId),
     busy: always.isPending,
-    onShowPending: () => setTab("updates"),
+    onShowPending: (su) => {
+      setTab("updates");
+      if (su) flashUpdate(su);
+    },
+    onOpenUpdates: (us) => setDialogIds(us.map((u) => u.id)),
     onToggleAlways: (names, on) => {
       const cur = meta.alwaysReviewFields ?? [];
       const fields = on ? Array.from(new Set([...cur, ...names])) : cur.filter((f) => !names.includes(f));
@@ -284,11 +315,12 @@ const ContentTicketEdit = () => {
   const tabOf = (k: string): TabId => {
     const [kind, f] = k.split(":");
     if (kind !== "p") return "options";
-    if (f === "media" || f === "image") return "media";
-    if (f === "relatedProducts") return "related";
-    if (DETAIL_FIELDS.some((x) => x.f === f || `${x.f}_mm` === f)) return "details";
-    return LOCATION_FIELDS.some((x) => x.f === f) ? "location" : "basic";
+    const s = sectionOfField(f);
+    return s === "hours" ? "basic" : s; // this page has no hours tab
   };
+  const tabOfUpdate = (su: SupplierUpdateT): TabId => (su.entityName === "Product" ? tabOf(`p:${su.field}`) : "options");
+  const tabCounts = new Map<TabId, number>();
+  allUpdates.forEach((u) => tabCounts.set(tabOfUpdate(u), (tabCounts.get(tabOfUpdate(u)) ?? 0) + 1));
   const dirtyTabs = new Set<TabId>([...changed.map(tabOf), ...(stagedCount ? (["updates"] as TabId[]) : [])]);
   const TabBtn = ({ t, label }: { t: TabId; label: string }) => (
     <button
@@ -299,6 +331,7 @@ const ContentTicketEdit = () => {
       }`}
     >
       {label}
+      {t !== "updates" && <CountPill count={tabCounts.get(t) ?? 0} />}
       {dirtyTabs.has(t) && (
         <span aria-label="Unsaved changes" className="h-2 w-2 rounded-full bg-amber-500" />
       )}
@@ -312,6 +345,7 @@ const ContentTicketEdit = () => {
     const types = activeFirst(o.ticketTypes);
     const isOpen = openOpts.has(o.id);
     const edited = changed.some((k) => /^[otc]:/.test(k) && k.split(":")[1] === o.id);
+    const nUpd = optionUpdateCount(allUpdates, o.id, o.ticketTypes.map((t) => t.id));
     return (
       <PackageCardShell
         key={o.id}
@@ -331,6 +365,7 @@ const ContentTicketEdit = () => {
         badges={
           <>
             {deleted && <DeletedBadge at={o.deletedAt!} />}
+            <CountPill count={nUpd} text />
             {edited && (
               <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Unsaved edits</span>
             )}
@@ -488,7 +523,8 @@ const ContentTicketEdit = () => {
         {tab === "media" && (
           <>
             <SectionCard title="Cover image">
-              <div>
+              <div data-field-key={fieldKey("Product", data.id, "image")} className="space-y-2">
+                {productBadge("image")}
               <ImageUpload
                 value={cover.value}
                 label=""
@@ -506,7 +542,8 @@ const ContentTicketEdit = () => {
               </div>
             </SectionCard>
             <SectionCard title="Gallery">
-              <div className="space-y-3">
+              <div className="space-y-3" data-field-key={fieldKey("Product", data.id, "media")}>
+              {productBadge("media")}
               <div className="grid gap-4 md:grid-cols-2">
                 {media.map((m, i) => (
                   <div key={`${i}-${m.path}`} className="space-y-2 rounded-lg border p-3">
@@ -566,17 +603,21 @@ const ContentTicketEdit = () => {
           <SupplierUpdatesPanel
             productId={id}
             staged={staged}
-            onStage={(sid, res) =>
-              setStaged((prev) => {
-                const n = { ...prev };
-                if (res) n[sid] = res;
-                else delete n[sid];
-                return n;
-              })
-            }
+            onStage={onStage}
+            onGoToField={goToField}
           />
         )}
       </div>
+      {dialogIds && (
+        <SupplierFieldDialog
+          productId={id}
+          updates={allUpdates.filter((u) => dialogIds.includes(u.id))}
+          staged={staged}
+          onStage={onStage}
+          onClose={() => setDialogIds(null)}
+          onGoToField={goToField}
+        />
+      )}
     </PageContainer>
   );
 };

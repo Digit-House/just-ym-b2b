@@ -2,21 +2,47 @@ import { ReactNode, createContext, useContext, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { FieldFrame } from "@/pages/content/_components/ContentFields";
-import { useProductContent, useSupplierUpdates } from "@/pages/content/_components/SupplierUpdatesPanel";
+import { FieldFrame, Section, sectionOfField } from "@/pages/content/_components/ContentFields";
+import SupplierUpdatesPanel, {
+  Resolution,
+  Staged,
+  SupplierBadge,
+  SupplierFieldDialog,
+  fieldKey,
+  flashField,
+  flashUpdate,
+  useProductContent,
+  useSupplierUpdates,
+} from "@/pages/content/_components/SupplierUpdatesPanel";
 import { setAlwaysReviewFields } from "@/graphql/contentEditorReview";
-import { AuditChangeT, AuditSaveT, ProductContentT } from "@/types/contentEditor.type";
+import { AuditChangeT, AuditSaveT, ProductContentT, SupplierUpdateT } from "@/types/contentEditor.type";
 import { getErrMsg } from "@/util/initData";
 
 const DIFF_KEY = "contentDiffView"; // same key as the editor form: one toggle per browser (D10)
 
+/** Owner form tab id of the section that owns an update; option and ticket type updates belong to Pricing & Packages. */
+const OWNER_TAB: Record<Section, string> = {
+  basic: "basic-info",
+  details: "details",
+  location: "location",
+  media: "media",
+  hours: "operating-hours",
+  related: "relatedTickets",
+};
+export const ownerTabOf = (su: SupplierUpdateT) =>
+  su.entityName === "Product" ? OWNER_TAB[sectionOfField(su.field)] : "options";
+
 type Value = {
   content?: ProductContentT;
-  updates: { entityId: string; field: string }[];
+  updates: SupplierUpdateT[];
+  /** Package to open (set by Go to field); `n` makes a repeat request a new value. */
+  focus: { optionId: string; n: number } | null;
+  openUpdates: (updates: SupplierUpdateT[]) => void;
+  goTo: (su: SupplierUpdateT) => void;
   diff: boolean;
   setDiff: (on: boolean) => void;
   always: { isPending: boolean; mutate: (v: { entityName: string; entityId: string; fields: string[] }) => void };
-  onShowPending: () => void;
+  onShowPending: (su?: SupplierUpdateT) => void;
   /** Saved-version page: read-only, Before/After. */
   locked?: boolean;
 };
@@ -25,7 +51,9 @@ const Ctx = createContext<Value | null>(null);
 /** True on the saved-version page: no editing, no actions. */
 export const useLocked = () => !!useContext(Ctx)?.locked;
 
-const useValue = (productId: string, onShowPending: () => void): Value => {
+export const useOwnerReview = () => useContext(Ctx);
+
+const useValue = (productId: string) => {
   const qc = useQueryClient();
   const content = useProductContent(productId);
   const updates = useSupplierUpdates(productId);
@@ -40,15 +68,55 @@ const useValue = (productId: string, onShowPending: () => void): Value => {
     onSuccess: () => ["productContent", "auditLogs"].forEach((k) => qc.invalidateQueries({ queryKey: [k] })),
     onError: (err) => toast.error(getErrMsg(err as any, "message")),
   });
-  return { content: content.data, updates: updates.data ?? [], diff, setDiff, always, onShowPending };
+  return { content: content.data, updates: updates.data ?? [], diff, setDiff, always };
 };
 
 /** Gives the owner ticket form the diff-view toggle and the per-field "Always review" switch (D10, D13). */
-const LiveProvider = ({ productId, onShowPending, children }: ProviderProps) => (
-  <Ctx.Provider value={useValue(productId, onShowPending)}>{children}</Ctx.Provider>
-);
+const LiveProvider = ({ productId, setTab, staged = {}, onStage = () => {}, children }: ProviderProps) => {
+  const base = useValue(productId);
+  const [dialogIds, setDialogIds] = useState<string[] | null>(null);
+  const [focus, setFocus] = useState<Value["focus"]>(null);
+  const goTo = (su: SupplierUpdateT) => {
+    setTab(ownerTabOf(su));
+    const optionId = su.entityName === "ProductOption" ? su.entityId : su.locationIds?.optionId;
+    if (su.entityName !== "Product" && optionId) setFocus({ optionId, n: Date.now() });
+    flashField(su);
+  };
+  const value: Value = {
+    ...base,
+    focus,
+    goTo,
+    openUpdates: (us) => setDialogIds(us.map((u) => u.id)),
+    onShowPending: (su) => {
+      setTab("supplier-updates");
+      if (su) flashUpdate(su);
+    },
+  };
+  return (
+    <Ctx.Provider value={value}>
+      {children}
+      {dialogIds && (
+        <SupplierFieldDialog
+          productId={productId}
+          updates={base.updates.filter((u) => dialogIds.includes(u.id))}
+          staged={staged}
+          onStage={onStage}
+          onClose={() => setDialogIds(null)}
+          onGoToField={goTo}
+        />
+      )}
+    </Ctx.Provider>
+  );
+};
 
-type ProviderProps = { productId: string; onShowPending: () => void; children: ReactNode };
+type ProviderProps = {
+  productId: string;
+  setTab: (id: string) => void;
+  /** Supplier-update choices staged by the page; the field dialog edits them. */
+  staged?: Staged;
+  onStage?: (id: string, r: Resolution | null) => void;
+  children: ReactNode;
+};
 
 /** An outer SaveDiffProvider wins: the form then reads the saved version, not the live review queries. */
 export const OwnerReviewProvider = (props: ProviderProps) =>
@@ -101,6 +169,9 @@ export const SaveDiffProvider = ({
   const value: Value = {
     content,
     updates: [],
+    focus: null,
+    goTo: () => {},
+    openUpdates: () => {},
     diff: true,
     setDiff: () => {},
     always: { isPending: false, mutate: () => {} },
@@ -161,7 +232,10 @@ export const ReviewField = ({
       ctx={{
         meta: { ...meta, editedFields: meta.editedFields ?? [], alwaysReviewFields: have },
         diff: v.diff,
-        pending: new Set(v.updates.filter((u) => u.entityId === id).map((u) => u.field)),
+        entityName: entity,
+        entityId: id,
+        updates: v.updates.filter((u) => u.entityId === id),
+        onOpenUpdates: v.openUpdates,
         busy: v.always.isPending,
         locked: v.locked,
         onShowPending: v.onShowPending,
@@ -177,3 +251,20 @@ export const ReviewField = ({
     </FieldFrame>
   );
 };
+
+/** Anchor and badge for a control that has no ReviewField (owner media tab). */
+export const OwnerFieldBox = ({ entityId, fields, children }: { entityId: string; fields: string[]; children: ReactNode }) => {
+  const v = useContext(Ctx);
+  const us = (v?.updates ?? []).filter((u) => u.entityName === "Product" && fields.includes(u.field));
+  return (
+    <div data-field-key={fields.map((f) => fieldKey("Product", entityId, f)).join(" ")} className="space-y-3">
+      {us.length > 0 && <SupplierBadge count={us.length} onClick={() => v!.openUpdates(us)} />}
+      {children}
+    </div>
+  );
+};
+
+/** The Supplier updates tab, wired so each row can go to its field. */
+export const OwnerUpdatesPanel = ({ productId, staged, onStage }: { productId: string; staged?: Staged; onStage?: (id: string, r: Resolution | null) => void }) => (
+  <SupplierUpdatesPanel productId={productId} staged={staged} onStage={onStage} onGoToField={useContext(Ctx)?.goTo} />
+);

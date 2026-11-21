@@ -24,7 +24,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import ReadOnly from "@/components/ReadOnly";
 import { formatUtcDate } from "@/lib/dateFormat";
-import { ReviewField, useLocked } from "@/components/OwnerReviewContext";
+import { ReviewField, useLocked, useOwnerReview } from "@/components/OwnerReviewContext";
+import { CountPill, optionUpdateCount } from "@/pages/content/_components/SupplierUpdatesPanel";
 
 type OptionsTabProps = {
   control: Control<TicketFormValues>;
@@ -45,6 +46,7 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   trigger,
 }) => {
   const locked = useLocked();
+  const review = useOwnerReview();
   const watchedProductOptions = watch("productOptions");
 
   useEffect(() => {
@@ -70,6 +72,14 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
   const expandAll = () =>
     setOpenPackages(new Set(Array.from({ length: optionCount }, (_, i) => i)));
   const collapseAll = () => setOpenPackages(new Set());
+
+  // Go to field: open the package that owns the update.
+  const focus = review?.focus;
+  useEffect(() => {
+    if (!focus) return;
+    const i = (watch("productOptions") ?? []).findIndex((o: any) => o.id === focus.optionId);
+    if (i >= 0) setOpenPackages((prev) => new Set(prev).add(i));
+  }, [focus, watch]);
 
   // Packages with validation errors open automatically so the errors are visible.
   const errorIndexKey = useMemo(() => {
@@ -185,12 +195,18 @@ const OptionsTab: React.FC<OptionsTabProps> = ({
                 open={isOpen}
                 onToggle={() => togglePackage(optionIndex)}
                 badges={
-                  hasError && (
-                    <span className="flex items-center gap-1 text-xs font-medium text-red-600">
-                      <AlertCircle className="h-4 w-4" />
-                      Needs fixing
-                    </span>
-                  )
+                  <>
+                    <CountPill
+                      count={optionUpdateCount(review?.updates ?? [], option.id, option.ticketTypes?.map((t) => t.ticketTypeId))}
+                      text
+                    />
+                    {hasError && (
+                      <span className="flex items-center gap-1 text-xs font-medium text-red-600">
+                        <AlertCircle className="h-4 w-4" />
+                        Needs fixing
+                      </span>
+                    )}
+                  </>
                 }
               >
                       <>

@@ -9,7 +9,8 @@ import BilingualListSection, { LIST_ICONS } from "@/components/ticket-fields/Bil
 import TermsAndConditionsEditor from "@/components/TermsAndConditionsEditor";
 import AlwaysReviewSwitch from "@/components/AlwaysReviewSwitch";
 import ContentDiffField from "@/components/ContentDiffField";
-import { ReviewMetaT } from "@/types/contentEditor.type";
+import { ReviewMetaT, SupplierUpdateT } from "@/types/contentEditor.type";
+import { SupplierBadge, fieldKey } from "./SupplierUpdatesPanel";
 
 export type Bind<T = any> = { value: T; onChange: (v: T) => void };
 
@@ -50,11 +51,16 @@ export const ListField = ({ label, value, onChange, readOnly, placeholder }: { l
 export type FieldCtx = {
   meta: ReviewMetaT;
   diff: boolean;
-  /** Fields with a waiting supplier update. */
-  pending: Set<string>;
+  entityName: string;
+  entityId: string;
+  /** Waiting supplier updates of this entity. */
+  updates: SupplierUpdateT[];
   busy: boolean;
   onToggleAlways: (fields: string[], on: boolean) => void;
-  onShowPending: () => void;
+  /** Go to the Supplier updates tab, at this update. */
+  onShowPending: (su?: SupplierUpdateT) => void;
+  /** Open the dialog with these updates. */
+  onOpenUpdates: (updates: SupplierUpdateT[]) => void;
   /** Saved-version page: everything read-only, Before/After wording. */
   locked?: boolean;
 };
@@ -120,11 +126,13 @@ export const FieldFrame = ({
   const f = names[0];
   const on = ctx.meta.alwaysReviewFields.includes(f);
   const edited = ctx.meta.editedFields.includes(f);
-  const pending = names.some((n) => ctx.pending.has(n));
+  const fieldUpdates = ctx.updates.filter((u) => names.includes(u.field));
+  const pending = fieldUpdates.length > 0;
   const box = boxed && ctx.diff;
   return (
     <div
       data-diff-row={box || undefined}
+      data-field-key={names.map((n) => fieldKey(ctx.entityName, ctx.entityId, n)).join(" ")}
       className={
         box
           ? "space-y-4 rounded-xl border border-gray-300 bg-white p-5 shadow-sm"
@@ -145,7 +153,7 @@ export const FieldFrame = ({
             </span>
           )}
           {pending ? (
-            <span className={`${CHIP} bg-amber-100 text-amber-800`}>Newer supplier value</span>
+            <SupplierBadge count={fieldUpdates.length} onClick={() => ctx.onOpenUpdates(fieldUpdates)} />
           ) : edited ? (
             <span className={`${CHIP} bg-indigo-100 text-indigo-700`}>{locked ? "Changed" : "Edited"}</span>
           ) : (
@@ -169,7 +177,7 @@ export const FieldFrame = ({
           baseline={ctx.meta.supplierBaseline?.[f]}
           current={current}
           pending={pending}
-          onShowPending={ctx.onShowPending}
+          onShowPending={() => ctx.onShowPending(fieldUpdates[0])}
           disabled={disabled}
           locked={locked}
           stack={box && names.length > 1}
@@ -332,6 +340,21 @@ const group = (title: string, all: FieldSpec[], fs: string[]): FieldGroup => ({
   title,
   specs: all.filter((s) => fs.includes(s.f)),
 });
+
+export type Section = "basic" | "details" | "location" | "media" | "related" | "hours";
+/** The one field-to-section map; both ticket pages map their tabs from it. */
+export const sectionOfField = (f: string): Section =>
+  f === "media" || f === "image"
+    ? "media"
+    : f === "relatedProducts"
+      ? "related"
+      : f.startsWith("operating")
+        ? "hours"
+        : DETAIL_FIELDS.some((x) => x.f === f || `${x.f}_mm` === f)
+          ? "details"
+          : LOCATION_FIELDS.some((x) => x.f === f)
+            ? "location"
+            : "basic";
 
 export const BASIC_GROUPS = [
   group("Text", BASIC_FIELDS, ["name", "goodToKnow"]),
