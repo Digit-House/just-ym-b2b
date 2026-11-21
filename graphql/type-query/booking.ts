@@ -103,6 +103,7 @@ query GetTransactionDetailBy($data: FindBookingByInput!) {
     status
     supplierStatus
     bookingFailedApologySentAt
+    bookingFailedApologyVoucherCode
     transactedAmount
     transactedBy
     transactedTime
@@ -112,9 +113,10 @@ query GetTransactionDetailBy($data: FindBookingByInput!) {
 }`;
 
 export const SEND_BOOKING_FAILED_APOLOGY_MUTATION = `
-mutation SendBookingFailedApologyEmail($transactionId: String!) {
-  sendBookingFailedApologyEmail(transactionId: $transactionId) {
+mutation SendBookingFailedApologyEmail($transactionId: String!, $voucherCode: String) {
+  sendBookingFailedApologyEmail(transactionId: $transactionId, voucherCode: $voucherCode) {
     sentAt
+    voucherCode
   }
 }`;
 
@@ -150,6 +152,7 @@ query MyBookings($params: BookingSummaryFindInput!) {
       referenceNumber
       supplierStatus
       bookingFailedApologySentAt
+      bookingFailedApologyVoucherCode
       voucherDiscountAmount
       hotelDetail {
         id

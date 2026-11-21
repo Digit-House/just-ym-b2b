@@ -43,6 +43,9 @@ const BookingCard = ({ data }: Props) => {
   const [apologySentAt, setApologySentAt] = useState(
     data.bookingFailedApologySentAt
   );
+  const [apologyVoucher, setApologyVoucher] = useState(
+    data.bookingFailedApologyVoucherCode
+  );
 
   // Helper to determine badge styles based on payment status
   const getStatusStyles = (status: BOOKING_STATUS_ENUM) => {
@@ -199,7 +202,11 @@ const BookingCard = ({ data }: Props) => {
                 (data.paymentStatus === BOOKING_STATUS_ENUM.FAILED || data.supplierStatus === "FAILED")
               }
               sentAt={apologySentAt}
-              onSent={setApologySentAt}
+              voucherCode={apologyVoucher}
+              onSent={(at, code) => {
+                setApologySentAt(at);
+                setApologyVoucher(code);
+              }}
             />
             <div className="text-xs text-slate-500 mt-0.5">
               Qty: {data.quantity}

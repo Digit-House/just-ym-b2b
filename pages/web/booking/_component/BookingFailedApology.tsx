@@ -2,6 +2,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import ButtonSpinner from "@/components/ButtonSpinner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +21,8 @@ type Props = {
   transactionId: string;
   isFailed: boolean;
   sentAt?: string | null;
-  onSent: (sentAt: string) => void;
+  voucherCode?: string | null;
+  onSent: (sentAt: string, voucherCode?: string | null) => void;
   className?: string;
 };
 
@@ -28,20 +31,26 @@ const BookingFailedApology = ({
   transactionId,
   isFailed,
   sentAt,
+  voucherCode,
   onSent,
   className,
 }: Props) => {
   const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
 
   if (user?.type !== "OWNER" || !isFailed) return null;
 
   const send = async () => {
     setLoading(true);
     try {
-      const res: any = await sendBookingFailedApologyEmail(transactionId);
-      onSent(res.data.sendBookingFailedApologyEmail.sentAt);
+      const res: any = await sendBookingFailedApologyEmail(
+        transactionId,
+        code.trim().toUpperCase() || undefined
+      );
+      const out = res.data.sendBookingFailedApologyEmail;
+      onSent(out.sentAt, out.voucherCode);
       toast.success("Apology email sent");
       setOpen(false);
     } catch (err) {
@@ -57,6 +66,7 @@ const BookingFailedApology = ({
       {sentAt ? (
         <span className="text-xs text-slate-500">
           Apology sent {formatUtcDate(sentAt)}
+          {voucherCode ? ` · Voucher ${voucherCode}` : ""}
         </span>
       ) : (
         <>
@@ -77,6 +87,18 @@ const BookingFailedApology = ({
                   only be sent once.
                 </DialogDescription>
               </DialogHeader>
+              <div className="space-y-1">
+                <Label htmlFor={`apology-voucher-${transactionId}`}>
+                  Voucher code (optional)
+                </Label>
+                <Input
+                  id={`apology-voucher-${transactionId}`}
+                  value={code}
+                  placeholder="50BAHTOFF-XXXX"
+                  disabled={loading}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                />
+              </div>
               <DialogFooter>
                 <Button
                   type="button"

@@ -62,10 +62,13 @@ export const resendEmail = (email: string, id: string) => {
   });
 };
 
-export const sendBookingFailedApologyEmail = (transactionId: string) => {
+export const sendBookingFailedApologyEmail = (
+  transactionId: string,
+  voucherCode?: string
+) => {
   return client.mutate({
     mutation: warpGql(SEND_BOOKING_FAILED_APOLOGY_MUTATION),
-    variables: { transactionId },
+    variables: { transactionId, voucherCode },
   });
 };
 

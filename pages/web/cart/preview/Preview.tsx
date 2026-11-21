@@ -213,10 +213,12 @@ const Preview = () => {
                   transactionId={bookingDetail.id}
                   isFailed={bookingDetail.status === "FAILED" || bookingDetail.supplierStatus === "FAILED"}
                   sentAt={bookingDetail.bookingFailedApologySentAt}
-                  onSent={(sentAt) =>
+                  voucherCode={bookingDetail.bookingFailedApologyVoucherCode}
+                  onSent={(sentAt, voucherCode) =>
                     setBookingDetail({
                       ...bookingDetail,
                       bookingFailedApologySentAt: sentAt,
+                      bookingFailedApologyVoucherCode: voucherCode,
                     })
                   }
                 />
