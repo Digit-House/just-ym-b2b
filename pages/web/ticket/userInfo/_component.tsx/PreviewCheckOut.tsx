@@ -102,7 +102,8 @@ const PreViewCheckOut = ({ disable, loading, setLoading }: Props) => {
       await fetchMyCart(cartItemIds);
     } catch (err) {
       console.error("Add to cart error:", err);
-      toast.error("Something went wrong!");
+      toast.error(getErrMsg(err, "message"));
+      setLoading(false);
     }
   };
 

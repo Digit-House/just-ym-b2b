@@ -8,6 +8,7 @@ import { formatDate } from "date-fns";
 import { useCartStore } from "@/store/useCartStore";
 import PreviewFormFrame from "./PreviewFormFrame";
 import { Button } from "@/components/ui/button";
+import { isLowStock, isSoldOut, seatsLeft } from "@/lib/slotStock";
 
 type Props = {
   setTimeInfoCheck: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,7 +36,17 @@ const PreviewTimeInfoForm = ({
     return "Night";
   };
 
+  const totalQty = answerList.reduce(
+    (sum: number, a: any) => sum + (a.quantity || 0),
+    0
+  );
+  const isDisabled = (item: EVENT_AVAILABLE_DATA_TYPE) => {
+    const left = seatsLeft(item);
+    return isSoldOut(item) || (left !== null && left < totalQty);
+  };
+
   const handleSelectedEvent = (item: EVENT_AVAILABLE_DATA_TYPE) => {
+    if (isDisabled(item)) return;
     if (currentConfirm?.id === item.id) {
       setCurrentConfirm(null);
       return;
@@ -75,7 +86,12 @@ const PreviewTimeInfoForm = ({
             {eventList.map((item) => (
               <div
                 key={item.id}
-                className={`w-full border-2 p-5 rounded-2xl cursor-pointer flex justify-between gap-4 ${
+                aria-disabled={isDisabled(item)}
+                className={`w-full border-2 p-5 rounded-2xl flex justify-between gap-4 ${
+                  isDisabled(item)
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                } ${
                   item.id === currentConfirm?.id
                     ? "border-indigo-700 bg-indigo-100"
                     : "border-[#E2E8F0] bg-transparent"
@@ -111,6 +127,17 @@ const PreviewTimeInfoForm = ({
                       {getTimePeriod(item.time)}
                     </p>
                     <p className="">{formatDate(item.time, "hh:mm a")}</p>
+                    {isSoldOut(item) ? (
+                      <p className="text-sm font-semibold text-red-600">Sold out</p>
+                    ) : isDisabled(item) ? (
+                      <p className="text-sm font-semibold text-amber-600">
+                        Only {seatsLeft(item)} left
+                      </p>
+                    ) : isLowStock(item) ? (
+                      <p className="text-sm font-semibold text-amber-600">
+                        {seatsLeft(item)} left
+                      </p>
+                    ) : null}
                   </div>
                 </div>
                 {currentConfirm?.id === item.id && (

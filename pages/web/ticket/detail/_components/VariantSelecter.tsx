@@ -2,6 +2,8 @@ import { useUser } from "@/provider/UserProvider";
 import { SelectedProductOptionT, TicketTypeT } from "@/types/product.type";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
+import { useCartStore } from "@/store/useCartStore";
+import { maxSlotCapacity } from "@/lib/slotStock";
 
 type Props = {
   selectedProductOption: SelectedProductOptionT | null;
@@ -15,6 +17,13 @@ const VariantSelecter = ({
   setSelectedProductOption,
 }: Props) => {
   const { user } = useUser();
+  const { eventList } = useCartStore();
+  // Slot is picked on the next step, so cap by the roomiest bookable slot.
+  const stockCap = selectedProductOption?.isCapacity
+    ? maxSlotCapacity(eventList)
+    : null;
+  const totalQty =
+    selectedProductOption?.ticketType.reduce((s, t) => s + t.quantity, 0) ?? 0;
 
   const getItemPrice = (item: TicketTypeT): number =>
     user.type === "OWNER" ? item.dhSellingPrice : item.dhNetPrice;
@@ -22,8 +31,11 @@ const VariantSelecter = ({
   const isAtMin = (item: TicketTypeT): boolean =>
     item.minPurchaseQty > 0 && item.quantity === item.minPurchaseQty;
 
+  const isAtStock = (): boolean => stockCap !== null && totalQty >= stockCap;
+
   const isAtMax = (item: TicketTypeT): boolean =>
-    item.maxPurchaseQty != null && item.quantity >= item.maxPurchaseQty;
+    (item.maxPurchaseQty != null && item.quantity >= item.maxPurchaseQty) ||
+    isAtStock();
 
   const updateVariants = (
     item: TicketTypeT,
@@ -127,6 +139,10 @@ const VariantSelecter = ({
                   />
                 </button>
               </div>
+
+              {isAtStock() && (
+                <p className="text-amber-600 text-sm">Only {stockCap} left</p>
+              )}
 
               {item.minPurchaseQty > 0 && (
                 <p className="text-red-500 text-sm">

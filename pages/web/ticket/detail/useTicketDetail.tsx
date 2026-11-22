@@ -44,6 +44,8 @@ export const useTicketDetail = (id?: string) => {
     if (!selectedProductOption) return;
     if (selectedProductOption.isCapacity) {
       fetchEventAvailable();
+    } else {
+      setEventList([]);
     }
   }, [selectedProductOption]);
 
@@ -97,6 +99,7 @@ export const useTicketDetail = (id?: string) => {
     if (!selectedProductOption) return;
     try {
       setEventLoading(true);
+      setEventList([]);
       // const data: TICKET_TYPE_EVENT_AVAILABLE_DATA_TYPE = {
       //   dateFrom: pickedDate.toISOString(),
       //   dateTo: pickedDate.toISOString(),
