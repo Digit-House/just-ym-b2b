@@ -98,6 +98,42 @@ export type BookingKind = "HOTEL" | "TICKET";
 export type BookingListBucket = "CANCELLED" | "COMPLETED" | "UPCOMING";
 export type BookingFulfillmentStatus = "CONFIRMED" | "FAILED" | "PENDING";
 
+export type CardVerificationStatus = "SENT" | "VERIFIED" | "FAILED" | "EXPIRED";
+export type CardVerificationFilter = "NONE" | CardVerificationStatus;
+export type CardVerificationFailureReason =
+  | "DIFFERENT_CARD"
+  | "NO_CODE"
+  | "NOT_AUTHENTICATED"
+  | "NOT_COMPLETED";
+
+export type CardVerificationOwnerViewT = {
+  status: CardVerificationStatus;
+  sentAt?: string | null;
+  expiresAt?: string | null;
+  attemptsUsed: number;
+  maxAttempts: number;
+  verifiedAt?: string | null;
+  failedAt?: string | null;
+  lastFailureReason?: CardVerificationFailureReason | null;
+  sendCount: number;
+};
+
+export type CardVerificationSendResultT = {
+  transactionId: string;
+  ok: boolean;
+  code:
+    | "SENT"
+    | "ALREADY_VERIFIED"
+    | "ATTEMPTS_USED"
+    | "NOT_PAID"
+    | "NOT_CARD_PAYMENT"
+    | "NO_FINGERPRINT"
+    | "NOT_FOUND"
+    | "EMAIL_FAILED"
+    | "TEST_ONLY";
+  message: string;
+};
+
 export type BookingSummaryFindInputT = {
   page: number;
   limit: number;
@@ -113,6 +149,8 @@ export type BookingSummaryFindInputT = {
   purchasedFrom?: string;
   /** ISO DateTime, exclusive */
   purchasedTo?: string;
+  /** OWNER-only; NONE = never sent */
+  cardVerificationStatus?: CardVerificationFilter;
 };
 
 export type BookingSummaryT = {
@@ -136,6 +174,7 @@ export type BookingSummaryT = {
   supplierStatus?: string | null; // OWNER-only
   bookingFailedApologySentAt?: string | null; // OWNER-only
   bookingFailedApologyVoucherCode?: string | null; // OWNER-only
+  cardVerification?: CardVerificationOwnerViewT | null; // OWNER-only
   voucherDiscountAmount: number;
   hotelDetail?: {
     id: string; // ETG reservation id — what bookingItinerary(id) expects, not the summary id

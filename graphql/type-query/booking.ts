@@ -128,7 +128,8 @@ mutation Mutation($data: ResendBookingEmailInput!) {
   }
 }`;
 
-export const MY_BOOKINGS_QUERY = `
+// The card-check field is requested for OWNER only.
+const myBookingsQuery = (owner: boolean) => `
 query MyBookings($params: BookingSummaryFindInput!) {
   myBookings(params: $params) {
     total
@@ -153,7 +154,22 @@ query MyBookings($params: BookingSummaryFindInput!) {
       supplierStatus
       bookingFailedApologySentAt
       bookingFailedApologyVoucherCode
-      voucherDiscountAmount
+      voucherDiscountAmount${
+        owner
+          ? `
+      cardVerification {
+        status
+        sentAt
+        expiresAt
+        attemptsUsed
+        maxAttempts
+        verifiedAt
+        failedAt
+        lastFailureReason
+        sendCount
+      }`
+          : ""
+      }
       hotelDetail {
         id
         checkin
@@ -167,6 +183,19 @@ query MyBookings($params: BookingSummaryFindInput!) {
         isTicketReady
       }
     }
+  }
+}`;
+
+export const MY_BOOKINGS_QUERY = myBookingsQuery(false);
+export const MY_BOOKINGS_OWNER_QUERY = myBookingsQuery(true);
+
+export const SEND_CARD_VERIFICATION_MUTATION = `
+mutation SendCardVerification($input: SendCardVerificationInput!) {
+  sendCardVerification(input: $input) {
+    transactionId
+    ok
+    code
+    message
   }
 }`;
 
