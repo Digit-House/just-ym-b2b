@@ -8,6 +8,8 @@ import {
   GET_MY_BOOKING_QUERY,
   GET_MY_BOOKING_QUERY_DATA_TYPE,
   MY_BOOKINGS_QUERY,
+  MY_BOOKINGS_OWNER_QUERY,
+  SEND_CARD_VERIFICATION_MUTATION,
   REFRESH_BOOKING_MUTATION,
   SEND_BOOKING_FAILED_APOLOGY_MUTATION,
   UPLOAD_BOOKING_VOUCHER_MUTATION,
@@ -16,6 +18,7 @@ import { getSignedUrl } from "./file";
 import { RESEND_EMAIL_MUTATION } from "./type-query/product";
 import {
   BookingSummaryFindInputT,
+  CardVerificationSendResultT,
   BookingSummaryPagedOutputT,
   FilterBookingListT,
   FindAllTransactionsT,
@@ -72,6 +75,17 @@ export const sendBookingFailedApologyEmail = (
   });
 };
 
+export const sendCardVerification = async (
+  transactionIds: string[],
+  testEmail?: string,
+): Promise<CardVerificationSendResultT[]> => {
+  const res: any = await client.mutate({
+    mutation: warpGql(SEND_CARD_VERIFICATION_MUTATION),
+    variables: { input: { transactionIds, testEmail: testEmail || undefined } },
+  });
+  return res.data.sendCardVerification;
+};
+
 export const getMyBookingList = async (data: FilterBookingListT) => {
   try {
     const res = await client.query({
@@ -91,9 +105,10 @@ export const getMyBookingList = async (data: FilterBookingListT) => {
 // Unified ticket + hotel booking list (myBookings query)
 export const getMyBookings = async (
   params: BookingSummaryFindInputT,
+  owner = false,
 ): Promise<BookingSummaryPagedOutputT> => {
   const res: any = await client.query({
-    query: warpGql(MY_BOOKINGS_QUERY),
+    query: warpGql(owner ? MY_BOOKINGS_OWNER_QUERY : MY_BOOKINGS_QUERY),
     variables: { params },
     fetchPolicy: "no-cache",
   });
@@ -101,9 +116,13 @@ export const getMyBookings = async (
 };
 
 export const fetchMyBookings = async ({ pageParam = 1, queryKey }: any) => {
-  const [, { bucket, status, kind, sort, search, purchasedFrom, purchasedTo }] = queryKey;
+  const [
+    ,
+    { bucket, status, kind, sort, search, purchasedFrom, purchasedTo, cardCheck, owner },
+  ] = queryKey;
   const limit = 10;
-  const res = await getMyBookings({
+  const res = await getMyBookings(
+    {
     page: pageParam,
     limit,
     orderBy: { dir: sort },
@@ -113,7 +132,10 @@ export const fetchMyBookings = async ({ pageParam = 1, queryKey }: any) => {
     search: search || undefined,
     purchasedFrom: purchasedFrom || undefined,
     purchasedTo: purchasedTo || undefined,
-  });
+    cardVerificationStatus: owner ? cardCheck || undefined : undefined,
+    },
+    !!owner,
+  );
   return {
     data: res.data,
     total: res.total,

@@ -26,9 +26,17 @@ import { preFixImg } from "@/util/initData";
 import { useUser } from "@/provider/UserProvider";
 import SupplierStatusBadge from "./SupplierStatusBadge";
 import BookingFailedApology from "./BookingFailedApology";
+import CardVerificationChip from "./CardVerificationChip";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {
   data: BookingSummaryT;
+  /** OWNER card check: selection checkbox + send/resend button are shown when set. */
+  cardCheck?: {
+    selected: boolean;
+    onToggle: () => void;
+    onSend: () => void;
+  };
 };
 
 const FULFILLMENT_ICONS: Record<BookingFulfillmentStatus, ReactNode> = {
@@ -37,7 +45,14 @@ const FULFILLMENT_ICONS: Record<BookingFulfillmentStatus, ReactNode> = {
   FAILED: <AlertTriangle className="h-4 w-4 text-rose-500" />,
 };
 
-const BookingCard = ({ data }: Props) => {
+const BookingCard = ({ data, cardCheck }: Props) => {
+  const cv = data.cardVerification;
+  // VERIFIED / FAILED are final: the API refuses a resend.
+  const canCardCheck =
+    !!cardCheck &&
+    data.paymentStatus === BOOKING_STATUS_ENUM.PAID &&
+    cv?.status !== "VERIFIED" &&
+    cv?.status !== "FAILED";
   const { user } = useUser();
   const navigate = useNavigate();
   const [apologySentAt, setApologySentAt] = useState(
@@ -90,6 +105,14 @@ const BookingCard = ({ data }: Props) => {
       <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
         {/* 1. PRODUCT & META DATA (Left) */}
         <div className="flex flex-1 min-w-0 items-center gap-4">
+          {canCardCheck && (
+            <Checkbox
+              aria-label="Select for card check"
+              checked={cardCheck!.selected}
+              onCheckedChange={cardCheck!.onToggle}
+              className="shrink-0"
+            />
+          )}
           <div className="hidden sm:block w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-slate-100">
             <ImageFallback
               src={thumbSrc}
@@ -208,6 +231,21 @@ const BookingCard = ({ data }: Props) => {
                 setApologyVoucher(code);
               }}
             />
+            {user?.type === "OWNER" && (
+              <div className="mt-1 flex flex-col items-start gap-1">
+                <CardVerificationChip cv={cv} />
+                {canCardCheck && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={cardCheck!.onSend}
+                  >
+                    {cv ? "Resend card check" : "Send card check"}
+                  </Button>
+                )}
+              </div>
+            )}
             <div className="text-xs text-slate-500 mt-0.5">
               Qty: {data.quantity}
             </div>

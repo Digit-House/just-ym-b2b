@@ -13,6 +13,8 @@ import MainSearch from "@/components/MainSearch";
 import { useUser } from "@/provider/UserProvider";
 import MascotLoader from "@/components/MascotLoader";
 import ButtonSpinner from "@/components/ButtonSpinner";
+import SendCardCheckDialog from "./_component/SendCardCheckDialog";
+import { Button } from "@/components/ui/button";
 import BookedDateFilter, {
   BookedChoice,
   bookedChoiceToRange,
@@ -38,6 +40,16 @@ const STATUS_OPTIONS: SortOption[] = [
   { label: "Failed", value: "FAILED" },
   { label: "Expired", value: "EXPIRED" },
   { label: "All", value: "ALL" },
+];
+
+// OWNER-only card-check filter, sent as myBookings `cardVerificationStatus` (ALL = no filter).
+const CARD_CHECK_OPTIONS: SortOption[] = [
+  { label: "All", value: "ALL" },
+  { label: "Not sent", value: "NONE" },
+  { label: "Sent", value: "SENT" },
+  { label: "Verified", value: "VERIFIED" },
+  { label: "Not verified", value: "FAILED" },
+  { label: "Expired", value: "EXPIRED" },
 ];
 
 const KIND_TAGS = [
@@ -76,6 +88,9 @@ export default function Bookings() {
       ? storedFilters.status
       : "PAID",
   );
+  const [cardCheck, setCardCheck] = useState("ALL");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [dialogIds, setDialogIds] = useState<string[] | null>(null);
   const [kind, setKind] = useState<string>(storedFilters?.kind || "ALL");
   const [search, setSearch] = useState(storedFilters?.search || "");
   const [booked, setBooked] = useState<BookedChoice>(
@@ -105,6 +120,7 @@ export default function Bookings() {
     isPending,
     isError,
     error,
+    refetch,
   } = useInfiniteQuery({
     initialPageParam: 1,
     queryKey: [
@@ -112,6 +128,8 @@ export default function Bookings() {
       {
         bucket: isAdmin || bucket === "ALL" ? undefined : bucket,
         status: isAdmin ? status : undefined,
+        owner: isAdmin,
+        cardCheck: isAdmin && cardCheck !== "ALL" ? cardCheck : undefined,
         kind,
         sort,
         search: debouncedSearch,
@@ -139,10 +157,23 @@ export default function Bookings() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage]);
 
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+
+  const dialogTargets = (dialogIds ?? []).map((id) => ({
+    id,
+    reference: bookings.find((b) => b.id === id)?.referenceNumber ?? id,
+  }));
+
   const handleResetFilters = () => {
     setSort("desc");
     setBucket("ALL");
     setStatus("PAID");
+    setCardCheck("ALL");
     setKind("ALL");
     setSearch("");
     setBooked("all");
@@ -152,6 +183,7 @@ export default function Bookings() {
   const filtersChanged =
     sort !== "desc" ||
     (isAdmin ? status !== "PAID" : bucket !== "ALL") ||
+    (isAdmin && cardCheck !== "ALL") ||
     kind !== "ALL" ||
     search !== "" ||
     booked !== "all";
@@ -211,6 +243,14 @@ export default function Bookings() {
               label="Show:"
             />
           )}
+          {isAdmin && (
+            <SortSelect
+              options={CARD_CHECK_OPTIONS}
+              value={cardCheck}
+              onChange={setCardCheck}
+              label="Card check:"
+            />
+          )}
           <BookedDateFilter value={booked} onChange={setBooked} />
         </div>
         <div className="flex items-center gap-2">
@@ -240,7 +280,19 @@ export default function Bookings() {
       {!isPending && !!bookings.length && (
         <div className="flex flex-col gap-6 w-full">
           {bookings.map((data) => (
-            <BookingCard key={data.id} data={data} />
+            <BookingCard
+              key={data.id}
+              data={data}
+              cardCheck={
+                isAdmin
+                  ? {
+                      selected: selected.has(data.id),
+                      onToggle: () => toggle(data.id),
+                      onSend: () => setDialogIds([data.id]),
+                    }
+                  : undefined
+              }
+            />
           ))}
         </div>
       )}
@@ -258,6 +310,38 @@ export default function Bookings() {
             {isFetchingNextPage ? "Loading..." : "Load More"}
           </button>
         </div>
+      )}
+
+      {isAdmin && selected.size > 0 && (
+        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-white px-4 py-3 shadow-lg">
+          <span className="text-sm font-medium text-slate-700">
+            {selected.size} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" onClick={() => setSelected(new Set())}>
+              Clear
+            </Button>
+            <Button
+              type="button"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              onClick={() => setDialogIds([...selected])}
+            >
+              Send card check ({selected.size})
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {isAdmin && (
+        <SendCardCheckDialog
+          targets={dialogTargets}
+          open={dialogIds !== null}
+          onClose={() => setDialogIds(null)}
+          onDone={() => {
+            setSelected(new Set());
+            refetch();
+          }}
+        />
       )}
 
       {!bookings.length && !isPending && (
