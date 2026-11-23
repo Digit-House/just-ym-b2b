@@ -14,6 +14,8 @@ import {
   Hotel,
   LayoutGrid,
   Percent,
+  ShieldAlert,
+  ClipboardCheck,
   Settings,
   Ticket,
   UserPlus,
@@ -114,6 +116,18 @@ export const NAV_CONFIG: NavItem[] = [
     label: "Hotel Markup",
     path: "/hotelMarkup",
     icon: Percent,
+    types: ["OWNER"],
+  },
+  {
+    label: "Booking security",
+    path: "/bookingSecurity",
+    icon: ShieldAlert,
+    types: ["OWNER"],
+  },
+  {
+    label: "Payment review",
+    path: "/paymentReview",
+    icon: ClipboardCheck,
     types: ["OWNER"],
   },
   {
