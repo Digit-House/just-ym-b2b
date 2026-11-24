@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react"; // Added Info and RefreshCw
 import ResendModel from "./_component/ResendModal";
+import { ManualBookingChips } from "@/pages/web/booking/_component/ManualBookingChips";
 import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
@@ -255,12 +256,18 @@ const Preview = () => {
                     </p>
                   </div>
                 )}
-                {user?.type === "OWNER" && (
-                  <SupplierStatusBadge
-                    status={bookingDetail.supplierStatus}
-                    prefix="Supplier status:"
-                  />
-                )}
+                {isOwner &&
+                  (bookingDetail.isManualHeld ? (
+                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border-amber-200">
+                      Supplier: book manually
+                    </span>
+                  ) : (
+                    <SupplierStatusBadge
+                      status={bookingDetail.supplierStatus}
+                      prefix="Supplier status:"
+                    />
+                  ))}
+                {isOwner && <ManualBookingChips booking={bookingDetail} />}
                 <BookingFailedApology
                   transactionId={bookingDetail.id}
                   isFailed={bookingDetail.status === "FAILED" || bookingDetail.supplierStatus === "FAILED"}
@@ -274,7 +281,7 @@ const Preview = () => {
                     })
                   }
                 />
-                {bookingDetail.isTicketConfirmed && (
+                {!isOwner && bookingDetail.isTicketConfirmed && (
                   <div className="bg-blue-100 border border-blue-200 px-3 py-1 rounded-[4px]">
                     <p className="text-blue-700 text-sm font-medium">
                       Ticket Confirmed
@@ -282,6 +289,11 @@ const Preview = () => {
                   </div>
                 )}
               </div>
+              {isOwner && bookingDetail.isManualHeld && (
+                <p className="text-sm text-amber-700">
+                  Book this ticket with the supplier, upload the PDF, then confirm.
+                </p>
+              )}
               <div className="flex items-center gap-4 text-sm text-[#45556C]">
                 <span>
                   <span className="font-semibold">Transacted:</span>{" "}

@@ -42,6 +42,7 @@ query GetTransactionDetailBy($data: FindBookingByInput!) {
   getTransactionDetailBy(data: $data) {
     alternateEmail
     requiresManualConfirm
+    isManualHeld
     isTicketConfirmed
     isTicketReady
     bookingTickets {
@@ -181,6 +182,8 @@ query MyBookings($params: BookingSummaryFindInput!) {
         eTicketUrl
         viewTicketUrl
         isTicketReady
+        isManualHeld
+        requiresManualConfirm
       }
     }
   }
@@ -206,6 +209,7 @@ query Query($params: BookingTransactionsInput!) {
     data {
       alternateEmail
       requiresManualConfirm
+      isManualHeld
       isTicketConfirmed
       isTicketReady
       bookingTickets {

@@ -134,7 +134,7 @@ const transactionToSummary = (t: MY_BOOKING_DATA_TYPE): BookingSummaryT => {
     customerName: t.customerName,
     customerEmail: t.email,
     paymentStatus: t.status,
-    fulfillmentStatus: "PENDING",
+    fulfillmentStatus: t.isTicketConfirmed ? "CONFIRMED" : "PENDING",
     purchasedAt: new Date(t.transactedTime).toISOString(),
     relevantDate: new Date(visit ?? t.transactedTime).toISOString(),
     referenceNumber: t.transactionRefNumber,
@@ -143,6 +143,8 @@ const transactionToSummary = (t: MY_BOOKING_DATA_TYPE): BookingSummaryT => {
       eTicketUrl: t.eTicketUrl,
       viewTicketUrl: t.viewTicketUrl,
       isTicketReady: t.isTicketReady,
+      isManualHeld: t.isManualHeld ?? false,
+      requiresManualConfirm: t.requiresManualConfirm,
     },
   };
 };

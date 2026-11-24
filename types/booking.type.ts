@@ -62,6 +62,7 @@ export type MY_BOOKING_PRODUCT_DATA_TYPE = {
 export type MY_BOOKING_DATA_TYPE = {
   alternateEmail: string;
   requiresManualConfirm: boolean;
+  isManualHeld?: boolean | null; // OWNER-only
   isTicketConfirmed: boolean;
   customerName: string;
   eTicketUrl: string;
@@ -187,6 +188,8 @@ export type BookingSummaryT = {
     eTicketUrl: string;
     viewTicketUrl: string;
     isTicketReady: boolean;
+    isManualHeld?: boolean; // OWNER-only, false for others
+    requiresManualConfirm?: boolean;
   } | null;
 };
 
