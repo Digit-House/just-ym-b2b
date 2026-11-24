@@ -211,6 +211,9 @@ query Query($params: BookingTransactionsInput!) {
       bookingTickets {
         code
         productName
+        quantity
+        visitDate
+        image
       }
       viewTicketUrl
       transactionRefNumber

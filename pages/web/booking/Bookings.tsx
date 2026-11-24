@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import SortSelect, { SortOption } from "@/components/SortSelect";
 import PageContainer from "@/components/PageContainer";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { fetchMyBookings } from "@/graphql/booking";
 import BookingCard from "./_component/BookingCard";
 import NotFoundComponent from "@/components/NotFoundComponent";
@@ -52,6 +53,12 @@ const CARD_CHECK_OPTIONS: SortOption[] = [
   { label: "Expired", value: "EXPIRED" },
 ];
 
+// OWNER-only: bookings held for manual confirmation. Kept in the URL (?confirm=1) so the sidebar badge can link here.
+const CONFIRM_OPTIONS: SortOption[] = [
+  { label: "All", value: "ALL" },
+  { label: "Needs confirmation", value: "NEEDS" },
+];
+
 const KIND_TAGS = [
   { label: "All", value: "ALL", icon: LayoutGrid },
   { label: "Tickets", value: "TICKET", icon: Ticket },
@@ -89,6 +96,18 @@ export default function Bookings() {
       : "PAID",
   );
   const [cardCheck, setCardCheck] = useState("ALL");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const needsConfirm = isAdmin && searchParams.get("confirm") === "1";
+  const setNeedsConfirm = (v: string) =>
+    setSearchParams(
+      (p) => {
+        const n = new URLSearchParams(p);
+        if (v === "NEEDS") n.set("confirm", "1");
+        else n.delete("confirm");
+        return n;
+      },
+      { replace: true },
+    );
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dialogIds, setDialogIds] = useState<string[] | null>(null);
   const [kind, setKind] = useState<string>(storedFilters?.kind || "ALL");
@@ -130,6 +149,7 @@ export default function Bookings() {
         status: isAdmin ? status : undefined,
         owner: isAdmin,
         cardCheck: isAdmin && cardCheck !== "ALL" ? cardCheck : undefined,
+        requireManualConfirm: needsConfirm ? true : null,
         kind,
         sort,
         search: debouncedSearch,
@@ -174,6 +194,7 @@ export default function Bookings() {
     setBucket("ALL");
     setStatus("PAID");
     setCardCheck("ALL");
+    setNeedsConfirm("ALL");
     setKind("ALL");
     setSearch("");
     setBooked("all");
@@ -184,6 +205,7 @@ export default function Bookings() {
     sort !== "desc" ||
     (isAdmin ? status !== "PAID" : bucket !== "ALL") ||
     (isAdmin && cardCheck !== "ALL") ||
+    needsConfirm ||
     kind !== "ALL" ||
     search !== "" ||
     booked !== "all";
@@ -249,6 +271,14 @@ export default function Bookings() {
               value={cardCheck}
               onChange={setCardCheck}
               label="Card check:"
+            />
+          )}
+          {isAdmin && (
+            <SortSelect
+              options={CONFIRM_OPTIONS}
+              value={needsConfirm ? "NEEDS" : "ALL"}
+              onChange={setNeedsConfirm}
+              label="Confirmation:"
             />
           )}
           <BookedDateFilter value={booked} onChange={setBooked} />

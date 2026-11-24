@@ -40,6 +40,7 @@ import {
   uploadBookingVoucher,
 } from "@/graphql/booking";
 import { toast } from "sonner";
+import { notifyManualConfirmChanged } from "@/hooks/useManualConfirmCount";
 import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
 import BookingFailedApology from "@/pages/web/booking/_component/BookingFailedApology";
 import MascotLoader from "@/components/MascotLoader";
@@ -140,6 +141,7 @@ const Preview = () => {
       const res = await uploadBookingVoucher(id, pickedFile);
       const out = (res.data as any)?.uploadBookingVoucher;
       toast.success("Voucher uploaded");
+      notifyManualConfirmChanged();
       if (bookingDetail && out) {
         setBookingDetail({
           ...bookingDetail,
@@ -161,6 +163,7 @@ const Preview = () => {
       const res = await confirmBooking(id);
       if (res.data) {
         setConfirmLoading(false);
+        notifyManualConfirmChanged();
         window.location.reload();
         toast.success("Booking Confirmed Successfully");
       }
@@ -635,15 +638,15 @@ const Preview = () => {
                   open={previewOpen}
                   onOpenChange={(o) => !uploadLoading && setPreviewOpen(o)}
                 >
-                  <DialogContent className="max-w-4xl">
+                  <DialogContent className="flex flex-col w-[95vw] max-w-[95vw] sm:max-w-5xl max-h-[90vh]">
                     <DialogHeader>
                       <DialogTitle>{pickedFile?.name}</DialogTitle>
                     </DialogHeader>
                     {previewUrl && (
                       <iframe
-                        src={previewUrl}
+                        src={`${previewUrl}#view=FitH`}
                         title="Voucher preview"
-                        className="w-full h-[70vh] rounded border"
+                        className="flex-1 min-h-0 h-[75vh] w-full rounded border"
                       />
                     )}
                     <DialogFooter>
