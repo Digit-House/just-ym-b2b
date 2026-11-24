@@ -638,15 +638,15 @@ const Preview = () => {
                   open={previewOpen}
                   onOpenChange={(o) => !uploadLoading && setPreviewOpen(o)}
                 >
-                  <DialogContent className="flex flex-col w-[95vw] max-w-[95vw] sm:max-w-5xl max-h-[90vh]">
+                  <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
                     <DialogHeader>
-                      <DialogTitle>{pickedFile?.name}</DialogTitle>
+                      <DialogTitle className="truncate pr-6">{pickedFile?.name}</DialogTitle>
                     </DialogHeader>
                     {previewUrl && (
                       <iframe
                         src={`${previewUrl}#view=FitH`}
                         title="Voucher preview"
-                        className="flex-1 min-h-0 h-[75vh] w-full rounded border"
+                        className="min-h-0 w-full flex-1 rounded border"
                       />
                     )}
                     <DialogFooter>
