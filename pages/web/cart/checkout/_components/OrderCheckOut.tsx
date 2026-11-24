@@ -77,7 +77,13 @@ const OrderCheckOut = () => {
         toast.error("Failed to create booking");
       }
     } catch (err: any) {
-      toast.error(getErrMsg(err, "message"));
+      const first = err?.errors?.[0];
+      const code = first?.code ?? first?.extensions?.code;
+      toast.error(
+        code === "MIXED_MANUAL_CART" && first?.message
+          ? first.message
+          : getErrMsg(err, "message"),
+      );
     } finally {
       setLoading(false);
     }

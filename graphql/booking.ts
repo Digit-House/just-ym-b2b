@@ -17,6 +17,9 @@ import {
 import { getSignedUrl } from "./file";
 import { RESEND_EMAIL_MUTATION } from "./type-query/product";
 import {
+  BOOKING_STATUS_ENUM,
+  BookingSummaryT,
+  MY_BOOKING_DATA_TYPE,
   BookingSummaryFindInputT,
   CardVerificationSendResultT,
   BookingSummaryPagedOutputT,
@@ -115,12 +118,56 @@ export const getMyBookings = async (
   return res.data.myBookings;
 };
 
+// The summary list has no manual-confirm filter, so that view reads findAllTransactions and maps rows to the card shape.
+const transactionToSummary = (t: MY_BOOKING_DATA_TYPE): BookingSummaryT => {
+  const tickets = t.bookingTickets ?? [];
+  const visit = tickets.find((x) => x.visitDate)?.visitDate;
+  return {
+    id: t.id,
+    kind: "TICKET",
+    bucket: "UPCOMING",
+    title: tickets[0]?.productName ?? t.transactionRefNumber,
+    thumbnail: tickets[0]?.image ?? null,
+    amount: String(t.transactedAmount),
+    currencyCode: "THB",
+    quantity: tickets.reduce((n, x) => n + (x.quantity ?? 0), 0),
+    customerName: t.customerName,
+    customerEmail: t.email,
+    paymentStatus: t.status,
+    fulfillmentStatus: "PENDING",
+    purchasedAt: new Date(t.transactedTime).toISOString(),
+    relevantDate: new Date(visit ?? t.transactedTime).toISOString(),
+    referenceNumber: t.transactionRefNumber,
+    voucherDiscountAmount: 0,
+    ticketDetail: {
+      eTicketUrl: t.eTicketUrl,
+      viewTicketUrl: t.viewTicketUrl,
+      isTicketReady: t.isTicketReady,
+    },
+  };
+};
+
 export const fetchMyBookings = async ({ pageParam = 1, queryKey }: any) => {
   const [
     ,
-    { bucket, status, kind, sort, search, purchasedFrom, purchasedTo, cardCheck, owner },
+    { bucket, status, kind, sort, search, purchasedFrom, purchasedTo, cardCheck, owner, requireManualConfirm },
   ] = queryKey;
   const limit = 10;
+  if (owner && requireManualConfirm) {
+    const res = await getMyBookingList({
+      page: pageParam,
+      limit,
+      orderBy: { dir: sort, field: "transactedTime" },
+      status: BOOKING_STATUS_ENUM.PAID,
+      search: search || null,
+      requireManualConfirm: true,
+    });
+    return {
+      data: kind === "HOTEL" ? [] : (res?.data ?? []).map(transactionToSummary),
+      total: res?.total ?? 0,
+      nextPage: pageParam * limit < (res?.total ?? 0) ? pageParam + 1 : null,
+    };
+  }
   const res = await getMyBookings(
     {
     page: pageParam,

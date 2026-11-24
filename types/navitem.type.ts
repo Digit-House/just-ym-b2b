@@ -117,6 +117,12 @@ export const NAV_CONFIG: NavItem[] = [
     types: ["OWNER"],
   },
   {
+    label: "Booking Settings",
+    path: "/bookingSettings",
+    icon: Settings,
+    types: ["OWNER"],
+  },
+  {
     label: "Resellers",
     path: "/resellers",
     icon: UserPlus,

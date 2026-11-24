@@ -21,9 +21,17 @@ import {
   Info,
   RefreshCw,
   Upload,
+  X,
 } from "lucide-react"; // Added Info and RefreshCw
 import ResendModel from "./_component/ResendModal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useUser } from "@/provider/UserProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,11 +40,15 @@ import {
   uploadBookingVoucher,
 } from "@/graphql/booking";
 import { toast } from "sonner";
+import { notifyManualConfirmChanged } from "@/hooks/useManualConfirmCount";
 import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBadge";
 import BookingFailedApology from "@/pages/web/booking/_component/BookingFailedApology";
 import MascotLoader from "@/components/MascotLoader";
 import ButtonSpinner from "@/components/ButtonSpinner";
 
+
+const MAX_VOUCHER_BYTES = 4 * 1024 * 1024; // matches the backend presigned content-length-range
+const NOT_UPLOADED_MSG = "Upload the ticket before you confirm this booking.";
 
 const Preview = () => {
   const { id } = useParams();
@@ -63,6 +75,20 @@ const Preview = () => {
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pickedFile, setPickedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Local blob URL for the preview only; revoked when the file changes or on unmount.
+  useEffect(() => {
+    if (!pickedFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(pickedFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [pickedFile]);
 
   const handleRefresh = async () => {
     if (!isOwner || !id) {
@@ -87,25 +113,45 @@ const Preview = () => {
     }
   };
 
-  const handleUploadVoucher = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Picking only validates and holds the file locally; nothing is uploaded until Save.
+  const handlePickVoucher = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || !id) return;
+    if (!file) return;
     if (file.type !== "application/pdf") {
-      toast.error("Voucher must be a PDF file");
+      toast.error("Voucher must be a PDF file (application/pdf).");
       return;
     }
-    if (file.size > 4 * 1024 * 1024) {
-      toast.error("Voucher must be 4 MB or smaller");
+    if (file.size > MAX_VOUCHER_BYTES) {
+      toast.error("Voucher is too large. The limit is 4 MB.");
       return;
     }
+    setPickedFile(file);
+  };
+
+  const clearPicked = () => {
+    setPreviewOpen(false);
+    setPickedFile(null);
+  };
+
+  const handleSaveVoucher = async () => {
+    if (!pickedFile || !id || uploadLoading) return;
     setUploadLoading(true);
     try {
-      await uploadBookingVoucher(id, file);
+      const res = await uploadBookingVoucher(id, pickedFile);
+      const out = (res.data as any)?.uploadBookingVoucher;
       toast.success("Voucher uploaded");
-      window.location.reload();
+      notifyManualConfirmChanged();
+      if (bookingDetail && out) {
+        setBookingDetail({
+          ...bookingDetail,
+          eTicketUrl: out.eTicketUrl ?? bookingDetail.eTicketUrl,
+        });
+      }
+      clearPicked();
     } catch (err) {
-      toast.error(getErrMsg(err, "message"));
+      toast.error(getErrMsg(err as any, "message"));
+    } finally {
       setUploadLoading(false);
     }
   };
@@ -117,11 +163,17 @@ const Preview = () => {
       const res = await confirmBooking(id);
       if (res.data) {
         setConfirmLoading(false);
+        notifyManualConfirmChanged();
         window.location.reload();
         toast.success("Booking Confirmed Successfully");
       }
     } catch (err) {
-      toast.error(getErrMsg(err, "message"));
+      toast.error(
+        getErrMsg(err as any, "code") === "TICKET_NOT_UPLOADED" ||
+          String(getErrMsg(err as any, "message")).includes("TICKET_NOT_UPLOADED")
+          ? NOT_UPLOADED_MSG
+          : getErrMsg(err as any, "message")
+      );
     } finally {
       setConfirmLoading(false);
     }
@@ -538,17 +590,80 @@ const Preview = () => {
                   type="file"
                   accept="application/pdf"
                   className="hidden"
-                  onChange={handleUploadVoucher}
+                  onChange={handlePickVoucher}
                 />
-                <Button
-                  variant="outline"
-                  disabled={uploadLoading}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2"
+                {pickedFile ? (
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 pl-2 text-sm">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewOpen(true)}
+                        className="flex items-center gap-1 py-1 text-indigo-600 hover:underline cursor-pointer"
+                        title="Preview PDF"
+                      >
+                        <FileText className="w-4 h-4" />
+                        {pickedFile.name} (
+                        {(pickedFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Remove file"
+                        disabled={uploadLoading}
+                        onClick={clearPicked}
+                        className="p-1 text-gray-500 hover:text-gray-800 cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </span>
+                    <Button
+                      disabled={uploadLoading}
+                      onClick={handleSaveVoucher}
+                      className="flex items-center gap-2"
+                    >
+                      {uploadLoading && <ButtonSpinner />}
+                      {uploadLoading ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Choose voucher PDF
+                  </Button>
+                )}
+                <Dialog
+                  open={previewOpen}
+                  onOpenChange={(o) => !uploadLoading && setPreviewOpen(o)}
                 >
-                  {uploadLoading ? <ButtonSpinner /> : <Upload className="w-4 h-4" />}
-                  {uploadLoading ? "Uploading..." : "Upload voucher"}
-                </Button>
+                  <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
+                    <DialogHeader>
+                      <DialogTitle className="truncate pr-6">{pickedFile?.name}</DialogTitle>
+                    </DialogHeader>
+                    {previewUrl && (
+                      <iframe
+                        src={`${previewUrl}#view=FitH`}
+                        title="Voucher preview"
+                        className="min-h-0 w-full flex-1 rounded border"
+                      />
+                    )}
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        disabled={uploadLoading}
+                        onClick={clearPicked}
+                      >
+                        Cancel
+                      </Button>
+                      <Button disabled={uploadLoading} onClick={handleSaveVoucher}>
+                        {uploadLoading && <ButtonSpinner />}
+                        {uploadLoading ? "Saving..." : "Save"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
 
@@ -556,7 +671,8 @@ const Preview = () => {
               bookingDetail.requiresManualConfirm &&
               !bookingDetail.isTicketConfirmed && (
                 <Button
-                  disabled={confirmLoading}
+                  disabled={confirmLoading || !bookingDetail.eTicketUrl}
+                  title={!bookingDetail.eTicketUrl ? NOT_UPLOADED_MSG : undefined}
                   onClick={handleConfirm}
                   className="bg-green-600 hover:bg-green-700"
                 >

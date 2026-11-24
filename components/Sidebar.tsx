@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logoutSession } from "@/graphql/session";
 import { useReviewCount } from "@/hooks/useReviewCount";
+import { useManualConfirmCount } from "@/hooks/useManualConfirmCount";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -41,6 +42,7 @@ const Sidebar = () => {
   }, [isDesktop, toggleSidebar]);
   const TYPE = user?.type as USER_TYPE;
   const counts = useReviewCount(TYPE === "OWNER" || TYPE === "CONTENT_EDITOR");
+  const manualConfirmCount = useManualConfirmCount(TYPE === "OWNER");
   const isTicketsItem = (path?: string) => path === "/tickets" || path === "/content-tickets";
 
   const isActive = (path: string) => {
@@ -164,6 +166,18 @@ const Sidebar = () => {
                   <item.icon size={20} />
                   <span>{item.label}</span>
                 </NavLink>
+                {item.path === "/bookings" && TYPE === "OWNER" && manualConfirmCount > 0 && (
+                  <NavLink
+                    to="/bookings?confirm=1"
+                    aria-label={`Needs confirmation, ${manualConfirmCount} ${manualConfirmCount === 1 ? "booking" : "bookings"}`}
+                    className="ml-10 mb-2 mr-2 flex min-h-11 items-center justify-between rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 lg:min-h-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1"
+                  >
+                    <span>Needs confirmation</span>
+                    <span className="min-w-[1.5rem] rounded-full bg-amber-100 px-2 py-0.5 text-center text-xs font-semibold text-amber-800">
+                      {manualConfirmCount}
+                    </span>
+                  </NavLink>
+                )}
                 {countable && (
                   <div className="space-y-0.5 pb-2 pr-2">
                     {rows.map((x) => {

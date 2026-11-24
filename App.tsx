@@ -47,6 +47,7 @@ import UserInfoPage from "./pages/web/ticket/userInfo/UserInfo";
 import CurrencyRate from "./pages/admin/currencyRate/CurrencyRate";
 import PushNotification from "./pages/admin/pushNotification/PushNotification";
 import HotelMarkup from "./pages/admin/hotelMarkup/HotelMarkup";
+import BookingSettings from "./pages/admin/bookingSettings/BookingSettings";
 import Checkout from "./pages/web/cart/checkout/Checkout";
 import Preview from "./pages/web/cart/preview/Preview";
 import Vouchers from "./pages/admin/vouchers/Vouchers";
@@ -128,6 +129,7 @@ const App = () => {
               <Route path="paymentMethods" element={<PaymentMethods />} />
               <Route path="currencyRate" element={<CurrencyRate />} />
               <Route path="hotelMarkup" element={<HotelMarkup />} />
+              <Route path="bookingSettings" element={<BookingSettings />} />
               <Route path="pushNotification" element={<PushNotification />} />
              
               <Route path="vouchers" element={<Vouchers />} />
