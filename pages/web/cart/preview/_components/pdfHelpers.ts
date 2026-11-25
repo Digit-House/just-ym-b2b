@@ -1,4 +1,6 @@
 import { PDFDocument } from "pdf-lib";
+import { getBookingTicketViewUrl } from "@/graphql/booking";
+import { getErrMsg } from "@/util/initData";
 
 export const MAX_VOUCHER_BYTES = 4 * 1024 * 1024; // matches the backend presigned content-length-range
 export const MAX_IMAGE_SIDE = 2000;
@@ -135,4 +137,20 @@ export const fetchPdfBytes = async (url: string): Promise<Uint8Array> => {
     throw new Error("Not a PDF");
   }
   return bytes;
+};
+
+/** Saved ticket bytes via the signed view URL (the stored URL has no CORS); only a failed URL query (older backend, external ticket) falls back to the stored URL. */
+export const fetchTicketBytes = async (bookingId: string, eTicketUrl: string): Promise<Uint8Array> => {
+  let signed: string;
+  try {
+    signed = await getBookingTicketViewUrl(bookingId);
+  } catch (err) {
+    // The stored URL goes through the CDN (can be stale, no CORS): use it only when no signed URL exists, never after a network error.
+    const noSignedUrl =
+      getErrMsg(err as any, "code") === "TICKET_EXTERNAL" ||
+      /Cannot query field/i.test(String(getErrMsg(err as any, "message")));
+    if (!noSignedUrl) throw err;
+    return fetchPdfBytes(eTicketUrl);
+  }
+  return fetchPdfBytes(signed);
 };

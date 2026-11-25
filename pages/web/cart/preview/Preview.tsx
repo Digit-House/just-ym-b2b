@@ -65,7 +65,7 @@ import {
   isImageType,
   isPdfType,
   pagesOf,
-  fetchPdfBytes,
+  fetchTicketBytes,
   isHttpUrl,
 } from "./_components/pdfHelpers";
 import SavedTicketDialog from "./_components/SavedTicketDialog";
@@ -109,6 +109,10 @@ const Preview = () => {
     sources: PdfSource[];
     pages: PageRef[];
   } | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
+  // Selection follows the page key through reorder and delete; a removed page falls back to the first.
+  const selKey = pages.some((p) => p.key === selectedKey) ? selectedKey : pages[0]?.key;
+  const selPage = Math.max(1, pages.findIndex((p) => p.key === selKey) + 1);
   const [docId, setDocId] = useState<string | undefined>(undefined);
   // Only a merge built from the current pages and booking may be previewed or saved.
   const merged =
@@ -202,7 +206,7 @@ const Preview = () => {
     if (!bookingDetail?.eTicketUrl) return;
     setEditLoading(true);
     try {
-      const bytes = await fetchPdfBytes(bookingDetail.eTicketUrl);
+      const bytes = await fetchTicketBytes(id ?? "", bookingDetail.eTicketUrl);
       await addFiles([new File([bytes as BlobPart], "current-ticket.pdf", { type: "application/pdf" })]);
     } catch {
       toast.error("Could not load the saved ticket for editing. Download it, then add it with Replace.");
@@ -792,7 +796,7 @@ const Preview = () => {
                 )}
                 <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
                   <DialogContent
-                    className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl"
+                    className="inset-0 m-auto flex h-[94vh] w-[96vw] max-w-[96vw] translate-x-0 translate-y-0 flex-col sm:max-w-[min(96vw,1400px)]"
                     // a dragged page card is portalled outside the dialog: dropping it must not count as an outside click
                     onInteractOutside={(e) => {
                       if ((e.target as HTMLElement | null)?.closest?.("[data-rfd-draggable-id],[data-rfd-drag-handle-draggable-id]")) e.preventDefault();
@@ -809,10 +813,13 @@ const Preview = () => {
                       mergedSize={merged ? merged.bytes.length : null}
                       maxBytes={MAX_VOUCHER_BYTES}
                       busy={uploadLoading || addLoading}
-                    />
+                      selectedKey={selKey}
+                      onSelect={setSelectedKey}
+                    >
                     {merged ? (
                       <iframe
-                        src={`${merged.url}#view=FitH`}
+                        key={`${merged.url}|${selPage}`}
+                        src={`${merged.url}#page=${selPage}&navpanes=0&view=FitH`}
                         title="Voucher preview"
                         // the PDF viewer keeps keyboard focus, which blocks Escape: hand focus back to the dialog once it loads
                         onLoad={(e) => e.currentTarget.closest<HTMLElement>('[data-slot="dialog-content"]')?.focus()}
@@ -821,6 +828,7 @@ const Preview = () => {
                     ) : (
                       <div className="flex flex-1 items-center justify-center"><ButtonSpinner /></div>
                     )}
+                    </PdfPageEditor>
                     <DialogFooter className="relative z-10">
                       <Button type="button" variant="outline" onClick={() => setPreviewOpen(false)}>
                         Close

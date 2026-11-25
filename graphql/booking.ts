@@ -13,6 +13,7 @@ import {
   REFRESH_BOOKING_MUTATION,
   SEND_BOOKING_FAILED_APOLOGY_MUTATION,
   UPLOAD_BOOKING_VOUCHER_MUTATION,
+  BOOKING_TICKET_VIEW_URL_QUERY,
 } from "./type-query/booking";
 import { getSignedUrl } from "./file";
 import { RESEND_EMAIL_MUTATION } from "./type-query/product";
@@ -219,6 +220,16 @@ export const confirmBooking = async (id: string) => {
       },
     },
   });
+};
+
+// Owner only: a short-lived signed URL (CORS, inline PDF) for the saved ticket.
+export const getBookingTicketViewUrl = async (id: string): Promise<string> => {
+  const res = await client.query<{ bookingTicketViewUrl: string }>({
+    query: warpGql(BOOKING_TICKET_VIEW_URL_QUERY),
+    variables: { transactionId: id },
+    fetchPolicy: "no-cache",
+  });
+  return res.data.bookingTicketViewUrl;
 };
 
 export const refreshBooking = async (id: string) => {

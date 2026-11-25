@@ -266,6 +266,11 @@ mutation Mutation($data: RefreshBookingInput!) {
   }
 }`;
 
+export const BOOKING_TICKET_VIEW_URL_QUERY = `
+query Query($transactionId: String!) {
+  bookingTicketViewUrl(transactionId: $transactionId)
+}`;
+
 export const UPLOAD_BOOKING_VOUCHER_MUTATION = `
 mutation Mutation($data: UploadBookingVoucherInput!) {
   uploadBookingVoucher(data: $data) {
