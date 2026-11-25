@@ -13,6 +13,8 @@ query FindAllProducts($params: UserProductsInput!) {
       id
       image
       isCancellable
+      isManualFulfilment
+      isPinned
       isPublished
       media {
         extension
@@ -70,6 +72,8 @@ query GetProductInfo($productId: String!,$includeRelated: Boolean) {
     isBestSeller
     isCancellable
     isGTRecommend
+    isManualFulfilment
+    isPinned
     isRecommended
     isPublished
     isInstantConfirmation

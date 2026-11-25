@@ -45,6 +45,8 @@ export type ProductT = {
   id: string;
   image: string;
   isPublished: boolean;
+  isPinned?: boolean | null; // OWNER-only
+  isManualFulfilment?: boolean | null; // OWNER-only
   isCancellable: boolean;
   isRecommended: boolean;
   media: [];
@@ -128,6 +130,8 @@ export interface ProductRelatedT {
 }
 
 export interface ProductInfoT {
+  isPinned?: boolean | null; // OWNER-only
+  isManualFulfilment?: boolean | null; // OWNER-only
   id: string;
   name: string;
   category_relation: {

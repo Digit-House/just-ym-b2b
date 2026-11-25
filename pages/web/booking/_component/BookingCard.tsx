@@ -24,6 +24,7 @@ import ImageFallback from "@/components/ImageFallback";
 import { HOTEL_IMAGE_PLACEHOLDER, resolveHotelImageUrl } from "@/graphql/hotel";
 import { preFixImg } from "@/util/initData";
 import { useUser } from "@/provider/UserProvider";
+import { ManualBookingChips } from "./ManualBookingChips";
 import SupplierStatusBadge from "./SupplierStatusBadge";
 import BookingFailedApology from "./BookingFailedApology";
 import CardVerificationChip from "./CardVerificationChip";
@@ -211,6 +212,20 @@ const BookingCard = ({ data, cardCheck }: Props) => {
                 {data.fulfillmentStatus.toLowerCase()}
               </span>
             </div>
+            {user?.type === "OWNER" && !isHotel && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                <ManualBookingChips
+                  booking={{
+                    isManualHeld: data.ticketDetail?.isManualHeld,
+                    requiresManualConfirm: data.ticketDetail?.requiresManualConfirm,
+                    isTicketConfirmed: data.fulfillmentStatus === "CONFIRMED",
+                    eTicketUrl: data.ticketDetail?.eTicketUrl,
+                    status: data.paymentStatus,
+                    supplierStatus: data.supplierStatus,
+                  }}
+                />
+              </div>
+            )}
             {user?.type === "OWNER" && (
               <SupplierStatusBadge
                 status={data.supplierStatus}

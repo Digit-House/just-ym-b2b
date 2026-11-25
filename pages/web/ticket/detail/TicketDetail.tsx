@@ -1,3 +1,5 @@
+import ProductBadges from "@/pages/web/ticket/_components/ProductBadges";
+import { useUser } from "@/provider/UserProvider";
 import { Link, useParams } from "react-router-dom";
 import { useTicketDetail } from "./useTicketDetail";
 import MediaCarousel from "./_components/MediaCarousel";
@@ -12,6 +14,7 @@ import RelatedTicketsCarousel from "@/pages/web/ticket/_components/RelatedTicket
 
 const TicketDetail = () => {
   const { id } = useParams();
+  const { user } = useUser();
 
   const {
     product,
@@ -70,9 +73,12 @@ const TicketDetail = () => {
           isInstant={product.isInstantConfirmation}
           productName={product.name}
         />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {product.name}
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {product.name}
+          </h1>
+          {user?.type === "OWNER" && <ProductBadges product={product} />}
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-8 items-start relative">
           <div className="lg:col-span-4 flex flex-col gap-6">
             <h3 className="text-2xl font-bold text-gray-900">Package Info</h3>
