@@ -54,8 +54,19 @@ import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBa
 import BookingFailedApology from "@/pages/web/booking/_component/BookingFailedApology";
 import MascotLoader from "@/components/MascotLoader";
 import ButtonSpinner from "@/components/ButtonSpinner";
+import PdfPageEditor from "./_components/PdfPageEditor";
+import {
+  MAX_VOUCHER_BYTES,
+  PageRef,
+  PdfSource,
+  buildMerged,
+  countPages,
+  imageFileToPdf,
+  isImageType,
+  isPdfType,
+  pagesOf,
+} from "./_components/pdfHelpers";
 
-const MAX_VOUCHER_BYTES = 4 * 1024 * 1024; // matches the backend presigned content-length-range
 const NOT_UPLOADED_MSG = "Upload the ticket before you confirm this booking.";
 
 const Preview = () => {
@@ -83,20 +94,50 @@ const Preview = () => {
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pickedFile, setPickedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // The working document lives here, not in the dialog, so closing the dialog keeps it.
+  const [sources, setSources] = useState<PdfSource[]>([]);
+  const [pages, setPages] = useState<PageRef[]>([]);
+  const [mergedRaw, setMerged] = useState<{
+    bytes: Uint8Array;
+    url: string;
+    sources: PdfSource[];
+    pages: PageRef[];
+  } | null>(null);
+  const [docId, setDocId] = useState<string | undefined>(undefined);
+  // Only a merge built from the current pages and booking may be previewed or saved.
+  const merged =
+    mergedRaw && mergedRaw.sources === sources && mergedRaw.pages === pages && docId === id
+      ? mergedRaw
+      : null;
+
+  // <Preview/> is reused across booking ids: never carry a document to another booking.
+  useEffect(() => {
+    setPreviewOpen(false);
+    setSources([]);
+    setPages([]);
+    setDocId(undefined);
+  }, [id]);
+  const [addLoading, setAddLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  // Local blob URL for the preview only; revoked when the file changes or on unmount.
+  // Rebuild the final PDF whenever the page list changes; blob URL revoked on change/unmount.
   useEffect(() => {
-    if (!pickedFile) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(pickedFile);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [pickedFile]);
+    setMerged(null);
+    if (!pages.length) return;
+    let dead = false;
+    let url: string | null = null;
+    buildMerged(sources, pages)
+      .then((bytes) => {
+        if (dead) return;
+        url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
+        setMerged({ bytes, url, sources, pages });
+      })
+      .catch((err) => !dead && toast.error(getErrMsg(err, "message")));
+    return () => {
+      dead = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [sources, pages]);
 
   const handleRefresh = async () => {
     if (!isOwner || !id) {
@@ -121,32 +162,63 @@ const Preview = () => {
     }
   };
 
-  // Picking only validates and holds the file locally; nothing is uploaded until Save.
-  const handlePickVoucher = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    if (file.type !== "application/pdf") {
-      toast.error("Voucher must be a PDF file (application/pdf).");
-      return;
+  // Picking only reads files locally; nothing is uploaded until Save. A bad file is reported by name and the rest are kept.
+  const addFiles = async (files: File[]) => {
+    setAddLoading(true);
+    const newSources: PdfSource[] = [];
+    const newPages: PageRef[] = [];
+    for (const file of files) {
+      try {
+        let bytes: Uint8Array;
+        if (isPdfType(file.type)) bytes = new Uint8Array(await file.arrayBuffer());
+        else if (isImageType(file.type)) bytes = await imageFileToPdf(file);
+        else throw new Error("not a PDF or image (JPEG, PNG, WebP)");
+        const count = await countPages(bytes);
+        const src = { id: crypto.randomUUID(), name: file.name, bytes };
+        newSources.push(src);
+        newPages.push(...pagesOf(src, count));
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "unreadable";
+        toast.error(`${file.name}: ${/encrypt/i.test(msg) ? "password-protected PDFs are not supported" : msg}`);
+      }
     }
-    if (file.size > MAX_VOUCHER_BYTES) {
-      toast.error("Voucher is too large. The limit is 4 MB.");
-      return;
+    if (newPages.length) {
+      setDocId(id);
+      setSources((p) => [...p, ...newSources]);
+      setPages((p) => [...p, ...newPages]);
+      setPreviewOpen(true);
     }
-    setPickedFile(file);
+    setAddLoading(false);
   };
 
-  const clearPicked = () => {
-    setPreviewOpen(false);
-    setPickedFile(null);
+  const handlePickVoucher = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (files.length) void addFiles(files);
   };
+
+  const clearDoc = () => {
+    setPreviewOpen(false);
+    setSources([]);
+    setPages([]);
+  };
+
+  const discardDoc = () => {
+    if (window.confirm("Discard the ticket you are building? All pages will be removed."))
+      clearDoc();
+  };
+
+  const mergedTooBig = !!merged && merged.bytes.length > MAX_VOUCHER_BYTES;
+  const saveDisabled = uploadLoading || addLoading || !merged || mergedTooBig;
 
   const handleSaveVoucher = async () => {
-    if (!pickedFile || !id || uploadLoading) return;
+    if (!merged || mergedTooBig || !id || uploadLoading) return;
     setUploadLoading(true);
     try {
-      const res = await uploadBookingVoucher(id, pickedFile);
+      const res = await uploadBookingVoucher(
+        id,
+        new File([merged.bytes as BlobPart], "voucher.pdf", { type: "application/pdf" }),
+      );
       const out = (res.data as any)?.uploadBookingVoucher;
       toast.success("Voucher uploaded");
       notifyManualConfirmChanged();
@@ -156,7 +228,7 @@ const Preview = () => {
           eTicketUrl: out.eTicketUrl ?? bookingDetail.eTicketUrl,
         });
       }
-      clearPicked();
+      clearDoc();
     } catch (err) {
       toast.error(getErrMsg(err as any, "message"));
     } finally {
@@ -628,38 +700,21 @@ const Preview = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="application/pdf"
+                  multiple
+                  accept="application/pdf,image/jpeg,image/png,image/webp"
                   className="hidden"
                   onChange={handlePickVoucher}
                 />
-                {pickedFile ? (
+                {pages.length ? (
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 pl-2 text-sm">
-                      <button
-                        type="button"
-                        onClick={() => setPreviewOpen(true)}
-                        className="flex items-center gap-1 py-1 text-indigo-600 hover:underline cursor-pointer"
-                        title="Preview PDF"
-                      >
-                        <FileText className="w-4 h-4" />
-                        {pickedFile.name} (
-                        {(pickedFile.size / 1024 / 1024).toFixed(2)} MB)
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Remove file"
-                        disabled={uploadLoading}
-                        onClick={clearPicked}
-                        className="p-1 text-gray-500 hover:text-gray-800 cursor-pointer"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </span>
-                    <Button
-                      disabled={uploadLoading}
-                      onClick={handleSaveVoucher}
-                      className="flex items-center gap-2"
-                    >
+                    <Button variant="outline" onClick={() => setPreviewOpen(true)} className="flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      Review ticket ({pages.length} {pages.length === 1 ? "page" : "pages"})
+                    </Button>
+                    <Button variant="outline" disabled={uploadLoading} onClick={discardDoc}>
+                      Discard
+                    </Button>
+                    <Button disabled={saveDisabled} onClick={handleSaveVoucher} className="flex items-center gap-2">
                       {uploadLoading && <ButtonSpinner />}
                       {uploadLoading ? "Saving..." : "Save"}
                     </Button>
@@ -667,42 +722,42 @@ const Preview = () => {
                 ) : (
                   <Button
                     variant="outline"
+                    disabled={addLoading}
                     onClick={() => fileInputRef.current?.click()}
                     className="flex items-center gap-2"
                   >
-                    <Upload className="w-4 h-4" />
-                    Choose voucher PDF
+                    {addLoading ? <ButtonSpinner /> : <Upload className="w-4 h-4" />}
+                    Choose voucher PDF or images
                   </Button>
                 )}
-                <Dialog
-                  open={previewOpen}
-                  onOpenChange={(o) => !uploadLoading && setPreviewOpen(o)}
-                >
+                <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
                   <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
                     <DialogHeader>
-                      <DialogTitle className="truncate pr-6">
-                        {pickedFile?.name}
-                      </DialogTitle>
+                      <DialogTitle className="truncate pr-6">Review ticket ({pages.length} pages)</DialogTitle>
                     </DialogHeader>
-                    {previewUrl && (
+                    <PdfPageEditor
+                      sources={sources}
+                      pages={pages}
+                      onChange={setPages}
+                      onAddFiles={(f) => void addFiles(f)}
+                      mergedSize={merged ? merged.bytes.length : null}
+                      maxBytes={MAX_VOUCHER_BYTES}
+                      busy={uploadLoading || addLoading}
+                    />
+                    {merged ? (
                       <iframe
-                        src={`${previewUrl}#view=FitH`}
+                        src={`${merged.url}#view=FitH`}
                         title="Voucher preview"
                         className="min-h-0 w-full flex-1 rounded border"
                       />
+                    ) : (
+                      <div className="flex flex-1 items-center justify-center"><ButtonSpinner /></div>
                     )}
                     <DialogFooter>
-                      <Button
-                        variant="outline"
-                        disabled={uploadLoading}
-                        onClick={clearPicked}
-                      >
-                        Cancel
+                      <Button variant="outline" onClick={() => setPreviewOpen(false)}>
+                        Close
                       </Button>
-                      <Button
-                        disabled={uploadLoading}
-                        onClick={handleSaveVoucher}
-                      >
+                      <Button disabled={saveDisabled} onClick={handleSaveVoucher}>
                         {uploadLoading && <ButtonSpinner />}
                         {uploadLoading ? "Saving..." : "Save"}
                       </Button>

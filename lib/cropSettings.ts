@@ -65,6 +65,12 @@ export const CROP_SETTINGS = {
     minHeight: 128,
   },
 
+  // 🖼 Ticket Image (cover + gallery) — detail page carousel (full width × 450px) → 21:9
+  TICKET_IMAGE: {
+    aspect: 21 / 9,
+    minWidth: 1470,
+    minHeight: 630,
+  },
 
   // 💳 Payment Method Logo (Square)
   PAYMENT_LOGO_SQUARE: {
@@ -204,6 +210,7 @@ export function getCropSettingsInfo(settings: CropSettings | undefined, presetNa
       EXPLORE_PAGE: "Explore Page",
       TICKET_DETAIL_BIG: "Ticket Detail (Big)",
       TICKET_DETAIL_SMALL: "Ticket Detail (Small)",
+      TICKET_IMAGE: "Ticket Image",
       PAYMENT_LOGO_SQUARE: "Payment Logo (Square)",
       PAYMENT_LOGO_LANDSCAPE: "Payment Logo (Landscape)",
       DOCUMENT_UPLOAD: "Document Upload",
@@ -219,6 +226,7 @@ export function getCropSettingsInfo(settings: CropSettings | undefined, presetNa
       EXPLORE_PAGE: `Fixed aspect ratio: ${(CROP_SETTINGS.EXPLORE_PAGE.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.EXPLORE_PAGE.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.EXPLORE_PAGE.minWidth}×${CROP_SETTINGS.EXPLORE_PAGE.minHeight}px`,
       TICKET_DETAIL_BIG: `Fixed aspect ratio: ${(CROP_SETTINGS.TICKET_DETAIL_BIG.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.TICKET_DETAIL_BIG.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.TICKET_DETAIL_BIG.minWidth}×${CROP_SETTINGS.TICKET_DETAIL_BIG.minHeight}px`,
       TICKET_DETAIL_SMALL: `Fixed aspect ratio: ${(CROP_SETTINGS.TICKET_DETAIL_SMALL.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.TICKET_DETAIL_SMALL.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.TICKET_DETAIL_SMALL.minWidth}×${CROP_SETTINGS.TICKET_DETAIL_SMALL.minHeight}px`,
+      TICKET_IMAGE: `Fixed aspect ratio: 21:9, Min: ${CROP_SETTINGS.TICKET_IMAGE.minWidth}×${CROP_SETTINGS.TICKET_IMAGE.minHeight}px`,
       PAYMENT_LOGO_SQUARE: `Fixed aspect ratio: ${(CROP_SETTINGS.PAYMENT_LOGO_SQUARE.aspect || 1).toFixed(2)}, Min: ${CROP_SETTINGS.PAYMENT_LOGO_SQUARE.minWidth}×${CROP_SETTINGS.PAYMENT_LOGO_SQUARE.minHeight}px`,
       PAYMENT_LOGO_LANDSCAPE: `Fixed aspect ratio: ${(CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.aspect || 1).toFixed(2)} (${Math.round(CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.aspect! * 100)}:${100}), Min: ${CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.minWidth}×${CROP_SETTINGS.PAYMENT_LOGO_LANDSCAPE.minHeight}px`,
       DOCUMENT_UPLOAD: `Flexible ratio, Min: ${CROP_SETTINGS.DOCUMENT_UPLOAD.minWidth}×${CROP_SETTINGS.DOCUMENT_UPLOAD.minHeight}px`,
