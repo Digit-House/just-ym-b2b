@@ -220,6 +220,8 @@ const BookingCard = ({ data, cardCheck }: Props) => {
                     requiresManualConfirm: data.ticketDetail?.requiresManualConfirm,
                     isTicketConfirmed: data.fulfillmentStatus === "CONFIRMED",
                     eTicketUrl: data.ticketDetail?.eTicketUrl,
+                    status: data.paymentStatus,
+                    supplierStatus: data.supplierStatus,
                   }}
                 />
               </div>

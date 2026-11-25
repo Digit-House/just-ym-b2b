@@ -24,7 +24,10 @@ import {
   X,
 } from "lucide-react"; // Added Info and RefreshCw
 import ResendModel from "./_component/ResendModal";
-import { ManualBookingChips } from "@/pages/web/booking/_component/ManualBookingChips";
+import {
+  ManualBookingChips,
+  isManualLive,
+} from "@/pages/web/booking/_component/ManualBookingChips";
 import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
@@ -46,7 +49,6 @@ import SupplierStatusBadge from "@/pages/web/booking/_component/SupplierStatusBa
 import BookingFailedApology from "@/pages/web/booking/_component/BookingFailedApology";
 import MascotLoader from "@/components/MascotLoader";
 import ButtonSpinner from "@/components/ButtonSpinner";
-
 
 const MAX_VOUCHER_BYTES = 4 * 1024 * 1024; // matches the backend presigned content-length-range
 const NOT_UPLOADED_MSG = "Upload the ticket before you confirm this booking.";
@@ -102,7 +104,7 @@ const Preview = () => {
       const out = (res.data as any)?.refreshBooking;
       if (out?.isTicketReady && !out.eTicketUrl) {
         toast.error(
-          "Voucher still held: the logo edit needs a developer fix. See the Discord alert."
+          "Voucher still held: the logo edit needs a developer fix. See the Discord alert.",
         );
         setRefreshLoading(false);
         return;
@@ -171,9 +173,11 @@ const Preview = () => {
     } catch (err) {
       toast.error(
         getErrMsg(err as any, "code") === "TICKET_NOT_UPLOADED" ||
-          String(getErrMsg(err as any, "message")).includes("TICKET_NOT_UPLOADED")
+          String(getErrMsg(err as any, "message")).includes(
+            "TICKET_NOT_UPLOADED",
+          )
           ? NOT_UPLOADED_MSG
-          : getErrMsg(err as any, "message")
+          : getErrMsg(err as any, "message"),
       );
     } finally {
       setConfirmLoading(false);
@@ -235,7 +239,10 @@ const Preview = () => {
           title="Refresh Page"
           className="rounded-full hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200"
         >
-          <RefreshCw size={18} className={refreshLoading ? "animate-spin" : ""} />
+          <RefreshCw
+            size={18}
+            className={refreshLoading ? "animate-spin" : ""}
+          />
         </Button>
       </div>
 
@@ -257,7 +264,7 @@ const Preview = () => {
                   </div>
                 )}
                 {isOwner &&
-                  (bookingDetail.isManualHeld ? (
+                  (bookingDetail.isManualHeld && isManualLive(bookingDetail) ? (
                     <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border-amber-200">
                       Supplier: book manually
                     </span>
@@ -270,7 +277,10 @@ const Preview = () => {
                 {isOwner && <ManualBookingChips booking={bookingDetail} />}
                 <BookingFailedApology
                   transactionId={bookingDetail.id}
-                  isFailed={bookingDetail.status === "FAILED" || bookingDetail.supplierStatus === "FAILED"}
+                  isFailed={
+                    bookingDetail.status === "FAILED" ||
+                    bookingDetail.supplierStatus === "FAILED"
+                  }
                   sentAt={bookingDetail.bookingFailedApologySentAt}
                   voucherCode={bookingDetail.bookingFailedApologyVoucherCode}
                   onSent={(sentAt, voucherCode) =>
@@ -291,7 +301,8 @@ const Preview = () => {
               </div>
               {isOwner && bookingDetail.isManualHeld && (
                 <p className="text-sm text-amber-700">
-                  Book this ticket with the supplier, upload the PDF, then confirm.
+                  Book this ticket with the supplier, upload the PDF, then
+                  confirm.
                 </p>
               )}
               <div className="flex items-center gap-4 text-sm text-[#45556C]">
@@ -299,7 +310,7 @@ const Preview = () => {
                   <span className="font-semibold">Transacted:</span>{" "}
                   {format(
                     new Date(bookingDetail.transactedTime),
-                    "dd MMM yyyy hh:mm a"
+                    "dd MMM yyyy hh:mm a",
                   )}
                 </span>
                 {bookingDetail.paidTime && (
@@ -307,7 +318,7 @@ const Preview = () => {
                     <span className="font-semibold">Paid:</span>{" "}
                     {format(
                       new Date(bookingDetail.paidTime),
-                      "dd MMM yyyy hh:mm a"
+                      "dd MMM yyyy hh:mm a",
                     )}
                   </span>
                 )}
@@ -320,9 +331,11 @@ const Preview = () => {
               <p className="text-3xl font-bold text-[#F54900]">
                 THB {total || bookingDetail.transactedAmount}
               </p>
-              <div className="text-xs text-gray-400 mt-1">
-                Globaltix ID: {bookingDetail.globaltixTransactionId}
-              </div>
+              {!!Number(bookingDetail.globaltixTransactionId) && (
+                <div className="text-xs text-gray-400 mt-1">
+                  Globaltix ID: {bookingDetail.globaltixTransactionId}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -581,7 +594,11 @@ const Preview = () => {
                   disabled={resendLoading}
                   className="flex items-center gap-2"
                 >
-                  {resendLoading ? <ButtonSpinner /> : <Mail className="w-4 h-4" />}
+                  {resendLoading ? (
+                    <ButtonSpinner />
+                  ) : (
+                    <Mail className="w-4 h-4" />
+                  )}
                   {resendLoading ? "Loading..." : "Resend Email"}
                 </Button>
                 <Button
@@ -652,7 +669,9 @@ const Preview = () => {
                 >
                   <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
                     <DialogHeader>
-                      <DialogTitle className="truncate pr-6">{pickedFile?.name}</DialogTitle>
+                      <DialogTitle className="truncate pr-6">
+                        {pickedFile?.name}
+                      </DialogTitle>
                     </DialogHeader>
                     {previewUrl && (
                       <iframe
@@ -669,7 +688,10 @@ const Preview = () => {
                       >
                         Cancel
                       </Button>
-                      <Button disabled={uploadLoading} onClick={handleSaveVoucher}>
+                      <Button
+                        disabled={uploadLoading}
+                        onClick={handleSaveVoucher}
+                      >
                         {uploadLoading && <ButtonSpinner />}
                         {uploadLoading ? "Saving..." : "Save"}
                       </Button>
@@ -684,7 +706,9 @@ const Preview = () => {
               !bookingDetail.isTicketConfirmed && (
                 <Button
                   disabled={confirmLoading || !bookingDetail.eTicketUrl}
-                  title={!bookingDetail.eTicketUrl ? NOT_UPLOADED_MSG : undefined}
+                  title={
+                    !bookingDetail.eTicketUrl ? NOT_UPLOADED_MSG : undefined
+                  }
                   onClick={handleConfirm}
                   className="bg-green-600 hover:bg-green-700"
                 >

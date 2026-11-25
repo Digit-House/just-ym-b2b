@@ -4,6 +4,7 @@ import { ProductT } from "@/types/product.type";
 import { UserT } from "@/types/user.type";
 import { preFixImg } from "@/util/initData";
 import { ArrowRight } from "lucide-react";
+import ProductBadges from "./ProductBadges";
 
 type Props = {
   user: UserT;
@@ -24,6 +25,7 @@ const TicketCard = ({ user, p, handleNavigate }: Props) => {
 
       <div className="p-6 flex flex-col">
         <div className="h-[100px]">
+        {user?.type === "OWNER" && <ProductBadges product={p} className="mb-1" />}
         <h3 className="font-bold ">{truncateDescription(p.name, 35)}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-4">
           {truncateDescription(p.description)}
