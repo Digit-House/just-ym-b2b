@@ -123,3 +123,16 @@ export const imageFileToPdf = async (file: File): Promise<Uint8Array> => {
     c.height = 0;
   }
 };
+
+export const isHttpUrl = (u?: string | null): u is string => !!u && /^https?:\/\//i.test(u);
+
+/** Fetch a saved ticket uncached and make sure it really is a PDF (stored files carry a generic content type). */
+export const fetchPdfBytes = async (url: string): Promise<Uint8Array> => {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  if (!new TextDecoder("latin1").decode(bytes.subarray(0, 1024)).includes("%PDF-")) {
+    throw new Error("Not a PDF");
+  }
+  return bytes;
+};

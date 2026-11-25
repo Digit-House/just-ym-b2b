@@ -65,7 +65,10 @@ import {
   isImageType,
   isPdfType,
   pagesOf,
+  fetchPdfBytes,
+  isHttpUrl,
 } from "./_components/pdfHelpers";
+import SavedTicketDialog from "./_components/SavedTicketDialog";
 
 const NOT_UPLOADED_MSG = "Upload the ticket before you confirm this booking.";
 
@@ -80,6 +83,7 @@ const Preview = () => {
     setResendLoading,
     confirmLoading,
     setConfirmLoading,
+    refetchBookingDetail,
   } = usePreview(id);
   const { user } = useUser();
 
@@ -94,9 +98,6 @@ const Preview = () => {
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
-  // Same S3 key is overwritten on save, so bust browser caches with the last save time.
-  const [ticketVer, setTicketVer] = useState(() => Date.now());
-  const bust = (u: string) => (ticketVer && u ? `${u}${u.includes("?") ? "&" : "?"}v=${ticketVer}` : u);
   const [editLoading, setEditLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // The working document lives here, not in the dialog, so closing the dialog keeps it.
@@ -201,10 +202,8 @@ const Preview = () => {
     if (!bookingDetail?.eTicketUrl) return;
     setEditLoading(true);
     try {
-      const res = await fetch(bust(bookingDetail.eTicketUrl), { cache: "no-store" });
-      if (!res.ok) throw new Error(String(res.status));
-      const blob = await res.blob();
-      await addFiles([new File([blob], "current-ticket.pdf", { type: "application/pdf" })]);
+      const bytes = await fetchPdfBytes(bookingDetail.eTicketUrl);
+      await addFiles([new File([bytes as BlobPart], "current-ticket.pdf", { type: "application/pdf" })]);
     } catch {
       toast.error("Could not load the saved ticket for editing. Download it, then add it with Replace.");
     } finally {
@@ -230,26 +229,30 @@ const Preview = () => {
   };
 
   const mergedTooBig = !!merged && merged.bytes.length > MAX_VOUCHER_BYTES;
-  const saveDisabled = uploadLoading || addLoading || !merged || mergedTooBig;
+  // The file is overwritten in storage before the backend can refuse, so a held, unpaid booking must not save.
+  const heldUnpaid = !!bookingDetail?.isManualHeld && bookingDetail.status !== "PAID";
+  const saveDisabled = uploadLoading || addLoading || !merged || mergedTooBig || heldUnpaid;
+  const saveTitle = heldUnpaid ? "The booking is not paid." : undefined;
 
   const handleSaveVoucher = async () => {
-    if (!merged || mergedTooBig || !id || uploadLoading) return;
+    if (!merged || mergedTooBig || !id || uploadLoading || heldUnpaid) return;
     setUploadLoading(true);
     try {
       const res = await uploadBookingVoucher(
         id,
         new File([merged.bytes as BlobPart], "voucher.pdf", { type: "application/pdf" }),
-        bookingDetail?.eTicketUrl || undefined,
+        isHttpUrl(bookingDetail?.eTicketUrl) ? bookingDetail.eTicketUrl : undefined,
       );
-      setTicketVer(Date.now());
       const out = (res.data as any)?.uploadBookingVoucher;
       toast.success("Voucher uploaded");
       notifyManualConfirmChanged();
       if (bookingDetail && out) {
-        setBookingDetail({
-          ...bookingDetail,
-          eTicketUrl: out.eTicketUrl ?? bookingDetail.eTicketUrl,
-        });
+        if (isHttpUrl(out.eTicketUrl)) {
+          setBookingDetail({ ...bookingDetail, eTicketUrl: out.eTicketUrl });
+        } else if (!isHttpUrl(bookingDetail.eTicketUrl)) {
+          // older backend returned a relative URL and there is no absolute one to keep
+          await refetchBookingDetail(id);
+        }
       }
       clearDoc();
     } catch (err) {
@@ -709,7 +712,7 @@ const Preview = () => {
                 </Button>
                 <Button
                   disabled={resendLoading}
-                  onClick={() => downloadTicket(bust(bookingDetail.eTicketUrl))}
+                  onClick={() => downloadTicket(bookingDetail.eTicketUrl)}
                   className="flex items-center gap-2 bg-indigo-700 hover:bg-indigo-800"
                 >
                   <Download className="w-4 h-4" />
@@ -737,7 +740,7 @@ const Preview = () => {
                     <Button variant="outline" disabled={uploadLoading} onClick={discardDoc}>
                       Discard
                     </Button>
-                    <Button disabled={saveDisabled} onClick={handleSaveVoucher} className="flex items-center gap-2">
+                    <Button disabled={saveDisabled} title={saveTitle} onClick={handleSaveVoucher} className="flex items-center gap-2">
                       {uploadLoading && <ButtonSpinner />}
                       {uploadLoading ? "Saving..." : "Save"}
                     </Button>
@@ -749,21 +752,25 @@ const Preview = () => {
                         <FileText className="w-4 h-4" />
                         View ticket
                       </Button>
-                      <Button variant="outline" disabled={addLoading || editLoading} onClick={handleEditSaved}>
-                        {editLoading && <ButtonSpinner />}
-                        Edit pages
-                      </Button>
-                      <Button
-                        variant="outline"
-                        disabled={addLoading || editLoading}
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Replace
-                      </Button>
+                      {!heldUnpaid && (
+                        <>
+                          <Button variant="outline" disabled={addLoading || editLoading} onClick={handleEditSaved}>
+                            {editLoading && <ButtonSpinner />}
+                            Edit pages
+                          </Button>
+                          <Button
+                            variant="outline"
+                            disabled={addLoading || editLoading}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Replace
+                          </Button>
+                        </>
+                      )}
                     </div>
-                  ) : (
+                  ) : heldUnpaid ? null : (
                     <Button
                       variant="outline"
                       disabled={addLoading}
@@ -775,30 +782,22 @@ const Preview = () => {
                     </Button>
                   )
                 )}
-                <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-                  <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
-                    <DialogHeader>
-                      <DialogTitle className="truncate pr-6">Saved ticket</DialogTitle>
-                    </DialogHeader>
-                    <iframe
-                      src={bust(bookingDetail.eTicketUrl)}
-                      title="Saved ticket"
-                      className="min-h-0 w-full flex-1 rounded border"
-                    />
-                    <DialogFooter>
-                      <Button variant="outline" asChild>
-                        <a href={bust(bookingDetail.eTicketUrl)} target="_blank" rel="noreferrer">
-                          Open in new tab
-                        </a>
-                      </Button>
-                      <Button variant="outline" onClick={() => setViewOpen(false)}>
-                        Close
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                {bookingDetail.eTicketUrl && (
+                  <SavedTicketDialog
+                    open={viewOpen}
+                    onOpenChange={setViewOpen}
+                    url={bookingDetail.eTicketUrl}
+                    bookingId={id}
+                  />
+                )}
                 <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-                  <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
+                  <DialogContent
+                    className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl"
+                    // a dragged page card is portalled outside the dialog: dropping it must not count as an outside click
+                    onInteractOutside={(e) => {
+                      if ((e.target as HTMLElement | null)?.closest?.("[data-rfd-draggable-id],[data-rfd-drag-handle-draggable-id]")) e.preventDefault();
+                    }}
+                  >
                     <DialogHeader>
                       <DialogTitle className="truncate pr-6">Review ticket ({pages.length} pages)</DialogTitle>
                     </DialogHeader>
@@ -815,16 +814,18 @@ const Preview = () => {
                       <iframe
                         src={`${merged.url}#view=FitH`}
                         title="Voucher preview"
+                        // the PDF viewer keeps keyboard focus, which blocks Escape: hand focus back to the dialog once it loads
+                        onLoad={(e) => e.currentTarget.closest<HTMLElement>('[data-slot="dialog-content"]')?.focus()}
                         className="min-h-0 w-full flex-1 rounded border"
                       />
                     ) : (
                       <div className="flex flex-1 items-center justify-center"><ButtonSpinner /></div>
                     )}
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setPreviewOpen(false)}>
+                    <DialogFooter className="relative z-10">
+                      <Button type="button" variant="outline" onClick={() => setPreviewOpen(false)}>
                         Close
                       </Button>
-                      <Button disabled={saveDisabled} onClick={handleSaveVoucher}>
+                      <Button disabled={saveDisabled} title={saveTitle} onClick={handleSaveVoucher}>
                         {uploadLoading && <ButtonSpinner />}
                         {uploadLoading ? "Saving..." : "Save"}
                       </Button>
