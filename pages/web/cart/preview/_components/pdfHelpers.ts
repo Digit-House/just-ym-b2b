@@ -1,4 +1,6 @@
 import { PDFDocument } from "pdf-lib";
+import { getBookingTicketViewUrl } from "@/graphql/booking";
+import { getErrMsg } from "@/util/initData";
 
 export const MAX_VOUCHER_BYTES = 4 * 1024 * 1024; // matches the backend presigned content-length-range
 export const MAX_IMAGE_SIDE = 2000;
@@ -122,4 +124,33 @@ export const imageFileToPdf = async (file: File): Promise<Uint8Array> => {
     c.width = 0;
     c.height = 0;
   }
+};
+
+export const isHttpUrl = (u?: string | null): u is string => !!u && /^https?:\/\//i.test(u);
+
+/** Fetch a saved ticket uncached and make sure it really is a PDF (stored files carry a generic content type). */
+export const fetchPdfBytes = async (url: string): Promise<Uint8Array> => {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  if (!new TextDecoder("latin1").decode(bytes.subarray(0, 1024)).includes("%PDF-")) {
+    throw new Error("Not a PDF");
+  }
+  return bytes;
+};
+
+/** Saved ticket bytes via the signed view URL (the stored URL has no CORS); only a failed URL query (older backend, external ticket) falls back to the stored URL. */
+export const fetchTicketBytes = async (bookingId: string, eTicketUrl: string): Promise<Uint8Array> => {
+  let signed: string;
+  try {
+    signed = await getBookingTicketViewUrl(bookingId);
+  } catch (err) {
+    // The stored URL goes through the CDN (can be stale, no CORS): use it only when no signed URL exists, never after a network error.
+    const noSignedUrl =
+      getErrMsg(err as any, "code") === "TICKET_EXTERNAL" ||
+      /Cannot query field/i.test(String(getErrMsg(err as any, "message")));
+    if (!noSignedUrl) throw err;
+    return fetchPdfBytes(eTicketUrl);
+  }
+  return fetchPdfBytes(signed);
 };

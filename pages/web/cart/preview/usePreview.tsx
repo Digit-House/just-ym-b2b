@@ -52,5 +52,6 @@ export const usePreview = (id?: string) => {
     setResendLoading,
     confirmLoading,
     setConfirmLoading,
+    refetchBookingDetail: fetchBookingDetail,
   };
 };

@@ -103,6 +103,8 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+      // reset so the same file can be picked again
+      e.target.value = "";
       if (!file) return;
 
       if (!isValidImageType(file)) {
@@ -192,6 +194,25 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       setPreviewDialogOpen(false);
     };
 
+    const handleDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (disabled) return;
+
+      const file = e.dataTransfer.files?.[0];
+      if (file) {
+        const input = document.createElement("input");
+        input.type = "file";
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+        handleFileChange({ target: input } as unknown as React.ChangeEvent<HTMLInputElement>);
+      }
+    };
+
+    // with a preview the file input is covered, so replacing needs its own entry points
+    const canReplace = !!preview && disableRemove && !disabled;
+
     const getFileToUpload = () => fileToUpload;
     useImperativeHandle(ref, () => ({ getFileToUpload }));
 
@@ -207,7 +228,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
           </label>
         )}
 
-        <div className="relative group w-full h-50 border-2 border-dashed rounded-md flex items-center justify-center bg-secondary/20 hover:bg-secondary/50 transition">
+        <div
+          className="relative group w-full h-50 border-2 border-dashed rounded-md flex items-center justify-center bg-secondary/20 hover:bg-secondary/50 transition"
+          onDragOver={canReplace ? (e) => e.preventDefault() : undefined}
+          onDrop={canReplace ? handleDrop : undefined}
+        >
           {enableCrop && (presetCropSetting || cropSettings) && (
             <div className="absolute top-2 left-2 flex items-center gap-1 text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
               <Info className="w-3 h-3" />
@@ -227,27 +252,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
               e.preventDefault();
               e.stopPropagation();
             }}
-            onDrop={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (disabled) return;
-              
-              const files = e.dataTransfer.files;
-              if (files && files.length > 0) {
-                const file = files[0];
-                // Create a mock input element to hold the file
-                const input = document.createElement('input');
-                input.type = 'file';
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                input.files = dataTransfer.files;
-                
-                const event = {
-                  target: input
-                } as unknown as React.ChangeEvent<HTMLInputElement>;
-                handleFileChange(event);
-              }
-            }}
+            onDrop={handleDrop}
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
 
@@ -267,6 +272,20 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
                   onClick={handlePreviewOpen}
                   className="w-full h-full object-contain p-2 cursor-zoom-in"
                 />
+              )}
+
+              {canReplace && (
+                <button
+                  type="button"
+                  aria-label="Replace image"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className="absolute bottom-1 right-1 z-10 rounded bg-white/90 px-2 py-1 text-xs font-medium shadow border hover:bg-white"
+                >
+                  Replace
+                </button>
               )}
 
               {!disableRemove && (
