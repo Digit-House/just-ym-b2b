@@ -93,6 +93,11 @@ const Preview = () => {
   const isOwner = user?.type === "OWNER";
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  // Same S3 key is overwritten on save, so bust browser caches with the last save time.
+  const [ticketVer, setTicketVer] = useState(() => Date.now());
+  const bust = (u: string) => (ticketVer && u ? `${u}${u.includes("?") ? "&" : "?"}v=${ticketVer}` : u);
+  const [editLoading, setEditLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // The working document lives here, not in the dialog, so closing the dialog keeps it.
   const [sources, setSources] = useState<PdfSource[]>([]);
@@ -191,6 +196,22 @@ const Preview = () => {
     setAddLoading(false);
   };
 
+  // Needs CORS on the ticket host; on any failure leave state untouched.
+  const handleEditSaved = async () => {
+    if (!bookingDetail?.eTicketUrl) return;
+    setEditLoading(true);
+    try {
+      const res = await fetch(bust(bookingDetail.eTicketUrl), { cache: "no-store" });
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      await addFiles([new File([blob], "current-ticket.pdf", { type: "application/pdf" })]);
+    } catch {
+      toast.error("Could not load the saved ticket for editing. Download it, then add it with Replace.");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   const handlePickVoucher = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     e.target.value = "";
@@ -218,7 +239,9 @@ const Preview = () => {
       const res = await uploadBookingVoucher(
         id,
         new File([merged.bytes as BlobPart], "voucher.pdf", { type: "application/pdf" }),
+        bookingDetail?.eTicketUrl || undefined,
       );
+      setTicketVer(Date.now());
       const out = (res.data as any)?.uploadBookingVoucher;
       toast.success("Voucher uploaded");
       notifyManualConfirmChanged();
@@ -686,7 +709,7 @@ const Preview = () => {
                 </Button>
                 <Button
                   disabled={resendLoading}
-                  onClick={() => downloadTicket(bookingDetail.eTicketUrl)}
+                  onClick={() => downloadTicket(bust(bookingDetail.eTicketUrl))}
                   className="flex items-center gap-2 bg-indigo-700 hover:bg-indigo-800"
                 >
                   <Download className="w-4 h-4" />
@@ -720,16 +743,60 @@ const Preview = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button
-                    variant="outline"
-                    disabled={addLoading}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2"
-                  >
-                    {addLoading ? <ButtonSpinner /> : <Upload className="w-4 h-4" />}
-                    Choose voucher PDF or images
-                  </Button>
+                  bookingDetail.eTicketUrl ? (
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" onClick={() => setViewOpen(true)} className="flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        View ticket
+                      </Button>
+                      <Button variant="outline" disabled={addLoading || editLoading} onClick={handleEditSaved}>
+                        {editLoading && <ButtonSpinner />}
+                        Edit pages
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={addLoading || editLoading}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Replace
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      disabled={addLoading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2"
+                    >
+                      {addLoading ? <ButtonSpinner /> : <Upload className="w-4 h-4" />}
+                      Choose voucher PDF or images
+                    </Button>
+                  )
                 )}
+                <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+                  <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
+                    <DialogHeader>
+                      <DialogTitle className="truncate pr-6">Saved ticket</DialogTitle>
+                    </DialogHeader>
+                    <iframe
+                      src={bust(bookingDetail.eTicketUrl)}
+                      title="Saved ticket"
+                      className="min-h-0 w-full flex-1 rounded border"
+                    />
+                    <DialogFooter>
+                      <Button variant="outline" asChild>
+                        <a href={bust(bookingDetail.eTicketUrl)} target="_blank" rel="noreferrer">
+                          Open in new tab
+                        </a>
+                      </Button>
+                      <Button variant="outline" onClick={() => setViewOpen(false)}>
+                        Close
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
                   <DialogContent className="inset-0 m-auto flex h-[90vh] w-[95vw] max-w-[95vw] translate-x-0 translate-y-0 flex-col sm:max-w-5xl">
                     <DialogHeader>
