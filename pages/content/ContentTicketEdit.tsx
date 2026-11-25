@@ -544,7 +544,7 @@ const ContentTicketEdit = () => {
                 folderType="PRODUCT_MEDIA"
                 disableRemove
                 enableCrop
-                presetCropSetting="TICKET_CARD"
+                presetCropSetting="TICKET_IMAGE"
                 cropLibrary="react-easy-crop"
                 onChange={async (_v, file) => {
                   if (!file) return;
@@ -566,7 +566,7 @@ const ContentTicketEdit = () => {
                       folderType="PRODUCT_MEDIA"
                       disableRemove
                       enableCrop
-                      presetCropSetting="LANDING_HERO"
+                      presetCropSetting="TICKET_IMAGE"
                       cropLibrary="react-easy-crop"
                       onChange={async (_v, file) => {
                         if (!file) return;
