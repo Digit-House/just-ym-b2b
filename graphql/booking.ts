@@ -229,10 +229,11 @@ export const refreshBooking = async (id: string) => {
 };
 
 // Presigned POST to S3 (key = fields.key), then attach the key to the booking.
-export const uploadBookingVoucher = async (id: string, file: File) => {
+export const uploadBookingVoucher = async (id: string, file: File, currentUrl?: string) => {
   const signed: any = await getSignedUrl({
     filename: "voucher.pdf",
     folder: "TICKET_VOUCHER",
+    updateUrl: currentUrl || undefined, // reuse the saved ticket's S3 key
   });
   const { url, fields } = signed.data.getPresignedPost;
   const formData = new FormData();
