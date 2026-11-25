@@ -24,7 +24,8 @@ import ImageFallback from "@/components/ImageFallback";
 import { HOTEL_IMAGE_PLACEHOLDER, resolveHotelImageUrl } from "@/graphql/hotel";
 import { preFixImg } from "@/util/initData";
 import { useUser } from "@/provider/UserProvider";
-import { ManualBookingChips } from "./ManualBookingChips";
+import { getStatusStyles, paymentStatusLabel } from "@/lib/bookingFormat";
+import { ManualBookingChips, isManualLive } from "./ManualBookingChips";
 import SupplierStatusBadge from "./SupplierStatusBadge";
 import BookingFailedApology from "./BookingFailedApology";
 import CardVerificationChip from "./CardVerificationChip";
@@ -62,20 +63,6 @@ const BookingCard = ({ data, cardCheck }: Props) => {
   const [apologyVoucher, setApologyVoucher] = useState(
     data.bookingFailedApologyVoucherCode
   );
-
-  // Helper to determine badge styles based on payment status
-  const getStatusStyles = (status: BOOKING_STATUS_ENUM) => {
-    switch (status) {
-      case BOOKING_STATUS_ENUM.PAID:
-        return "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100";
-      case BOOKING_STATUS_ENUM.PENDING:
-        return "bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100";
-      case BOOKING_STATUS_ENUM.FAILED:
-        return "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100";
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
-    }
-  };
 
   const isHotel = data.kind === "HOTEL";
 
@@ -153,7 +140,7 @@ const BookingCard = ({ data, cardCheck }: Props) => {
                   getStatusStyles(data.paymentStatus),
                 )}
               >
-                {data.paymentStatus}
+                {paymentStatusLabel(data.paymentStatus)}
               </span>
             </div>
 
@@ -206,12 +193,14 @@ const BookingCard = ({ data, cardCheck }: Props) => {
             <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">
               Status
             </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              {FULFILLMENT_ICONS[data.fulfillmentStatus]}
-              <span className="text-slate-600 capitalize">
-                {data.fulfillmentStatus.toLowerCase()}
-              </span>
-            </div>
+            {data.paymentStatus === BOOKING_STATUS_ENUM.PAID && (
+              <div className="flex items-center gap-1.5 text-xs">
+                {FULFILLMENT_ICONS[data.fulfillmentStatus]}
+                <span className="text-slate-600 capitalize">
+                  {data.fulfillmentStatus.toLowerCase()}
+                </span>
+              </div>
+            )}
             {user?.type === "OWNER" && !isHotel && (
               <div className="mt-1 flex flex-wrap gap-1">
                 <ManualBookingChips
@@ -226,12 +215,21 @@ const BookingCard = ({ data, cardCheck }: Props) => {
                 />
               </div>
             )}
-            {user?.type === "OWNER" && (
-              <SupplierStatusBadge
-                status={data.supplierStatus}
-                className="mt-1"
-              />
-            )}
+            {user?.type === "OWNER" &&
+              (data.ticketDetail?.isManualHeld &&
+              isManualLive({
+                status: data.paymentStatus,
+                supplierStatus: data.supplierStatus,
+              }) ? (
+                <span className="mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border-amber-200">
+                  Supplier: book manually
+                </span>
+              ) : (
+                <SupplierStatusBadge
+                  status={data.supplierStatus}
+                  className="mt-1"
+                />
+              ))}
             <BookingFailedApology
               className="mt-1"
               transactionId={data.id}

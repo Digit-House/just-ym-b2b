@@ -13,6 +13,7 @@ import { preFixImg } from "@/util/initData";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import OrderSummary from "./checkout/_components/OrderSummary";
+import { formatPrice } from "@/lib/bookingFormat";
 import MascotLoader from "@/components/MascotLoader";
 
 const Cart = () => {
@@ -165,7 +166,7 @@ const Cart = () => {
                         <p className="text-lg text-indigo-700">
                           <span className="font-normal">Total:</span>
                           <span className="font-bold">
-                            THB {totalPrice.toFixed(2)}
+                            {formatPrice(totalPrice)}
                           </span>
                         </p>
                       </div>
@@ -219,7 +220,7 @@ const Cart = () => {
                                     {p.quantity.toString()}
                                   </p>
                                   <div className="flex flex-col items-end gap-3 w-32.5">
-                                    <p className="text-base">THB {p.price}</p>
+                                    <p className="text-base">{formatPrice(p.price)}</p>
                                   </div>
                                 </div>
                               ))}
@@ -298,7 +299,7 @@ export default Cart;
                             <p className="text-sm">{item.productOptionName}</p>
                           </div>
                           <p className="text-sm text-indigo-700">
-                            THB {(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </p>
                         </div>
                       )
@@ -308,7 +309,7 @@ export default Cart;
                     <div className="flex items-center justify-between">
                       <p className="text-base font-bold">Total Payment</p>
                       <p className="text-sm font-bold text-indigo-700">
-                        THB {totalPrice.toFixed(2)}
+                        {formatPrice(totalPrice)}
                       </p>
                     </div>
 

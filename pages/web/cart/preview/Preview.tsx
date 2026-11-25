@@ -11,6 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  formatPrice,
+  getStatusStyles,
+  paymentStatusLabel,
+} from "@/lib/bookingFormat";
 import { getErrMsg, preFixImg } from "@/util/initData";
 import {
   Download,
@@ -257,11 +262,11 @@ const Preview = () => {
                   {bookingDetail.transactionRefNumber}
                 </h2>
                 {bookingDetail.status && (
-                  <div className="bg-[#DCFCE7] border border-[#7BF1A8] px-3 py-1 rounded-[4px]">
-                    <p className="text-[#008236] text-sm font-medium">
-                      {bookingDetail.status}
-                    </p>
-                  </div>
+                  <span
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium ${getStatusStyles(bookingDetail.status)}`}
+                  >
+                    {paymentStatusLabel(bookingDetail.status)}
+                  </span>
                 )}
                 {isOwner &&
                   (bookingDetail.isManualHeld && isManualLive(bookingDetail) ? (
@@ -329,11 +334,14 @@ const Preview = () => {
             <div className="text-right">
               <p className="text-sm text-[#45556C] mb-1">Total Amount</p>
               <p className="text-3xl font-bold text-[#F54900]">
-                THB {total || bookingDetail.transactedAmount}
+                {formatPrice(
+                  total || bookingDetail.transactedAmount,
+                  bookingDetail.currencyCode,
+                )}
               </p>
-              {!!Number(bookingDetail.globaltixTransactionId) && (
+              {isOwner && !!Number(bookingDetail.globaltixTransactionId) && (
                 <div className="text-xs text-gray-400 mt-1">
-                  Globaltix ID: {bookingDetail.globaltixTransactionId}
+                  Supplier ID: {bookingDetail.globaltixTransactionId}
                 </div>
               )}
             </div>
@@ -357,7 +365,10 @@ const Preview = () => {
             {bookingDetail.paymentMethod === "AYAPAY" && (
               <InfoRow
                 label="Payment Amount"
-                value={`MMK ${bookingDetail.paymentDetail?.amount?.toLocaleString()}`}
+                value={formatPrice(
+                  bookingDetail.paymentDetail?.amount,
+                  "MMK", // AYA Pay always charges in MMK
+                )}
               />
             )}
             <InfoRow label="Group Name" value={bookingDetail.groupName} />
