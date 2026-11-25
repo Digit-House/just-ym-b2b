@@ -101,7 +101,7 @@ const PdfPageEditor = ({
         <span className={over ? "text-sm font-medium text-red-600" : "text-sm text-gray-600"}>
           {mergedSize == null
             ? "Calculating size..."
-            : `${(mergedSize / 1024 / 1024).toFixed(2)} MB of ${maxBytes / 1024 / 1024} MB`}
+            : `${mergedSize < 1024 * 1024 ? `${Math.max(1, Math.round(mergedSize / 1024))} KB` : `${(mergedSize / 1024 / 1024).toFixed(2)} MB`} of ${maxBytes / 1024 / 1024} MB`}
           {over && " - too large, delete pages or remove large files"}
         </span>
       </div>
