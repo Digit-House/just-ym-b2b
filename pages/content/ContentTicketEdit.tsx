@@ -240,7 +240,7 @@ const ContentTicketEdit = () => {
     try {
       const res: any = await getSignedUrlAndImageDataUpload(file, "PRODUCT_MEDIA");
       if (res?.status === 200 && res.url) return res.url as string;
-      toast.error("Image upload failed");
+      toast.error(res?.message ? `Image upload failed: ${res.message}` : "Image upload failed");
     } finally {
       setUploading((n) => n - 1);
     }
