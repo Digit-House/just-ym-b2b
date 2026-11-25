@@ -24,9 +24,9 @@ export const getStatusStyles = (status: BOOKING_STATUS_ENUM | string) => {
 };
 
 // e.g. "THB 1,234.50"
-export const formatPrice = (amount: number | string | null | undefined, currencyCode = "THB") => {
+export const formatPrice = (amount: number | string | null | undefined, currencyCode?: string | null) => {
   const n = Number(amount);
-  return `${currencyCode} ${(Number.isFinite(n) ? n : 0).toLocaleString("en-US", {
+  return `${currencyCode || "THB"} ${(Number.isFinite(n) ? n : 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;

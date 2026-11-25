@@ -367,7 +367,7 @@ const Preview = () => {
                 label="Payment Amount"
                 value={formatPrice(
                   bookingDetail.paymentDetail?.amount,
-                  bookingDetail.currencyCode ?? "MMK",
+                  "MMK", // AYA Pay always charges in MMK
                 )}
               />
             )}
