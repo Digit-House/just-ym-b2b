@@ -219,7 +219,7 @@ const PdfPageEditor = ({
             <div
               ref={prov.innerRef}
               {...prov.droppableProps}
-              className={wide ? "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1" : "flex gap-2 overflow-x-auto pb-1"}
+              className={wide ? "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-0.5 pr-1" : "flex gap-2 overflow-x-auto p-0.5 pb-1"}
             >
               {pages.map((p, i) => (
                 <Draggable key={p.key} draggableId={p.key} index={i} isDragDisabled={busy}>
