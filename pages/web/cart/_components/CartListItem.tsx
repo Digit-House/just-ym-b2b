@@ -1,4 +1,5 @@
 import { useCartStore } from "@/store/useCartStore";
+import { formatPrice } from "@/lib/bookingFormat";
 import { Calendar, Trash2, User } from "lucide-react";
 
 type Props = {
@@ -85,7 +86,7 @@ const CartListItem = ({ item, checked, onToggle }: Props) => {
                   Price
                 </p>
                 <p className="font-black text-gray-900">
-                  ฿ {(tt.price * tt.quantity).toLocaleString()}
+                  {formatPrice(tt.price * tt.quantity)}
                 </p>
               </div>
             </div>

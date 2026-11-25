@@ -68,6 +68,7 @@ export type MY_BOOKING_DATA_TYPE = {
   eTicketUrl: string;
   email: string;
   globaltixTransactionId: number;
+  currencyCode?: string | null; // not in the detail query yet; callers fall back
   groupName: string;
   id: string;
   isTicketReady: boolean;
